@@ -1,36 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExpenseTracker.Core
 {
     public class ExpensesService
     {
-        private IExpensesMessagesClient messageClient;
-        private IExpensesRepository repo;
-        private ExpensesClassifier classifier;
-
-        public ExpensesService(IExpensesMessagesClient client, IExpensesRepository repo, ExpensesClassifier classifier)
+        public ExpensesService(IExpensesMessagesClient client, IExpensesRepository repo)
         {
             this.messageClient = client;
             this.repo = repo;
-            this.classifier = classifier;
+            this.KeysCategories = new Dictionary<string, string>();
         }
+
+        public IDictionary<string, string> KeysCategories { get; set; }
 
         public void Import()
         {
-            var msgs = messageClient.ReadAll();
-            classifier.Classify(msgs);
-            repo.Insert(msgs);
+            var msgs = this.messageClient.ReadAll();
+
+            var allExisting = repo.GetAll().Select(x => x.TransactionId);
+            msgs = msgs.Where(x => !allExisting.Contains(x.TransactionId));
+
+            this.GetClassifier().Classify(msgs);
+            this.repo.Insert(msgs);
         }
 
         public void Classify()
         {
-            var msgs = repo.GetAll();
-            classifier.Classify(msgs);
-            repo.Update(msgs);
+            var msgs = this.repo.GetAll();
+            this.GetClassifier().Classify(msgs);
+            this.repo.Update(msgs);
         }
+
+        private ExpensesClassifier GetClassifier()
+        {
+            return new ExpensesClassifier(this.KeysCategories);
+        }
+
+        private IExpensesMessagesClient messageClient;
+        private IExpensesRepository repo;
     }
 }

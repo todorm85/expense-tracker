@@ -18,7 +18,7 @@ namespace ExpenseTracker.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void Update_NonExistent_Throws()
         {
             var sut = new ExpensesRepo();
@@ -36,8 +36,9 @@ namespace ExpenseTracker.Tests
             var expenses = TestExpensesFactory.GetTestExpenses(1);
             sut.Insert(expenses);
             expenses = sut.GetAll();
-            expenses.First().Source = "PESHOOOOOOO2121";
-            sut.Update(expenses);
+            var firstExpense = expenses.First();
+            firstExpense.Source = "PESHOOOOOOO2121";
+            sut.Update(firstExpense);
             expenses = sut.GetAll();
             Assert.AreEqual("PESHOOOOOOO2121", expenses.First().Source);
         }

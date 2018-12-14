@@ -12,19 +12,37 @@ namespace ExpenseTracker.Client
     {
         private static void Main(string[] args)
         {
-            var user = ConfigurationManager.AppSettings["user"];
-            var pass = ConfigurationManager.AppSettings["pass"];
             var xlFilePath = ConfigurationManager.AppSettings["excelFilePath"];
-
-            var mailClient = new ExpensesMailClient(user, pass);
+            var mailClient = GetMailClient();
             var repo = new ExpensesRepo();
-            
-            //var excelFile = new ExcelFile(xlFilePath);
+            var service = new ExpensesService(mailClient, repo);
 
-            var classifier = new ExpensesClassifier(new Dictionary<string, string>());
-            var importer = new ExpensesService(mailClient, repo, classifier);
+            service.Import();
+        }
 
-            importer.Import();
+        private static IExpensesMessagesClient GetMailClient()
+        {
+            string user, pass;
+            GetCredentials(out user, out pass);
+            var mailClient = new ExpensesMailClient(user, pass);
+            return mailClient;
+        }
+
+        private static void GetCredentials(out string user, out string pass)
+        {
+            user = ConfigurationManager.AppSettings["user"];
+            if (string.IsNullOrEmpty(user))
+            {
+                Console.WriteLine("Mail:");
+                user = Console.ReadLine();
+            }
+
+            pass = ConfigurationManager.AppSettings["pass"];
+            if (string.IsNullOrEmpty(pass))
+            {
+                Console.WriteLine("Pass:");
+                pass = Console.ReadLine();
+            }
         }
     }
 }

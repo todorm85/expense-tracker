@@ -3,8 +3,12 @@ using System.Linq;
 
 namespace ExpenseTracker.Core
 {
-    public class ExpensesClassifier
+    internal class ExpensesClassifier
     {
+        public ExpensesClassifier() : this(null)
+        {
+        }
+
         public ExpensesClassifier(IDictionary<string, string> keysCategories)
         {
             if (keysCategories == null)

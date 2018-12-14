@@ -10,6 +10,7 @@ namespace ExpenseTracker.Core
     {
         IEnumerable<Expense> GetAll();
         void Insert(IEnumerable<Expense> expenses);
+        void Update(Expense expense);
         void Update(IEnumerable<Expense> expenses);
     }
 }

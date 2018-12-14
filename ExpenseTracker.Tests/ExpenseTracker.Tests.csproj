@@ -47,6 +47,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="Telerik.JustMock, Version=2018.3.912.1, Culture=neutral, PublicKeyToken=721b6c5bc0326b3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\JustMock.2018.3.912.1\lib\Net35\Telerik.JustMock.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExpenseMessageParserTests.cs" />
@@ -56,6 +59,7 @@
     <Compile Include="ExpensesExcelListExporterTests.cs" />
     <Compile Include="ExpensesClassifierTests.cs" />
     <Compile Include="ExpensesRepoTests.cs" />
+    <Compile Include="ExpensesServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
