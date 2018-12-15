@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using ExpenseTracker.ExcelExporter;
 using Microsoft.Office.Interop.Excel;
 
@@ -13,9 +14,18 @@ namespace ExpenseTracker.ExcelConnector
         {
             var excel = new Excel.Application();
             excel.Visible = false;
-            try
+            if (!File.Exists(excelFilePath))
+            {
+                this.book = excel.Workbooks.Add();
+                this.book.SaveAs(excelFilePath);
+            }
+            else
             {
                 this.book = excel.Workbooks.Open(excelFilePath);
+            }
+
+            try
+            {
                 this.sheet = (Excel.Worksheet)this.book.Sheets[1];
             }
             catch (Exception)
@@ -30,15 +40,14 @@ namespace ExpenseTracker.ExcelConnector
             this.sheet.Cells[row, col] = value;
         }
 
-        internal void InsertRow(List<string> row)
+        internal void InsertRow(IEnumerable<string> row)
         {
             var lastRow = this.GetFirstFreeRow();
-            for (int i = 0; i < row.Count; i++)
+            int col = 1;
+            foreach (var rowValue in row)
             {
-                this.SetCellValue(lastRow, i + 1, row[i]);
+                this.SetCellValue(lastRow, col++, rowValue);
             }
-
-            lastRow++;
         }
 
         public void Save()
@@ -51,6 +60,11 @@ namespace ExpenseTracker.ExcelConnector
             this.book.Close();
         }
 
+        internal void InsertEmptyRow()
+        {
+            this.InsertRow(new string[] { "" });
+        }
+
         internal List<List<dynamic>> GetRows()
         {
             var lastRow = this.GetFirstFreeRow();
@@ -58,7 +72,7 @@ namespace ExpenseTracker.ExcelConnector
             for (int i = --lastRow; i > 1; i--)
             {
                 var row = new List<dynamic>();
-                for (int colIndex = 1; colIndex <= orderedProps.Count; colIndex++)
+                for (int colIndex = 1; colIndex <= ExpenseMappingExtensions.OrderedPropertyNames.Count; colIndex++)
                 {
                     var cellVal = this.GetCellValue(i, colIndex);
                     row.Add(cellVal);

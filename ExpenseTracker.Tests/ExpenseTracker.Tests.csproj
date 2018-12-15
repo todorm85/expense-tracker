@@ -56,7 +56,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestExpensesFactory.cs" />
     <Compile Include="TestMessageFactory.cs" />
-    <Compile Include="ExpensesExcelListExporterTests.cs" />
+    <Compile Include="ExpensesExcelFileTests.cs" />
     <Compile Include="ExpensesClassifierTests.cs" />
     <Compile Include="ExpensesRepoTests.cs" />
     <Compile Include="ExpensesServiceTests.cs" />

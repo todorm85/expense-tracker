@@ -28,12 +28,36 @@ namespace ExpenseTracker.ExcelExporter
 
         public void Export(Dictionary<DateTime, Dictionary<string, decimal>> categoriesByMonth)
         {
-            throw new NotImplementedException();
+            using (var context = new ExcelContext(this.filePath))
+            {
+                foreach (var month in categoriesByMonth)
+                {
+                    context.InsertRow(new string[] { month.Key.ToShortDateString() });
+                    foreach (var category in month.Value)
+                    {
+                        context.InsertRow(new string[] { category.Key, category.Value.ToString() });
+                    }
+
+                    context.InsertEmptyRow();
+                }
+            }
         }
 
         public void Export(Dictionary<DateTime, IEnumerable<Expense>> expensesByMonth)
         {
-            throw new NotImplementedException();
+            using (var context = new ExcelContext(this.filePath))
+            {
+                foreach (var month in expensesByMonth)
+                {
+                    context.InsertRow(new string[] { month.Key.ToShortDateString() });
+                    foreach (var expense in month.Value)
+                    {
+                        context.InsertRow(expense.MapToExcelRow());
+                    }
+
+                    context.InsertEmptyRow();
+                }
+            }
         }
 
         public IEnumerable<Expense> Import()
@@ -44,7 +68,13 @@ namespace ExpenseTracker.ExcelExporter
                 var rows = context.GetRows();
                 foreach (var row in rows)
                 {
-                    expenses.Add(row.MapRowToExpense());
+                    var expense = row.MapRowToExpense();
+                    if (string.IsNullOrEmpty(expense.TransactionId))
+                    {
+                        expense.TransactionId = Guid.NewGuid().ToString();
+                    }
+
+                    expenses.Add(expense);
                 }
 
                 return expenses;

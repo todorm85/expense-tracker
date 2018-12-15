@@ -20,7 +20,7 @@ namespace ExpenseTracker.Tests
             return expenses;
         }
 
-        public static Expense GetTestExpense()
+        public static Expense GetTestExpense(DateTime? date = null, string category = null)
         {
             var random = new Random();
 
@@ -28,10 +28,10 @@ namespace ExpenseTracker.Tests
             {
                 Account = Guid.NewGuid().ToString(),
                 Amount = (decimal)(random.NextDouble() * 100),
-                Date = DateTime.Now.AddDays(random.Next(0, 10) * -1),
+                Date = date ?? DateTime.Now.AddDays(random.Next(0, 10) * -1),
                 Source = Guid.NewGuid().ToString(),
                 TransactionId = Guid.NewGuid().ToString(),
-                Category = Guid.NewGuid().ToString()
+                Category = category ?? Guid.NewGuid().ToString()
             };
         }
     }

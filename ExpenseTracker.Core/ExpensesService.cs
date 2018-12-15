@@ -37,10 +37,9 @@ namespace ExpenseTracker.Core
             this.repo.Update(msgs);
         }
 
-        public void ExportLastMonths(int monthsCount, bool detailed)
+        public void ExportByMonths(DateTime fromDate, DateTime toDate, bool detailed = true)
         {
-            var fromDate = DateTime.Today.AddDays(-DateTime.Today.Day + 1).AddMonths(-monthsCount);
-            var expenses = this.repo.GetAll().Where(x => x.Date >= fromDate);
+            var expenses = this.repo.GetAll().Where(x => x.Date >= fromDate && x.Date <= toDate);
             var expensesByMonth = GetByMonths(expenses);
 
             if (!detailed)
@@ -73,7 +72,7 @@ namespace ExpenseTracker.Core
             {
                 foreach (var month in year.GroupBy(x => x.Date.Month))
                 {
-                    byMonth.Add(new DateTime(year.Key, month.Key, 0), month.ToList());
+                    byMonth.Add(new DateTime(year.Key, month.Key, 1), month.ToList());
                 }
 
             }
