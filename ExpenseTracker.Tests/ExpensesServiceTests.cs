@@ -23,8 +23,8 @@ namespace ExpenseTracker.Tests
         {
             this.expensesFromCLient = new List<Expense>();
 
-            var client = Mock.Create<IExpensesMessagesClient>(Behavior.Strict);
-            Mock.Arrange(() => client.ReadAll()).Returns(() => this.expensesFromCLient);
+            var client = Mock.Create<IExpensesImporter>(Behavior.Strict);
+            Mock.Arrange(() => client.Import()).Returns(() => this.expensesFromCLient);
 
             this.repo = new ExpensesRepo(testsPath);
             this.sut = new ExpensesService(client, repo);

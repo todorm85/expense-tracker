@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace ExpenseTracker.Core
 {
-    public interface IExpensesMessagesClient
+    public interface IExpensesImporter
     {
-        IEnumerable<Expense> ReadAll();
+        IEnumerable<Expense> Import();
     }
 }

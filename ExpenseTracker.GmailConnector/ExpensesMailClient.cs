@@ -5,7 +5,7 @@ using MailKit;
 
 namespace ExpenseTracker.GmailConnector
 {
-    public class ExpensesMailClient : IExpensesMessagesClient
+    public class ExpensesMailClient : IExpensesImporter
     {
         private string user;
         private string pass;
@@ -16,7 +16,7 @@ namespace ExpenseTracker.GmailConnector
             this.pass = pass;
         }
 
-        public IEnumerable<Expense> ReadAll()
+        public IEnumerable<Expense> Import()
         {
             using (var folder = new GmailFolder(this.user, this.pass))
             {

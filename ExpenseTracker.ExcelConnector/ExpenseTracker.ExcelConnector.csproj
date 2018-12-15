@@ -44,7 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExpensesExcelListExporter.cs" />
+    <Compile Include="ExpensesExcelFile.cs" />
     <Compile Include="ExcelContext.cs" />
     <Compile Include="ExpenseMappingExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

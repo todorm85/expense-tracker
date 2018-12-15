@@ -20,7 +20,7 @@ namespace ExpenseTracker.Client
             service.Import();
         }
 
-        private static IExpensesMessagesClient GetMailClient()
+        private static IExpensesImporter GetMailClient()
         {
             string user, pass;
             GetCredentials(out user, out pass);

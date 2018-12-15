@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ExpenseTracker.ExcelExporter;
 using Microsoft.Office.Interop.Excel;
 
@@ -16,7 +17,6 @@ namespace ExpenseTracker.ExcelConnector
             {
                 this.book = excel.Workbooks.Open(excelFilePath);
                 this.sheet = (Excel.Worksheet)this.book.Sheets[1];
-                this.ValidateHeaderRow();
             }
             catch (Exception)
             {
@@ -30,6 +30,17 @@ namespace ExpenseTracker.ExcelConnector
             this.sheet.Cells[row, col] = value;
         }
 
+        internal void InsertRow(List<string> row)
+        {
+            var lastRow = this.GetFirstFreeRow();
+            for (int i = 0; i < row.Count; i++)
+            {
+                this.SetCellValue(lastRow, i + 1, row[i]);
+            }
+
+            lastRow++;
+        }
+
         public void Save()
         {
             this.book.Save();
@@ -40,6 +51,25 @@ namespace ExpenseTracker.ExcelConnector
             this.book.Close();
         }
 
+        internal List<List<dynamic>> GetRows()
+        {
+            var lastRow = this.GetFirstFreeRow();
+            var rows = new List<List<dynamic>>();
+            for (int i = --lastRow; i > 1; i--)
+            {
+                var row = new List<dynamic>();
+                for (int colIndex = 1; colIndex <= orderedProps.Count; colIndex++)
+                {
+                    var cellVal = this.GetCellValue(i, colIndex);
+                    row.Add(cellVal);
+                }
+
+                rows.Add(row);
+            }
+
+            return rows;
+        }
+
         public int GetFirstFreeRow()
         {
             return this.sheet.Cells.SpecialCells(XlCellType.xlCellTypeLastCell).Row + 1;
@@ -48,25 +78,6 @@ namespace ExpenseTracker.ExcelConnector
         public object GetCellValue(int i, int colIndex)
         {
             return ((Range)this.sheet.Cells[i, colIndex]).Value;
-        }
-
-        private void ValidateHeaderRow()
-        {
-            var propOrder = ExpenseMappingExtensions.OrderedPropertyNames;
-            for (int i = 0; i < propOrder.Count; i++)
-            {
-                var propName = propOrder[i];
-                var cell = (Range)this.sheet.Cells[1, i + 1];
-                var cellValue = cell.Value as string;
-                if (string.IsNullOrEmpty(cellValue))
-                {
-                    cell.Value = propName;
-                }
-                else if (cellValue != propName)
-                {
-                    throw new InvalidOperationException("Excel sheet column order does not match the importer mapping order.");
-                }
-            }
         }
 
         private Workbook book;
