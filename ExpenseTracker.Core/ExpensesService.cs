@@ -32,7 +32,7 @@ namespace ExpenseTracker.Core
 
         public void Classify()
         {
-            var msgs = this.repo.GetAll();
+            var msgs = this.repo.GetAll().ToList();
             this.GetClassifier().Classify(msgs);
             this.repo.Update(msgs);
         }
@@ -87,7 +87,7 @@ namespace ExpenseTracker.Core
             foreach (var category in categories)
             {
                 var amount = category.Sum(x => x.Amount);
-                categoriesAmount.Add(category.Key, amount);
+                categoriesAmount.Add(category.Key ?? "", amount);
             }
 
             return categoriesAmount;

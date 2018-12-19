@@ -60,11 +60,16 @@
     <Compile Include="ExpensesClassifierTests.cs" />
     <Compile Include="ExpensesRepoTests.cs" />
     <Compile Include="ExpensesServiceTests.cs" />
+    <Compile Include="ClassifierSettingsParserTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ExpenseTracker.Client\ExpenseTracker.Client.csproj">
+      <Project>{e87bab45-ac0c-44cb-af54-32e2e40f217b}</Project>
+      <Name>ExpenseTracker.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj">
       <Project>{f1b1eb88-886a-40be-a453-197333aa8c6d}</Project>
       <Name>ExpenseTracker.Core</Name>

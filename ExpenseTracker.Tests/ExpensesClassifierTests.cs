@@ -38,9 +38,10 @@ namespace ExpenseTracker.Tests
         public void Classify_CategoriesThatDoNotMatch()
         {
             expense.Source = "trop dedov opa";
+            expense.Category = "test";
             sut.KeysCategories.Add("pisana", "cat1");
             sut.Classify(new Expense[] { expense });
-            Assert.IsNull(expense.Category);
+            Assert.AreEqual("test", expense.Category);
         }
 
         [TestMethod]

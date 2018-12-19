@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using ExpenseTracker.Core;
@@ -20,6 +21,7 @@ e: end,
 im: Imports From GMail
 ie: imports from excel
 ee: exports to excel
+eed: exports to excel details
 c: categorizes expenses
 ");
 
@@ -29,26 +31,37 @@ c: categorizes expenses
                     case "im":
                         ImportGmail();
                         break;
-
                     case "ie":
                         ImportExcel();
                         break;
-                    case "ee":
-                        ExportExcel();
+                    case "eed":
+                        ExportExcel(true);
                         break;
-
+                    case "ee":
+                        ExportExcel(false);
+                        break;
+                    case "c":
+                        Categorize();
+                        break;
                     default:
                         break;
                 }
             }
         }
 
-        private static void ExportExcel()
+        private static void Categorize()
         {
-            var path = GetExcelInputPath();
+            var service = new ExpensesService(new IExpensesImporter[] { }, new IExpensesExporter[] { }, GetRepo());
+            service.KeysCategories = GetKeysCategories();
+            service.Classify();
+        }
+
+        private static void ExportExcel(bool detailed = true)
+        {
+            var path = GetExcelOutputPath();
             var excelFile = new ExpensesExcelFile(path);
             var service = new ExpensesService(new IExpensesImporter[] { }, new IExpensesExporter[] { excelFile }, GetRepo());
-            service.ExportByMonths(DateTime.MinValue, DateTime.MaxValue);
+            service.ExportByMonths(DateTime.MinValue, DateTime.MaxValue, detailed);
         }
 
         private static void ImportExcel()
@@ -56,6 +69,7 @@ c: categorizes expenses
             var xlInput = GetExcelInputPath();
             var excelFile = new ExpensesExcelFile(xlInput);
             var service = new ExpensesService(new IExpensesImporter[] { excelFile }, new IExpensesExporter[] { }, GetRepo());
+            service.KeysCategories = GetKeysCategories();
             service.Import();
         }
 
@@ -88,8 +102,22 @@ c: categorizes expenses
         {
             var mailClient = GetMailClient();
             var service = new ExpensesService(new IExpensesImporter[] { mailClient }, new IExpensesExporter[0], GetRepo());
-
+            service.KeysCategories = GetKeysCategories();
             service.Import();
+        }
+
+        private static IDictionary<string, string> GetKeysCategories()
+        {
+            var path = ConfigurationManager.AppSettings["classifierSettingsPath"];
+            path = Environment.ExpandEnvironmentVariables(path);
+            if (path != null)
+            {
+                return new CategoriesKeyphrasesJsonParser().ParseFile(path);
+            }
+            else
+            {
+                return new Dictionary<string, string>();
+            }
         }
 
         private static IExpensesImporter GetMailClient()

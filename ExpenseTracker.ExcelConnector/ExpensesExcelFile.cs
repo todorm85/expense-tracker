@@ -32,14 +32,16 @@ namespace ExpenseTracker.ExcelExporter
             {
                 foreach (var month in categoriesByMonth)
                 {
-                    context.InsertRow(new string[] { month.Key.ToShortDateString() });
+                    context.InsertRow(new string[] { month.Key.ToString("MMMM yyyy") });
                     foreach (var category in month.Value)
                     {
-                        context.InsertRow(new string[] { category.Key, category.Value.ToString() });
+                        context.InsertRow(new string[] { "", category.Key, category.Value.ToString() });
                     }
 
                     context.InsertEmptyRow();
                 }
+
+                context.Save();
             }
         }
 
@@ -57,6 +59,8 @@ namespace ExpenseTracker.ExcelExporter
 
                     context.InsertEmptyRow();
                 }
+
+                context.Save();
             }
         }
 

@@ -25,10 +25,10 @@ namespace ExpenseTracker.Core
         {
             foreach (var e in expenses)
             {
-                var matchedCategory = this.KeysCategories.FirstOrDefault(x => e.Source.Contains(x.Key)).Value;
-                if (matchedCategory != null)
+                KeyValuePair<string, string> matchedCategory = this.KeysCategories.FirstOrDefault(x => e.Source != null && !string.IsNullOrWhiteSpace(x.Key) && e.Source.Contains(x.Key));
+                if (!matchedCategory.Equals(default(KeyValuePair<string, string>)))
                 {
-                    e.Category = matchedCategory;
+                    e.Category = matchedCategory.Value;
                 }
             }
         }
