@@ -23,8 +23,9 @@ namespace ExpenseTracker.ConsoleClient
             {
                 Console.WriteLine(@"
 im: imports From GMail
-e: excel menu
+ex: excel menu
 c: categorizes expenses
+q: query menu
 e: end");
 
                 response = Console.ReadLine();
@@ -33,11 +34,14 @@ e: end");
                     case "im":
                         ImportGmail();
                         break;
-                    case "e":
+                    case "ex":
                         new ExcelMenu(this.service).Run();
                         break;                    
                     case "c":
                         Categorize();
+                        break;
+                    case "q":
+                        new QueryMenu(this.service).Run();
                         break;
                     default:
                         break;
