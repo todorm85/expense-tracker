@@ -5,30 +5,19 @@ using ExpenseTracker.ExcelConnector;
 
 namespace ExpenseTracker.ExcelExporter
 {
-    public class ExpensesExcelFile : IExpensesExporter, IExpensesImporter
+    public class ExpensesExcelExporterImporter
     {
-        public ExpensesExcelFile(string excelFilePath)
+        private ExpensesService service;
+
+        public ExpensesExcelExporterImporter(ExpensesService service)
         {
-            this.filePath = excelFilePath;
+            this.service = service;
         }
-
-        public void Export(IEnumerable<Expense> expenses)
+        
+        public void ExportCategoriesByMonth(string filePath, DateTime fromDate, DateTime toDate)
         {
-            using (var context = new ExcelContext(this.filePath))
-            {
-                foreach (var expense in expenses)
-                {
-                    var row = expense.MapToExcelRow();
-                    context.InsertRow(row);
-                }
-
-                context.Save();
-            }
-        }
-
-        public void Export(Dictionary<DateTime, Dictionary<string, decimal>> categoriesByMonth)
-        {
-            using (var context = new ExcelContext(this.filePath))
+            var categoriesByMonth = this.service.GetCategoriesCostByMonth(fromDate, toDate);
+            using (var context = new ExcelContext(filePath))
             {
                 foreach (var month in categoriesByMonth)
                 {
@@ -45,9 +34,10 @@ namespace ExpenseTracker.ExcelExporter
             }
         }
 
-        public void Export(Dictionary<DateTime, IEnumerable<Expense>> expensesByMonth)
+        public void ExportExpensesByMonth(string filePath, DateTime fromDate, DateTime toDate)
         {
-            using (var context = new ExcelContext(this.filePath))
+            var expensesByMonth = this.service.GetExpensesByMonths(fromDate, toDate);
+            using (var context = new ExcelContext(filePath))
             {
                 foreach (var month in expensesByMonth)
                 {
@@ -64,9 +54,9 @@ namespace ExpenseTracker.ExcelExporter
             }
         }
 
-        public IEnumerable<Expense> Import()
+        public void Import(string filePath)
         {
-            using (var context = new ExcelContext(this.filePath))
+            using (var context = new ExcelContext(filePath))
             {
                 var expenses = new List<Expense>();
                 var rows = context.GetRows();
@@ -81,10 +71,8 @@ namespace ExpenseTracker.ExcelExporter
                     expenses.Add(expense);
                 }
 
-                return expenses;
+                this.service.Add(expenses);
             }
         }
-
-        private string filePath;
     }
 }

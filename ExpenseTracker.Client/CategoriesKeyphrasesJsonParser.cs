@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace ExpenseTracker.Client
+namespace ExpenseTracker.ConsoleClient
 {
     internal class CategoriesKeyphrasesJsonParser
     {

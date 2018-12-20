@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E87BAB45-AC0C-44CB-AF54-32E2E40F217B}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>ExpenseTracker.Client</RootNamespace>
-    <AssemblyName>ExpenseTracker.Client</AssemblyName>
+    <ProjectGuid>{E543BAAD-3270-4DEE-B489-6D0655A7A12C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ExpenseTracker.GmailConnector</RootNamespace>
+    <AssemblyName>ExpenseTracker.GmailConnector</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,10 +31,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.2.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\packages\BouncyCastle.1.8.2\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="MailKit, Version=2.1.0.0, Culture=neutral, PublicKeyToken=4e064fe7c44a8f1b, processorArchitecture=MSIL">
+      <HintPath>..\packages\MailKit.2.1.0.3\lib\net45\MailKit.dll</HintPath>
+    </Reference>
+    <Reference Include="MimeKit, Version=2.1.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
+      <HintPath>..\packages\MimeKit.2.1.0\lib\net45\MimeKit.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,31 +51,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CategoriesKeyphrasesJsonParser.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="ExpenseMessage.cs" />
+    <Compile Include="ExpenseMessageParser.cs" />
+    <Compile Include="GmailFolder.cs" />
+    <Compile Include="ExpensesGmailImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj">
-      <Project>{f1b1eb88-886a-40be-a453-197333aa8c6d}</Project>
+      <Project>{F1B1EB88-886A-40BE-A453-197333AA8C6D}</Project>
       <Name>ExpenseTracker.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.Data\ExpenseTracker.Data.csproj">
-      <Project>{EB156565-41BE-42CE-BE18-737FDBB0230D}</Project>
-      <Name>ExpenseTracker.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.ExcelConnector\ExpenseTracker.ExcelConnector.csproj">
-      <Project>{47A028CD-D55E-452D-835C-0A870A1FDF79}</Project>
-      <Name>ExpenseTracker.ExcelConnector</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.GmailConnector\ExpenseTracker.GmailConnector.csproj">
-      <Project>{E543BAAD-3270-4DEE-B489-6D0655A7A12C}</Project>
-      <Name>ExpenseTracker.GmailConnector</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

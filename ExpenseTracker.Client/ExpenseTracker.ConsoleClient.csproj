@@ -4,16 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{47A028CD-D55E-452D-835C-0A870A1FDF79}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ExpenseTracker.ExcelConnector</RootNamespace>
-    <AssemblyName>ExpenseTracker.ExcelConnector</AssemblyName>
+    <ProjectGuid>{E87BAB45-AC0C-44CB-AF54-32E2E40F217B}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ExpenseTracker.ConsoleClient</RootNamespace>
+    <AssemblyName>ExpenseTracker.ConsoleClient</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -31,10 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -44,15 +45,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExpensesExcelFile.cs" />
-    <Compile Include="ExcelContext.cs" />
-    <Compile Include="ExpenseMappingExtensions.cs" />
+    <Compile Include="CategoriesKeyphrasesJsonParser.cs" />
+    <Compile Include="ExcelMenu.cs" />
+    <Compile Include="MainMenu.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj">
       <Project>{f1b1eb88-886a-40be-a453-197333aa8c6d}</Project>
       <Name>ExpenseTracker.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ExpenseTracker.Data\ExpenseTracker.Data.csproj">
+      <Project>{EB156565-41BE-42CE-BE18-737FDBB0230D}</Project>
+      <Name>ExpenseTracker.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ExpenseTracker.Excel\ExpenseTracker.Excel.csproj">
+      <Project>{47A028CD-D55E-452D-835C-0A870A1FDF79}</Project>
+      <Name>ExpenseTracker.Excel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ExpenseTracker.Gmail\ExpenseTracker.Gmail.csproj">
+      <Project>{E543BAAD-3270-4DEE-B489-6D0655A7A12C}</Project>
+      <Name>ExpenseTracker.Gmail</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

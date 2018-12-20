@@ -1,5 +1,5 @@
 ﻿using System;
-using ExpenseTracker.Client;
+using ExpenseTracker.ConsoleClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ExpenseTracker.Tests

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E543BAAD-3270-4DEE-B489-6D0655A7A12C}</ProjectGuid>
+    <ProjectGuid>{47A028CD-D55E-452D-835C-0A870A1FDF79}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ExpenseTracker.GmailConnector</RootNamespace>
-    <AssemblyName>ExpenseTracker.GmailConnector</AssemblyName>
+    <RootNamespace>ExpenseTracker.ExcelConnector</RootNamespace>
+    <AssemblyName>ExpenseTracker.ExcelConnector</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -31,18 +31,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto, Version=1.8.2.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
-      <HintPath>..\packages\BouncyCastle.1.8.2\lib\BouncyCastle.Crypto.dll</HintPath>
-    </Reference>
-    <Reference Include="MailKit, Version=2.1.0.0, Culture=neutral, PublicKeyToken=4e064fe7c44a8f1b, processorArchitecture=MSIL">
-      <HintPath>..\packages\MailKit.2.1.0.3\lib\net45\MailKit.dll</HintPath>
-    </Reference>
-    <Reference Include="MimeKit, Version=2.1.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
-      <HintPath>..\packages\MimeKit.2.1.0\lib\net45\MimeKit.dll</HintPath>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -51,18 +44,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExpenseMessage.cs" />
-    <Compile Include="ExpenseMessageParser.cs" />
-    <Compile Include="GmailFolder.cs" />
-    <Compile Include="ExpensesMailClient.cs" />
+    <Compile Include="ExcelContext.cs" />
+    <Compile Include="ExpenseMappingExtensions.cs" />
+    <Compile Include="ExpensesExcelExporterImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj">
-      <Project>{F1B1EB88-886A-40BE-A453-197333AA8C6D}</Project>
+      <Project>{f1b1eb88-886a-40be-a453-197333aa8c6d}</Project>
       <Name>ExpenseTracker.Core</Name>
     </ProjectReference>
   </ItemGroup>

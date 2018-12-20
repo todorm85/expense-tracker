@@ -6,67 +6,39 @@ namespace ExpenseTracker.Core
 {
     public class ExpensesService
     {
-        public ExpensesService(IEnumerable<IExpensesImporter> importers, IEnumerable<IExpensesExporter> exporters, IExpensesRepository repo)
+        public ExpensesService(IExpensesRepository repo)
+            :this(repo, new Dictionary<string, string>())
         {
-            this.importers = importers;
-            this.exporters = exporters;
+
+        }
+
+        public ExpensesService(IExpensesRepository repo, IDictionary<string, string> keysCategories)
+        {
             this.repo = repo;
-            this.KeysCategories = new Dictionary<string, string>();
+            this.classifier = new ExpensesClassifier(keysCategories);
         }
 
         public IDictionary<string, string> KeysCategories { get; set; }
 
-        public void Import()
+        public void Add(IEnumerable<Expense> expenses)
         {
-            foreach (var importer in this.importers)
-            {
-                var msgs = importer.Import();
+            var allExisting = this.repo.GetAll().Select(x => x.TransactionId);
+            expenses = expenses.Where(x => !allExisting.Contains(x.TransactionId));
 
-                var allExisting = this.repo.GetAll().Select(x => x.TransactionId);
-                msgs = msgs.Where(x => !allExisting.Contains(x.TransactionId));
-
-                this.GetClassifier().Classify(msgs);
-                this.repo.Insert(msgs);
-            }
+            this.classifier.Classify(expenses);
+            this.repo.Insert(expenses);
         }
-
+        
         public void Classify()
         {
             var msgs = this.repo.GetAll().ToList();
-            this.GetClassifier().Classify(msgs);
+            this.classifier.Classify(msgs);
             this.repo.Update(msgs);
         }
 
-        public void ExportByMonths(DateTime fromDate, DateTime toDate, bool detailed = true)
+        public Dictionary<DateTime, IEnumerable<Expense>> GetExpensesByMonths(DateTime fromDate, DateTime toDate)
         {
             var expenses = this.repo.GetAll().Where(x => x.Date >= fromDate && x.Date <= toDate);
-            var expensesByMonth = GetByMonths(expenses);
-
-            if (!detailed)
-            {
-                var categoriesByMonth = new Dictionary<DateTime, Dictionary<string, decimal>>();
-                foreach (var month in expensesByMonth)
-                {
-                    var cats = GetCategoryExpenses(month.Value);
-                    categoriesByMonth.Add(month.Key, cats);
-                }
-
-                foreach (var exporter in this.exporters)
-                {
-                    exporter.Export(categoriesByMonth);
-                }
-            }
-            else
-            {
-                foreach (var exporter in this.exporters)
-                {
-                    exporter.Export(expensesByMonth);
-                }
-            }
-        }
-
-        private static Dictionary<DateTime, IEnumerable<Expense>> GetByMonths(IEnumerable<Expense> expenses)
-        {
             var byMonth = new Dictionary<DateTime, IEnumerable<Expense>>();
             foreach (var year in expenses.GroupBy(x => x.Date.Year))
             {
@@ -80,7 +52,20 @@ namespace ExpenseTracker.Core
             return byMonth;
         }
 
-        private static Dictionary<string, decimal> GetCategoryExpenses(IEnumerable<Expense> expenses)
+        public Dictionary<DateTime, Dictionary<string, decimal>> GetCategoriesCostByMonth(DateTime fromDate, DateTime toDate)
+        {
+            var categoriesByMonth = new Dictionary<DateTime, Dictionary<string, decimal>>();
+            var expensesByMonth = this.GetExpensesByMonths(fromDate, toDate);
+            foreach (var month in expensesByMonth)
+            {
+                var cats = this.GetCategoriesCost(month.Value);
+                categoriesByMonth.Add(month.Key, cats);
+            }
+
+            return categoriesByMonth;
+        }
+
+        private Dictionary<string, decimal> GetCategoriesCost(IEnumerable<Expense> expenses)
         {
             var categories = expenses.GroupBy(x => x.Category);
             var categoriesAmount = new Dictionary<string, decimal>();
@@ -93,13 +78,7 @@ namespace ExpenseTracker.Core
             return categoriesAmount;
         }
 
-        private ExpensesClassifier GetClassifier()
-        {
-            return new ExpensesClassifier(this.KeysCategories);
-        }
-
-        private IEnumerable<IExpensesImporter> importers;
-        private IEnumerable<IExpensesExporter> exporters;
         private IExpensesRepository repo;
+        private ExpensesClassifier classifier;
     }
 }

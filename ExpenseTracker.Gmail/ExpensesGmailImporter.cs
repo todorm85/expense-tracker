@@ -1,23 +1,24 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ExpenseTracker.Core;
-using MailKit;
 
 namespace ExpenseTracker.GmailConnector
 {
-    public class ExpensesMailClient : IExpensesImporter
+    public class ExpensesGmailImporter
     {
         private string user;
         private string pass;
+        private ExpensesService service;
 
-        public ExpensesMailClient(string user, string pass)
+        public ExpensesGmailImporter(string user, string pass, ExpensesService service)
         {
             this.user = user;
             this.pass = pass;
+            this.service = service;
         }
 
-        public IEnumerable<Expense> Import()
+        public void Import()
         {
+            IEnumerable<Expense> expenses;
             using (var folder = new GmailFolder(this.user, this.pass))
             {
                 var expenseMessages = new List<ExpenseMessage>();
@@ -35,10 +36,10 @@ namespace ExpenseTracker.GmailConnector
                 }
 
                 var messageParser = new ExpenseMessageParser();
-                var expenses = messageParser.Parse(expenseMessages);
-
-                return expenses;
+                expenses = messageParser.Parse(expenseMessages);
             }
+
+            service.Add(expenses);
         }
     }
 }

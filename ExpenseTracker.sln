@@ -5,15 +5,15 @@ VisualStudioVersion = 15.0.28307.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Core", "ExpenseTracker.Core\ExpenseTracker.Core.csproj", "{F1B1EB88-886A-40BE-A453-197333AA8C6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Client", "ExpenseTracker.Client\ExpenseTracker.Client.csproj", "{E87BAB45-AC0C-44CB-AF54-32E2E40F217B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.ConsoleClient", "ExpenseTracker.Client\ExpenseTracker.ConsoleClient.csproj", "{E87BAB45-AC0C-44CB-AF54-32E2E40F217B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Tests", "ExpenseTracker.Tests\ExpenseTracker.Tests.csproj", "{E757AFE9-6F9E-4911-A8CC-1F23D0ED60FE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Data", "ExpenseTracker.Data\ExpenseTracker.Data.csproj", "{EB156565-41BE-42CE-BE18-737FDBB0230D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.ExcelConnector", "ExpenseTracker.ExcelConnector\ExpenseTracker.ExcelConnector.csproj", "{47A028CD-D55E-452D-835C-0A870A1FDF79}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Excel", "ExpenseTracker.Excel\ExpenseTracker.Excel.csproj", "{47A028CD-D55E-452D-835C-0A870A1FDF79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.GmailConnector", "ExpenseTracker.GmailConnector\ExpenseTracker.GmailConnector.csproj", "{E543BAAD-3270-4DEE-B489-6D0655A7A12C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Gmail", "ExpenseTracker.Gmail\ExpenseTracker.Gmail.csproj", "{E543BAAD-3270-4DEE-B489-6D0655A7A12C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

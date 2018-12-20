@@ -56,7 +56,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestExpensesFactory.cs" />
     <Compile Include="TestMessageFactory.cs" />
-    <Compile Include="ExpensesExcelFileTests.cs" />
     <Compile Include="ExpensesClassifierTests.cs" />
     <Compile Include="ExpensesRepoTests.cs" />
     <Compile Include="ExpensesServiceTests.cs" />
@@ -66,9 +65,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ExpenseTracker.Client\ExpenseTracker.Client.csproj">
+    <ProjectReference Include="..\ExpenseTracker.Client\ExpenseTracker.ConsoleClient.csproj">
       <Project>{e87bab45-ac0c-44cb-af54-32e2e40f217b}</Project>
-      <Name>ExpenseTracker.Client</Name>
+      <Name>ExpenseTracker.ConsoleClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj">
       <Project>{f1b1eb88-886a-40be-a453-197333aa8c6d}</Project>
@@ -78,13 +77,13 @@
       <Project>{EB156565-41BE-42CE-BE18-737FDBB0230D}</Project>
       <Name>ExpenseTracker.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.ExcelConnector\ExpenseTracker.ExcelConnector.csproj">
+    <ProjectReference Include="..\ExpenseTracker.Excel\ExpenseTracker.Excel.csproj">
       <Project>{47A028CD-D55E-452D-835C-0A870A1FDF79}</Project>
-      <Name>ExpenseTracker.ExcelConnector</Name>
+      <Name>ExpenseTracker.Excel</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.GmailConnector\ExpenseTracker.GmailConnector.csproj">
+    <ProjectReference Include="..\ExpenseTracker.Gmail\ExpenseTracker.Gmail.csproj">
       <Project>{E543BAAD-3270-4DEE-B489-6D0655A7A12C}</Project>
-      <Name>ExpenseTracker.GmailConnector</Name>
+      <Name>ExpenseTracker.Gmail</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

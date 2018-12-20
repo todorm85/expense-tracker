@@ -45,6 +45,15 @@ namespace ExpenseTracker.Tests
         }
 
         [TestMethod]
+        public void Classify_ExpensesWithNullSource()
+        {
+            expense.Category = "test";
+            sut.KeysCategories.Add("pisana", "cat1");
+            sut.Classify(new Expense[] { expense });
+            Assert.AreEqual("test", expense.Category);
+        }
+
+        [TestMethod]
         public void Classify_CategoriesThatMatchAndDoNotMatch()
         {
             expense.Source = "trop pisana opa";
