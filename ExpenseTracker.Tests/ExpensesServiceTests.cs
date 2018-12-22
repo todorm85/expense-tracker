@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using ExpenseTracker.Core;
 using ExpenseTracker.Data;
+using LiteDB;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Telerik.JustMock;
 
@@ -18,7 +19,7 @@ namespace ExpenseTracker.Tests
             {
                 if (this.sut == null)
                 {
-                    this.sut = new ExpensesService(this.repo);
+                    this.sut = new ExpensesService(this.uow);
                 }
 
                 return this.sut;
@@ -30,54 +31,10 @@ namespace ExpenseTracker.Tests
         {
             this.imptExpns = new List<Expense>();
 
-            this.repo = Mock.Create<IExpensesRepository>(Behavior.Strict);
+            this.repo = Mock.Create<IGenericRepository<Expense>>(Behavior.Strict);
+            this.uow = Mock.Create<IUnitOfWork>(Behavior.Strict);
+            Mock.Arrange(() => this.uow.Expenses).Returns(() => this.repo);
             this.sut = null;
-        }
-
-        [TestMethod]
-        public void Import_ExistingTransactions_NotImported()
-        {
-            var repo = new ExpensesRepo(this.testsPath);
-            this.repo = repo;
-            try
-            {
-                this.imptExpns.Add(TestExpensesFactory.GetTestExpense());
-                Assert.AreEqual(0, this.repo.GetAll().Count());
-                this.Sut.Add(imptExpns);
-                this.Sut.Add(imptExpns);
-                Assert.AreEqual(1, this.repo.GetAll().Count());
-                this.imptExpns.Add(TestExpensesFactory.GetTestExpense());
-                this.Sut.Add(imptExpns);
-                Assert.AreEqual(2, this.repo.GetAll().Count());
-            }
-            finally
-            {
-                repo.Dispose();
-                if (File.Exists(this.testsPath))
-                {
-                    File.Delete(this.testsPath);
-                }
-            }
-        }
-
-        [TestMethod]
-        public void Import_NoTransactions_NothingImported()
-        {
-            var repo = new ExpensesRepo(this.testsPath);
-            this.repo = repo;
-            try
-            {
-                this.Sut.Add(imptExpns);
-                Assert.AreEqual(0, this.repo.GetAll().Count());
-            }
-            finally
-            {
-                repo.Dispose();
-                if (File.Exists(this.testsPath))
-                {
-                    File.Delete(this.testsPath);
-                }
-            }
         }
 
         [TestMethod]
@@ -165,7 +122,8 @@ namespace ExpenseTracker.Tests
         }
         
         private List<Expense> imptExpns = new List<Expense>();
-        private IExpensesRepository repo;
+        private IGenericRepository<Expense> repo;
+        private IUnitOfWork uow;
         private ExpensesService sut;
         private string testsPath = @"TestExpenses.db";
     }

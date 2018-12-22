@@ -6,39 +6,43 @@ namespace ExpenseTracker.Core
 {
     public class ExpensesService
     {
-        public ExpensesService(IExpensesRepository repo)
-            :this(repo, new Dictionary<string, string>())
+        public ExpensesService(IUnitOfWork data)
         {
-
+            this.data = data;
         }
 
-        public ExpensesService(IExpensesRepository repo, IDictionary<string, string> keysCategories)
+        private ExpensesClassifier Classifier
         {
-            this.repo = repo;
-            this.classifier = new ExpensesClassifier(keysCategories);
-        }
+            get
+            {
+                if (this._classifier == null)
+                {
+                    this._classifier = new ExpensesClassifier(this.data.Categories.GetAll());
+                }
 
-        public IDictionary<string, string> KeysCategories { get; set; }
+                return this._classifier;
+            }
+        }
 
         public void Add(IEnumerable<Expense> expenses)
         {
-            var allExisting = this.repo.GetAll().Select(x => x.TransactionId);
+            var allExisting = this.data.Expenses.GetAll().Select(x => x.TransactionId);
             expenses = expenses.Where(x => !allExisting.Contains(x.TransactionId));
 
-            this.classifier.Classify(expenses);
-            this.repo.Insert(expenses);
+            this.Classifier.Classify(expenses);
+            this.data.Expenses.Insert(expenses);
         }
-        
+
         public void Classify()
         {
-            var msgs = this.repo.GetAll().ToList();
-            this.classifier.Classify(msgs);
-            this.repo.Update(msgs);
+            var msgs = this.data.Expenses.GetAll().ToList();
+            this.Classifier.Classify(msgs);
+            this.data.Expenses.Update(msgs);
         }
 
         public Dictionary<DateTime, IEnumerable<Expense>> GetExpensesByMonths(DateTime fromDate, DateTime toDate)
         {
-            var expenses = this.repo.GetAll().Where(x => x.Date >= fromDate && x.Date <= toDate);
+            var expenses = this.data.Expenses.GetAll().Where(x => x.Date >= fromDate && x.Date <= toDate);
             var byMonth = new Dictionary<DateTime, IEnumerable<Expense>>();
             foreach (var year in expenses.GroupBy(x => x.Date.Year))
             {
@@ -46,10 +50,19 @@ namespace ExpenseTracker.Core
                 {
                     byMonth.Add(new DateTime(year.Key, month.Key, 1), month.ToList());
                 }
-
             }
 
             return byMonth;
+        }
+
+        public void Update(Expense expense)
+        {
+            this.data.Expenses.Update(new Expense[] { expense });
+        }
+
+        public IEnumerable<Expense> GetAll()
+        {
+            return this.data.Expenses.GetAll();
         }
 
         public Dictionary<DateTime, Dictionary<string, decimal>> GetCategoriesCostByMonth(DateTime fromDate, DateTime toDate)
@@ -78,7 +91,7 @@ namespace ExpenseTracker.Core
             return categoriesAmount;
         }
 
-        private IExpensesRepository repo;
-        private ExpensesClassifier classifier;
+        private IUnitOfWork data;
+        private ExpensesClassifier _classifier;
     }
 }

@@ -24,6 +24,7 @@ namespace ExpenseTracker.ConsoleClient
                 Console.WriteLine(@"
 se: show expenses (by month)
 sc: show categories (by month)
+ed: edit
 e: end");
 
                 response = Console.ReadLine();
@@ -35,10 +36,23 @@ e: end");
                     case "sc":
                         ShowCategoriesByMonth();
                         break;
+                    case "ed":
+                        Edit();
+                        break;
                     default:
                         break;
                 }
             }
+        }
+
+        private void Edit()
+        {
+            Console.WriteLine("Enter id to edit:");
+            var id = int.Parse(Console.ReadLine());
+            var expense = this.service.GetAll().First(x => x.Id == id);
+            Console.WriteLine("Enter new source:");
+            expense.Source = Console.ReadLine();
+            this.service.Update(expense);
         }
 
         private void ShowCategoriesByMonth()
@@ -71,7 +85,7 @@ e: end");
 
                     source = source.PadLeft(45);
 
-                    Console.WriteLine($"{e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("00.00").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
+                    Console.WriteLine($"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("00.00").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
                 }
             }
         }

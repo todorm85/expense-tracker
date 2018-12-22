@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ExpenseTracker.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -9,12 +10,14 @@ namespace ExpenseTracker.Tests
     {
         private ExpensesClassifier sut;
         private Expense expense;
+        private List<Category> categories;
 
         [TestInitialize]
         public void Setup()
         {
             this.expense = new Expense();
-            this.sut = new ExpensesClassifier(null);
+            this.categories = new List<Category>();
+            this.sut = new ExpensesClassifier(this.categories);
         }
 
         [TestMethod]
@@ -29,7 +32,7 @@ namespace ExpenseTracker.Tests
         public void Classify_CategoriesThatMatch()
         {
             expense.Source = "trop dedov opa";
-            sut.KeysCategories.Add("dedov", "cat1");
+            this.categories.Add(new Category() { ExpenseSourcePhrase = "dedov", Name = "cat1" });
             sut.Classify(new Expense[] { expense });
             Assert.AreEqual("cat1", expense.Category);
         }
@@ -39,7 +42,7 @@ namespace ExpenseTracker.Tests
         {
             expense.Source = "trop dedov opa";
             expense.Category = "test";
-            sut.KeysCategories.Add("pisana", "cat1");
+            this.categories.Add(new Category() { ExpenseSourcePhrase = "pisana", Name = "cat1" });
             sut.Classify(new Expense[] { expense });
             Assert.AreEqual("test", expense.Category);
         }
@@ -48,7 +51,7 @@ namespace ExpenseTracker.Tests
         public void Classify_ExpensesWithNullSource()
         {
             expense.Category = "test";
-            sut.KeysCategories.Add("pisana", "cat1");
+            this.categories.Add(new Category() { ExpenseSourcePhrase = "pisana", Name = "cat1" });
             sut.Classify(new Expense[] { expense });
             Assert.AreEqual("test", expense.Category);
         }
@@ -57,8 +60,8 @@ namespace ExpenseTracker.Tests
         public void Classify_CategoriesThatMatchAndDoNotMatch()
         {
             expense.Source = "trop pisana opa";
-            sut.KeysCategories.Add("dedov", "cat1");
-            sut.KeysCategories.Add("pisana", "cat2");
+            this.categories.Add(new Category() { ExpenseSourcePhrase = "dedov", Name = "cat1" });
+            this.categories.Add(new Category() { ExpenseSourcePhrase = "pisana", Name = "cat2" });
             sut.Classify(new Expense[] { expense });
             Assert.AreEqual("cat2", expense.Category);
         }

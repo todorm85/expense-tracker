@@ -13,7 +13,7 @@ namespace ExpenseTracker.ConsoleClient
     {
         public MainMenu()
         {
-            this.service = new ExpensesService(this.GetRepo(), this.GetKeysCategories());
+            this.service = new ExpensesService(this.GetRepo());
         }
 
         public void Run()
@@ -24,7 +24,8 @@ namespace ExpenseTracker.ConsoleClient
                 Console.WriteLine(@"
 im: imports From GMail
 ex: excel menu
-c: categorizes expenses
+c: categories menu
+cl: classify all expenses
 q: query menu
 e: end");
 
@@ -38,6 +39,9 @@ e: end");
                         new ExcelMenu(this.service).Run();
                         break;                    
                     case "c":
+                        new CategoriesMenu(this.GetRepo()).Run();
+                        break;
+                    case "cl":
                         Categorize();
                         break;
                     case "q":
@@ -47,11 +51,6 @@ e: end");
                         break;
                 }
             }
-        }
-
-        private void Categorize()
-        {
-            this.service.Classify();
         }
 
         private void ImportGmail()
@@ -65,7 +64,7 @@ e: end");
             path = Environment.ExpandEnvironmentVariables(path);
             if (path != null)
             {
-                return new CategoriesKeyphrasesJsonParser().ParseFile(path);
+                return new CategoriesJsonParser().ParseFile(path);
             }
             else
             {
@@ -98,7 +97,7 @@ e: end");
             }
         }
 
-        private IExpensesRepository GetRepo()
+        private IUnitOfWork GetRepo()
         {
             var path = ConfigurationManager.AppSettings["dbPath"];
             path = Environment.ExpandEnvironmentVariables(path);
@@ -107,7 +106,12 @@ e: end");
                 throw new ArgumentNullException("Enter valid db path:");
             }
 
-            return new ExpensesRepo(path);
+            return new UnitOfWork(path);
+        }
+
+        private void Categorize()
+        {
+            this.service.Classify();
         }
 
         private ExpensesService service;

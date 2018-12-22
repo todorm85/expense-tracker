@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace ExpenseTracker.ConsoleClient
 {
-    internal class CategoriesKeyphrasesJsonParser
+    internal class CategoriesJsonParser
     {
         private string LoadJsonFromFile(string path)
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ExpenseTracker.Core
 {
-    public class Expense
+    public class Expense : IDataItem
     {
         public int Id { get; set; }
         public decimal Amount  { get; set; }

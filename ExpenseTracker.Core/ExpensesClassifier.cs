@@ -5,30 +5,21 @@ namespace ExpenseTracker.Core
 {
     internal class ExpensesClassifier
     {
-        public ExpensesClassifier() : this(null)
+        public ExpensesClassifier(IEnumerable<Category> categories)
         {
+            this.Categories = categories;
         }
 
-        public ExpensesClassifier(IDictionary<string, string> keysCategories)
-        {
-            if (keysCategories == null)
-            {
-                keysCategories = new Dictionary<string, string>();
-            }
-
-            this.KeysCategories = keysCategories;
-        }
-
-        public IDictionary<string, string> KeysCategories { get; set; }
+        public IEnumerable<Category> Categories { get; set; }
 
         public void Classify(IEnumerable<Expense> expenses)
         {
-            foreach (var e in expenses)
+            foreach (var expense in expenses)
             {
-                KeyValuePair<string, string> matchedCategory = this.KeysCategories.FirstOrDefault(x => e.Source != null && !string.IsNullOrWhiteSpace(x.Key) && e.Source.Contains(x.Key));
-                if (!matchedCategory.Equals(default(KeyValuePair<string, string>)))
+                Category foundPhrase = this.Categories.FirstOrDefault(category => expense.Source != null && !string.IsNullOrWhiteSpace(category.ExpenseSourcePhrase) && expense.Source.Contains(category.ExpenseSourcePhrase));
+                if (foundPhrase != null)
                 {
-                    e.Category = matchedCategory.Value;
+                    expense.Category = foundPhrase.Name;
                 }
             }
         }

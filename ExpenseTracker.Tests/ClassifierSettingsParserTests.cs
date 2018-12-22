@@ -19,7 +19,7 @@ namespace ExpenseTracker.Tests
     ""SHELL""
   ]
 }";
-            var result = new CategoriesKeyphrasesJsonParser().Parse(json);
+            var result = new CategoriesJsonParser().Parse(json);
             Assert.AreEqual(3, result.Keys.Count);
             Assert.IsTrue(result.ContainsKey("FANTASTICO"));
             Assert.IsTrue(result.ContainsKey("BILLA"));
@@ -43,7 +43,7 @@ namespace ExpenseTracker.Tests
     ""SHELL""
   ]
 }";
-            var result = new CategoriesKeyphrasesJsonParser().Parse(json);
+            var result = new CategoriesJsonParser().Parse(json);
         }
     }
 }
