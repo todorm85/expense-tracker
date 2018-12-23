@@ -37,13 +37,27 @@ namespace ExpenseTracker.Data
             }
         }
 
-        public IGenericRepository<Expense> expenses;
-        public IGenericRepository<Category> categories;
-        private LiteDatabase db;
+        public IGenericRepository<Budget> Budgets
+        {
+            get
+            {
+                if (this.budgets == null)
+                {
+                    this.budgets = new GenericRepo<Budget>(this.db, "budgets");
+                }
+
+                return this.budgets;
+            }
+        }
 
         public void Dispose()
         {
             this.db.Dispose();
         }
+
+        public IGenericRepository<Expense> expenses;
+        public IGenericRepository<Category> categories;
+        private LiteDatabase db;
+        private IGenericRepository<Budget> budgets;
     }
 }

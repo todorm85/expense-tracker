@@ -10,5 +10,6 @@ namespace ExpenseTracker.Core
     {
         IGenericRepository<Expense> Expenses { get; }
         IGenericRepository<Category> Categories { get; }
+        IGenericRepository<Budget> Budgets { get; }
     }
 }

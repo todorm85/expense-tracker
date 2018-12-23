@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Budget.cs" />
+    <Compile Include="BudgetService.cs" />
     <Compile Include="CategoriesService.cs" />
     <Compile Include="Expense.cs" />
     <Compile Include="ExpensesClassifier.cs" />
