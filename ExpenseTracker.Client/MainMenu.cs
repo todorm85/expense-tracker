@@ -27,6 +27,7 @@ ex: excel menu
 c: categories menu
 cl: classify all expenses
 q: query menu
+b: backup database
 e: end");
 
                 response = Console.ReadLine();
@@ -46,6 +47,9 @@ e: end");
                         break;
                     case "q":
                         new QueryMenu(this.service).Run();
+                        break;
+                    case "b":
+                        Utils.BackupFile(GetDbpath());
                         break;
                     default:
                         break;
@@ -99,6 +103,13 @@ e: end");
 
         private IUnitOfWork GetRepo()
         {
+            string path = GetDbpath();
+
+            return new UnitOfWork(path);
+        }
+
+        private static string GetDbpath()
+        {
             var path = ConfigurationManager.AppSettings["dbPath"];
             path = Environment.ExpandEnvironmentVariables(path);
             if (string.IsNullOrEmpty(path))
@@ -106,7 +117,7 @@ e: end");
                 throw new ArgumentNullException("Enter valid db path:");
             }
 
-            return new UnitOfWork(path);
+            return path;
         }
 
         private void Categorize()

@@ -1,6 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
-namespace ExpenseTracker.Core
+namespace ExpenseTracker.ConsoleClient
 {
     public class Utils
     {
@@ -21,6 +22,13 @@ namespace ExpenseTracker.Core
             }
 
             File.Copy(sourcePath, newPath);
+        }
+
+        public static string Prompt(string msg, string defaultValue = "")
+        {
+            Console.WriteLine(msg);
+            System.Windows.Forms.SendKeys.SendWait(defaultValue);
+            return Console.ReadLine();
         }
     }
 }

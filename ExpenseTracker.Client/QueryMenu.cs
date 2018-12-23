@@ -9,8 +9,6 @@ namespace ExpenseTracker.ConsoleClient
 {
     class QueryMenu
     {
-        private ExpensesService service;
-
         public QueryMenu(ExpensesService svc)
         {
             this.service = svc;
@@ -47,11 +45,9 @@ e: end");
 
         private void Edit()
         {
-            Console.WriteLine("Enter id to edit:");
-            var id = int.Parse(Console.ReadLine());
+            var id = int.Parse(Utils.Prompt("Enter id to edit:"));
             var expense = this.service.GetAll().First(x => x.Id == id);
-            Console.WriteLine("Enter new source:");
-            expense.Source = Console.ReadLine();
+            expense.Source = Utils.Prompt("Edit expense source: ", expense.Source);
             this.service.Update(expense);
         }
 
@@ -89,5 +85,7 @@ e: end");
                 }
             }
         }
+
+        private ExpensesService service;
     }
 }
