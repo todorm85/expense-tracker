@@ -1,61 +1,28 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ExpenseTracker.Core;
 
 namespace ExpenseTracker.ConsoleClient
 {
-    internal class CategoriesMenu
+    internal class CategoriesMenu : MenuBase
     {
-        private CategoriesService service;
-
-        public CategoriesMenu(IUnitOfWork unitOfWork)
+        public CategoriesMenu()
         {
-            this.service = new CategoriesService(unitOfWork);
+            this.service = ServicesFactory.GetService<CategoriesService>();
         }
 
-        internal void Run()
-        {
-            string response = null;
-            while (response != "e")
-            {
-                Console.WriteLine(@"
-im: import from json
-i: insert
-s: show all
-d: delete
-e: end");
-
-                response = Console.ReadLine();
-                switch (response)
-                {
-                    case "im":
-                        this.Import();
-                        break;
-                    case "s":
-                        this.ShowAll();
-                        break;
-                    case "i":
-                        this.Insert();
-                        break;
-                    case "d":
-                        this.Delete();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        private void Delete()
+        [MenuAction("d", "Delete")]
+        public void Delete()
         {
             Console.WriteLine("Enter source phrase to match:");
             var phrase = Console.ReadLine();
             this.service.Delete(phrase);
         }
 
-        private void Insert()
+        [MenuAction("i", "Insert")]
+        public void Insert()
         {
             Console.WriteLine("Enter source phrase to match:");
             var phrase = Console.ReadLine();
@@ -68,7 +35,8 @@ e: end");
             } });
         }
 
-        private void ShowAll()
+        [MenuAction("s", "Show all")]
+        public void ShowAll()
         {
             var groupByCats = this.service.GetAll().GroupBy(x => x.Name);
             foreach (var gbc in groupByCats)
@@ -81,7 +49,8 @@ e: end");
             }
         }
 
-        private void Import()
+        [MenuAction("ij", "Import from JSON")]
+        public void Import()
         {
             Console.WriteLine("Enter path to file.");
             var path = Console.ReadLine();
@@ -105,5 +74,6 @@ e: end");
             this.service.Insert(cats);
         }
 
+        private CategoriesService service;
     }
 }

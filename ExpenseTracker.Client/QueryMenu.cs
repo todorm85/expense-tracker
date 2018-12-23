@@ -1,59 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ExpenseTracker.Core;
 
 namespace ExpenseTracker.ConsoleClient
 {
-    class QueryMenu
+    internal class QueryMenu : MenuBase
     {
-        public QueryMenu(ExpensesService svc)
+        public QueryMenu()
         {
-            this.service = svc;
+            this.service = ServicesFactory.GetService<ExpensesService>();
         }
 
-        public void Run()
+        [MenuAction("ed", "Edit expense")]
+        public void Edit()
         {
-            string response = null;
-            while (response != "e")
-            {
-                Console.WriteLine(@"
-se: show expenses (by month)
-sc: show categories (by month)
-ed: edit
-e: end");
-
-                response = Console.ReadLine();
-                switch (response)
-                {
-                    case "se":
-                        ShowExpensesByMonth();
-                        break;
-                    case "sc":
-                        ShowCategoriesByMonth();
-                        break;
-                    case "ed":
-                        Edit();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        private void Edit()
-        {
-            var id = int.Parse(Utils.Prompt("Enter id to edit:"));
+            var id = int.Parse(Utils.PromptInput("Enter id to edit:"));
             var expense = this.service.GetAll().First(x => x.Id == id);
-            expense.Source = Utils.Prompt("Edit expense source: ", expense.Source);
+            expense.Source = Utils.PromptInput("Edit expense source: ", expense.Source);
             this.service.Update(expense);
         }
 
-        private void ShowCategoriesByMonth()
+        [MenuAction("sc", "Show categories (by month)")]
+        public void ShowCategoriesByMonth()
         {
-            var categoriesByMonth = service.GetCategoriesCostByMonth(DateTime.Now.AddYears(-1), DateTime.MaxValue);
+            var categoriesByMonth = this.service.GetCategoriesCostByMonth(DateTime.Now.AddYears(-1), DateTime.MaxValue);
             foreach (var month in categoriesByMonth.OrderBy(x => x.Key))
             {
                 Console.WriteLine(month.Key.ToString("MMMM yy"));
@@ -65,9 +35,10 @@ e: end");
             }
         }
 
-        private void ShowExpensesByMonth()
+        [MenuAction("s", "Show expenses (by month)")]
+        public void ShowExpensesByMonth()
         {
-            var expensesByMonth = service.GetExpensesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue);
+            var expensesByMonth = this.service.GetExpensesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue);
             foreach (var month in expensesByMonth.OrderBy(x => x.Key))
             {
                 Console.WriteLine(month.Key.ToString("MMMM yy"));

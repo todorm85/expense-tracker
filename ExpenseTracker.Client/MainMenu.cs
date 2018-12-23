@@ -3,70 +3,26 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using ExpenseTracker.Core;
-using ExpenseTracker.Data;
 using ExpenseTracker.ExcelExporter;
 using ExpenseTracker.GmailConnector;
 
 namespace ExpenseTracker.ConsoleClient
 {
-    internal class MainMenu
+    internal class MainMenu : MenuBase
     {
         public MainMenu()
         {
-            this.service = new ExpensesService(this.GetRepo());
+            this.service = ServicesFactory.GetService<ExpensesService>();
+            this.AddAction("ex", "excel menu", () => new ExcelMenu().Run());
+            this.AddAction("c", "categories menu", () => new CategoriesMenu().Run());
+            this.AddAction("q", "query menu", () => new QueryMenu().Run());
+            this.AddAction("bu", "budget menu", () => new BudgetMenu().Run());
         }
 
-        public void Run()
+        [MenuAction("b", "Backup database")]
+        public void BackupFile()
         {
-            string response = null;
-            while (response != "e")
-            {
-                Console.WriteLine(@"
-ex: excel menu
-c: categories menu
-q: query menu
-
-im: import GMail
-cl: classify all expenses
-b: backup database
-
-e: end");
-
-                response = Console.ReadLine();
-                switch (response)
-                {
-                    case "im":
-                        this.ImportGmail();
-                        break;
-
-                    case "ex":
-                        new ExcelMenu(this.service).Run();
-                        break;
-
-                    case "c":
-                        new CategoriesMenu(this.GetRepo()).Run();
-                        break;
-
-                    case "cl":
-                        this.Categorize();
-                        break;
-
-                    case "q":
-                        new QueryMenu(this.service).Run();
-                        break;
-
-                    case "b":
-                        BackupFile(GetDbpath());
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-        }
-
-        private static void BackupFile(string sourcePath)
-        {
+            string sourcePath = Utils.GetDbPath();
             var rootPath = Path.GetDirectoryName(sourcePath);
             var baseFileName = Path.GetFileNameWithoutExtension(sourcePath);
             var extension = Path.GetExtension(sourcePath);
@@ -84,21 +40,16 @@ e: end");
             File.Copy(sourcePath, newPath);
         }
 
-        private static string GetDbpath()
-        {
-            var path = ConfigurationManager.AppSettings["dbPath"];
-            path = Environment.ExpandEnvironmentVariables(path);
-            if (string.IsNullOrEmpty(path))
-            {
-                throw new ArgumentNullException("Enter valid db path:");
-            }
-
-            return path;
-        }
-
-        private void ImportGmail()
+        [MenuAction("im", "Import GMail")]
+        public void ImportGmail()
         {
             this.GetMailClient().Import();
+        }
+
+        [MenuAction("cl", "Classify all expenses")]
+        public void Categorize()
+        {
+            this.service.Classify();
         }
 
         private IDictionary<string, string> GetKeysCategories()
@@ -138,18 +89,6 @@ e: end");
                 Console.WriteLine("Pass:");
                 pass = Console.ReadLine();
             }
-        }
-
-        private IUnitOfWork GetRepo()
-        {
-            string path = GetDbpath();
-
-            return new UnitOfWork(path);
-        }
-
-        private void Categorize()
-        {
-            this.service.Classify();
         }
 
         private ExpensesService service;

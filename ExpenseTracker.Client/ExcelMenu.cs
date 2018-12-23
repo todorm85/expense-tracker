@@ -6,55 +6,29 @@ using ExpenseTracker.ExcelExporter;
 
 namespace ExpenseTracker.ConsoleClient
 {
-    internal class ExcelMenu
+    internal class ExcelMenu : MenuBase
     {
-        public ExcelMenu(ExpensesService svc)
+        public ExcelMenu()
         {
-            this.excelFile = new ExpensesExcelExporterImporter(svc);
+            this.excelFile = new ExpensesExcelExporterImporter(ServicesFactory.GetService<ExpensesService>());
         }
 
-        public void Run()
-        {
-            string response = null;
-            while (response != "e")
-            {
-                Console.WriteLine(@"
-ie: import expenses
-ee: export expenses (by month)
-ec: export categories (by month)
-e: end");
-
-                response = Console.ReadLine();
-                switch (response)
-                {
-                    case "ie":
-                        ImportExcel();
-                        break;
-                    case "ee":
-                        ExportExcel();
-                        break;
-                    case "ec":
-                        ExportCategoriesExcel();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        private void ExportCategoriesExcel()
+        [MenuAction("ec", "Export categories (by month)")]
+        public void ExportCategoriesExcel()
         {
             var path = this.GetExcelOutputPath();
             this.excelFile.ExportCategoriesByMonth(path, DateTime.MinValue, DateTime.MaxValue);
         }
 
-        private void ExportExcel()
+        [MenuAction("ee", "Export expenses (by month)")]
+        public void ExportExcel()
         {
             var path = this.GetExcelOutputPath();
             this.excelFile.ExportExpensesByMonth(path, DateTime.MinValue, DateTime.MaxValue);
         }
 
-        private void ImportExcel()
+        [MenuAction("i", "Import expenses")]
+        public void ImportExcel()
         {
             var xlInput = this.GetExcelInputPath();
             this.excelFile.Import(xlInput);
