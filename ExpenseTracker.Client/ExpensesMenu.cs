@@ -4,9 +4,9 @@ using ExpenseTracker.Core;
 
 namespace ExpenseTracker.ConsoleClient
 {
-    internal class QueryMenu : MenuBase
+    internal class ExpensesMenu : MenuBase
     {
-        public QueryMenu()
+        public ExpensesMenu()
         {
             this.service = ServicesFactory.GetService<ExpensesService>();
         }
@@ -20,8 +20,8 @@ namespace ExpenseTracker.ConsoleClient
             this.service.Update(expense);
         }
 
-        [MenuAction("sc", "Show categories (by month)")]
-        public void ShowCategoriesByMonth()
+        [MenuAction("s", "Show expenses (by month)")]
+        public void ShowExpenses()
         {
             var categoriesByMonth = this.service.GetCategoriesCostByMonth(DateTime.Now.AddYears(-1), DateTime.MaxValue);
             foreach (var month in categoriesByMonth.OrderBy(x => x.Key))
@@ -35,8 +35,8 @@ namespace ExpenseTracker.ConsoleClient
             }
         }
 
-        [MenuAction("s", "Show expenses (by month)")]
-        public void ShowExpensesByMonth()
+        [MenuAction("sd", "Show expenses details (by month)")]
+        public void ShowExpensesDetailed()
         {
             var expensesByMonth = this.service.GetExpensesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue);
             foreach (var month in expensesByMonth.OrderBy(x => x.Key))

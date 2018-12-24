@@ -18,7 +18,7 @@ namespace ExpenseTracker.ConsoleClient
 
         protected void AddAction(string command, string decsription, Action action)
         {
-            if (command == "e" || this.menuActions.Any(a => a.Command == command))
+            if (command == ExitCommand || this.menuActions.Any(a => a.Command == command))
             {
                 throw new ArgumentException("Action with duplicate command found.");
             }
