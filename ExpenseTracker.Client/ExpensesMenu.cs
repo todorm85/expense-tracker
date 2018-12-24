@@ -23,14 +23,34 @@ namespace ExpenseTracker.ConsoleClient
         [MenuAction("s", "Show expenses (by month)")]
         public void ShowExpenses()
         {
-            var categoriesByMonth = this.service.GetCategoriesCostByMonth(DateTime.Now.AddYears(-1), DateTime.MaxValue);
+            ShowExpenses(false);
+        }
+
+        private void ShowExpenses(bool detailed)
+        {
+            var categoriesByMonth = this.service.GetExpensesByCategoriesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue);
             foreach (var month in categoriesByMonth.OrderBy(x => x.Key))
             {
-                Console.WriteLine(month.Key.ToString("MMMM yy"));
+                Console.WriteLine(month.Key.ToString("MMMM") + $": {month.Value.Sum(x => x.Value.Sum(y => y.Amount))}");
                 foreach (var c in month.Value.OrderBy(x => x.Key))
                 {
-                    var categoryName = c.Key.PadLeft(10) ?? "".PadLeft(10);
-                    Console.WriteLine($"{categoryName}      {c.Value}");
+                    var categoryName = string.IsNullOrEmpty(c.Key) ? "unknown" : c.Key;
+                    Console.WriteLine("".PadLeft(5) + $"{categoryName} : {c.Value.Sum(e => e.Amount)}");
+                    if (detailed)
+                    {
+                        foreach (var e in c.Value.OrderBy(x => x.Date))
+                        {
+                            var source = e.Source?.ToString() ?? "";
+                            if (source.Length > 43)
+                            {
+                                source = source.Substring(0, 40) + "...";
+                            }
+
+                            source = source.PadLeft(45);
+
+                            Console.WriteLine("".PadLeft(10) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("00.00").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
+                        }
+                    }
                 }
             }
         }
@@ -38,23 +58,7 @@ namespace ExpenseTracker.ConsoleClient
         [MenuAction("sd", "Show expenses details (by month)")]
         public void ShowExpensesDetailed()
         {
-            var expensesByMonth = this.service.GetExpensesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue);
-            foreach (var month in expensesByMonth.OrderBy(x => x.Key))
-            {
-                Console.WriteLine(month.Key.ToString("MMMM yy"));
-                foreach (var e in month.Value.OrderBy(x => x.Date))
-                {
-                    var source = e.Source?.ToString() ?? "";
-                    if (source.Length > 43)
-                    {
-                        source = source.Substring(0, 40) + "...";
-                    }
-
-                    source = source.PadLeft(45);
-
-                    Console.WriteLine($"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("00.00").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
-                }
-            }
+            this.ShowExpenses(true);
         }
 
         private ExpensesService service;
