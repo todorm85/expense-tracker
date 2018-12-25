@@ -13,10 +13,10 @@ namespace ExpenseTracker.ConsoleClient
         public MainMenu()
         {
             this.service = ServicesFactory.GetService<ExpensesService>();
-            this.AddAction("xl", "Excel menu", () => new ExcelMenu().Run());
-            this.AddAction("c", "Categories menu", () => new CategoriesMenu().Run());
-            this.AddAction("ex", "Expenses menu", () => new ExpensesMenu().Run());
-            this.AddAction("bu", "Budget menu", () => new BudgetMenu().Run());
+            this.AddAction("xl", () => "Excel menu", () => new ExcelMenu().Run());
+            this.AddAction("c", () => "Categories menu", () => new CategoriesMenu().Run());
+            this.AddAction("ex", () => "Expenses menu", () => new ExpensesMenu().Run());
+            this.AddAction("bu", () => "Budget menu", () => new BudgetMenu().Run());
         }
 
         [MenuAction("b", "Backup database")]

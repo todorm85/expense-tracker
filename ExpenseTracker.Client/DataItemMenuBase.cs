@@ -45,7 +45,7 @@ namespace ExpenseTracker.ConsoleClient
                 var props = item.GetType().GetProperties();
                 foreach (var p in props)
                 {
-                    Console.Write($"{p.Name}:'{new ItemEditorMenu(item).GetPropVal(p)}'\n");
+                    Console.Write($"{p.Name}:'{new ItemEditor(item).GetPropVal(p)}'\n");
                 }
 
                 Console.WriteLine("\n");

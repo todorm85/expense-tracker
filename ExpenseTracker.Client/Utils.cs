@@ -23,7 +23,7 @@ namespace ExpenseTracker.ConsoleClient
             {
                 foreach (var a in actions)
                 {
-                    Console.WriteLine($"{a.Command.PadRight(5)} : {a.Description}");
+                    Console.WriteLine($"{a.Command.PadRight(5)} : {a.GetDescription()}");
                 }
 
                 Console.WriteLine($"{exitCommand.PadRight(5)} : {exitText}");

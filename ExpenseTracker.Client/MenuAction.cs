@@ -6,7 +6,7 @@ namespace ExpenseTracker.ConsoleClient
     {
         public string Command { get; set; }
 
-        public string Description { get; set; }
+        public Func<string> GetDescription { get; set; }
 
         public Action Callback { get; set; }
     }

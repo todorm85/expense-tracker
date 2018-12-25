@@ -16,7 +16,7 @@ namespace ExpenseTracker.ConsoleClient
             Utils.PromptMenuActions(this.menuActions, ExitCommand, this.exitCommandText);
         }
 
-        protected void AddAction(string command, string decsription, Action action)
+        protected void AddAction(string command, Func<string> decsription, Action action)
         {
             if (command == ExitCommand || this.menuActions.Any(a => a.Command == command))
             {
@@ -27,7 +27,7 @@ namespace ExpenseTracker.ConsoleClient
             {
                 Callback = action,
                 Command = command,
-                Description = decsription
+                GetDescription = decsription
             });
         }
 
@@ -39,7 +39,7 @@ namespace ExpenseTracker.ConsoleClient
             foreach (var m in methods)
             {
                 MenuActionAttribute attribute = m.GetCustomAttribute(typeof(MenuActionAttribute)) as MenuActionAttribute;
-                this.AddAction(attribute.Command, attribute.Description, () => m.Invoke(this, null));
+                this.AddAction(attribute.Command, () => attribute.Description, () => m.Invoke(this, null));
             }
         }
 

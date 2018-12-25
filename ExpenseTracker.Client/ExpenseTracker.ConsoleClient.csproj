@@ -79,6 +79,7 @@
     <Compile Include="CategoriesMenu.cs" />
     <Compile Include="DataItemMenuBase.cs" />
     <Compile Include="ExcelMenu.cs" />
+    <Compile Include="ItemEditor.cs" />
     <Compile Include="ItemEditorMenu.cs" />
     <Compile Include="MainMenu.cs" />
     <Compile Include="MenuAction.cs" />
