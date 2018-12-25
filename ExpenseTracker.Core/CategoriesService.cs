@@ -8,37 +8,38 @@ namespace ExpenseTracker.Core
     {
         public CategoriesService(IUnitOfWork uow)
         {
-            this.uow = uow;
+            this.categories = uow.GetDataItemsRepo<Category>();
         }
 
         public void Insert(IEnumerable<Category> items)
         {
-            var allCats = this.uow.Categories.GetAll();
+            var allCats = this.categories.GetAll();
             foreach (var item in items)
             {
                 var existingCategory = allCats.FirstOrDefault(c => c.ExpenseSourcePhrase == item.ExpenseSourcePhrase);
                 if (existingCategory != null)
                 {
-                    this.uow.Categories.Remove(existingCategory);
+                    this.categories.Remove(existingCategory);
                 }
             }
 
-            this.uow.Categories.Insert(items);
+            this.categories.Insert(items);
         }
 
         public IEnumerable<Category> GetAll()
         {
-            return this.uow.Categories.GetAll();
+            return this.categories.GetAll();
         }
 
         private IUnitOfWork uow;
+        private IGenericRepository<Category> categories;
 
         public void Delete(string phrase)
         {
-            var cat = this.uow.Categories.GetAll().FirstOrDefault(x => x.ExpenseSourcePhrase == phrase);
+            var cat = this.categories.GetAll().FirstOrDefault(x => x.ExpenseSourcePhrase == phrase);
             if (cat != null)
             {
-                this.uow.Categories.Remove(cat);
+                this.categories.Remove(cat);
             }
             else
             {

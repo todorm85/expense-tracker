@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExpenseTracker.Core
 {
     public class BudgetService
     {
-        private IUnitOfWork uow;
-
         public BudgetService(IUnitOfWork uow)
         {
-            this.uow = uow;
+            this.budgets = uow.GetDataItemsRepo<Budget>();
         }
 
         public IEnumerable<Budget> GetAll()
         {
-            return this.uow.Budgets.GetAll();
+            return this.budgets.GetAll();
         }
 
         public void Add(Budget budget)
@@ -27,18 +23,18 @@ namespace ExpenseTracker.Core
                 throw new ArgumentException($"Budget for that month {budget.Month} already exists.");
             }
 
-            this.uow.Budgets.Insert(new Budget[] { budget });
+            this.budgets.Insert(new Budget[] { budget });
         }
 
         public void Delete(DateTime month)
         {
-            var budgetToRemove = GetByMonth(month);
+            var budgetToRemove = this.GetByMonth(month);
             if (budgetToRemove == null)
             {
                 throw new ArgumentException("Budget for that month does not exists.");
             }
 
-            this.uow.Budgets.Remove(budgetToRemove);
+            this.budgets.Remove(budgetToRemove);
         }
 
         public Budget GetByMonth(DateTime month)
@@ -48,7 +44,9 @@ namespace ExpenseTracker.Core
 
         public void Update(Budget budget)
         {
-            this.uow.Budgets.Update(new Budget[] { budget });
+            this.budgets.Update(new Budget[] { budget });
         }
+
+        private IGenericRepository<Budget> budgets;
     }
 }
