@@ -28,6 +28,14 @@ namespace ExpenseTracker.ConsoleClient
             this.Service.Add(new T[] { item });
         }
 
+        [MenuAction("rem", "Remove")]
+        public void Remove()
+        {
+            var id = int.Parse(Utils.PromptInput("Enter id to edit:"));
+            var item = this.Service.GetAll().First(x => x.Id == id);
+            this.Service.Remove(new T[] { item });
+        }
+
         [MenuAction("sa", "Show all")]
         public void Show()
         {
@@ -37,7 +45,7 @@ namespace ExpenseTracker.ConsoleClient
                 var props = item.GetType().GetProperties();
                 foreach (var p in props)
                 {
-                    Console.Write($"{p.Name}:'{p.GetValue(item)}'\n");
+                    Console.Write($"{p.Name}:'{new ItemEditorMenu(item).GetPropVal(p)}'\n");
                 }
 
                 Console.WriteLine("\n");

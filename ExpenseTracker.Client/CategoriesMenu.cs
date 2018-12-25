@@ -6,45 +6,26 @@ using ExpenseTracker.Core;
 
 namespace ExpenseTracker.ConsoleClient
 {
-    internal class CategoriesMenu : MenuBase
+    internal class CategoriesMenu : DataItemMenuBase<Category>
     {
         public CategoriesMenu()
         {
-            this.service = ServicesFactory.GetService<CategoriesService>();
+            this.categoriesService = ServicesFactory.GetService<CategoriesService>();
+            this.Service = this.categoriesService;
         }
 
-        [MenuAction("d", "Delete")]
-        public void Delete()
-        {
-            Console.WriteLine("Enter source phrase to match:");
-            var phrase = Console.ReadLine();
-            this.service.Remove(phrase);
-        }
+        public override BaseDataItemService<Category> Service { get; set; }
 
-        [MenuAction("i", "Insert")]
-        public void Insert()
-        {
-            Console.WriteLine("Enter source phrase to match:");
-            var phrase = Console.ReadLine();
-            Console.WriteLine("Enter category name:");
-            var cn = Console.ReadLine();
-            this.service.Add(new Category[] { new Category()
-            {
-                ExpenseSourcePhrase = phrase,
-                Name = cn
-            } });
-        }
-
-        [MenuAction("s", "Show all")]
+        [MenuAction("sg", "Show groups")]
         public void ShowAll()
         {
-            var groupByCats = this.service.GetAll().GroupBy(x => x.Name);
+            var groupByCats = this.categoriesService.GetAll().GroupBy(x => x.Name);
             foreach (var gbc in groupByCats)
             {
                 Console.WriteLine($"{gbc.Key}");
                 foreach (var cat in gbc)
                 {
-                    Console.WriteLine("".PadLeft(5) + cat.ExpenseSourcePhrase);
+                    Console.WriteLine("".PadLeft(5) + $"({cat.Id}) " + cat.ExpenseSourcePhrase);
                 }
             }
         }
@@ -71,9 +52,9 @@ namespace ExpenseTracker.ConsoleClient
                 });
             }
 
-            this.service.Add(cats);
+            this.categoriesService.Add(cats);
         }
 
-        private CategoriesService service;
+        private CategoriesService categoriesService;
     }
 }

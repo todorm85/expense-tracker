@@ -23,17 +23,17 @@ namespace ExpenseTracker.ConsoleClient
         private void Edit(PropertyInfo p)
         {
             var typeObj = this.item.GetType();
-            var propValues = this.GetPropVal(p, this.item);
+            var propValues = this.GetPropVal(p);
             var newValue = Utils.PromptInput("Enter prop value: ", propValues);
             this.SetPropVal(p, newValue, this.item);
         }
 
-        private string GetPropVal(PropertyInfo p, object item)
+        internal string GetPropVal(PropertyInfo p)
         {
             var propertyType = p.PropertyType;
             if (propertyType == typeof(Dictionary<string, decimal>))
             {
-                var catExpenditure = (Dictionary<string, decimal>)p.GetValue(item);
+                var catExpenditure = (Dictionary<string, decimal>)p.GetValue(item) ?? new Dictionary<string, decimal>();
                 return Serialize(catExpenditure);
             }
 

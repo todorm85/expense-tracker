@@ -3,13 +3,16 @@ using ExpenseTracker.Core;
 
 namespace ExpenseTracker.ConsoleClient
 {
-    internal class BudgetMenu : MenuBase
+    internal class BudgetMenu : DataItemMenuBase<Budget>
     {
-        private BudgetService service;
+        private BudgetService budgetService;
 
         public BudgetMenu()
         {
-            this.service = ServicesFactory.GetService<BudgetService>();
+            this.budgetService = ServicesFactory.GetService<BudgetService>();
+            this.Service = this.budgetService;
         }
+
+        public override BaseDataItemService<Budget> Service { get; set; }
     }
 }
