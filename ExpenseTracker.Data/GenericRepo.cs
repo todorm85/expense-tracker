@@ -43,9 +43,12 @@ namespace ExpenseTracker.Data
             this.context.Update(items);
         }
 
-        public virtual void Remove(T item)
+        public virtual void Remove(IEnumerable<T> items)
         {
-            this.context.Delete(item.Id);
+            foreach (var item in items)
+            {
+                this.context.Delete(item.Id);
+            }
         }
     }
 }

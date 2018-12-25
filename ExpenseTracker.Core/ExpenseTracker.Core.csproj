@@ -52,7 +52,7 @@
     <Compile Include="ExpensesClassifier.cs" />
     <Compile Include="ExpensesService.cs" />
     <Compile Include="IDataItem.cs" />
-    <Compile Include="IDataItemService.cs" />
+    <Compile Include="BaseDataItemService.cs" />
     <Compile Include="IGenericRepository.cs" />
     <Compile Include="IUnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

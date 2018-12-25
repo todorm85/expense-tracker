@@ -11,46 +11,7 @@ namespace ExpenseTracker.Data
         {
             this.db = new LiteDatabase(dbPath);
         }
-
-        public IGenericRepository<Expense> Expenses
-        {
-            get
-            {
-                if (this.expenses == null)
-                {
-                    this.expenses = new GenericRepo<Expense>(this.db, "expenses");
-                }
-
-                return this.expenses;
-            }
-        }
-
-        public IGenericRepository<Category> Categories
-        {
-            get
-            {
-                if (this.categories == null)
-                {
-                    this.categories = new GenericRepo<Category>(this.db, "categories");
-                }
-
-                return this.categories;
-            }
-        }
-
-        public IGenericRepository<Budget> Budgets
-        {
-            get
-            {
-                if (this.budgets == null)
-                {
-                    this.budgets = new GenericRepo<Budget>(this.db, "budgets");
-                }
-
-                return this.budgets;
-            }
-        }
-
+        
         public IGenericRepository<T> GetDataItemsRepo<T>() where T : IDataItem
         {
             if (this.repos.ContainsKey(typeof(T)))

@@ -18,7 +18,7 @@ namespace ExpenseTracker.ConsoleClient
         {
             Console.WriteLine("Enter source phrase to match:");
             var phrase = Console.ReadLine();
-            this.service.Delete(phrase);
+            this.service.Remove(phrase);
         }
 
         [MenuAction("i", "Insert")]
@@ -28,7 +28,7 @@ namespace ExpenseTracker.ConsoleClient
             var phrase = Console.ReadLine();
             Console.WriteLine("Enter category name:");
             var cn = Console.ReadLine();
-            this.service.Insert(new Category[] { new Category()
+            this.service.Add(new Category[] { new Category()
             {
                 ExpenseSourcePhrase = phrase,
                 Name = cn
@@ -71,7 +71,7 @@ namespace ExpenseTracker.ConsoleClient
                 });
             }
 
-            this.service.Insert(cats);
+            this.service.Add(cats);
         }
 
         private CategoriesService service;

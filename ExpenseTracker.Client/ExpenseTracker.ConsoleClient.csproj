@@ -77,7 +77,9 @@
     <Compile Include="BudgetMenu.cs" />
     <Compile Include="CategoriesJsonParser.cs" />
     <Compile Include="CategoriesMenu.cs" />
+    <Compile Include="DataItemMenuBase.cs" />
     <Compile Include="ExcelMenu.cs" />
+    <Compile Include="ItemEditorMenu.cs" />
     <Compile Include="MainMenu.cs" />
     <Compile Include="MenuAction.cs" />
     <Compile Include="MenuActionAttribute.cs" />

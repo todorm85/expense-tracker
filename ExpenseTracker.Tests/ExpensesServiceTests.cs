@@ -33,7 +33,7 @@ namespace ExpenseTracker.Tests
 
             this.repo = Mock.Create<IGenericRepository<Expense>>(Behavior.Strict);
             this.uow = Mock.Create<IUnitOfWork>(Behavior.Strict);
-            Mock.Arrange(() => this.uow.Expenses).Returns(() => this.repo);
+            Mock.Arrange(() => this.uow.GetDataItemsRepo<Expense>()).Returns(() => this.repo);
             this.sut = null;
         }
 

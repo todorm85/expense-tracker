@@ -4,29 +4,27 @@ using System.Linq;
 
 namespace ExpenseTracker.Core
 {
-    public class BudgetService
+    public class BudgetService : BaseDataItemService<Budget>
     {
-        public BudgetService(IUnitOfWork uow)
+        public BudgetService(IUnitOfWork uow) : base(uow)
         {
-            this.budgets = uow.GetDataItemsRepo<Budget>();
         }
 
-        public IEnumerable<Budget> GetAll()
+        public override void Add(IEnumerable<Budget> budgets)
         {
-            return this.budgets.GetAll();
-        }
-
-        public void Add(Budget budget)
-        {
-            if (this.GetByMonth(budget.Month) != null)
+            foreach (var budget in budgets)
             {
-                throw new ArgumentException($"Budget for that month {budget.Month} already exists.");
+                if (this.GetByMonth(budget.Month) != null)
+                {
+                    throw new ArgumentException($"Budget for that month {budget.Month} already exists.");
+                }
+
             }
 
-            this.budgets.Insert(new Budget[] { budget });
+            base.Add(budgets);
         }
 
-        public void Delete(DateTime month)
+        public void Remove(DateTime month)
         {
             var budgetToRemove = this.GetByMonth(month);
             if (budgetToRemove == null)
@@ -34,17 +32,12 @@ namespace ExpenseTracker.Core
                 throw new ArgumentException("Budget for that month does not exists.");
             }
 
-            this.budgets.Remove(budgetToRemove);
+            base.Remove(new Budget[] { budgetToRemove });
         }
 
         public Budget GetByMonth(DateTime month)
         {
             return this.GetAll().FirstOrDefault(x => x.Month == month);
-        }
-
-        public void Update(Budget budget)
-        {
-            this.budgets.Update(new Budget[] { budget });
         }
 
         private IGenericRepository<Budget> budgets;

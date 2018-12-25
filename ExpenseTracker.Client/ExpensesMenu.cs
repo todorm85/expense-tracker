@@ -4,31 +4,29 @@ using ExpenseTracker.Core;
 
 namespace ExpenseTracker.ConsoleClient
 {
-    internal class ExpensesMenu : MenuBase
+    internal class ExpensesMenu : DataItemMenuBase<Expense>
     {
         public ExpensesMenu()
         {
-            this.service = ServicesFactory.GetService<ExpensesService>();
+            this.Service = ServicesFactory.GetService<ExpensesService>();
+            this.expenseService = (ExpensesService)this.Service;
         }
 
-        [MenuAction("ed", "Edit expense")]
-        public void Edit()
+        [MenuAction("sec", "Show expenses (categories only)")]
+        public void ShowExpensesCategoriesOnly()
         {
-            var id = int.Parse(Utils.PromptInput("Enter id to edit:"));
-            var expense = this.service.GetAll().First(x => x.Id == id);
-            expense.Source = Utils.PromptInput("Edit expense source: ", expense.Source);
-            this.service.Update(expense);
+            this.ShowExpenses(false);
         }
 
-        [MenuAction("s", "Show expenses (by month)")]
-        public void ShowExpenses()
+        [MenuAction("sea", "Show expenses (all)")]
+        public void ShowExpensesAll()
         {
-            ShowExpenses(false);
+            this.ShowExpenses(true);
         }
 
         private void ShowExpenses(bool detailed)
         {
-            var categoriesByMonth = this.service.GetExpensesByCategoriesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue);
+            var categoriesByMonth = this.expenseService.GetExpensesByCategoriesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue);
             foreach (var month in categoriesByMonth.OrderBy(x => x.Key))
             {
                 Console.WriteLine(month.Key.ToString("MMMM") + $": {month.Value.Sum(x => x.Value.Sum(y => y.Amount))}");
@@ -55,12 +53,8 @@ namespace ExpenseTracker.ConsoleClient
             }
         }
 
-        [MenuAction("sd", "Show expenses details (by month)")]
-        public void ShowExpensesDetailed()
-        {
-            this.ShowExpenses(true);
-        }
+        public override BaseDataItemService<Expense> Service { get; set; }
 
-        private ExpensesService service;
+        private ExpensesService expenseService;
     }
 }

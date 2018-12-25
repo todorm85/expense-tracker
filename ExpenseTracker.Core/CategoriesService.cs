@@ -4,42 +4,33 @@ using System.Linq;
 
 namespace ExpenseTracker.Core
 {
-    public class CategoriesService
+    public class CategoriesService : BaseDataItemService<Category>
     {
-        public CategoriesService(IUnitOfWork uow)
+        public CategoriesService(IUnitOfWork uow) : base(uow)
         {
-            this.categories = uow.GetDataItemsRepo<Category>();
         }
 
-        public void Insert(IEnumerable<Category> items)
+        public override void Add(IEnumerable<Category> items)
         {
-            var allCats = this.categories.GetAll();
+            var allCats = this.repo.GetAll();
             foreach (var item in items)
             {
                 var existingCategory = allCats.FirstOrDefault(c => c.ExpenseSourcePhrase == item.ExpenseSourcePhrase);
                 if (existingCategory != null)
                 {
-                    this.categories.Remove(existingCategory);
+                    this.Remove(new Category[] { existingCategory });
                 }
             }
 
-            this.categories.Insert(items);
+            base.Add(items);
         }
 
-        public IEnumerable<Category> GetAll()
+        public void Remove(string phrase)
         {
-            return this.categories.GetAll();
-        }
-
-        private IUnitOfWork uow;
-        private IGenericRepository<Category> categories;
-
-        public void Delete(string phrase)
-        {
-            var cat = this.categories.GetAll().FirstOrDefault(x => x.ExpenseSourcePhrase == phrase);
+            var cat = this.repo.GetAll().FirstOrDefault(x => x.ExpenseSourcePhrase == phrase);
             if (cat != null)
             {
-                this.categories.Remove(cat);
+                base.Remove(new Category[] { cat });
             }
             else
             {

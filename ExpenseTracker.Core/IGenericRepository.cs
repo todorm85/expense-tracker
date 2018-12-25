@@ -10,6 +10,6 @@ namespace ExpenseTracker.Core
         void Insert(IEnumerable<T> items);
 
         void Update(IEnumerable<T> items);
-        void Remove(T item);
+        void Remove(IEnumerable<T> items);
     }
 }
