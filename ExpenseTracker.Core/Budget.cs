@@ -11,6 +11,8 @@ namespace ExpenseTracker.Core
 
         public decimal ExpectedIncome { get; set; }
 
+        public decimal ActualIncome { get; set; }
+
         public Dictionary<string, decimal> ExpectedExpensesByCategory { get; set; }
     }
 }
