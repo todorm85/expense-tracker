@@ -94,6 +94,6 @@ namespace ExpenseTracker.Data
         public IGenericRepository<Category> categories;
         private LiteDatabase db;
         private IGenericRepository<Budget> budgets;
-        private IDictionary<Type, object> repos;
+        private IDictionary<Type, object> repos = new Dictionary<Type, object>();
     }
 }
