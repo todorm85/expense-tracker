@@ -67,22 +67,36 @@ namespace ExpenseTracker.ConsoleClient
             var categoryActual = category.Value.Sum(e => e.Amount);
             var budgetCategoryExists = monthBudget?.ExpectedExpensesByCategory.ContainsKey(category.Key);
             var catExpected = budgetCategoryExists.HasValue && budgetCategoryExists.Value ? monthBudget?.ExpectedExpensesByCategory[category.Key] : null;
-            var diff = (catExpected ?? 0) - categoryActual;
-            Console.WriteLine("".PadLeft(pad) + $"{categoryName} : {categoryActual} {catExpected.ToString() ?? ""} {((catExpected != null) ? diff.ToString() : "")}");
+            Console.Write("".PadLeft(pad) + $"{categoryName} : {categoryActual} ");
+            if (catExpected != null)
+            {
+                WriteBudget(categoryActual, catExpected.Value);
+            }
+
+            Console.WriteLine();
         }
 
         private void WriteMonthLabel(KeyValuePair<DateTime, Dictionary<string, IEnumerable<Expense>>> month, Budget monthBudget)
         {
             var monthActualTotal = month.Value.Sum(x => x.Value.Sum(y => y.Amount));
             var monthExpected = monthBudget?.ExpectedExpensesByCategory.Sum(x => x.Value);
-            var diff = (monthExpected ?? 0) - monthActualTotal;
-            Console.Write($"{month.Key.ToString("MMMM")}: {monthActualTotal} ");
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write($"{monthExpected?.ToString() ?? ""} ");
-            Console.ForegroundColor = diff > 0 ? ConsoleColor.Green : ConsoleColor.Red;
-            Console.Write($"{((monthExpected == null) ? "" : diff.ToString())}");
-            Console.ResetColor();
+            Console.Write($"{month.Key.ToString("MMMM")}: {monthActualTotal.ToString("")} ");
+            if (monthExpected != null)
+            {
+                WriteBudget(monthActualTotal, monthExpected.Value);
+            }
+
             Console.WriteLine();
+        }
+
+        private static void WriteBudget(decimal actual, decimal expected)
+        {
+            var diff = expected - actual;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write($"{expected} ");
+            Console.ForegroundColor = diff > 0 ? ConsoleColor.Green : ConsoleColor.Red;
+            Console.Write($"{diff.ToString()}");
+            Console.ResetColor();
         }
 
         public override BaseDataItemService<Expense> Service { get; set; }
