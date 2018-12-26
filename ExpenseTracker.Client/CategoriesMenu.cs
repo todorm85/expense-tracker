@@ -55,6 +55,6 @@ namespace ExpenseTracker.ConsoleClient
             this.categoriesService.Add(cats);
         }
 
-        private CategoriesService categoriesService;
+        private readonly CategoriesService categoriesService;
     }
 }

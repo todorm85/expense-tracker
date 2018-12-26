@@ -39,7 +39,5 @@ namespace ExpenseTracker.Core
         {
             return this.GetAll().FirstOrDefault(x => x.Month == month);
         }
-
-        private IGenericRepository<Budget> budgets;
     }
 }

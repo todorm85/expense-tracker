@@ -40,8 +40,11 @@ namespace ExpenseTracker.Tests
         [TestMethod]
         public void Export_NoTransactionsInRange_ExportsNothing()
         {
-            var expeneses = new List<Expense>();
-            expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 6, 1)));
+            var expeneses = new List<Expense>
+            {
+                TestExpensesFactory.GetTestExpense(new DateTime(2018, 6, 1))
+            };
+
             Mock.Arrange(() => this.repo.GetAll()).Returns(expeneses);
 
             var results = this.Sut.GetExpensesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
@@ -125,6 +128,5 @@ namespace ExpenseTracker.Tests
         private IGenericRepository<Expense> repo;
         private IUnitOfWork uow;
         private ExpensesService sut;
-        private string testsPath = @"TestExpenses.db";
     }
 }
