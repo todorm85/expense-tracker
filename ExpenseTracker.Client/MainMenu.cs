@@ -92,6 +92,5 @@ namespace ExpenseTracker.ConsoleClient
         }
 
         private ExpensesService service;
-        private ExpensesExcelExporterImporter excelFile;
     }
 }

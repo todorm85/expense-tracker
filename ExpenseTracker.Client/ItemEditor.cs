@@ -21,7 +21,7 @@ namespace ExpenseTracker.ConsoleClient
                 return this.Serialize(catExpenditure);
             }
 
-            return p.GetValue(this.item).ToString();
+            return p.GetValue(this.item)?.ToString();
         }
 
         public void SetPropVal(PropertyInfo p, string newValue)
