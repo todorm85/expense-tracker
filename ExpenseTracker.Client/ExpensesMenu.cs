@@ -58,7 +58,7 @@ namespace ExpenseTracker.ConsoleClient
 
             source = source.PadLeft(45);
 
-            Console.WriteLine("".PadLeft(padding) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("00.00").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
+            Console.WriteLine("".PadLeft(padding) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("F0").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
         }
 
         private static void WriteMonthCategoryLabel(Budget monthBudget, KeyValuePair<string, IEnumerable<Expense>> category, int pad = 0)
@@ -67,7 +67,7 @@ namespace ExpenseTracker.ConsoleClient
             var categoryActual = category.Value.Sum(e => e.Amount);
             var budgetCategoryExists = monthBudget?.ExpectedExpensesByCategory.ContainsKey(category.Key);
             var catExpected = budgetCategoryExists.HasValue && budgetCategoryExists.Value ? monthBudget?.ExpectedExpensesByCategory[category.Key] : null;
-            Console.Write("".PadLeft(pad) + $"{categoryName} : {categoryActual} ");
+            Console.Write("".PadLeft(pad) + $"{categoryName} : {categoryActual.ToString("F0")} ");
             if (catExpected != null)
             {
                 WriteBudget(categoryActual, catExpected.Value);
@@ -80,7 +80,7 @@ namespace ExpenseTracker.ConsoleClient
         {
             var monthActualTotal = month.Value.Sum(x => x.Value.Sum(y => y.Amount));
             var monthExpected = monthBudget?.ExpectedExpensesByCategory.Sum(x => x.Value);
-            Console.Write($"{month.Key.ToString("MMMM")}: {monthActualTotal.ToString("")} ");
+            Console.Write($"{month.Key.ToString("MMMM")}: {monthActualTotal.ToString("F0")} ");
             if (monthExpected != null)
             {
                 WriteBudget(monthActualTotal, monthExpected.Value);
@@ -93,9 +93,9 @@ namespace ExpenseTracker.ConsoleClient
         {
             var diff = expected - actual;
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write($"{expected} ");
+            Console.Write($"{expected.ToString("F0")} ");
             Console.ForegroundColor = diff > 0 ? ConsoleColor.Green : ConsoleColor.Red;
-            Console.Write($"{diff.ToString()}");
+            Console.Write($"{diff.ToString("F0")}");
             Console.ResetColor();
         }
 
