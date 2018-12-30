@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ExpenseTracker.Core
 {
-    public class CategoriesService : BaseDataItemService<Category>
+    public class CategoriesService : BaseDataItemService<Category>, IBaseDataItemService<Category>
     {
         public CategoriesService(IUnitOfWork uow) : base(uow)
         {
