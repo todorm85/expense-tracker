@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("ExpenseTracker.Tests")]
 namespace ExpenseTracker.Core
 {
     internal class ExpensesClassifier

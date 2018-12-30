@@ -47,7 +47,7 @@ namespace ExpenseTracker.Tests
 
             Mock.Arrange(() => this.repo.GetAll()).Returns(expeneses);
 
-            var results = this.Sut.GetExpensesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
+            var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
 
             Assert.AreEqual(0, results.Keys.Count);
         }
@@ -60,13 +60,13 @@ namespace ExpenseTracker.Tests
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 1), cat));
             Mock.Arrange(() => this.repo.GetAll()).Returns(expeneses);
 
-            var results = this.Sut.GetExpensesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
+            var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
 
             var expectedKey = new DateTime(2018, 3, 1);
             Assert.AreEqual(1, results.Keys.Count);
             Assert.IsTrue(results.ContainsKey(expectedKey));
             Assert.IsTrue(results[expectedKey].Count() == 1);
-            Assert.IsTrue(results[expectedKey].First().Category == cat);
+            Assert.IsTrue(results[expectedKey][cat].First().Category == cat);
         }
 
         [TestMethod]
@@ -80,20 +80,20 @@ namespace ExpenseTracker.Tests
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 4, 15), cat2));
             Mock.Arrange(() => this.repo.GetAll()).Returns(expeneses);
 
-            var results = this.Sut.GetExpensesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
+            var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
 
             Assert.AreEqual(2, results.Keys.Count);
 
             var expectedKey1 = new DateTime(2018, 3, 1);
             Assert.IsTrue(results.ContainsKey(expectedKey1));
-            Assert.IsTrue(results[expectedKey1].Count() == 1);
-            Assert.IsTrue(results[expectedKey1].First().Category == cat1);
+            Assert.IsTrue(results[expectedKey1][cat1].Count() == 1);
+            Assert.IsTrue(results[expectedKey1][cat1].First().Category == cat1);
 
             var expectedKey2 = new DateTime(2018, 4, 1);
             Assert.IsTrue(results.ContainsKey(expectedKey2));
-            Assert.IsTrue(results[expectedKey2].Count() == 2);
-            Assert.IsTrue(results[expectedKey2].First().Category == cat2);
-            Assert.IsTrue(results[expectedKey2].Skip(1).First().Category == cat2);
+            Assert.IsTrue(results[expectedKey2][cat2].Count() == 2);
+            Assert.IsTrue(results[expectedKey2][cat2].First().Category == cat2);
+            Assert.IsTrue(results[expectedKey2][cat2].Skip(1).First().Category == cat2);
         }
 
         [TestMethod]
@@ -108,7 +108,7 @@ namespace ExpenseTracker.Tests
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 4, 15), cat3));
             Mock.Arrange(() => this.repo.GetAll()).Returns(expeneses);
 
-            var results = this.Sut.GetCategoriesCostByMonth(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
+            var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
 
             Assert.AreEqual(2, results.Keys.Count);
 

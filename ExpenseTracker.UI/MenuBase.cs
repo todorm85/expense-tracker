@@ -3,20 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace ExpenseTracker.ConsoleClient
+namespace ExpenseTracker.UI
 {
-    internal abstract class MenuBase
+    public abstract class MenuBase
     {
         private string exitCommandText = "Exit";
-
+        public MenuBase(IOutputRenderer renderer)
+        {
+            Renderer = renderer;
+        }
         public virtual void Run()
         {
             this.GetActions();
             this.exitCommandText = "Exit " + this.GetType().Name;
-            Utils.PromptMenuActions(this.menuActions, ExitCommand, this.exitCommandText);
+            Renderer.PromptMenuActions(this.menuActions, ExitCommand, this.exitCommandText);
         }
 
-        protected void AddAction(string command, Func<string> decsription, Action action)
+        public void AddAction(string command, Func<string> decsription, Action action)
         {
             if (command == ExitCommand || this.menuActions.Any(a => a.Command == command))
             {
@@ -45,5 +48,7 @@ namespace ExpenseTracker.ConsoleClient
 
         protected IList<MenuAction> menuActions = new List<MenuAction>();
         private const string ExitCommand = "e";
+
+        protected IOutputRenderer Renderer { get; }
     }
 }

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace ExpenseTracker.ConsoleClient
+namespace ExpenseTracker.UI
 {
     internal class ItemEditorMenu : MenuBase
     {
-        public ItemEditorMenu(object item)
+        public ItemEditorMenu(object item, IOutputRenderer renderer) : base(renderer)
         {
             this.editor = new ItemEditor(item);
             var props = this.editor.GetProperties();
@@ -23,7 +23,7 @@ namespace ExpenseTracker.ConsoleClient
         private void Edit(PropertyInfo p)
         {
             var propValues = this.editor.GetPropVal(p);
-            var newValue = Utils.PromptInput("Enter prop value: ", propValues);
+            var newValue = Renderer.PromptInput("Enter prop value: ", propValues);
             this.editor.SetPropVal(p, newValue);
         }
 

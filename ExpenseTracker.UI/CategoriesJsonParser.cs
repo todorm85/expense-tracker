@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
+[assembly: InternalsVisibleTo("ExpenseTracker.Tests")]
 
-namespace ExpenseTracker.ConsoleClient
+namespace ExpenseTracker.UI
 {
     internal class CategoriesJsonParser
     {

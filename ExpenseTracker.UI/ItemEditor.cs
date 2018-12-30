@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace ExpenseTracker.ConsoleClient
+namespace ExpenseTracker.UI
 {
     internal class ItemEditor
     {

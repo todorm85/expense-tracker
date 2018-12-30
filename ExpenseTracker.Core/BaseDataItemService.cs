@@ -2,7 +2,7 @@
 
 namespace ExpenseTracker.Core
 {
-    public abstract class BaseDataItemService<T> where T : IDataItem
+    public abstract class BaseDataItemService<T> : IBaseDataItemService<T> where T : IDataItem
     {
         protected IGenericRepository<T> repo;
 

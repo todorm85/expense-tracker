@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 
-namespace ExpenseTracker.ConsoleClient
+namespace ExpenseTracker.UI
 {
     public class Utils
     {
@@ -38,12 +38,12 @@ namespace ExpenseTracker.ConsoleClient
         public static string GetDbPath()
         {
             var path = ConfigurationManager.AppSettings["dbPath"];
-            path = Environment.ExpandEnvironmentVariables(path);
             if (string.IsNullOrEmpty(path))
             {
                 throw new ArgumentNullException("Enter valid db path:");
             }
 
+            path = Environment.ExpandEnvironmentVariables(path);
             return path;
         }
     }

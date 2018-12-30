@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ExpenseTracker.ConsoleClient
+namespace ExpenseTracker.UI
 {
     internal class MenuActionAttribute : Attribute
     {

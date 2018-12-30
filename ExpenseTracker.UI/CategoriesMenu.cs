@@ -4,28 +4,27 @@ using System.IO;
 using System.Linq;
 using ExpenseTracker.Core;
 
-namespace ExpenseTracker.ConsoleClient
+namespace ExpenseTracker.UI
 {
-    internal class CategoriesMenu : DataItemMenuBase<Category>
+    public class CategoriesMenu : DataItemMenuBase<Category>
     {
-        public CategoriesMenu()
+        public CategoriesMenu(IBaseDataItemService<Category> service, IOutputRenderer renderer) : base(renderer)
         {
-            this.categoriesService = ServicesFactory.GetService<CategoriesService>();
-            this.Service = this.categoriesService;
+            this.Service = service;
         }
 
-        public override BaseDataItemService<Category> Service { get; set; }
+        public override IBaseDataItemService<Category> Service { get; set; }
 
         [MenuAction("sg", "Show groups")]
         public void ShowAll()
         {
-            var groupByCats = this.categoriesService.GetAll().GroupBy(x => x.Name);
+            var groupByCats = this.Service.GetAll().GroupBy(x => x.Name);
             foreach (var gbc in groupByCats)
             {
-                Console.WriteLine($"{gbc.Key}");
+                Renderer.WriteLine($"{gbc.Key}");
                 foreach (var cat in gbc)
                 {
-                    Console.WriteLine("".PadLeft(5) + $"({cat.Id}) " + cat.ExpenseSourcePhrase);
+                    Renderer.WriteLine("".PadLeft(5) + $"({cat.Id}) " + cat.ExpenseSourcePhrase);
                 }
             }
         }
@@ -33,11 +32,10 @@ namespace ExpenseTracker.ConsoleClient
         [MenuAction("ij", "Import from JSON")]
         public void Import()
         {
-            Console.WriteLine("Enter path to file.");
-            var path = Console.ReadLine();
+            var path = Renderer.PromptInput("Enter path to file.");
             if (!File.Exists(path))
             {
-                Console.WriteLine("Path not found.");
+                Renderer.WriteLine("Path not found.");
                 return;
             }
 
@@ -52,9 +50,7 @@ namespace ExpenseTracker.ConsoleClient
                 });
             }
 
-            this.categoriesService.Add(cats);
+            this.Service.Add(cats);
         }
-
-        private readonly CategoriesService categoriesService;
     }
 }

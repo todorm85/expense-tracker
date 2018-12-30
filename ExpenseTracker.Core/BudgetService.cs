@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ExpenseTracker.Core
 {
-    public class BudgetService : BaseDataItemService<Budget>
+    public class BudgetService : BaseDataItemService<Budget>, IBudgetService
     {
         public BudgetService(IUnitOfWork uow) : base(uow)
         {
@@ -22,17 +22,6 @@ namespace ExpenseTracker.Core
             }
 
             base.Add(budgets);
-        }
-
-        public void Remove(DateTime month)
-        {
-            var budgetToRemove = this.GetByMonth(month);
-            if (budgetToRemove == null)
-            {
-                throw new ArgumentException("Budget for that month does not exists.");
-            }
-
-            base.Remove(new Budget[] { budgetToRemove });
         }
 
         public Budget GetByMonth(DateTime month)

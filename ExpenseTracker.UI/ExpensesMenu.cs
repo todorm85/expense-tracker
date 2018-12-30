@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using ExpenseTracker.Core;
 
-namespace ExpenseTracker.ConsoleClient
+namespace ExpenseTracker.UI
 {
-    internal class ExpensesMenu : DataItemMenuBase<Expense>
+    public class ExpensesMenu : DataItemMenuBase<Expense>
     {
-        public ExpensesMenu()
+        public ExpensesMenu(IExpensesService expensesService, IBudgetService budgetService, IOutputRenderer renderer) : base(renderer)
         {
-            this.Service = ServicesFactory.GetService<ExpensesService>();
-            this.expenseService = (ExpensesService)this.Service;
-            this.budgetService = ServicesFactory.GetService<BudgetService>();
+            this.Service = expensesService;
+            this.expenseService = expensesService;
+            this.budgetService = budgetService;
         }
 
         [MenuAction("sec", "Show expenses (categories only)")]
@@ -48,7 +48,7 @@ namespace ExpenseTracker.ConsoleClient
             }
         }
 
-        private static void WriteExpenseDetails(Expense e, int padding = 0)
+        private void WriteExpenseDetails(Expense e, int padding = 0)
         {
             var source = e.Source?.ToString() ?? "";
             if (source.Length > 43)
@@ -58,50 +58,48 @@ namespace ExpenseTracker.ConsoleClient
 
             source = source.PadLeft(45);
 
-            Console.WriteLine("".PadLeft(padding) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("F0").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
+            Renderer.WriteLine("".PadLeft(padding) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("F0").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
         }
 
-        private static void WriteMonthCategoryLabel(Budget monthBudget, KeyValuePair<string, IEnumerable<Expense>> category, int pad = 0)
+        private void WriteMonthCategoryLabel(Budget monthBudget, KeyValuePair<string, IEnumerable<Expense>> category, int pad = 0)
         {
             var categoryName = string.IsNullOrEmpty(category.Key) ? "unknown" : category.Key;
             var categoryActual = category.Value.Sum(e => e.Amount);
             var budgetCategoryExists = monthBudget?.ExpectedExpensesByCategory.ContainsKey(category.Key);
             var catExpected = budgetCategoryExists.HasValue && budgetCategoryExists.Value ? monthBudget?.ExpectedExpensesByCategory[category.Key] : null;
-            Console.Write("".PadLeft(pad) + $"{categoryName} : {categoryActual.ToString("F0")} ");
+            Renderer.Write("".PadLeft(pad) + $"{categoryName} : {categoryActual.ToString("F0")} ");
             if (catExpected != null)
             {
                 WriteBudget(categoryActual, catExpected.Value);
             }
 
-            Console.WriteLine();
+            Renderer.WriteLine();
         }
 
         private void WriteMonthLabel(KeyValuePair<DateTime, Dictionary<string, IEnumerable<Expense>>> month, Budget monthBudget)
         {
             var monthActualTotal = month.Value.Sum(x => x.Value.Sum(y => y.Amount));
             var monthExpected = monthBudget?.ExpectedExpensesByCategory.Sum(x => x.Value);
-            Console.Write($"{month.Key.ToString("MMMM")}: {monthActualTotal.ToString("F0")} ");
+            Renderer.Write($"{month.Key.ToString("MMMM")}: {monthActualTotal.ToString("F0")} ");
             if (monthExpected != null)
             {
                 WriteBudget(monthActualTotal, monthExpected.Value);
             }
 
-            Console.WriteLine();
+            Renderer.WriteLine();
         }
 
-        private static void WriteBudget(decimal actual, decimal expected)
+        private void WriteBudget(decimal actual, decimal expected)
         {
             var diff = expected - actual;
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write($"{expected.ToString("F0")} ");
-            Console.ForegroundColor = diff > 0 ? ConsoleColor.Green : ConsoleColor.Red;
-            Console.Write($"{diff.ToString("F0")}");
-            Console.ResetColor();
+            Renderer.Write($"{expected.ToString("F0")} ", Style.MoreInfo);
+            var style = diff > 0 ? Style.Success : Style.Error;
+            Renderer.Write($"{diff.ToString("F0")}", style);
         }
 
-        public override BaseDataItemService<Expense> Service { get; set; }
+        public override IBaseDataItemService<Expense> Service { get; set; }
 
-        private ExpensesService expenseService;
-        private BudgetService budgetService;
+        private readonly IExpensesService expenseService;
+        private readonly IBudgetService budgetService;
     }
 }

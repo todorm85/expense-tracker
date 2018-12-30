@@ -3,26 +3,23 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using ExpenseTracker.Core;
-using ExpenseTracker.ExcelExporter;
 using ExpenseTracker.GmailConnector;
 
-namespace ExpenseTracker.ConsoleClient
+namespace ExpenseTracker.UI
 {
-    internal class MainMenu : MenuBase
+    public class MainMenu : MenuBase
     {
-        public MainMenu()
+        public MainMenu(IExpensesService service, Config config, IOutputRenderer renderer) : base(renderer)
         {
-            this.service = ServicesFactory.GetService<ExpensesService>();
-            this.AddAction("xl", () => "Excel menu", () => new ExcelMenu().Run());
-            this.AddAction("c", () => "Categories menu", () => new CategoriesMenu().Run());
-            this.AddAction("ex", () => "Expenses menu", () => new ExpensesMenu().Run());
-            this.AddAction("bu", () => "Budget menu", () => new BudgetMenu().Run());
+            this.service = service;
+            this.config = config;
+            this.renderer = renderer;
         }
 
         [MenuAction("b", "Backup database")]
         public void BackupFile()
         {
-            string sourcePath = Utils.GetDbPath();
+            string sourcePath = config.DbPath;
             var rootPath = Path.GetDirectoryName(sourcePath);
             var baseFileName = Path.GetFileNameWithoutExtension(sourcePath);
             var extension = Path.GetExtension(sourcePath);
@@ -52,20 +49,6 @@ namespace ExpenseTracker.ConsoleClient
             this.service.Classify();
         }
 
-        private IDictionary<string, string> GetKeysCategories()
-        {
-            var path = ConfigurationManager.AppSettings["classifierSettingsPath"];
-            path = Environment.ExpandEnvironmentVariables(path);
-            if (path != null)
-            {
-                return new CategoriesJsonParser().ParseFile(path);
-            }
-            else
-            {
-                return new Dictionary<string, string>();
-            }
-        }
-
         private ExpensesGmailImporter GetMailClient()
         {
             string user;
@@ -76,21 +59,21 @@ namespace ExpenseTracker.ConsoleClient
 
         private void GetCredentials(out string user, out string pass)
         {
-            user = ConfigurationManager.AppSettings["user"];
+            user = config.MailUser;
             if (string.IsNullOrEmpty(user))
             {
-                Console.WriteLine("Mail:");
-                user = Console.ReadLine();
+                user = Renderer.PromptInput("Mail:");
             }
 
-            pass = ConfigurationManager.AppSettings["pass"];
+            pass = config.MailPass;
             if (string.IsNullOrEmpty(pass))
             {
-                Console.WriteLine("Pass:");
-                pass = Console.ReadLine();
+                pass = Renderer.PromptInput("Pass:");
             }
         }
 
-        private ExpensesService service;
+        private IExpensesService service;
+        private readonly Config config;
+        private readonly IOutputRenderer renderer;
     }
 }
