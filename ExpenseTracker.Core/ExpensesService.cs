@@ -26,8 +26,9 @@ namespace ExpenseTracker.Core
 
         public override void Add(IEnumerable<Expense> expenses)
         {
-            var allExisting = this.repo.GetAll().Select(x => x.TransactionId);
-            expenses = expenses.Where(x => !allExisting.Contains(x.TransactionId));
+
+            var allExistingTransactionIds = this.repo.GetAll().Select(x => x.TransactionId);
+            expenses = expenses.Where(x => string.IsNullOrEmpty(x.TransactionId) || !allExistingTransactionIds.Contains(x.TransactionId));
 
             this.Classifier.Classify(expenses);
             base.Add(expenses);
