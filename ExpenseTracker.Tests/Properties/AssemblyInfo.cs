@@ -2,18 +2,18 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("ExpenseTracker.Core.Tests")]
+[assembly: AssemblyTitle("ExpenseTracker.Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ExpenseTracker.Core.Tests")]
+[assembly: AssemblyProduct("ExpenseTracker.Tests")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
 
-[assembly: Guid("e757afe9-6f9e-4911-a8cc-1f23d0ed60fe")]
+[assembly: Guid("920cc483-a397-484a-a326-7a5e50ee877b")]
 
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]

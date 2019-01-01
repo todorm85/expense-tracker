@@ -49,11 +49,5 @@
     <Compile Include="ExpensesExcelExporterImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj">
-      <Project>{f1b1eb88-886a-40be-a453-197333aa8c6d}</Project>
-      <Name>ExpenseTracker.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

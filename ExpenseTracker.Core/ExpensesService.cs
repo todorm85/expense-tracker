@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ExpenseTracker.Core
 {
-    public class ExpensesService : BaseDataItemService<Expense>
+    public class ExpensesService : BaseDataItemService<Expense>, IExpensesService
     {
         public ExpensesService(IUnitOfWork data) : base(data)
         {
@@ -26,8 +26,9 @@ namespace ExpenseTracker.Core
 
         public override void Add(IEnumerable<Expense> expenses)
         {
-            var allExisting = this.repo.GetAll().Select(x => x.TransactionId);
-            expenses = expenses.Where(x => !allExisting.Contains(x.TransactionId));
+
+            var allExistingTransactionIds = this.repo.GetAll().Select(x => x.TransactionId);
+            expenses = expenses.Where(x => string.IsNullOrEmpty(x.TransactionId) || !allExistingTransactionIds.Contains(x.TransactionId));
 
             this.Classifier.Classify(expenses);
             base.Add(expenses);
@@ -61,53 +62,12 @@ namespace ExpenseTracker.Core
             return byCategoryByMonths;
         }
 
-        public Dictionary<DateTime, IEnumerable<Expense>> GetExpensesByMonths(DateTime fromDate, DateTime toDate)
-        {
-            var expenses = this.repo.GetAll().Where(x => x.Date >= fromDate && x.Date <= toDate);
-            var byMonth = new Dictionary<DateTime, IEnumerable<Expense>>();
-            foreach (var year in expenses.GroupBy(x => x.Date.Year))
-            {
-                foreach (var month in year.GroupBy(x => x.Date.Month))
-                {
-                    byMonth.Add(new DateTime(year.Key, month.Key, 1), month.ToList());
-                }
-            }
-
-            return byMonth;
-        }
-
         public void Update(Expense expense)
         {
             this.Update(new Expense[] { expense });
         }
 
-        public Dictionary<DateTime, Dictionary<string, decimal>> GetCategoriesCostByMonth(DateTime fromDate, DateTime toDate)
-        {
-            var categoriesByMonth = new Dictionary<DateTime, Dictionary<string, decimal>>();
-            var expensesByMonth = this.GetExpensesByMonths(fromDate, toDate);
-            foreach (var month in expensesByMonth)
-            {
-                var cats = this.GetCategoriesCost(month.Value);
-                categoriesByMonth.Add(month.Key, cats);
-            }
-
-            return categoriesByMonth;
-        }
-
-        private Dictionary<string, decimal> GetCategoriesCost(IEnumerable<Expense> expenses)
-        {
-            var categories = expenses.GroupBy(x => x.Category);
-            var categoriesAmount = new Dictionary<string, decimal>();
-            foreach (var category in categories)
-            {
-                var amount = category.Sum(x => x.Amount);
-                categoriesAmount.Add(category.Key ?? "", amount);
-            }
-
-            return categoriesAmount;
-        }
-
-        private IUnitOfWork data;
+        private readonly IUnitOfWork data;
         private ExpensesClassifier _classifier;
     }
 }

@@ -7,9 +7,9 @@ namespace ExpenseTracker.GmailConnector
     {
         private string user;
         private string pass;
-        private ExpensesService service;
+        private IExpensesService service;
 
-        public ExpensesGmailImporter(string user, string pass, ExpensesService service)
+        public ExpensesGmailImporter(string user, string pass, IExpensesService service)
         {
             this.user = user;
             this.pass = pass;
