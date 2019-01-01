@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExtendedMenuBuilder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderer.cs" />
@@ -63,6 +64,14 @@
     <ProjectReference Include="..\ExpenseTracker.Data\ExpenseTracker.Data.csproj">
       <Project>{2e0fe626-d6c8-4170-922e-bcf851966c4e}</Project>
       <Name>ExpenseTracker.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ExpenseTracker.Gmail\ExpenseTracker.Gmail.csproj">
+      <Project>{5179FA75-99C8-4462-BEE6-EA70B03EF4E2}</Project>
+      <Name>ExpenseTracker.Gmail</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ExpenseTracker.RestClient\ExpenseTracker.RestClient.csproj">
+      <Project>{7e1370cb-82c0-45b6-a3ad-cc3bbd32849e}</Project>
+      <Name>ExpenseTracker.RestClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\ExpenseTracker.UI\ExpenseTracker.UI.csproj">
       <Project>{1d400343-02ee-40b3-839c-45e4fd765243}</Project>

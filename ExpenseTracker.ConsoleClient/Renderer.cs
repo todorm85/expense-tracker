@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ExpenseTracker.UI;
 
 namespace ExpenseTracker.ConsoleClient
@@ -8,12 +9,30 @@ namespace ExpenseTracker.ConsoleClient
     {
         public string PromptInput(string msg, string defaultValue = "")
         {
-            return Utils.PromptInput(msg, defaultValue);
+            Console.WriteLine(msg);
+            System.Windows.Forms.SendKeys.SendWait(defaultValue);
+            return Console.ReadLine();
         }
 
         public void PromptMenuActions(IEnumerable<MenuAction> actions, string exitCommand, string exitText)
         {
-            Utils.PromptMenuActions(actions, exitCommand, exitText);
+            string response = null;
+            while (response != exitCommand)
+            {
+                foreach (var a in actions)
+                {
+                    Console.WriteLine($"{a.Command.PadRight(5)} : {a.GetDescription()}");
+                }
+
+                Console.WriteLine($"{exitCommand.PadRight(5)} : {exitText}");
+
+                response = Console.ReadLine();
+                var action = actions.FirstOrDefault(a => a.Command == response);
+                if (action != null)
+                {
+                    action.Callback();
+                }
+            }
         }
 
         public void Write(string value, Style style)

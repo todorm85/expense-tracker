@@ -5,18 +5,24 @@ using System.Reflection;
 
 namespace ExpenseTracker.UI
 {
-    public abstract class MenuBase
+    public class MenuBase
     {
+        protected IList<MenuAction> menuActions = new List<MenuAction>();
+        private const string ExitCommand = "e";
         private string exitCommandText = "Exit";
+
         public MenuBase(IOutputRenderer renderer)
         {
-            Renderer = renderer;
+            this.Renderer = renderer;
         }
+
+        protected IOutputRenderer Renderer { get; }
+
         public virtual void Run()
         {
             this.GetActions();
             this.exitCommandText = "Exit " + this.GetType().Name;
-            Renderer.PromptMenuActions(this.menuActions, ExitCommand, this.exitCommandText);
+            this.Renderer.PromptMenuActions(this.menuActions, ExitCommand, this.exitCommandText);
         }
 
         public void AddAction(string command, Func<string> decsription, Action action)
@@ -41,14 +47,9 @@ namespace ExpenseTracker.UI
                 .Where(mi => mi.GetCustomAttributes().Any(at => at.GetType() == typeof(MenuActionAttribute)));
             foreach (var m in methods)
             {
-                MenuActionAttribute attribute = m.GetCustomAttribute(typeof(MenuActionAttribute)) as MenuActionAttribute;
+                var attribute = m.GetCustomAttribute(typeof(MenuActionAttribute)) as MenuActionAttribute;
                 this.AddAction(attribute.Command, () => attribute.Description, () => m.Invoke(this, null));
             }
         }
-
-        protected IList<MenuAction> menuActions = new List<MenuAction>();
-        private const string ExitCommand = "e";
-
-        protected IOutputRenderer Renderer { get; }
     }
 }

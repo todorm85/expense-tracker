@@ -26,6 +26,12 @@ namespace ExpenseTracker.UI
             this.ShowExpenses(true);
         }
 
+        [MenuAction("cl", "Classify all expenses")]
+        public void Categorize()
+        {
+            this.expenseService.Classify();
+        }
+
         private void ShowExpenses(bool detailed)
         {
             var categoriesByMonth = this.expenseService.GetExpensesByCategoriesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue);
