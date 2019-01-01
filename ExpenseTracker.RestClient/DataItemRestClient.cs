@@ -15,7 +15,8 @@ namespace ExpenseTracker.RestClient
 
         protected readonly DataContractJsonSerializerSettings serializerSettings = new DataContractJsonSerializerSettings()
         {
-            DateTimeFormat = new System.Runtime.Serialization.DateTimeFormat("yyyy-MM-dd'T'HH:mm:sszzz")
+            DateTimeFormat = new System.Runtime.Serialization.DateTimeFormat("yyyy-MM-dd'T'HH:mm:sszzz"),
+            UseSimpleDictionaryFormat = true
         };
 
         public DataItemRestClient(string baseAddress, string endpointPath)

@@ -25,5 +25,12 @@ namespace ExpenseTracker.RestApi.Controllers
         {
             return new JsonResult(this.service.GetExpensesByCategoriesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue));
         }
+
+        [Route("classify")]
+        [HttpPut]
+        public void Classsify()
+        {
+            this.service.Classify();
+        }
     }
 }

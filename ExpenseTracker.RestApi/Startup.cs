@@ -32,6 +32,7 @@ namespace ExpenseTracker.RestApi
             services.AddTransient<IUnitOfWork, UnitOfWork>(s =>
                 new UnitOfWork(this.Configuration.GetConnectionString("LiteDbConnectionString")));
             services.AddTransient<IExpensesService, ExpensesService>();
+            services.AddTransient<IBudgetService, BudgetService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

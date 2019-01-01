@@ -1,10 +1,7 @@
 ﻿using ExpenseTracker.Core;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Net.Http;
 
 namespace ExpenseTracker.RestClient
 {
@@ -18,7 +15,8 @@ namespace ExpenseTracker.RestClient
 
         public void Classify()
         {
-            throw new NotImplementedException();
+            var response = this.client.PutAsync($"{EndpointPath}/classify", null).Result;
+            ValidateResult(response);
         }
 
         public Dictionary<DateTime, Dictionary<string, IEnumerable<Expense>>> GetExpensesByCategoriesByMonths(
