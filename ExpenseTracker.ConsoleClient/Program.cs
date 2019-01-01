@@ -45,7 +45,7 @@ namespace ExpenseTracker.ConsoleClient
             {
                 container.RegisterType<IExpensesService, ExpensesRestClient>(new InjectionConstructor(webServiceBase));
                 container.RegisterType<IBudgetService, BudgetRestClient>(new InjectionConstructor(webServiceBase));
-                container.RegisterType<IBaseDataItemService<Category>, CategoriesService>();
+                container.RegisterType<IBaseDataItemService<Category>, DataItemRestClient<Category>>(new InjectionConstructor(webServiceBase, "api/categories"));
             }
             else
             {
