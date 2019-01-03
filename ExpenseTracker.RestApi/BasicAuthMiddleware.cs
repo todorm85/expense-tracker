@@ -12,11 +12,15 @@ namespace ExpenseTracker.RestApi
     {
         private readonly RequestDelegate next;
         private readonly IConfiguration config;
+        private readonly ICustomLogger logger;
+        private readonly IHttpContextAccessor http;
 
-        public BasicAuthMiddleware(RequestDelegate next, IConfiguration config)
+        public BasicAuthMiddleware(RequestDelegate next, IConfiguration config, ICustomLogger logger, IHttpContextAccessor http)
         {
             this.next = next;
             this.config = config;
+            this.logger = logger;
+            this.http = http;
         }
 
         public async Task Invoke(HttpContext context)
@@ -36,6 +40,11 @@ namespace ExpenseTracker.RestApi
                 {
                     await this.next.Invoke(context);
                     return;
+                }
+                else
+                {
+                    var ip = this.http.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+                    logger.Log($"SECURITY: Unauthorized access attempted from {ip} with client {client} and secret {secret}");
                 }
             }
             

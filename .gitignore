@@ -332,3 +332,4 @@ ASALocalRun/
 # app specifics
 *.[Dd]ebug.config
 *.db
+/ExpenseTracker.RestApi/Log.txt

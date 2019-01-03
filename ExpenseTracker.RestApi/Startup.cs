@@ -2,6 +2,7 @@
 using ExpenseTracker.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,9 @@ namespace ExpenseTracker.RestApi
             services.AddTransient<IExpensesService, ExpensesService>();
             services.AddTransient<IBudgetService, BudgetService>();
             services.AddTransient<IBaseDataItemService<Category>, CategoriesService>();
+            services.AddSingleton<ICustomLogger, SimpleFileLogger>(s => 
+                new SimpleFileLogger(Configuration.GetSection("FileLoggerPath").Value));
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
