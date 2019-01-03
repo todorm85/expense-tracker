@@ -3,6 +3,8 @@ using ExpenseTracker.Data;
 using ExpenseTracker.RestClient;
 using ExpenseTracker.UI;
 using Microsoft.Practices.Unity;
+using System;
+using System.Text;
 
 namespace ExpenseTracker.ConsoleClient
 {
@@ -10,6 +12,7 @@ namespace ExpenseTracker.ConsoleClient
     {
         internal static bool isWebClientMode;
         private static string webServiceBase;
+        private static string auth;
 
         public static void Main(string[] args)
         {
@@ -20,11 +23,19 @@ namespace ExpenseTracker.ConsoleClient
 
         private static void ProcessArguments(string[] args)
         {
-            if (args[0] == "web")
+            for (int i = 0; i < args.Length; i++)
             {
-                isWebClientMode = true;
-                webServiceBase = args[1];
-                new Renderer().WriteLine($"Web client mode enabled. Base address = {webServiceBase}");
+                if (args[i] == "web")
+                {
+                    isWebClientMode = true;
+                    webServiceBase = args[i+1];
+                    new Renderer().WriteLine($"Web client mode enabled. Base address = {webServiceBase}");
+                }
+
+                if (args[i] == "auth")
+                {
+                    auth = args[i + 1];
+                }
             }
         }
 
@@ -43,9 +54,11 @@ namespace ExpenseTracker.ConsoleClient
         {
             if (isWebClientMode)
             {
-                container.RegisterType<IExpensesService, ExpensesRestClient>(new InjectionConstructor(webServiceBase));
-                container.RegisterType<IBudgetService, BudgetRestClient>(new InjectionConstructor(webServiceBase));
-                container.RegisterType<IBaseDataItemService<Category>, DataItemRestClient<Category>>(new InjectionConstructor(webServiceBase, "api/categories"));
+                var authHeader = "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(auth));
+                container.RegisterType<IHttpClient, RestHttpClient>(new InjectionConstructor(webServiceBase, authHeader));
+                container.RegisterType<IExpensesService, ExpensesRestClient>();
+                container.RegisterType<IBudgetService, BudgetRestClient>();
+                container.RegisterType<IBaseDataItemService<Category>, DataItemRestClient<Category>>(new InjectionConstructor(typeof(IHttpClient), "api/categories"));
             }
             else
             {

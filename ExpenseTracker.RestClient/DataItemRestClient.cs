@@ -10,8 +10,8 @@ namespace ExpenseTracker.RestClient
 {
     public class DataItemRestClient<T> : IBaseDataItemService<T> where T : IDataItem
     {
-        protected readonly HttpClient client;
-        protected readonly string endpointPath;
+        protected readonly IHttpClient client;
+        protected string EndpointPath { get; set; }
 
         protected readonly DataContractJsonSerializerSettings serializerSettings = new DataContractJsonSerializerSettings()
         {
@@ -19,47 +19,41 @@ namespace ExpenseTracker.RestClient
             UseSimpleDictionaryFormat = true
         };
 
-        public DataItemRestClient(string baseAddress, string endpointPath)
+        public DataItemRestClient(IHttpClient client, string endpointPath)
         {
-            this.client = new HttpClient() { BaseAddress = new Uri(baseAddress) }; ;
-            this.endpointPath = endpointPath;
+            this.EndpointPath = endpointPath;
+            this.client = client;
+        }
+
+        public DataItemRestClient(IHttpClient client)
+        {
+            this.client = client;
         }
 
         public void Add(IEnumerable<T> items)
         {
             var json = this.Serialize(items);
-            var result = this.client.PostAsync(this.endpointPath, new StringContent(json, Encoding.UTF8, "application/json")).Result;
-            ValidateResult(result);
+            this.client.Post(this.EndpointPath, json);
         }
 
         public IEnumerable<T> GetAll()
         {
-            var response = this.client.GetStreamAsync(this.endpointPath);
-            return this.Deserialize<List<T>>(response.Result);
+            var response = this.client.Get(this.EndpointPath);
+            return this.Deserialize<List<T>>(response);
         }
 
         public void Remove(IEnumerable<T> items)
         {
             foreach (var item in items)
             {
-                var result = this.client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, this.endpointPath + $"/{item.Id}")).Result;
-                ValidateResult(result);
+                this.client.Delete(this.EndpointPath + $"/{item.Id}");
             }
         }
 
         public void Update(IEnumerable<T> items)
         {
             var json = this.Serialize(items);
-            var result = this.client.PutAsync(this.endpointPath, new StringContent(json, Encoding.UTF8, "application/json")).Result;
-            ValidateResult(result);
-        }
-
-        protected static void ValidateResult(HttpResponseMessage result)
-        {
-            if (!result.IsSuccessStatusCode)
-            {
-                throw new InvalidOperationException($"{result.StatusCode.ToString()} {result.Content.ReadAsStringAsync().Result}");
-            }
+            this.client.Put(this.EndpointPath, json);
         }
 
         protected string Serialize<T1>(T1 items)
@@ -73,10 +67,11 @@ namespace ExpenseTracker.RestClient
             return json;
         }
 
-        protected TDes Deserialize<TDes>(Stream str) where TDes : class
+        protected TDes Deserialize<TDes>(string str) where TDes : class
         {
             var serializer = new DataContractJsonSerializer(typeof(TDes), this.serializerSettings);
-            return serializer.ReadObject(str) as TDes;
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(str));
+            return serializer.ReadObject(stream) as TDes;
         }
     }
 }
