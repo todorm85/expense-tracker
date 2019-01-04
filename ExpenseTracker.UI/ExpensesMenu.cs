@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ExpenseTracker.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using ExpenseTracker.Core;
 
 namespace ExpenseTracker.UI
 {
@@ -32,6 +32,25 @@ namespace ExpenseTracker.UI
             this.expenseService.Classify();
         }
 
+        [MenuAction("qa", "Quick add expense")]
+        public void QuickAddExpense()
+        {
+            var amount = int.Parse(this.Renderer.PromptInput("Amount: ", "0"));
+            var cat = this.Renderer.PromptInput("Category: ", string.Empty);
+            var desc = this.Renderer.PromptInput("Description: ", string.Empty);
+            var date = DateTime.Parse(this.Renderer.PromptInput("Date: ", DateTime.Now.ToString()));
+            this.Service.Add(new Expense[]
+            {
+                new Expense()
+                {
+                    Amount = amount,
+                    Category = cat,
+                    Source = desc,
+                    Date = date
+                }
+            });
+        }
+
         private void ShowExpenses(bool detailed)
         {
             var categoriesByMonth = this.expenseService.GetExpensesByCategoriesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue);
@@ -42,12 +61,12 @@ namespace ExpenseTracker.UI
 
                 foreach (var category in month.Value.OrderBy(x => x.Key))
                 {
-                    WriteMonthCategoryLabel(monthBudget, category, 5);
+                    this.WriteMonthCategoryLabel(monthBudget, category, 5);
                     if (detailed)
                     {
                         foreach (var e in category.Value.OrderBy(x => x.Date))
                         {
-                            WriteExpenseDetails(e, 10);
+                            this.WriteExpenseDetails(e, 10);
                         }
                     }
                 }
@@ -64,7 +83,7 @@ namespace ExpenseTracker.UI
 
             source = source.PadLeft(45);
 
-            Renderer.WriteLine("".PadLeft(padding) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("F0").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
+            this.Renderer.WriteLine("".PadLeft(padding) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("F0").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
         }
 
         private void WriteMonthCategoryLabel(Budget monthBudget, KeyValuePair<string, IEnumerable<Expense>> category, int pad = 0)
@@ -73,34 +92,34 @@ namespace ExpenseTracker.UI
             var categoryActual = category.Value.Sum(e => e.Amount);
             var budgetCategoryExists = monthBudget?.ExpectedExpensesByCategory.ContainsKey(category.Key);
             var catExpected = budgetCategoryExists.HasValue && budgetCategoryExists.Value ? monthBudget?.ExpectedExpensesByCategory[category.Key] : null;
-            Renderer.Write("".PadLeft(pad) + $"{categoryName} : {categoryActual.ToString("F0")} ");
+            this.Renderer.Write("".PadLeft(pad) + $"{categoryName} : {categoryActual.ToString("F0")} ");
             if (catExpected != null)
             {
-                WriteBudget(categoryActual, catExpected.Value);
+                this.WriteBudget(categoryActual, catExpected.Value);
             }
 
-            Renderer.WriteLine();
+            this.Renderer.WriteLine();
         }
 
         private void WriteMonthLabel(KeyValuePair<DateTime, Dictionary<string, IEnumerable<Expense>>> month, Budget monthBudget)
         {
             var monthActualTotal = month.Value.Sum(x => x.Value.Sum(y => y.Amount));
             var monthExpected = monthBudget?.ExpectedExpensesByCategory.Sum(x => x.Value);
-            Renderer.Write($"{month.Key.ToString("MMMM")}: {monthActualTotal.ToString("F0")} ");
+            this.Renderer.Write($"{month.Key.ToString("MMMM")}: {monthActualTotal.ToString("F0")} ");
             if (monthExpected != null)
             {
-                WriteBudget(monthActualTotal, monthExpected.Value);
+                this.WriteBudget(monthActualTotal, monthExpected.Value);
             }
 
-            Renderer.WriteLine();
+            this.Renderer.WriteLine();
         }
 
         private void WriteBudget(decimal actual, decimal expected)
         {
             var diff = expected - actual;
-            Renderer.Write($"{expected.ToString("F0")} ", Style.MoreInfo);
+            this.Renderer.Write($"{expected.ToString("F0")} ", Style.MoreInfo);
             var style = diff > 0 ? Style.Success : Style.Error;
-            Renderer.Write($"{diff.ToString("F0")}", style);
+            this.Renderer.Write($"{diff.ToString("F0")}", style);
         }
 
         public override IBaseDataItemService<Expense> Service { get; set; }
