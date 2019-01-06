@@ -48,14 +48,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExtendedMenuBuilder.cs" />
+    <Compile Include="ISettings.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="MenuFactory.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="AppData\settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj">

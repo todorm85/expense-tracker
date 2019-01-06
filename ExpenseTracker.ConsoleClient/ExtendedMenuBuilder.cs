@@ -9,18 +9,20 @@ namespace ExpenseTracker.ConsoleClient
     internal class ExtendedMenuBuilder : MenuBuilder
     {
         private readonly IExpensesService expensesService;
+        private readonly ISettings settings;
 
-        public ExtendedMenuBuilder(IMenuFactory factory, IOutputRenderer renderer, IExpensesService expensesService) : base(factory, renderer)
+        public ExtendedMenuBuilder(IMenuFactory factory, IOutputRenderer renderer, IExpensesService expensesService, ISettings settings) : base(factory, renderer)
         {
             this.expensesService = expensesService;
+            this.settings = settings;
         }
 
         public override MenuBase Build()
         {
             var menu = base.Build();
-            if (!Program.isWebClientMode)
+            if (this.settings.ClientMode != Settings.WebClientModeValue)
             {
-                menu.AddAction("ba", () => "backup database", () => BackupFile(Utils.GetDbPath()));
+                menu.AddAction("ba", () => "backup database", () => BackupFile(this.settings.DbPath));
             }
 
             menu.AddAction("im", () => "Import gmail", () => this.Import());
@@ -46,26 +48,11 @@ namespace ExpenseTracker.ConsoleClient
             File.Copy(sourcePath, newPath);
         }
 
-        private static void GetCredentials(out string user, out string pass)
-        {
-            var renderer = new Renderer();
-            user = ConfigurationManager.AppSettings["mailUser"];
-            if (string.IsNullOrEmpty(user))
-            {
-                user = renderer.PromptInput("Mail:");
-            }
-
-            pass = ConfigurationManager.AppSettings["mailKey"];
-            if (string.IsNullOrEmpty(pass))
-            {
-                pass = renderer.PromptInput("Pass:");
-            }
-        }
-
         private void Import()
         {
-            GetCredentials(out string user, out string pass);
-            new ExpensesGmailImporter(user, pass, this.expensesService);
+            var user = this.settings.MailUser;
+            var pass = this.settings.MailPass;
+            new ExpensesGmailImporter(user, pass, this.expensesService).Import();
         }
     }
 }

@@ -4,39 +4,23 @@ using ExpenseTracker.RestClient;
 using ExpenseTracker.UI;
 using Microsoft.Practices.Unity;
 using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Runtime.Serialization.Json;
 using System.Text;
 
 namespace ExpenseTracker.ConsoleClient
 {
     internal class Program
     {
-        internal static bool isWebClientMode;
-        private static string webServiceBase;
-        private static string auth;
+        private static Settings settings;
 
         public static void Main(string[] args)
         {
-            ProcessArguments(args);
+            LoadSettings();
             var container = RegisterIoCTypes();
             container.Resolve<ExtendedMenuBuilder>().Build().Run();
-        }
-
-        private static void ProcessArguments(string[] args)
-        {
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (args[i] == "web")
-                {
-                    isWebClientMode = true;
-                    webServiceBase = args[i+1];
-                    new Renderer().WriteLine($"Web client mode enabled. Base address = {webServiceBase}");
-                }
-
-                if (args[i] == "auth")
-                {
-                    auth = args[i + 1];
-                }
-            }
         }
 
         private static IUnityContainer RegisterIoCTypes()
@@ -46,23 +30,44 @@ namespace ExpenseTracker.ConsoleClient
             container.RegisterType<IMenuFactory, MenuFactory>();
 
             RegisterServices(container);
+            container.RegisterInstance<ISettings>(settings);
 
             return container;
         }
 
+        private static void LoadSettings()
+        {
+            settings = new Settings(new Dictionary<string, string>());
+
+            var settingsPath = ConfigurationManager.AppSettings["settingsPath"];
+            if (File.Exists(settingsPath))
+            {
+                var serializer = new DataContractJsonSerializer(typeof(Dictionary<string, string>), new DataContractJsonSerializerSettings()
+                {
+                    UseSimpleDictionaryFormat = true
+                });
+
+                var json = File.OpenText(settingsPath).ReadToEnd();
+                var jsonBytes = Encoding.UTF8.GetBytes(json);
+                var settingsCollection = serializer.ReadObject(new MemoryStream(jsonBytes)) as Dictionary<string, string>;
+                settings = new Settings(settingsCollection);
+            }
+
+        }
+
         private static void RegisterServices(UnityContainer container)
         {
-            if (isWebClientMode)
+            if (settings.ClientMode == Settings.WebClientModeValue)
             {
-                var authHeader = "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(auth));
-                container.RegisterType<IHttpClient, RestHttpClient>(new InjectionConstructor(webServiceBase, authHeader));
+                var authHeader = "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(settings.WebClientAuth));
+                container.RegisterType<IHttpClient, RestHttpClient>(new InjectionConstructor(settings.WebServiceBase, authHeader));
                 container.RegisterType<IExpensesService, ExpensesRestClient>();
                 container.RegisterType<IBudgetService, BudgetRestClient>();
                 container.RegisterType<IBaseDataItemService<Category>, DataItemRestClient<Category>>(new InjectionConstructor(typeof(IHttpClient), "api/categories"));
             }
             else
             {
-                container.RegisterType<IUnitOfWork, UnitOfWork>(new InjectionConstructor(Utils.GetDbPath()));
+                container.RegisterType<IUnitOfWork, UnitOfWork>(new InjectionConstructor(settings.DbPath));
                 container.RegisterType<IExpensesService, ExpensesService>();
                 container.RegisterType<IBudgetService, BudgetService>();
                 container.RegisterType<IBaseDataItemService<Category>, CategoriesService>();
