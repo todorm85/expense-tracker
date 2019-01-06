@@ -14,27 +14,6 @@ namespace ExpenseTracker.ConsoleClient
             return Console.ReadLine();
         }
 
-        public void PromptMenuActions(IEnumerable<MenuAction> actions, string exitCommand, string exitText)
-        {
-            string response = null;
-            while (response != exitCommand)
-            {
-                foreach (var a in actions)
-                {
-                    Console.WriteLine($"{a.Command.PadRight(5)} : {a.GetDescription()}");
-                }
-
-                Console.WriteLine($"{exitCommand.PadRight(5)} : {exitText}");
-
-                response = Console.ReadLine();
-                var action = actions.FirstOrDefault(a => a.Command == response);
-                if (action != null)
-                {
-                    action.Callback();
-                }
-            }
-        }
-
         public void Write(string value, Style style)
         {
             switch (style)

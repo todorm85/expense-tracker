@@ -7,12 +7,18 @@ namespace ExpenseTracker.UI
 {
     public class ExpensesMenu : DataItemMenuBase<Expense>
     {
+        private readonly IExpensesService expenseService;
+
+        private readonly IBudgetService budgetService;
+
         public ExpensesMenu(IExpensesService expensesService, IBudgetService budgetService, IOutputRenderer renderer) : base(renderer)
         {
             this.Service = expensesService;
             this.expenseService = expensesService;
             this.budgetService = budgetService;
         }
+
+        public override IBaseDataItemService<Expense> Service { get; set; }
 
         [MenuAction("sec", "Show expenses (categories only)")]
         public void ShowExpensesCategoriesOnly()
@@ -109,22 +115,38 @@ namespace ExpenseTracker.UI
             if (monthExpected != null)
             {
                 this.WriteBudget(monthActualTotal, monthExpected.Value);
+                if (monthBudget.ActualIncome > 0)
+                {
+                    this.WriteBudgetSavings(monthActualTotal, monthExpected.Value, monthBudget);
+                }
             }
 
             this.Renderer.WriteLine();
         }
 
-        private void WriteBudget(decimal actual, decimal expected)
+        private void WriteBudget(decimal actualExpenses, decimal expectedExpenses)
         {
-            var diff = expected - actual;
-            this.Renderer.Write($"{expected.ToString("F0")} ", Style.MoreInfo);
-            var style = diff > 0 ? Style.Success : Style.Error;
+            var diff = expectedExpenses - actualExpenses;
+            this.Renderer.Write($"{expectedExpenses.ToString("F0")} ", Style.MoreInfo);
+            var style = diff >= 0 ? Style.Success : Style.Error;
             this.Renderer.Write($"{diff.ToString("F0")}", style);
         }
 
-        public override IBaseDataItemService<Expense> Service { get; set; }
+        private void WriteBudgetSavings(decimal actualExpenses, decimal expectedExpenses, Budget monthBudget)
+        {
+            this.Renderer.Write($" (Savings: ");
 
-        private readonly IExpensesService expenseService;
-        private readonly IBudgetService budgetService;
+            var actualSavings = monthBudget.ActualIncome - actualExpenses;
+            this.Renderer.Write($"{actualSavings} ");
+
+            var expectedSavings = monthBudget.ExpectedIncome - expectedExpenses;
+            this.Renderer.Write($"{expectedSavings} ", Style.MoreInfo);
+
+            var savingsDiff = expectedSavings - actualSavings;
+            var style = savingsDiff >= 0 ? Style.Success : Style.Error;
+            this.Renderer.Write($"{savingsDiff}", style);
+
+            this.Renderer.Write(")");
+        }
     }
 }

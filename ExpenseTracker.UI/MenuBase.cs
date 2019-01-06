@@ -22,7 +22,7 @@ namespace ExpenseTracker.UI
         {
             this.GetActions();
             this.exitCommandText = "Exit " + this.GetType().Name;
-            this.Renderer.PromptMenuActions(this.menuActions, ExitCommand, this.exitCommandText);
+            this.PromptMenuActions(this.menuActions, ExitCommand, this.exitCommandText);
         }
 
         public void AddAction(string command, Func<string> decsription, Action action)
@@ -38,6 +38,27 @@ namespace ExpenseTracker.UI
                 Command = command,
                 GetDescription = decsription
             });
+        }
+
+        private void PromptMenuActions(IEnumerable<MenuAction> actions, string exitCommand, string exitText)
+        {
+            string response = null;
+            while (response != exitCommand)
+            {
+                foreach (var a in actions)
+                {
+                    this.Renderer.WriteLine($"{a.Command.PadRight(5)} : {a.GetDescription()}");
+                }
+
+                this.Renderer.WriteLine($"{exitCommand.PadRight(5)} : {exitText}");
+
+                response = this.Renderer.PromptInput("");
+                var action = actions.FirstOrDefault(a => a.Command == response);
+                if (action != null)
+                {
+                    action.Callback();
+                }
+            }
         }
 
         private void GetActions()
