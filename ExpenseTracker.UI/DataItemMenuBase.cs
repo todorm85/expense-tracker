@@ -41,7 +41,7 @@ namespace ExpenseTracker.UI
         }
 
         [MenuAction("sa", "Show all")]
-        public void Show()
+        public virtual void Show()
         {
             var items = this.Service.GetAll();
             foreach (var item in items)

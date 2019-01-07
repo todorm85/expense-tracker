@@ -63,7 +63,10 @@ namespace ExpenseTracker.UI
             foreach (var month in categoriesByMonth.OrderBy(x => x.Key))
             {
                 var monthBudget = this.budgetService.GetByMonth(month.Key);
+
+                this.Renderer.WriteLine();
                 this.WriteMonthLabel(month, monthBudget);
+                this.Renderer.WriteLine();
 
                 foreach (var category in month.Value.OrderBy(x => x.Key))
                 {
@@ -134,17 +137,10 @@ namespace ExpenseTracker.UI
 
         private void WriteBudgetSavings(decimal actualExpenses, decimal expectedExpenses, Budget monthBudget)
         {
-            this.Renderer.Write($" (Savings: ");
+            this.Renderer.Write($" (Savings:");
 
             var actualSavings = monthBudget.ActualIncome - actualExpenses;
-            this.Renderer.Write($"{actualSavings} ");
-
-            var expectedSavings = monthBudget.ExpectedIncome - expectedExpenses;
-            this.Renderer.Write($"{expectedSavings} ", Style.MoreInfo);
-
-            var savingsDiff = expectedSavings - actualSavings;
-            var style = savingsDiff >= 0 ? Style.Success : Style.Error;
-            this.Renderer.Write($"{savingsDiff}", style);
+            this.Renderer.Write($"{actualSavings}", actualSavings >= 0 ? Style.Success : Style.Error);
 
             this.Renderer.Write(")");
         }

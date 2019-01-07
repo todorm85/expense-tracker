@@ -11,5 +11,7 @@
         void WriteLine(string value);
 
         string PromptInput(string msg, string defaultValue = "");
+
+        void WriteLine(string value, Style style);
     }
 }

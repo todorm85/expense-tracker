@@ -50,5 +50,11 @@ namespace ExpenseTracker.ConsoleClient
         {
             Console.WriteLine(value);
         }
+
+        public void WriteLine(string value, Style style)
+        {
+            this.Write(value, style);
+            Console.WriteLine();
+        }
     }
 }
