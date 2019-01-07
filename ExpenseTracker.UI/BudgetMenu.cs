@@ -18,7 +18,8 @@ namespace ExpenseTracker.UI
 
         public override void Show()
         {
-            var budgets = this.budgetService.GetAll().Where(x => x.Month > DateTime.Now.AddYears(-1));
+            var budgets = this.budgetService.GetAll().Where(x => x.Month > DateTime.Now.AddYears(-1))
+                .OrderBy(x => x.Month);
             foreach (var budget in budgets)
             {
                 this.Renderer.WriteLine();
