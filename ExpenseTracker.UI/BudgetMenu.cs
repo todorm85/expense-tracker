@@ -1,14 +1,11 @@
-﻿using ExpenseTracker.Core;
-using System;
+﻿using System;
 using System.Linq;
+using ExpenseTracker.Core;
 
 namespace ExpenseTracker.UI
 {
     public class BudgetMenu : DataItemMenuBase<Budget>
     {
-        private readonly IBudgetService budgetService;
-        private readonly IExpensesService expensesService;
-
         public BudgetMenu(IBudgetService service, IOutputRenderer renderer, IExpensesService expensesService) : base(renderer)
         {
             this.budgetService = service;
@@ -16,9 +13,15 @@ namespace ExpenseTracker.UI
             this.Service = service;
         }
 
+        public override IBaseDataItemService<Budget> Service { get; set; }
+
         public override void Show()
         {
-            var budgets = this.budgetService.GetAll().Where(x => x.Month > DateTime.Now.AddYears(-1))
+            var fromDate = new DateTime(DateTime.Now.Year, 1, 1);
+            var toDate = new DateTime(DateTime.Now.Year + 1, 1, 1).AddDays(-1);
+            Renderer.GetDateFilter(ref fromDate, ref toDate);
+
+            var budgets = this.budgetService.GetAll().Where(x => x.Month >= fromDate && x.Month <= toDate)
                 .OrderBy(x => x.Month);
             foreach (var budget in budgets)
             {
@@ -63,8 +66,28 @@ namespace ExpenseTracker.UI
             }
 
             this.Renderer.WriteLine();
+            this.WriteSummary(budgets);
         }
 
-        public override IBaseDataItemService<Budget> Service { get; set; }
+        private void WriteSummary(IOrderedEnumerable<Budget> budgets)
+        {
+            var budgetsWithActualIncome = budgets.Where(b => b.ActualIncome != 0);
+            var budgetsWithNoActualIncome = budgets.Where(b => b.ActualIncome == 0);
+
+            var totalSavings = budgetsWithActualIncome.Sum(b => b.ActualIncome - this.GetActualExpenses(b));
+            var totalExpectedSavings = budgetsWithNoActualIncome.Sum(b => b.GetExpectedSavings());
+
+            this.Renderer.WriteLine($"Savings Summary: saved:{totalSavings} expected:{totalExpectedSavings} total:{totalSavings + totalExpectedSavings}");
+            this.Renderer.WriteLine();
+        }
+
+        private decimal GetActualExpenses(Budget b)
+        {
+            return this.expensesService.GetAll()
+                                    .Where(e => e.Date.Year == b.Month.Year && e.Date.Month == b.Month.Month).Sum(e => e.Amount);
+        }
+
+        private readonly IBudgetService budgetService;
+        private readonly IExpensesService expensesService;
     }
 }

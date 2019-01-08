@@ -1,4 +1,6 @@
-﻿namespace ExpenseTracker.UI
+﻿using System;
+
+namespace ExpenseTracker.UI
 {
     internal static class IOutputRendererExtensions
     {
@@ -16,5 +18,14 @@
             renderer.RenderDiffernce(primary, secondary, prefix, secondaryShouldBeHigher);
             renderer.WriteLine();
         }
+
+
+        public static void GetDateFilter(this IOutputRenderer renderer, ref DateTime fromDate, ref DateTime toDate)
+        {
+            var result = renderer.PromptInput("Filter (Date from, Date to)", $"{fromDate.ToShortDateString()} {toDate.ToShortDateString()}");
+            fromDate = DateTime.Parse(result.Split(' ')[0]);
+            toDate = DateTime.Parse(result.Split(' ')[1]);
+        }
+
     }
 }

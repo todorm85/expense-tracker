@@ -26,7 +26,7 @@ namespace ExpenseTracker.Core
 
         public Budget GetByMonth(DateTime month)
         {
-            return this.GetAll().FirstOrDefault(x => x.Month == month);
+            return this.GetAll().FirstOrDefault(x => x.Month.Year == month.Year && x.Month.Month == month.Month);
         }
     }
 }

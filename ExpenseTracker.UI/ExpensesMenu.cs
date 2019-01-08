@@ -59,7 +59,11 @@ namespace ExpenseTracker.UI
 
         private void ShowExpenses(bool detailed)
         {
-            var categoriesByMonth = this.expenseService.GetExpensesByCategoriesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue);
+            var fromDate = DateTime.Now.AddYears(-1);
+            var toDate = DateTime.Now;
+            Renderer.GetDateFilter(ref fromDate, ref toDate);
+
+            var categoriesByMonth = this.expenseService.GetExpensesByCategoriesByMonths(fromDate, toDate);
             foreach (var month in categoriesByMonth.OrderBy(x => x.Key))
             {
                 var monthBudget = this.budgetService.GetByMonth(month.Key);
