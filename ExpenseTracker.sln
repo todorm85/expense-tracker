@@ -15,11 +15,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.ConsoleClien
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Tests", "ExpenseTracker.Tests\ExpenseTracker.Tests.csproj", "{920CC483-A397-484A-A326-7A5E50EE877B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.RestApi", "ExpenseTracker.RestApi\ExpenseTracker.RestApi.csproj", "{33E84510-006F-4646-8B70-683BFDFC98BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.RestApi", "ExpenseTracker.RestApi\ExpenseTracker.RestApi.csproj", "{33E84510-006F-4646-8B70-683BFDFC98BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.RestClient", "ExpenseTracker.RestClient\ExpenseTracker.RestClient.csproj", "{7E1370CB-82C0-45B6-A3AD-CC3BBD32849E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.RestClient", "ExpenseTracker.RestClient\ExpenseTracker.RestClient.csproj", "{7E1370CB-82C0-45B6-A3AD-CC3BBD32849E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.RestClient.IntTests", "ExpenseTracker.RestClient.IntTests\ExpenseTracker.RestClient.IntTests.csproj", "{C5E4734F-1967-41CB-B352-E0A0C79A6E0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.RestClient.IntTests", "ExpenseTracker.RestClient.IntTests\ExpenseTracker.RestClient.IntTests.csproj", "{C5E4734F-1967-41CB-B352-E0A0C79A6E0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Excel", "ExpenseTracker.Excel\ExpenseTracker.Excel.csproj", "{47A028CD-D55E-452D-835C-0A870A1FDF79}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{C5E4734F-1967-41CB-B352-E0A0C79A6E0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5E4734F-1967-41CB-B352-E0A0C79A6E0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5E4734F-1967-41CB-B352-E0A0C79A6E0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47A028CD-D55E-452D-835C-0A870A1FDF79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47A028CD-D55E-452D-835C-0A870A1FDF79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47A028CD-D55E-452D-835C-0A870A1FDF79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47A028CD-D55E-452D-835C-0A870A1FDF79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
