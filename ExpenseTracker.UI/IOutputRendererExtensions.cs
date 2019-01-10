@@ -25,6 +25,7 @@ namespace ExpenseTracker.UI
             var result = renderer.PromptInput("Filter (Date from, Date to)", $"{fromDate.ToShortDateString()} {toDate.ToShortDateString()}");
             fromDate = DateTime.Parse(result.Split(' ')[0]);
             toDate = DateTime.Parse(result.Split(' ')[1]);
+            toDate = toDate.AddDays(1);
         }
 
     }
