@@ -71,6 +71,8 @@ namespace ExpenseTracker.ConsoleClient
                 container.RegisterType<IExpensesService, ExpensesService>();
                 container.RegisterType<IBudgetService, BudgetService>();
                 container.RegisterType<IBaseDataItemService<Category>, CategoriesService>();
+                container.RegisterType<IBudgetCalculator, BudgetCalculator>();
+                container.RegisterType<ISalaryService, SalaryService>();
             }
         }
     }

@@ -6,10 +6,12 @@ namespace ExpenseTracker.UI
 {
     public class BudgetMenu : DataItemMenuBase<Budget>
     {
-        public BudgetMenu(IBudgetService service, IOutputRenderer renderer, IExpensesService expensesService) : base(renderer)
+        public BudgetMenu(IBudgetService service, IOutputRenderer renderer, IExpensesService expensesService, IBudgetCalculator calculator, ISalaryService salaryService) : base(renderer)
         {
             this.budgetService = service;
             this.expensesService = expensesService;
+            this.calculator = calculator;
+            this.salaryService = salaryService;
             this.Service = service;
         }
 
@@ -30,20 +32,17 @@ namespace ExpenseTracker.UI
                 this.Renderer.WriteLine($" ({budget.Id})", Style.MoreInfo);
                 var prefix = "  ";
 
-                var expectedIncome = budget.ExpectedIncome;
-                var expectedExpense = budget.GetExpectedExpenses();
-                var expectedSavings = expectedIncome - expectedExpense;
+                var expectedIncome = this.calculator.CalculateExpectedIncome(budget);
+                var expectedExpense = this.calculator.CalculateExpectedExpenses(budget);
+                var expectedSavings = this.calculator.CalculateExpectedSavings(budget);
                 var actualIncome = budget.ActualIncome;
 
                 if (actualIncome != 0)
                 {
-                    var actualExpense = this.expensesService.GetAll()
-                        .Where(e => e.Date.Year == budget.Month.Year && e.Date.Month == budget.Month.Month).Sum(e => e.Amount);
-                    var actualSaving = budget.ActualIncome - actualExpense;
+                    var actualExpense = this.calculator.CalculateActualExpenses(budget);
+                    var actualSaving = this.calculator.CalculateActualSavings(budget);
                     var savingsDiff = actualSaving - expectedSavings;
 
-                    //this.Renderer.Write($" {actualSaving}", actualSaving > 0 ? Style.Success : Style.Error);
-                    //this.Renderer.WriteLine($" (diff: {savingsDiff})", savingsDiff >= 0 ? Style.Success : Style.Error);
                     this.Renderer.Write($"{prefix}Savings:");
                     this.Renderer.Write($" {expectedSavings}", expectedSavings >= 0 ? Style.Success : Style.Error);
                     this.Renderer.Write($" {actualSaving}", actualSaving >= 0 ? Style.Success : Style.Error);
@@ -69,25 +68,29 @@ namespace ExpenseTracker.UI
             this.WriteSummary(budgets);
         }
 
+        [MenuAction("sal", "Edit salary")]
+        public void EditSalary()
+        {
+            var newSalary = decimal.Parse(this.Renderer.PromptInput("Edit salary", this.salaryService.SalaryAmount.ToString()));
+            this.salaryService.SalaryAmount = newSalary;
+        }
+
         private void WriteSummary(IOrderedEnumerable<Budget> budgets)
         {
             var budgetsWithActualIncome = budgets.Where(b => b.ActualIncome != 0);
             var budgetsWithNoActualIncome = budgets.Where(b => b.ActualIncome == 0);
 
-            var totalSavings = budgetsWithActualIncome.Sum(b => b.ActualIncome - this.GetActualExpenses(b));
-            var totalExpectedSavings = budgetsWithNoActualIncome.Sum(b => b.GetExpectedSavings());
+            var totalSavings = budgetsWithActualIncome.Sum(b => b.ActualIncome - this.calculator.CalculateActualExpenses(b));
+            var totalExpectedSavings = budgetsWithNoActualIncome.Sum(b => this.calculator.CalculateExpectedSavings(b));
 
             this.Renderer.WriteLine($"Savings Summary: saved:{totalSavings} expected:{totalExpectedSavings} total:{totalSavings + totalExpectedSavings}");
             this.Renderer.WriteLine();
         }
 
-        private decimal GetActualExpenses(Budget b)
-        {
-            return this.expensesService.GetAll()
-                                    .Where(e => e.Date.Year == b.Month.Year && e.Date.Month == b.Month.Month).Sum(e => e.Amount);
-        }
 
         private readonly IBudgetService budgetService;
         private readonly IExpensesService expensesService;
+        private readonly IBudgetCalculator calculator;
+        private readonly ISalaryService salaryService;
     }
 }
