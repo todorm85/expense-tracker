@@ -7,12 +7,10 @@ namespace ExpenseTracker.Core
     {
         public int Id { get; set; }
 
-        public DateTime Month { get; set; }
+        public DateTime FromMonth { get; set; }
 
-        public decimal ExpectedIncome { get; set; }
+        public DateTime ToMonth { get; set; }
 
-        public decimal ActualIncome { get; set; }
-
-        public Dictionary<string, decimal> ExpectedExpensesByCategory { get; set; }
+        public List<Transaction> ExpectedTransactions { get; set; }
     }
 }

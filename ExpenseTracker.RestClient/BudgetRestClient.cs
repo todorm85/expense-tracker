@@ -12,7 +12,7 @@ namespace ExpenseTracker.RestClient
         {
         }
 
-        public Budget GetByMonth(DateTime month)
+        public Budget GetCumulativeForMonth(DateTime month)
         {
             var response = this.client.Get(EndpointPath + $"/by-month/{month.Year}/{month.Month}");
             return this.Deserialize<Budget>(response);

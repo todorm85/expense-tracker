@@ -8,6 +8,8 @@
 
         decimal CalculateExpectedIncome(Budget budget);
 
+        decimal CalculateActualIncome(Budget budget);
+
         decimal CalculateActualExpenses(Budget budget);
 
         decimal CalculateActualSavings(Budget budget);

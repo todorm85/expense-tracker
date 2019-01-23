@@ -11,7 +11,9 @@ namespace ExpenseTracker.Core
 
         public decimal CalculateExpectedExpenses(Budget budget)
         {
-            return budget.ExpectedExpensesByCategory.Sum(x => x.Value);
+            return budget.ExpectedTransactions
+                .Where(x => x.Type == TransactionType.Expense)
+                .Sum(x => x.Amount);
         }
 
         public decimal CalculateExpectedSavings(Budget budget)
@@ -21,22 +23,34 @@ namespace ExpenseTracker.Core
 
         public decimal CalculateExpectedIncome(Budget budget)
         {
-            return budget.ExpectedIncome;
+            return budget.ExpectedTransactions
+                .Where(x => x.Type == TransactionType.Income)
+                .Sum(x => x.Amount); ;
         }
 
         public decimal CalculateActualExpenses(Budget budget)
         {
             return this.transactionsService.GetAll()
-                                    .Where(e => e.Date.Year == budget.Month.Year 
-                                        && e.Date.Month == budget.Month.Month
+                                    .Where(e => e.Date >= budget.FromMonth
+                                        && e.Date <= budget.ToMonth
                                         && e.Type == TransactionType.Expense)
+                                    .Sum(e => e.Amount);
+        }
+
+        public decimal CalculateActualIncome(Budget budget)
+        {
+            return this.transactionsService.GetAll()
+                                    .Where(e => e.Date >= budget.FromMonth
+                                        && e.Date <= budget.ToMonth
+                                        && e.Type == TransactionType.Income)
                                     .Sum(e => e.Amount);
         }
 
         public decimal CalculateActualSavings(Budget budget)
         {
             var actualExpense = this.CalculateActualExpenses(budget);
-            var actualSaving = budget.ActualIncome - actualExpense;
+            var actualIncome = this.CalculateActualIncome(budget);
+            var actualSaving = actualIncome - actualExpense;
             return actualSaving;
         }
 

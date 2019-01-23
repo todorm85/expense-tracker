@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace ExpenseTracker.Core
@@ -10,23 +9,27 @@ namespace ExpenseTracker.Core
         {
         }
 
-        public override void Add(IEnumerable<Budget> budgets)
+        public Budget GetCumulativeForMonth(DateTime month)
         {
-            foreach (var budget in budgets)
+            var allForMonth = this.GetAll()
+                .Where(x => x.FromMonth <= month && month <= x.ToMonth);
+            if (allForMonth.Count() > 0)
             {
-                if (this.GetByMonth(budget.Month) != null)
+                return allForMonth.Aggregate((x, y) =>
                 {
-                    throw new ArgumentException($"Budget for that month {budget.Month} already exists.");
-                }
-
+                    x.ExpectedTransactions.AddRange(y.ExpectedTransactions);
+                    return new Budget()
+                    {
+                        ExpectedTransactions = x.ExpectedTransactions,
+                        FromMonth = new DateTime(month.Year, month.Month, 1),
+                        ToMonth = new DateTime(month.Year, month.Month + 1, 1).AddDays(-1)
+                    };
+                });
             }
-
-            base.Add(budgets);
-        }
-
-        public Budget GetByMonth(DateTime month)
-        {
-            return this.GetAll().FirstOrDefault(x => x.Month.Year == month.Year && x.Month.Month == month.Month);
+            else
+            {
+                return null;
+            }
         }
     }
 }

@@ -10,12 +10,14 @@ namespace ExpenseTracker.UI
         private readonly ITransactionsService expenseService;
 
         private readonly IBudgetService budgetService;
+        private readonly IBudgetCalculator budgetCalculator;
 
-        public ExpensesMenu(ITransactionsService expensesService, IBudgetService budgetService, IOutputRenderer renderer) : base(renderer)
+        public ExpensesMenu(ITransactionsService expensesService, IBudgetService budgetService, IOutputRenderer renderer, IBudgetCalculator budgetCalculator) : base(renderer)
         {
             this.Service = expensesService;
             this.expenseService = expensesService;
             this.budgetService = budgetService;
+            this.budgetCalculator = budgetCalculator;
         }
 
         public override IBaseDataItemService<Transaction> Service { get; set; }
@@ -61,12 +63,12 @@ namespace ExpenseTracker.UI
         {
             var fromDate = DateTime.Now.AddYears(-1);
             var toDate = DateTime.Now;
-            Renderer.GetDateFilter(ref fromDate, ref toDate);
+            this.Renderer.GetDateFilter(ref fromDate, ref toDate);
 
             var categoriesByMonth = this.expenseService.GetExpensesByCategoriesByMonths(fromDate, toDate);
             foreach (var month in categoriesByMonth.OrderBy(x => x.Key))
             {
-                var monthBudget = this.budgetService.GetByMonth(month.Key);
+                var monthBudget = this.budgetService.GetCumulativeForMonth(month.Key);
 
                 this.Renderer.WriteLine();
                 this.WriteMonthLabel(month, monthBudget);
@@ -103,8 +105,9 @@ namespace ExpenseTracker.UI
         {
             var categoryName = string.IsNullOrEmpty(category.Key) ? "unknown" : category.Key;
             var categoryActual = category.Value.Sum(e => e.Amount);
-            var budgetCategoryExists = monthBudget?.ExpectedExpensesByCategory.ContainsKey(category.Key);
-            var catExpected = budgetCategoryExists.HasValue && budgetCategoryExists.Value ? monthBudget?.ExpectedExpensesByCategory[category.Key] : null;
+            var budgetCategoryExists = monthBudget?.ExpectedTransactions.Any(x => x.Category == category.Key && x.Type == TransactionType.Expense);
+            var catExpected = budgetCategoryExists.HasValue && budgetCategoryExists.Value ?
+                monthBudget?.ExpectedTransactions.Where(x => x.Category == category.Key && x.Type == TransactionType.Expense).Sum(x => x.Amount) : null;
             this.Renderer.Write("".PadLeft(pad) + $"{categoryName} : {categoryActual.ToString("F0")} ");
             if (catExpected != null)
             {
@@ -117,15 +120,17 @@ namespace ExpenseTracker.UI
         private void WriteMonthLabel(KeyValuePair<DateTime, Dictionary<string, IEnumerable<Transaction>>> month, Budget monthBudget)
         {
             var monthActualTotal = month.Value.Sum(x => x.Value.Sum(y => y.Amount));
-            var monthExpected = monthBudget?.ExpectedExpensesByCategory.Sum(x => x.Value);
             this.Renderer.Write($"{month.Key.ToString("MMMM")}: {monthActualTotal.ToString("F0")} ");
-            if (monthExpected != null)
+            decimal? monthExpected = null;
+            if (monthBudget != null)
+            {
+                monthExpected = this.budgetCalculator.CalculateExpectedExpenses(monthBudget);
+            }
+
+            if (month.Key >= DateTime.Now && monthExpected != null)
             {
                 this.WriteBudget(monthActualTotal, monthExpected.Value);
-                if (monthBudget.ActualIncome > 0)
-                {
-                    this.WriteBudgetSavings(monthActualTotal, monthExpected.Value, monthBudget);
-                }
+                this.WriteBudgetSavings(monthActualTotal, monthExpected.Value, monthBudget);
             }
 
             this.Renderer.WriteLine();
@@ -142,8 +147,9 @@ namespace ExpenseTracker.UI
         private void WriteBudgetSavings(decimal actualExpenses, decimal expectedExpenses, Budget monthBudget)
         {
             this.Renderer.Write($" (Savings:");
+            var monthActual = this.budgetCalculator.CalculateActualIncome(monthBudget);
 
-            var actualSavings = monthBudget.ActualIncome - actualExpenses;
+            var actualSavings = monthActual - actualExpenses;
             this.Renderer.Write($"{actualSavings}", actualSavings >= 0 ? Style.Success : Style.Error);
 
             this.Renderer.Write(")");
