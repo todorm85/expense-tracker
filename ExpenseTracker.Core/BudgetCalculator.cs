@@ -4,10 +4,9 @@ namespace ExpenseTracker.Core
 {
     public class BudgetCalculator : IBudgetCalculator
     {
-        public BudgetCalculator(ISalaryService service, IExpensesService expensesService)
+        public BudgetCalculator(ITransactionsService expensesService)
         {
-            this.salarySvc = service;
-            this.expensesService = expensesService;
+            this.transactionsService = expensesService;
         }
 
         public decimal CalculateExpectedExpenses(Budget budget)
@@ -22,13 +21,16 @@ namespace ExpenseTracker.Core
 
         public decimal CalculateExpectedIncome(Budget budget)
         {
-            return budget.ExpectedIncome + this.salarySvc.SalaryAmount;
+            return budget.ExpectedIncome;
         }
 
         public decimal CalculateActualExpenses(Budget budget)
         {
-            return this.expensesService.GetAll()
-                                    .Where(e => e.Date.Year == budget.Month.Year && e.Date.Month == budget.Month.Month).Sum(e => e.Amount);
+            return this.transactionsService.GetAll()
+                                    .Where(e => e.Date.Year == budget.Month.Year 
+                                        && e.Date.Month == budget.Month.Month
+                                        && e.Type == TransactionType.Expense)
+                                    .Sum(e => e.Amount);
         }
 
         public decimal CalculateActualSavings(Budget budget)
@@ -38,7 +40,6 @@ namespace ExpenseTracker.Core
             return actualSaving;
         }
 
-        private readonly ISalaryService salarySvc;
-        private readonly IExpensesService expensesService;
+        private readonly ITransactionsService transactionsService;
     }
 }

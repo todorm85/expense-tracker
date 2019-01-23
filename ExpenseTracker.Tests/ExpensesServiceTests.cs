@@ -13,13 +13,13 @@ namespace ExpenseTracker.Tests
     [TestClass]
     public class ExpensesServiceTests
     {
-        public ExpensesService Sut
+        public TransactionsService Sut
         {
             get
             {
                 if (this.sut == null)
                 {
-                    this.sut = new ExpensesService(this.uow);
+                    this.sut = new TransactionsService(this.uow);
                 }
 
                 return this.sut;
@@ -29,18 +29,18 @@ namespace ExpenseTracker.Tests
         [TestInitialize]
         public void Setup()
         {
-            this.imptExpns = new List<Expense>();
+            this.imptExpns = new List<Transaction>();
 
-            this.repo = Mock.Create<IGenericRepository<Expense>>(Behavior.Strict);
+            this.repo = Mock.Create<IGenericRepository<Transaction>>(Behavior.Strict);
             this.uow = Mock.Create<IUnitOfWork>(Behavior.Strict);
-            Mock.Arrange(() => this.uow.GetDataItemsRepo<Expense>()).Returns(() => this.repo);
+            Mock.Arrange(() => this.uow.GetDataItemsRepo<Transaction>()).Returns(() => this.repo);
             this.sut = null;
         }
 
         [TestMethod]
         public void Export_NoTransactionsInRange_ExportsNothing()
         {
-            var expeneses = new List<Expense>
+            var expeneses = new List<Transaction>
             {
                 TestExpensesFactory.GetTestExpense(new DateTime(2018, 6, 1))
             };
@@ -55,7 +55,7 @@ namespace ExpenseTracker.Tests
         [TestMethod]
         public void Export_SingleMonthExpensesInRange()
         {
-            var expeneses = new List<Expense>();
+            var expeneses = new List<Transaction>();
             var cat = "cat";
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 1), cat));
             Mock.Arrange(() => this.repo.GetAll()).Returns(expeneses);
@@ -72,7 +72,7 @@ namespace ExpenseTracker.Tests
         [TestMethod]
         public void Export_DifferentMonthExpensesInRange()
         {
-            var expeneses = new List<Expense>();
+            var expeneses = new List<Transaction>();
             var cat1 = "cat";
             var cat2 = "cat2";
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), cat1));
@@ -99,7 +99,7 @@ namespace ExpenseTracker.Tests
         [TestMethod]
         public void Export_NotDetailedDifferentMonthExpensesInRange()
         {
-            var expeneses = new List<Expense>();
+            var expeneses = new List<Transaction>();
             var cat1 = "cat";
             var cat2 = "cat2";
             var cat3 = "cat3";
@@ -124,9 +124,9 @@ namespace ExpenseTracker.Tests
             Assert.IsTrue(results[expectedKey2].Skip(1).First().Key == cat3);
         }
         
-        private List<Expense> imptExpns = new List<Expense>();
-        private IGenericRepository<Expense> repo;
+        private List<Transaction> imptExpns = new List<Transaction>();
+        private IGenericRepository<Transaction> repo;
         private IUnitOfWork uow;
-        private ExpensesService sut;
+        private TransactionsService sut;
     }
 }

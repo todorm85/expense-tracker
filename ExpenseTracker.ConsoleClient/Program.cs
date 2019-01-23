@@ -61,18 +61,17 @@ namespace ExpenseTracker.ConsoleClient
             {
                 var authHeader = "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(settings.WebClientAuth));
                 container.RegisterType<IHttpClient, RestHttpClient>(new InjectionConstructor(settings.WebServiceBase, authHeader));
-                container.RegisterType<IExpensesService, ExpensesRestClient>();
+                container.RegisterType<ITransactionsService, ExpensesRestClient>();
                 container.RegisterType<IBudgetService, BudgetRestClient>();
                 container.RegisterType<IBaseDataItemService<Category>, DataItemRestClient<Category>>(new InjectionConstructor(typeof(IHttpClient), "api/categories"));
             }
             else
             {
                 container.RegisterType<IUnitOfWork, UnitOfWork>(new InjectionConstructor(settings.DbPath));
-                container.RegisterType<IExpensesService, ExpensesService>();
+                container.RegisterType<ITransactionsService, TransactionsService>();
                 container.RegisterType<IBudgetService, BudgetService>();
                 container.RegisterType<IBaseDataItemService<Category>, CategoriesService>();
                 container.RegisterType<IBudgetCalculator, BudgetCalculator>();
-                container.RegisterType<ISalaryService, SalaryService>();
             }
         }
     }

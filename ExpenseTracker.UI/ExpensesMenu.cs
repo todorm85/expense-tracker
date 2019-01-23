@@ -5,20 +5,20 @@ using System.Linq;
 
 namespace ExpenseTracker.UI
 {
-    public class ExpensesMenu : DataItemMenuBase<Expense>
+    public class ExpensesMenu : DataItemMenuBase<Transaction>
     {
-        private readonly IExpensesService expenseService;
+        private readonly ITransactionsService expenseService;
 
         private readonly IBudgetService budgetService;
 
-        public ExpensesMenu(IExpensesService expensesService, IBudgetService budgetService, IOutputRenderer renderer) : base(renderer)
+        public ExpensesMenu(ITransactionsService expensesService, IBudgetService budgetService, IOutputRenderer renderer) : base(renderer)
         {
             this.Service = expensesService;
             this.expenseService = expensesService;
             this.budgetService = budgetService;
         }
 
-        public override IBaseDataItemService<Expense> Service { get; set; }
+        public override IBaseDataItemService<Transaction> Service { get; set; }
 
         [MenuAction("sec", "Show expenses (categories only)")]
         public void ShowExpensesCategoriesOnly()
@@ -45,9 +45,9 @@ namespace ExpenseTracker.UI
             var cat = this.Renderer.PromptInput("Category: ", string.Empty);
             var desc = this.Renderer.PromptInput("Description: ", string.Empty);
             var date = DateTime.Parse(this.Renderer.PromptInput("Date: ", DateTime.Now.ToString()));
-            this.Service.Add(new Expense[]
+            this.Service.Add(new Transaction[]
             {
-                new Expense()
+                new Transaction()
                 {
                     Amount = amount,
                     Category = cat,
@@ -86,7 +86,7 @@ namespace ExpenseTracker.UI
             }
         }
 
-        private void WriteExpenseDetails(Expense e, int padding = 0)
+        private void WriteExpenseDetails(Transaction e, int padding = 0)
         {
             var source = e.Source?.ToString() ?? "";
             if (source.Length > 43)
@@ -99,7 +99,7 @@ namespace ExpenseTracker.UI
             this.Renderer.WriteLine("".PadLeft(padding) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("F0").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
         }
 
-        private void WriteMonthCategoryLabel(Budget monthBudget, KeyValuePair<string, IEnumerable<Expense>> category, int pad = 0)
+        private void WriteMonthCategoryLabel(Budget monthBudget, KeyValuePair<string, IEnumerable<Transaction>> category, int pad = 0)
         {
             var categoryName = string.IsNullOrEmpty(category.Key) ? "unknown" : category.Key;
             var categoryActual = category.Value.Sum(e => e.Amount);
@@ -114,7 +114,7 @@ namespace ExpenseTracker.UI
             this.Renderer.WriteLine();
         }
 
-        private void WriteMonthLabel(KeyValuePair<DateTime, Dictionary<string, IEnumerable<Expense>>> month, Budget monthBudget)
+        private void WriteMonthLabel(KeyValuePair<DateTime, Dictionary<string, IEnumerable<Transaction>>> month, Budget monthBudget)
         {
             var monthActualTotal = month.Value.Sum(x => x.Value.Sum(y => y.Amount));
             var monthExpected = monthBudget?.ExpectedExpensesByCategory.Sum(x => x.Value);

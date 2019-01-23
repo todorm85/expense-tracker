@@ -8,23 +8,23 @@ namespace ExpenseTracker.Tests
     [TestClass]
     public class ExpensesClassifierTests
     {
-        private ExpensesClassifier sut;
-        private Expense expense;
+        private TransactionsClassifier sut;
+        private Transaction expense;
         private List<Category> categories;
 
         [TestInitialize]
         public void Setup()
         {
-            this.expense = new Expense();
+            this.expense = new Transaction();
             this.categories = new List<Category>();
-            this.sut = new ExpensesClassifier(this.categories);
+            this.sut = new TransactionsClassifier(this.categories);
         }
 
         [TestMethod]
         public void Classify_NoCategories_NoClassification()
         {
             expense.Source = "trop dedov opa";
-            sut.Classify(new Expense[] { expense });
+            sut.Classify(new Transaction[] { expense });
             Assert.IsNull(expense.Category);
         }
 
@@ -33,7 +33,7 @@ namespace ExpenseTracker.Tests
         {
             expense.Source = "trop dedov opa";
             this.categories.Add(new Category() { ExpenseSourcePhrase = "dedov", Name = "cat1" });
-            sut.Classify(new Expense[] { expense });
+            sut.Classify(new Transaction[] { expense });
             Assert.AreEqual("cat1", expense.Category);
         }
 
@@ -43,7 +43,7 @@ namespace ExpenseTracker.Tests
             expense.Source = "trop dedov opa";
             expense.Category = "test";
             this.categories.Add(new Category() { ExpenseSourcePhrase = "pisana", Name = "cat1" });
-            sut.Classify(new Expense[] { expense });
+            sut.Classify(new Transaction[] { expense });
             Assert.AreEqual("test", expense.Category);
         }
 
@@ -52,7 +52,7 @@ namespace ExpenseTracker.Tests
         {
             expense.Category = "test";
             this.categories.Add(new Category() { ExpenseSourcePhrase = "pisana", Name = "cat1" });
-            sut.Classify(new Expense[] { expense });
+            sut.Classify(new Transaction[] { expense });
             Assert.AreEqual("test", expense.Category);
         }
 
@@ -62,7 +62,7 @@ namespace ExpenseTracker.Tests
             expense.Source = "trop pisana opa";
             this.categories.Add(new Category() { ExpenseSourcePhrase = "dedov", Name = "cat1" });
             this.categories.Add(new Category() { ExpenseSourcePhrase = "pisana", Name = "cat2" });
-            sut.Classify(new Expense[] { expense });
+            sut.Classify(new Transaction[] { expense });
             Assert.AreEqual("cat2", expense.Category);
         }
     }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ExpenseTracker.RestClient
 {
-    public class ExpensesRestClient : DataItemRestClient<Expense>, IExpensesService
+    public class ExpensesRestClient : DataItemRestClient<Transaction>, ITransactionsService
     {
         public ExpensesRestClient(IHttpClient client) : base(client)
         {
@@ -17,11 +17,11 @@ namespace ExpenseTracker.RestClient
             this.client.Put($"{this.EndpointPath}/classify", null);
         }
 
-        public Dictionary<DateTime, Dictionary<string, IEnumerable<Expense>>> GetExpensesByCategoriesByMonths(
+        public Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>> GetExpensesByCategoriesByMonths(
             DateTime fromDate, DateTime toDate)
         {
             var json = this.client.Get($"{this.EndpointPath}/by-months-categories");
-            var dataObj = JsonConvert.DeserializeObject<Dictionary<DateTime, Dictionary<string, IEnumerable<Expense>>>>(json);
+            var dataObj = JsonConvert.DeserializeObject<Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>>>(json);
             return dataObj;
         }
     }

@@ -8,10 +8,10 @@ namespace ExpenseTracker.ConsoleClient
 {
     internal class ExtendedMenuBuilder : MenuBuilder
     {
-        private readonly IExpensesService expensesService;
+        private readonly ITransactionsService expensesService;
         private readonly ISettings settings;
 
-        public ExtendedMenuBuilder(IMenuFactory factory, IOutputRenderer renderer, IExpensesService expensesService, ISettings settings) : base(factory, renderer)
+        public ExtendedMenuBuilder(IMenuFactory factory, IOutputRenderer renderer, ITransactionsService expensesService, ISettings settings) : base(factory, renderer)
         {
             this.expensesService = expensesService;
             this.settings = settings;

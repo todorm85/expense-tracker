@@ -6,12 +6,11 @@ namespace ExpenseTracker.UI
 {
     public class BudgetMenu : DataItemMenuBase<Budget>
     {
-        public BudgetMenu(IBudgetService service, IOutputRenderer renderer, IExpensesService expensesService, IBudgetCalculator calculator, ISalaryService salaryService) : base(renderer)
+        public BudgetMenu(IBudgetService service, IOutputRenderer renderer, ITransactionsService expensesService, IBudgetCalculator calculator) : base(renderer)
         {
             this.budgetService = service;
             this.expensesService = expensesService;
             this.calculator = calculator;
-            this.salaryService = salaryService;
             this.Service = service;
         }
 
@@ -68,13 +67,6 @@ namespace ExpenseTracker.UI
             this.WriteSummary(budgets);
         }
 
-        [MenuAction("sal", "Edit salary")]
-        public void EditSalary()
-        {
-            var newSalary = decimal.Parse(this.Renderer.PromptInput("Edit salary", this.salaryService.SalaryAmount.ToString()));
-            this.salaryService.SalaryAmount = newSalary;
-        }
-
         private void WriteSummary(IOrderedEnumerable<Budget> budgets)
         {
             var budgetsWithActualIncome = budgets.Where(b => b.ActualIncome != 0);
@@ -89,8 +81,7 @@ namespace ExpenseTracker.UI
 
 
         private readonly IBudgetService budgetService;
-        private readonly IExpensesService expensesService;
+        private readonly ITransactionsService expensesService;
         private readonly IBudgetCalculator calculator;
-        private readonly ISalaryService salaryService;
     }
 }

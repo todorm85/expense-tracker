@@ -10,18 +10,18 @@ namespace ExpenseTracker.RestApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ExpensesController : BaseDataItemsController<Expense>
+    public class ExpensesController : BaseDataItemsController<Transaction>
     {
-        private readonly IExpensesService service;
+        private readonly ITransactionsService service;
 
-        public ExpensesController(IExpensesService service) : base(service)
+        public ExpensesController(ITransactionsService service) : base(service)
         {
             this.service = service;
         }
 
         // GET api/values
         [Route("by-months-categories")]
-        public virtual ActionResult<Dictionary<DateTime, Dictionary<string, IEnumerable<Expense>>>> GetByMonthsCategories()
+        public virtual ActionResult<Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>>> GetByMonthsCategories()
         {
             return new JsonResult(this.service.GetExpensesByCategoriesByMonths(DateTime.Now.AddYears(-1), DateTime.MaxValue));
         }

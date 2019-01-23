@@ -4,27 +4,27 @@ using System.Linq;
 
 namespace ExpenseTracker.Core
 {
-    public class ExpensesService : BaseDataItemService<Expense>, IExpensesService
+    public class TransactionsService : BaseDataItemService<Transaction>, ITransactionsService
     {
-        public ExpensesService(IUnitOfWork data) : base(data)
+        public TransactionsService(IUnitOfWork data) : base(data)
         {
             this.data = data;
         }
 
-        private ExpensesClassifier Classifier
+        private TransactionsClassifier Classifier
         {
             get
             {
                 if (this._classifier == null)
                 {
-                    this._classifier = new ExpensesClassifier(this.data.GetDataItemsRepo<Category>().GetAll());
+                    this._classifier = new TransactionsClassifier(this.data.GetDataItemsRepo<Category>().GetAll());
                 }
 
                 return this._classifier;
             }
         }
 
-        public override void Add(IEnumerable<Expense> expenses)
+        public override void Add(IEnumerable<Transaction> expenses)
         {
 
             var allExistingTransactionIds = this.repo.GetAll().Select(x => x.TransactionId);
@@ -41,15 +41,15 @@ namespace ExpenseTracker.Core
             this.repo.Update(msgs);
         }
 
-        public Dictionary<DateTime, Dictionary<string, IEnumerable<Expense>>> GetExpensesByCategoriesByMonths(DateTime fromDate, DateTime toDate)
+        public Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>> GetExpensesByCategoriesByMonths(DateTime fromDate, DateTime toDate)
         {
-            var expenses = this.repo.GetAll().Where(x => x.Date >= fromDate && x.Date <= toDate);
-            var byCategoryByMonths = new Dictionary<DateTime, Dictionary<string, IEnumerable<Expense>>>();
+            var expenses = this.repo.GetAll().Where(x => x.Date >= fromDate && x.Date <= toDate && x.Type == TransactionType.Expense);
+            var byCategoryByMonths = new Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>>();
             foreach (var year in expenses.GroupBy(x => x.Date.Year))
             {
                 foreach (var month in year.GroupBy(x => x.Date.Month))
                 {
-                    var categories = new Dictionary<string, IEnumerable<Expense>>();
+                    var categories = new Dictionary<string, IEnumerable<Transaction>>();
                     foreach (var cat in month.GroupBy(x => x.Category))
                     {
                         categories.Add(cat.Key ?? "", cat.ToList());
@@ -62,12 +62,12 @@ namespace ExpenseTracker.Core
             return byCategoryByMonths;
         }
 
-        public void Update(Expense expense)
+        public void Update(Transaction expense)
         {
-            this.Update(new Expense[] { expense });
+            this.Update(new Transaction[] { expense });
         }
 
         private readonly IUnitOfWork data;
-        private ExpensesClassifier _classifier;
+        private TransactionsClassifier _classifier;
     }
 }

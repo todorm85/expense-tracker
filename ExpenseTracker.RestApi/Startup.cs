@@ -32,7 +32,7 @@ namespace ExpenseTracker.RestApi
 
             services.AddTransient<IUnitOfWork, UnitOfWork>(s =>
                 new UnitOfWork(this.Configuration.GetConnectionString("LiteDbConnectionString")));
-            services.AddTransient<IExpensesService, ExpensesService>();
+            services.AddTransient<ITransactionsService, TransactionsService>();
             services.AddTransient<IBudgetService, BudgetService>();
             services.AddTransient<IBaseDataItemService<Category>, CategoriesService>();
             services.AddSingleton<ICustomLogger, SimpleFileLogger>(s => 
