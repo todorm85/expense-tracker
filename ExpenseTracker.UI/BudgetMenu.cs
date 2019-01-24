@@ -54,9 +54,8 @@ namespace ExpenseTracker.UI
                 this.Renderer.WriteLine($"{prefix}Income: {expectedIncome}");
                 this.Renderer.WriteLine($"{prefix}Expense: {expectedExpense}");
 
-                var editor = new ItemEditor(budget);
                 this.Renderer.WriteLine(
-                    $"{prefix}{prefix}Details: {editor.GetPropVal(typeof(Budget).GetProperty(nameof(Budget.ExpectedTransactions)))}", Style.MoreInfo);
+                    $"{prefix}{prefix}Details: {new Serializer().Serialize(budget.ExpectedTransactions)}", Style.MoreInfo);
             }
 
             this.Renderer.WriteLine();

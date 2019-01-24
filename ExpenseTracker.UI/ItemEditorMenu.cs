@@ -23,7 +23,7 @@ namespace ExpenseTracker.UI
         private void Edit(PropertyInfo p)
         {
             var propValues = this.editor.GetPropVal(p);
-            var newValue = Renderer.PromptInput("Enter prop value: ", propValues);
+            var newValue = Renderer.PromptInput($"Enter prop value{p.GetAdditionalInfo()}: ", propValues);
             this.editor.SetPropVal(p, newValue);
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ExpenseTracker.Core
@@ -15,14 +16,15 @@ namespace ExpenseTracker.Core
                 .Where(x => x.FromMonth <= month && month <= x.ToMonth);
             if (allForMonth.Count() > 0)
             {
-                return allForMonth.Aggregate((x, y) =>
+                var baseBudget = new Budget() { ExpectedTransactions = new List<Transaction>() };
+                return allForMonth.Aggregate(baseBudget, (x, y) =>
                 {
                     x.ExpectedTransactions.AddRange(y.ExpectedTransactions);
                     return new Budget()
                     {
                         ExpectedTransactions = x.ExpectedTransactions,
                         FromMonth = new DateTime(month.Year, month.Month, 1),
-                        ToMonth = new DateTime(month.Year, month.Month + 1, 1).AddDays(-1)
+                        ToMonth = new DateTime(month.Year, month.Month, 1).AddMonths(1).AddDays(-1)
                     };
                 });
             }

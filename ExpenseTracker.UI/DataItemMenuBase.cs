@@ -18,7 +18,7 @@ namespace ExpenseTracker.UI
             var id = int.Parse(this.Renderer.PromptInput("Enter id to edit:"));
             var item = this.Service.GetAll().First(x => x.Id == id);
 
-            var editor = new ItemEditorMenu(item, Renderer);
+            var editor = new ItemEditorMenu(item, this.Renderer);
             editor.Run();
             this.Service.Update(new T[] { item });
         }
@@ -27,7 +27,7 @@ namespace ExpenseTracker.UI
         public void Add()
         {
             T item = Activator.CreateInstance<T>();
-            var editor = new ItemEditorMenu(item, Renderer);
+            var editor = new ItemEditorMenu(item, this.Renderer);
             editor.Run();
             this.Service.Add(new T[] { item });
         }
@@ -49,7 +49,7 @@ namespace ExpenseTracker.UI
                 var props = item.GetType().GetProperties();
                 foreach (var p in props)
                 {
-                    this.Renderer.Write($"{p.Name}:'{new ItemEditor(item).GetPropVal(p)}'\n");
+                    this.Renderer.Write($"{p.Name}:'{new Serializer().Serialize(p.GetValue(item))}'\n");
                 }
 
                 this.Renderer.WriteLine("\n");
