@@ -9,9 +9,9 @@ namespace ExpenseTracker.Tests
 {
     class TestExpensesFactory
     {
-        public static IEnumerable<Expense> GetTestExpenses(int count)
+        public static IEnumerable<Transaction> GetTestExpenses(int count)
         {
-            var expenses = new List<Expense>();
+            var expenses = new List<Transaction>();
             for (int i = 0; i < count; i++)
             {
                 expenses.Add(GetTestExpense());
@@ -20,11 +20,11 @@ namespace ExpenseTracker.Tests
             return expenses;
         }
 
-        public static Expense GetTestExpense(DateTime? date = null, string category = null)
+        public static Transaction GetTestExpense(DateTime? date = null, string category = null)
         {
             var random = new Random();
 
-            return new Expense()
+            return new Transaction()
             {
                 Account = Guid.NewGuid().ToString(),
                 Amount = (decimal)(random.NextDouble() * 100),

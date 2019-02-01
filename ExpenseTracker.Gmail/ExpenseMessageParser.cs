@@ -9,9 +9,9 @@ namespace ExpenseTracker.GmailConnector
 {
     public class ExpenseMessageParser
     {
-        public IEnumerable<Expense> Parse(List<ExpenseMessage> messages)
+        public IEnumerable<Transaction> Parse(List<ExpenseMessage> messages)
         {
-            var result = new List<Expense>();
+            var result = new List<Transaction>();
 
             foreach (var message in messages)
             {
@@ -25,14 +25,14 @@ namespace ExpenseTracker.GmailConnector
             return result;
         }
 
-        private Expense Parse(ExpenseMessage message)
+        private Transaction Parse(ExpenseMessage message)
         {
             if (!IsValidExpenseMessage(message))
             {
                 return null;
             }
 
-            Expense result = new Expense();
+            Transaction result = new Transaction();
 
             using (var html = new StringReader(message.Body))
             {

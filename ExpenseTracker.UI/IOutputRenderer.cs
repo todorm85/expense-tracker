@@ -13,5 +13,7 @@
         string PromptInput(string msg, string defaultValue = "");
 
         void WriteLine(string value, Style style);
+
+        bool Confirm(string msg = "Confirm? y/n: ");
     }
 }

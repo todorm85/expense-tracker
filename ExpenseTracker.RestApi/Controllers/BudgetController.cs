@@ -18,7 +18,7 @@ namespace ExpenseTracker.RestApi.Controllers
         [Route("by-month/{year}/{month}")]
         public ActionResult<Budget> GetByMonth(int year, int month)
         {
-            return new JsonResult(this.service.GetByMonth(new DateTime(year, month, 1)));
+            return new JsonResult(this.service.GetCumulativeForMonth(new DateTime(year, month, 1)));
         }
     }
 }

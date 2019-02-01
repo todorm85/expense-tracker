@@ -7,9 +7,9 @@ namespace ExpenseTracker.GmailConnector
     {
         private string user;
         private string pass;
-        private IExpensesService service;
+        private ITransactionsService service;
 
-        public ExpensesGmailImporter(string user, string pass, IExpensesService service)
+        public ExpensesGmailImporter(string user, string pass, ITransactionsService service)
         {
             this.user = user;
             this.pass = pass;
@@ -18,7 +18,7 @@ namespace ExpenseTracker.GmailConnector
 
         public void Import()
         {
-            IEnumerable<Expense> expenses;
+            IEnumerable<Transaction> expenses;
             using (var folder = new GmailFolder(this.user, this.pass))
             {
                 var expenseMessages = new List<ExpenseMessage>();

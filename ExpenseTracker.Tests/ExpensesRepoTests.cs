@@ -12,7 +12,7 @@ namespace ExpenseTracker.Tests
         [TestInitialize]
         public void SetUp()
         {
-            this.sut = new GenericRepo<Expense>(new LiteDB.LiteDatabase("tests.db"), "tests");
+            this.sut = new GenericRepo<Transaction>(new LiteDB.LiteDatabase("tests.db"), "tests");
         }
 
         [TestMethod]
@@ -34,11 +34,11 @@ namespace ExpenseTracker.Tests
             expenses = sut.GetAll();
             var firstExpense = expenses.First();
             firstExpense.Source = "PESHOOOOOOO2121";
-            sut.Update(new Expense[] { firstExpense });
+            sut.Update(new Transaction[] { firstExpense });
             expenses = sut.GetAll();
             Assert.AreEqual("PESHOOOOOOO2121", expenses.First().Source);
         }
 
-        private GenericRepo<Expense> sut;
+        private GenericRepo<Transaction> sut;
     }
 }

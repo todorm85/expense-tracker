@@ -21,9 +21,9 @@ namespace ExpenseTracker.RestClient.IntTests
         public void Expenses_Post()
         {
             var service = new ExpensesRestClient(new RestHttpClient(baseAddress));
-            service.Add(new Expense[] 
+            service.Add(new Transaction[] 
             {
-                new Expense()
+                new Transaction()
                 {
                     Amount = 5,
                     Date = DateTime.Now

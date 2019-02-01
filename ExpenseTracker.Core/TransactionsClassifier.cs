@@ -5,16 +5,16 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("ExpenseTracker.Tests")]
 namespace ExpenseTracker.Core
 {
-    internal class ExpensesClassifier
+    internal class TransactionsClassifier
     {
-        public ExpensesClassifier(IEnumerable<Category> categories)
+        public TransactionsClassifier(IEnumerable<Category> categories)
         {
             this.Categories = categories;
         }
 
         public IEnumerable<Category> Categories { get; set; }
 
-        public void Classify(IEnumerable<Expense> expenses)
+        public void Classify(IEnumerable<Transaction> expenses)
         {
             foreach (var expense in expenses)
             {
