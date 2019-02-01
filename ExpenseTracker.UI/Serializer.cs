@@ -84,6 +84,10 @@ namespace ExpenseTracker.UI
 
                 return transactions;
             }
+            else if (propertyType == typeof(TransactionType))
+            {
+                return (TransactionType)Enum.Parse(typeof(TransactionType), newValue, true);
+            }
             else
             {
                 throw new ArgumentException("Unknown property type to edit");

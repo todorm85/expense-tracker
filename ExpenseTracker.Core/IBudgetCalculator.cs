@@ -1,4 +1,6 @@
-﻿namespace ExpenseTracker.Core
+﻿using System;
+
+namespace ExpenseTracker.Core
 {
     public interface IBudgetCalculator
     {
@@ -8,10 +10,10 @@
 
         decimal CalculateExpectedIncome(Budget budget);
 
-        decimal CalculateActualIncome(Budget budget);
+        decimal CalculateActualIncome(DateTime from, DateTime to);
 
-        decimal CalculateActualExpenses(Budget budget);
+        decimal CalculateActualExpenses(DateTime from, DateTime to);
 
-        decimal CalculateActualSavings(Budget budget);
+        decimal CalculateActualSavings(DateTime from, DateTime to);
     }
 }

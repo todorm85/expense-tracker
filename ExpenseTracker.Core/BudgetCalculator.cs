@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace ExpenseTracker.Core
 {
@@ -28,28 +29,28 @@ namespace ExpenseTracker.Core
                 .Sum(x => x.Amount); ;
         }
 
-        public decimal CalculateActualExpenses(Budget budget)
+        public decimal CalculateActualExpenses(DateTime from, DateTime to)
         {
             return this.transactionsService.GetAll()
-                                    .Where(e => e.Date >= budget.FromMonth
-                                        && e.Date <= budget.ToMonth
+                                    .Where(e => e.Date >= from
+                                        && e.Date <= to
                                         && e.Type == TransactionType.Expense)
                                     .Sum(e => e.Amount);
         }
 
-        public decimal CalculateActualIncome(Budget budget)
+        public decimal CalculateActualIncome(DateTime from, DateTime to)
         {
             return this.transactionsService.GetAll()
-                                    .Where(e => e.Date >= budget.FromMonth
-                                        && e.Date <= budget.ToMonth
+                                    .Where(e => e.Date >= from
+                                        && e.Date <= to
                                         && e.Type == TransactionType.Income)
                                     .Sum(e => e.Amount);
         }
 
-        public decimal CalculateActualSavings(Budget budget)
+        public decimal CalculateActualSavings(DateTime from, DateTime to)
         {
-            var actualExpense = this.CalculateActualExpenses(budget);
-            var actualIncome = this.CalculateActualIncome(budget);
+            var actualExpense = this.CalculateActualExpenses(from, to);
+            var actualIncome = this.CalculateActualIncome(from, to);
             var actualSaving = actualIncome - actualExpense;
             return actualSaving;
         }
