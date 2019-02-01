@@ -20,7 +20,8 @@ namespace ExpenseTracker.UI
 
             var editor = new ItemEditorMenu(item, this.Renderer);
             editor.Run();
-            this.Service.Update(new T[] { item });
+            if (this.Renderer.Confirm())
+                this.Service.Update(new T[] { item });
         }
 
         [MenuAction("add", "Add")]
@@ -29,7 +30,8 @@ namespace ExpenseTracker.UI
             T item = Activator.CreateInstance<T>();
             var editor = new ItemEditorMenu(item, this.Renderer);
             editor.Run();
-            this.Service.Add(new T[] { item });
+            if (this.Renderer.Confirm())
+                this.Service.Add(new T[] { item });
         }
 
         [MenuAction("rem", "Remove")]

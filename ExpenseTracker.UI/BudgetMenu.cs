@@ -62,18 +62,11 @@ namespace ExpenseTracker.UI
             //this.WriteSummary(budgets);
         }
 
-        //private void WriteSummary(IOrderedEnumerable<Budget> budgets)
-        //{
-        //    var budgetsWithActualIncome = budgets.Where(b => b.ActualIncome != 0);
-        //    var budgetsWithNoActualIncome = budgets.Where(b => b.ActualIncome == 0);
+        [MenuAction("qa", "Quick add.")]
+        public void QuickAdd()
+        {
 
-        //    var totalSavings = budgetsWithActualIncome.Sum(b => b.ActualIncome - this.calculator.CalculateActualExpenses(b));
-        //    var totalExpectedSavings = budgetsWithNoActualIncome.Sum(b => this.calculator.CalculateExpectedSavings(b));
-
-        //    this.Renderer.WriteLine($"Savings Summary: saved:{totalSavings} expected:{totalExpectedSavings} total:{totalSavings + totalExpectedSavings}");
-        //    this.Renderer.WriteLine();
-        //}
-
+        }
 
         private readonly IBudgetService budgetService;
         private readonly ITransactionsService expensesService;

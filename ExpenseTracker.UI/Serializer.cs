@@ -35,6 +35,11 @@ namespace ExpenseTracker.UI
 
                 return sb.ToString();
             }
+            else if (type == typeof(DateTime))
+            {
+                var dateValue = (DateTime)value;
+                return dateValue.ToShortDateString();
+            }
             else
             {
                 return value?.ToString();

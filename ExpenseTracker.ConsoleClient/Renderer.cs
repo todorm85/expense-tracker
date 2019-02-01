@@ -1,12 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using ExpenseTracker.UI;
 
 namespace ExpenseTracker.ConsoleClient
 {
     internal class Renderer : IOutputRenderer
     {
+        public bool Confirm(string msg = "Confirm? y/n: ")
+        {
+            var response = this.PromptInput("Save?", "y");
+            return response == "y";
+        }
+
         public string PromptInput(string msg, string defaultValue = "")
         {
             Console.WriteLine(msg);
@@ -21,12 +25,15 @@ namespace ExpenseTracker.ConsoleClient
                 case Style.MoreInfo:
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     break;
+
                 case Style.Error:
                     Console.ForegroundColor = ConsoleColor.Red;
                     break;
+
                 case Style.Success:
                     Console.ForegroundColor = ConsoleColor.Green;
                     break;
+
                 case Style.Primary:
                 default:
                     break;

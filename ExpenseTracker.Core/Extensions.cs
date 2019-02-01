@@ -11,7 +11,7 @@ namespace ExpenseTracker.Core
 
         public static DateTime SetToEndOfMonth(this DateTime date)
         {
-            return date.SetToBeginningOfMonth().AddMonths(1);
+            return date.SetToBeginningOfMonth().AddMonths(1).AddMinutes(-1);
         }
     }
 }

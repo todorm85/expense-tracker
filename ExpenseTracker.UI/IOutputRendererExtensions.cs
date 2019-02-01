@@ -13,19 +13,17 @@ namespace ExpenseTracker.UI
             renderer.Write($" {diff}", style);
         }
 
-        public static void RenderDiffernceNewLine(this IOutputRenderer renderer, decimal primary, decimal secondary, string prefix = "", bool secondaryShouldBeHigher = true, bool noNewLine = false)
+        public static void RenderDiffernceNewLine(this IOutputRenderer renderer, decimal primary, decimal secondary, string prefix = "", bool secondaryShouldBeHigher = true)
         {
             renderer.RenderDiffernce(primary, secondary, prefix, secondaryShouldBeHigher);
             renderer.WriteLine();
         }
-
 
         public static void GetDateFilter(this IOutputRenderer renderer, ref DateTime fromDate, ref DateTime toDate)
         {
             var result = renderer.PromptInput("Filter (Date from, Date to)", $"{fromDate.ToShortDateString()} {toDate.ToShortDateString()}");
             fromDate = DateTime.Parse(result.Split(' ')[0]);
             toDate = DateTime.Parse(result.Split(' ')[1]);
-            toDate = toDate.AddDays(1);
         }
 
     }
