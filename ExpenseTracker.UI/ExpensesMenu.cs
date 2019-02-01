@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ExpenseTracker.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using ExpenseTracker.Core;
 
 namespace ExpenseTracker.UI
 {
@@ -141,9 +141,13 @@ namespace ExpenseTracker.UI
 
             this.Renderer.Write($"{"".PadLeft(pad)}{categoryName} : ");
             if (catExpected != null && shouldRenderBudget)
+            {
                 this.Renderer.RenderActualExpectedNewLine(categoryActual, catExpected.Value);
+            }
             else
+            {
                 this.Renderer.WriteLine($"{categoryActual.ToString("F0")}");
+            }
         }
 
         private void WriteMonthSummary(DateTime month, int pad)
@@ -157,17 +161,20 @@ namespace ExpenseTracker.UI
 
             if (monthBudget != null && month.SetToBeginningOfMonth() >= DateTime.Now.SetToBeginningOfMonth())
             {
-                var renderDiff = !(month.SetToBeginningOfMonth() > DateTime.Now.SetToBeginningOfMonth());
+                var isCurrentMonth = month.SetToBeginningOfMonth() == DateTime.Now.SetToBeginningOfMonth();
                 var expectedExpenses = this.budgetCalculator.CalculateExpectedExpenses(monthBudget);
                 var expectedSavings = this.budgetCalculator.CalculateExpectedSavings(monthBudget);
                 var expectedIncome = this.budgetCalculator.CalculateExpectedIncome(monthBudget);
 
                 this.Renderer.Write($"{"".PadLeft(pad)}Expenses: ");
-                this.Renderer.RenderActualExpectedNewLine(actualExpenses, expectedExpenses, true, renderDiff);
-                this.Renderer.Write($"{"".PadLeft(pad)}Income: ");
-                this.Renderer.RenderActualExpectedNewLine(actualIncome, expectedIncome, false, renderDiff);
-                this.Renderer.Write($"{"".PadLeft(pad)}Savings: ");
-                this.Renderer.RenderActualExpectedNewLine(actualSavings, expectedSavings, false, renderDiff);
+                this.Renderer.RenderActualExpectedNewLine(actualExpenses, expectedExpenses, true, isCurrentMonth);
+                if (!isCurrentMonth)
+                {
+                    this.Renderer.Write($"{"".PadLeft(pad)}Income: ");
+                    this.Renderer.RenderActualExpectedNewLine(actualIncome, expectedIncome, false, false);
+                    this.Renderer.Write($"{"".PadLeft(pad)}Savings: ");
+                    this.Renderer.RenderActualExpectedNewLine(actualSavings, expectedSavings, false, false);
+                }
             }
             else
             {
@@ -190,7 +197,9 @@ namespace ExpenseTracker.UI
                 {
                     var budget = this.budgetService.GetCumulativeForMonth(currentMonthDate);
                     if (budget != null)
+                    {
                         expectedSavings += this.budgetCalculator.CalculateExpectedSavings(budget);
+                    }
                 }
                 else
                 {
