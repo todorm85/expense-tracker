@@ -77,17 +77,12 @@ namespace ExpenseTracker.UI
             var currentMonthDate = fromDate;
             while (currentMonthDate <= toDate.SetToEndOfMonth())
             {
-                this.Renderer.WriteLine($"{currentMonthDate.ToString("MMMM yyyy")}");
-
                 this.Renderer.WriteLine();
+                this.Renderer.WriteLine($"{currentMonthDate.ToString("MMMM yyyy")}");
 
                 this.WriteMonthSummary(currentMonthDate, 5);
 
-                this.Renderer.WriteLine();
-
                 this.WriteCategoriesForMonth(detailed, currentMonthDate, 5);
-
-                this.Renderer.WriteLine();
 
                 currentMonthDate = currentMonthDate.AddMonths(1);
             }
@@ -104,6 +99,8 @@ namespace ExpenseTracker.UI
 
             if (monthCategories.Value != null)
             {
+                this.Renderer.WriteLine();
+
                 foreach (var category in monthCategories.Value.OrderBy(x => x.Key))
                 {
                     this.WriteCategoryForMonth(currentMonthDate, category, pad);
@@ -143,13 +140,15 @@ namespace ExpenseTracker.UI
 
             this.Renderer.Write($"{"".PadLeft(pad)}{categoryName} : ");
             if (catExpected != null && shouldRenderBudget)
-                this.Renderer.RenderDiffernceNewLine(categoryActual, catExpected.Value);
+                this.Renderer.RenderActualExpectedNewLine(categoryActual, catExpected.Value);
             else
                 this.Renderer.WriteLine($"{categoryActual.ToString("F0")}");
         }
 
         private void WriteMonthSummary(DateTime month, int pad)
         {
+            this.Renderer.WriteLine();
+
             var monthBudget = this.budgetService.GetCumulativeForMonth(month);
             var actualExpenses = this.budgetCalculator.CalculateActualExpenses(month.SetToBeginningOfMonth(), month.SetToEndOfMonth());
             var actualSavings = this.budgetCalculator.CalculateActualSavings(month.SetToBeginningOfMonth(), month.SetToEndOfMonth());
@@ -157,22 +156,25 @@ namespace ExpenseTracker.UI
 
             if (monthBudget != null && month.SetToBeginningOfMonth() >= DateTime.Now.SetToBeginningOfMonth())
             {
+                var renderDiff = !(month.SetToBeginningOfMonth() > DateTime.Now.SetToBeginningOfMonth());
                 var expectedExpenses = this.budgetCalculator.CalculateExpectedExpenses(monthBudget);
                 var expectedSavings = this.budgetCalculator.CalculateExpectedSavings(monthBudget);
                 var expectedIncome = this.budgetCalculator.CalculateExpectedIncome(monthBudget);
 
                 this.Renderer.Write($"{"".PadLeft(pad)}Expenses: ");
-                this.Renderer.RenderDiffernceNewLine(actualExpenses, expectedExpenses);
+                this.Renderer.RenderActualExpectedNewLine(actualExpenses, expectedExpenses, true, renderDiff);
                 this.Renderer.Write($"{"".PadLeft(pad)}Income: ");
-                this.Renderer.RenderDiffernceNewLine(actualIncome, expectedIncome, "", false);
+                this.Renderer.RenderActualExpectedNewLine(actualIncome, expectedIncome, false, renderDiff);
                 this.Renderer.Write($"{"".PadLeft(pad)}Savings: ");
-                this.Renderer.RenderDiffernceNewLine(actualSavings, expectedSavings, "", false);
+                this.Renderer.RenderActualExpectedNewLine(actualSavings, expectedSavings, false, renderDiff);
             }
             else
             {
                 this.Renderer.WriteLine($"{"".PadLeft(pad)}Expenses: {actualExpenses}");
                 this.Renderer.WriteLine($"{"".PadLeft(pad)}Income: {actualIncome}");
-                this.Renderer.WriteLine($"{"".PadLeft(pad)}Savings: {actualSavings}");
+                this.Renderer.Write($"{"".PadLeft(pad)}Savings: ");
+                this.Renderer.RenderDiff(actualSavings);
+                this.Renderer.WriteLine();
             }
         }
 
@@ -197,7 +199,13 @@ namespace ExpenseTracker.UI
                 currentMonthDate = currentMonthDate.AddMonths(1);
             }
 
-            this.Renderer.WriteLine($"Expected Savings: {actualSavings + expectedSavings}, Saved so far: {actualSavings}, Expected: {expectedSavings}");
+            this.Renderer.WriteLine();
+            this.Renderer.Write("Expected Savings: ");
+            this.Renderer.RenderDiff(actualSavings + expectedSavings);
+
+            this.Renderer.WriteLine();
+            this.Renderer.Write("Saved so far: ");
+            this.Renderer.RenderDiff(actualSavings);
         }
     }
 }

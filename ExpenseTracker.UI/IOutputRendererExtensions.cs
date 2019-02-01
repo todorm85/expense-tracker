@@ -4,18 +4,20 @@ namespace ExpenseTracker.UI
 {
     internal static class IOutputRendererExtensions
     {
-        public static void RenderDiffernce(this IOutputRenderer renderer, decimal primary, decimal secondary, string prefix = "", bool secondaryShouldBeHigher = true)
+        public static void RenderActualExpected(this IOutputRenderer renderer, decimal primary, decimal secondary, bool secondaryShouldBeHigher = true, bool renderDiff = true)
         {
-            renderer.Write($"{prefix}{primary}");
+            renderer.Write($"{primary}");
             renderer.Write($" {secondary}", Style.MoreInfo);
-            var diff = secondaryShouldBeHigher ? secondary - primary : primary - secondary;
-            var style = diff >= 0 ? Style.Success : Style.Error;
-            renderer.Write($" {diff}", style);
+            if (renderDiff)
+            {
+                renderer.Write(" ");
+                renderer.RenderDiff(secondary - primary, secondaryShouldBeHigher);
+            }
         }
 
-        public static void RenderDiffernceNewLine(this IOutputRenderer renderer, decimal primary, decimal secondary, string prefix = "", bool secondaryShouldBeHigher = true)
+        public static void RenderActualExpectedNewLine(this IOutputRenderer renderer, decimal primary, decimal secondary, bool secondaryShouldBeHigher = true, bool renderDiff = true)
         {
-            renderer.RenderDiffernce(primary, secondary, prefix, secondaryShouldBeHigher);
+            renderer.RenderActualExpected(primary, secondary, secondaryShouldBeHigher, renderDiff);
             renderer.WriteLine();
         }
 
@@ -26,5 +28,10 @@ namespace ExpenseTracker.UI
             toDate = DateTime.Parse(result.Split(' ')[1]);
         }
 
+        public static void RenderDiff(this IOutputRenderer renderer, decimal amount, bool positiveIsGood = true)
+        {
+            var style = amount >= 0 && positiveIsGood ? Style.Success : Style.Error;
+            renderer.Write(amount.ToString(), style);
+        }
     }
 }

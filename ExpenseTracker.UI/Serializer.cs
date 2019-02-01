@@ -25,12 +25,12 @@ namespace ExpenseTracker.UI
 
                 return sb.ToString();
             }
-            else if (type == typeof(List<Transaction>))
+            else if (typeof(IEnumerable<Transaction>).IsAssignableFrom(type))
             {
                 var sb = new StringBuilder();
-                foreach (var t in value as List<Transaction>)
+                foreach (var t in value as IEnumerable<Transaction>)
                 {
-                    sb.Append($"{t.Category}:{t.Source}:{t.Type}:{t.Amount};");
+                    sb.Append($"{t.Category}:{t.Source}:{this.Serialize(t.Type)}:{t.Amount};");
                 }
 
                 return sb.ToString();
@@ -39,6 +39,17 @@ namespace ExpenseTracker.UI
             {
                 var dateValue = (DateTime)value;
                 return dateValue.ToShortDateString();
+            }
+            else if (type == typeof(TransactionType))
+            {
+                if ((TransactionType)value == TransactionType.Expense)
+                {
+                    return "-";
+                }
+                else
+                {
+                    return "+";
+                }
             }
             else
             {
@@ -71,10 +82,10 @@ namespace ExpenseTracker.UI
 
                 return dictionary;
             }
-            else if (propertyType == typeof(List<Transaction>))
+            else if (typeof(IEnumerable<Transaction>).IsAssignableFrom(propertyType))
             {
                 var transactions = new List<Transaction>();
-                var serializedTransactions = newValue.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                var serializedTransactions = newValue.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var serTran in serializedTransactions)
                 {
                     var vals = serTran.Split(':');
@@ -82,7 +93,7 @@ namespace ExpenseTracker.UI
                     {
                         Category = vals[0],
                         Source = vals[1],
-                        Type = (TransactionType)Enum.Parse(typeof(TransactionType), vals[2], true),
+                        Type = (TransactionType)this.Deserialize(typeof(TransactionType), vals[2]),
                         Amount = decimal.Parse(vals[3])
                     });
                 }
@@ -91,7 +102,14 @@ namespace ExpenseTracker.UI
             }
             else if (propertyType == typeof(TransactionType))
             {
-                return (TransactionType)Enum.Parse(typeof(TransactionType), newValue, true);
+                if (newValue == "+")
+                {
+                    return TransactionType.Income;
+                }
+                else
+                {
+                    return TransactionType.Expense;
+                }
             }
             else
             {

@@ -65,7 +65,44 @@ namespace ExpenseTracker.UI
         [MenuAction("qa", "Quick add.")]
         public void QuickAdd()
         {
+            var budget = new Budget()
+            {
+                FromMonth = DateTime.Now,
+                ToMonth = DateTime.Now,
+            };
 
+            var res = this.Renderer.PromptInput("Define budget (fromDate-toDate;;transactions(category:source:type:amount;)", this.SerializeBudget(budget));
+            var newBudget = this.Deserialize(res);
+            if (this.Renderer.Confirm())
+            {
+                this.budgetService.Add(new Budget[] { newBudget });
+            }
+        }
+
+        private Budget Deserialize(string res)
+        {
+            var dates = res.Split(new string[] { ";;" }, StringSplitOptions.None)[0].Split('-');
+            var from = DateTime.Parse(dates[0]);
+            var to = DateTime.Parse(dates[1]);
+            var se = new Serializer();
+
+            var transactionsInput = res.Split(new string[] { ";;" }, StringSplitOptions.None)[1];
+            var transactions = se.Deserialize(typeof(List<Transaction>), transactionsInput) as List<Transaction>;
+            var budget = new Budget()
+            {
+                FromMonth = from,
+                ToMonth = to,
+                ExpectedTransactions = transactions
+            };
+
+            return budget;
+        }
+
+        private string SerializeBudget(Budget budget)
+        {
+            var res = $"{budget.FromMonth.ToShortDateString()}-{budget.ToMonth.ToShortDateString()}";
+            var serializer = new Serializer();
+            return $"{res};;";
         }
 
         private readonly IBudgetService budgetService;
