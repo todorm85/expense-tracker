@@ -43,10 +43,11 @@ namespace ExpenseTracker.UI
         [MenuAction("qa", "Quick add expense")]
         public void QuickAddExpense()
         {
-            var amount = int.Parse(this.Renderer.PromptInput("Amount: ", "0"));
+            var serializer = new Serializer();
+            var amount = decimal.Parse(this.Renderer.PromptInput("Amount: ", "0"));
             var cat = this.Renderer.PromptInput("Category: ", string.Empty);
             var desc = this.Renderer.PromptInput("Description: ", string.Empty);
-            var type = this.Renderer.PromptInput("Type: ", "Expense");
+            var type = this.Renderer.PromptInput("Type: ", serializer.Serialize(TransactionType.Expense));
             var date = DateTime.Parse(this.Renderer.PromptInput("Date: ", DateTime.Now.ToString()));
             var save = this.Renderer.PromptInput("Save: ", "y");
             if (save != "y")
@@ -61,7 +62,7 @@ namespace ExpenseTracker.UI
                     Amount = amount,
                     Category = cat,
                     Source = desc,
-                    Type = (TransactionType)Enum.Parse(typeof(TransactionType), type),
+                    Type = (TransactionType)serializer.Deserialize(typeof(TransactionType), type),
                     Date = date
                 }
             });
