@@ -210,7 +210,7 @@ namespace ExpenseTracker.UI
             }
 
             this.Renderer.WriteLine();
-            this.Renderer.Write("Expected Savings: ");
+            this.Renderer.Write("Expected Total Savings: ");
             this.Renderer.RenderDiff(actualSavings + expectedSavings);
 
             this.Renderer.WriteLine();
