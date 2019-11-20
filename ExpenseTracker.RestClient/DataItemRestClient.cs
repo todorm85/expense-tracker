@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Runtime.Serialization.Json;
 using System.Text;
@@ -72,6 +73,11 @@ namespace ExpenseTracker.RestClient
             var serializer = new DataContractJsonSerializer(typeof(TDes), this.serializerSettings);
             var stream = new MemoryStream(Encoding.UTF8.GetBytes(str));
             return serializer.ReadObject(stream) as TDes;
+        }
+
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -12,8 +12,7 @@ namespace ExpenseTracker.Core
 
         public Budget GetCumulativeForMonth(DateTime month)
         {
-            var allForMonth = this.GetAll()
-                .Where(x => x.FromMonth <= month && month <= x.ToMonth);
+            var allForMonth = this.GetAll(x => x.FromMonth <= month && month <= x.ToMonth);
             if (allForMonth.Count() > 0)
             {
                 var baseBudget = new Budget() { ExpectedTransactions = new List<Transaction>() };

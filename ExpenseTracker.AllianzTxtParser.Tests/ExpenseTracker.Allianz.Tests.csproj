@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExpenseTracker.RestClient\ExpenseTracker.RestClient.csproj" />
+    <ProjectReference Include="..\ExpenseTracker.XMLImporter\ExpenseTracker.Allianz.csproj" />
   </ItemGroup>
 
 </Project>

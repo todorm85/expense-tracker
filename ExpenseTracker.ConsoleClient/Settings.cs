@@ -2,7 +2,7 @@
 
 namespace ExpenseTracker.ConsoleClient
 {
-    internal class Settings : ISettings
+    internal class Settings
     {
         public const string WebClientModeValue = "web";
 
@@ -28,7 +28,7 @@ namespace ExpenseTracker.ConsoleClient
             }
             else
             {
-                return new Renderer().PromptInput($"Enter value for {key}");
+                return string.Empty;
             }
         }
     }

@@ -8,7 +8,7 @@ namespace ExpenseTracker.Core
     {
         public TransactionsService(IUnitOfWork data) : base(data)
         {
-            this.data = data;
+            this.uow = data;
         }
 
         private TransactionsClassifier Classifier
@@ -17,7 +17,7 @@ namespace ExpenseTracker.Core
             {
                 if (this._classifier == null)
                 {
-                    this._classifier = new TransactionsClassifier(this.data.GetDataItemsRepo<Category>().GetAll());
+                    this._classifier = new TransactionsClassifier(this.uow.GetDataItemsRepo<Category>().GetAll());
                 }
 
                 return this._classifier;
@@ -26,12 +26,14 @@ namespace ExpenseTracker.Core
 
         public override void Add(IEnumerable<Transaction> expenses)
         {
+            expenses = expenses.Where(newTran => string.IsNullOrEmpty(newTran.TransactionId) // new items
+                || this.repo.GetAll(t => t.TransactionId == newTran.TransactionId && t.Source == newTran.Source) == null); // there are transactions with duplicate ids -> withdrawal and taxes for the withdrawal are two transactions with same transaction reference for example
 
-            var allExistingTransactionIds = this.repo.GetAll().Select(x => x.TransactionId);
-            expenses = expenses.Where(x => string.IsNullOrEmpty(x.TransactionId) || !allExistingTransactionIds.Contains(x.TransactionId));
-
-            this.Classifier.Classify(expenses);
-            base.Add(expenses);
+            if (expenses.Count() != 0)
+            {
+                this.Classifier.Classify(expenses);
+                base.Add(expenses);
+            }
         }
 
         public void Classify()
@@ -43,7 +45,7 @@ namespace ExpenseTracker.Core
 
         public Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>> GetExpensesByCategoriesByMonths(DateTime fromDate, DateTime toDate)
         {
-            var expenses = this.repo.GetAll().Where(x => x.Date >= fromDate && x.Date <= toDate && x.Type == TransactionType.Expense);
+            var expenses = this.repo.GetAll(x => x.Date >= fromDate && x.Date <= toDate && x.Type == TransactionType.Expense);
             var byCategoryByMonths = new Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>>();
             foreach (var year in expenses.GroupBy(x => x.Date.Year))
             {
@@ -67,7 +69,7 @@ namespace ExpenseTracker.Core
             this.Update(new Transaction[] { expense });
         }
 
-        private readonly IUnitOfWork data;
+        private readonly IUnitOfWork uow;
         private TransactionsClassifier _classifier;
     }
 }

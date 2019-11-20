@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("ExpenseTracker.Tests")]
+[assembly: InternalsVisibleTo("ExpenseTracker.Core.Tests")]
 namespace ExpenseTracker.Core
 {
     internal class TransactionsClassifier

@@ -7,23 +7,28 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace ExpenseTracker.Tests
 {
     [TestClass]
-    public class ExpensesRepoTests
+    public class GenericRepoTests
     {
         [TestInitialize]
         public void SetUp()
         {
-            this.sut = new GenericRepo<Transaction>(new LiteDB.LiteDatabase("tests.db"), "tests");
+            this.sut = new GenericRepo<Transaction>(new LiteDB.LiteDatabase("Filename=tests.db;utc=true;"), "tests");
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void Update_NonExistent_Throws()
+        public void Update_NonExistent_DoesNothing()
         {
             var expenses = TestExpensesFactory.GetTestExpenses(1);
-            expenses.First().Source = "PESHOOOOOOO";
+            var details = Guid.NewGuid().ToString();
+            expenses.First().Source = details;
             var initialCount = sut.GetAll().Count();
-            expenses.First().Id = initialCount + 1;
+            var newId = initialCount + 1;
+            expenses.First().Id = newId;
             sut.Update(expenses);
+            var expense = sut.GetAll().FirstOrDefault(x => x.Id == newId);
+            Assert.IsNull(expense);
+            expense = sut.GetAll().FirstOrDefault(x => x.Source == details);
+            Assert.IsNull(expense);
         }
 
         [TestMethod]
@@ -33,10 +38,11 @@ namespace ExpenseTracker.Tests
             sut.Insert(expenses);
             expenses = sut.GetAll();
             var firstExpense = expenses.First();
-            firstExpense.Source = "PESHOOOOOOO2121";
+            var details = Guid.NewGuid().ToString();
+            firstExpense.Source = details;
             sut.Update(new Transaction[] { firstExpense });
             expenses = sut.GetAll();
-            Assert.AreEqual("PESHOOOOOOO2121", expenses.First().Source);
+            Assert.AreEqual(details, expenses.First().Source);
         }
 
         private GenericRepo<Transaction> sut;

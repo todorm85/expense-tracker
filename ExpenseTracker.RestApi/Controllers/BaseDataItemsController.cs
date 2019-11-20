@@ -25,7 +25,7 @@ namespace ExpenseTracker.RestApi.Controllers
         [HttpGet("{id}")]
         public virtual ActionResult<string> Get(int id)
         {
-            return new JsonResult(this.service.GetAll().FirstOrDefault(x => x.Id == id));
+            return new JsonResult(this.service.GetAll(x => x.Id == id).FirstOrDefault());
         }
 
         // POST api/values
@@ -45,7 +45,7 @@ namespace ExpenseTracker.RestApi.Controllers
         [HttpDelete("{id}")]
         public virtual void Delete(int id)
         {
-            var toRemove = this.service.GetAll().FirstOrDefault(x => x.Id == id);
+            var toRemove = this.service.GetAll(x => x.Id == id).FirstOrDefault();
             this.service.Remove(new T[] { toRemove });
         }
     }

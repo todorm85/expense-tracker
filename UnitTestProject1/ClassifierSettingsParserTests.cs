@@ -1,4 +1,5 @@
 ﻿using System;
+using ExpenseTracker.Core.UI;
 using ExpenseTracker.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

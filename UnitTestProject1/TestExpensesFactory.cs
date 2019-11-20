@@ -23,12 +23,12 @@ namespace ExpenseTracker.Tests
         public static Transaction GetTestExpense(DateTime? date = null, string category = null)
         {
             var random = new Random();
-
+            var newDate = date != null ? DateTime.SpecifyKind(date.Value, DateTimeKind.Utc) : DateTime.Now.AddDays(random.Next(0, 10) * -1);
             return new Transaction()
             {
                 Account = Guid.NewGuid().ToString(),
                 Amount = (decimal)(random.NextDouble() * 100),
-                Date = date ?? DateTime.Now.AddDays(random.Next(0, 10) * -1),
+                Date = newDate,
                 Source = Guid.NewGuid().ToString(),
                 TransactionId = Guid.NewGuid().ToString(),
                 Category = category ?? Guid.NewGuid().ToString()

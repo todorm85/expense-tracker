@@ -12,10 +12,9 @@ namespace ExpenseTracker.Core
 
         public override void Add(IEnumerable<Category> items)
         {
-            var allCats = this.repo.GetAll();
             foreach (var item in items)
             {
-                var existingCategory = allCats.FirstOrDefault(c => c.ExpenseSourcePhrase == item.ExpenseSourcePhrase);
+                var existingCategory = this.repo.GetAll(c => c.ExpenseSourcePhrase == item.ExpenseSourcePhrase).FirstOrDefault();
                 if (existingCategory != null)
                 {
                     this.Remove(new Category[] { existingCategory });

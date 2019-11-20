@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ExpenseTracker.Core;
+using ExpenseTracker.UI;
 
-namespace ExpenseTracker.UI
+namespace ExpenseTracker.Core.UI
 {
     public class CategoriesMenu : DataItemMenuBase<Category>
     {
-        public CategoriesMenu(IBaseDataItemService<Category> service, IOutputRenderer renderer) : base(renderer)
+        public CategoriesMenu(IBaseDataItemService<Category> service, IOutputProvider renderer, IInputProvider input) : base(renderer, input)
         {
             this.Service = service;
         }
@@ -21,10 +20,10 @@ namespace ExpenseTracker.UI
             var groupByCats = this.Service.GetAll().GroupBy(x => x.Name);
             foreach (var gbc in groupByCats)
             {
-                Renderer.WriteLine($"{gbc.Key}");
+                this.Output.WriteLine($"{gbc.Key}");
                 foreach (var cat in gbc)
                 {
-                    Renderer.WriteLine("".PadLeft(5) + $"({cat.Id}) " + cat.ExpenseSourcePhrase);
+                    this.Output.WriteLine("".PadLeft(5) + $"({cat.Id}) " + cat.ExpenseSourcePhrase);
                 }
             }
         }
@@ -32,10 +31,10 @@ namespace ExpenseTracker.UI
         [MenuAction("ij", "Import from JSON")]
         public void Import()
         {
-            var path = Renderer.PromptInput("Enter path to file.");
+            var path = this.PromptInput("Enter path to file.");
             if (!File.Exists(path))
             {
-                Renderer.WriteLine("Path not found.");
+                this.Output.WriteLine("Path not found.");
                 return;
             }
 

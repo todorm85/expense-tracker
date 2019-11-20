@@ -1,8 +1,8 @@
 ﻿{
-    "DbPath": ".\\AppData\\expenses.db",
-    "MailUser": "",
-    "MailPass": "",
-    "ClientMode": "local",
-    "WebClientAuth": "dev:devsecret",
-    "WebServiceBase": "https://localhost:44376"
+  "DbPath": ".\\AppData\\expenses.db",
+  "MailUser": "",
+  "MailPass": "",
+  "ClientMode": "local",
+  "WebClientAuth": "dev:devsecret",
+  "WebServiceBase": "https://localhost:44376"
 }

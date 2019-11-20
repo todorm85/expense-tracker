@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace ExpenseTracker.Core
 {
@@ -29,6 +31,11 @@ namespace ExpenseTracker.Core
         public virtual IEnumerable<T> GetAll()
         {
             return this.repo.GetAll();
+        }
+
+        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate)
+        {
+            return this.repo.GetAll(predicate);
         }
     }
 }

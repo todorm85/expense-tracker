@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Expressions;
 using ExpenseTracker.Core;
 using LiteDB;
 
@@ -16,11 +16,32 @@ namespace ExpenseTracker.Data
         {
             this.db = db;
             this.context = this.db.GetCollection<T>(collection);
+            if (typeof(T) == typeof(Transaction))
+            {
+                var transactionsContext = this.context as LiteCollection<Transaction>;
+                transactionsContext.EnsureIndex(x => x.Date);
+                transactionsContext.EnsureIndex(x => x.TransactionId);
+                transactionsContext.EnsureIndex(x => x.Amount);
+            }
+
+            if (typeof(T) == typeof(Category))
+            {
+                var transactionsContext = this.context as LiteCollection<Category>;
+                transactionsContext.EnsureIndex(x => x.ExpenseSourcePhrase);
+                transactionsContext.EnsureIndex(x => x.Name);
+            }
         }
 
         public virtual IEnumerable<T> GetAll()
         {
             var all = this.context.FindAll();
+            this.GetAll(x => x.Id == 1);
+            return all;
+        }
+
+        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate)
+        {
+            var all = this.context.Find(predicate);
             return all;
         }
 
@@ -31,15 +52,6 @@ namespace ExpenseTracker.Data
 
         public virtual void Update(IEnumerable<T> items)
         {
-            var allExistingIds = this.GetAll().Select(x => x.Id);
-            foreach (var item in items)
-            {
-                if (item.Id == 0 || !allExistingIds.Contains(item.Id))
-                {
-                    throw new InvalidOperationException($"Cannot update item with id {item.Id}. Item not found in database.");
-                }
-            }
-
             this.context.Update(items);
         }
 

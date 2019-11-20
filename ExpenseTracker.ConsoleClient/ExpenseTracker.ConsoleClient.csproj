@@ -9,10 +9,26 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>ExpenseTracker.ConsoleClient</RootNamespace>
     <AssemblyName>ExpenseTracker.ConsoleClient</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -47,12 +63,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExtendedMenuBuilder.cs" />
-    <Compile Include="ISettings.cs" />
+    <Compile Include="MenuBuilder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Renderer.cs" />
-    <Compile Include="MenuFactory.cs" />
+    <Compile Include="IOProvider.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +76,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ExpenseTracker.Core.UIComponents\ExpenseTracker.Core.UIComponents.csproj">
+      <Project>{95232e00-c04b-4c2e-9605-c1c0384049c5}</Project>
+      <Name>ExpenseTracker.Core.UIComponents</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj">
       <Project>{d10a136b-d70d-43a7-a249-f99b6a0bf381}</Project>
       <Name>ExpenseTracker.Core</Name>
@@ -74,19 +92,30 @@
       <Project>{5179FA75-99C8-4462-BEE6-EA70B03EF4E2}</Project>
       <Name>ExpenseTracker.Gmail</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.RestClient\ExpenseTracker.RestClient.csproj">
-      <Project>{7e1370cb-82c0-45b6-a3ad-cc3bbd32849e}</Project>
-      <Name>ExpenseTracker.RestClient</Name>
+    <ProjectReference Include="..\ExpenseTracker.RestClient\ExpenseTracker.RestSDK.csproj">
+      <Project>{bf54c56d-621f-4c77-8a4f-bd12e9cb6057}</Project>
+      <Name>ExpenseTracker.RestSDK</Name>
     </ProjectReference>
     <ProjectReference Include="..\ExpenseTracker.UI\ExpenseTracker.UI.csproj">
       <Project>{1d400343-02ee-40b3-839c-45e4fd765243}</Project>
       <Name>ExpenseTracker.UI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ExpenseTracker.XMLImporter\ExpenseTracker.Allianz.csproj">
+      <Project>{8A059438-2017-41C2-ACF5-6F75DCCA7B92}</Project>
+      <Name>ExpenseTracker.Allianz</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Unity">
-      <Version>2.1.505.2</Version>
+      <Version>5.11.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

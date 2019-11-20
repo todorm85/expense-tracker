@@ -1,9 +1,9 @@
-﻿using ExpenseTracker.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ExpenseTracker.UI;
 
-namespace ExpenseTracker.UI
+namespace ExpenseTracker.Core.UI
 {
     public class ExpensesMenu : DataItemMenuBase<Transaction>
     {
@@ -12,7 +12,7 @@ namespace ExpenseTracker.UI
         private readonly IBudgetService budgetService;
         private readonly IBudgetCalculator budgetCalculator;
 
-        public ExpensesMenu(ITransactionsService expensesService, IBudgetService budgetService, IOutputRenderer renderer, IBudgetCalculator budgetCalculator) : base(renderer)
+        public ExpensesMenu(ITransactionsService expensesService, IBudgetService budgetService, IOutputProvider renderer, IBudgetCalculator budgetCalculator, IInputProvider input) : base(renderer, input)
         {
             this.Service = expensesService;
             this.expenseService = expensesService;
@@ -44,12 +44,12 @@ namespace ExpenseTracker.UI
         public void QuickAddExpense()
         {
             var serializer = new Serializer();
-            var amount = decimal.Parse(this.Renderer.PromptInput("Amount: ", "0"));
-            var cat = this.Renderer.PromptInput("Category: ", string.Empty);
-            var desc = this.Renderer.PromptInput("Description: ", string.Empty);
-            var type = this.Renderer.PromptInput("Type: ", serializer.Serialize(TransactionType.Expense));
-            var date = DateTime.Parse(this.Renderer.PromptInput("Date: ", DateTime.Now.ToString()));
-            var save = this.Renderer.PromptInput("Save: ", "y");
+            var amount = decimal.Parse(this.PromptInput("Amount: ", "0"));
+            var cat = this.PromptInput("Category: ", string.Empty);
+            var desc = this.PromptInput("Description: ", string.Empty);
+            var type = this.PromptInput("Type: ", serializer.Serialize(TransactionType.Expense));
+            var date = DateTime.Parse(this.PromptInput("Date: ", DateTime.Now.ToString()));
+            var save = this.PromptInput("Save: ", "y");
             if (save != "y")
             {
                 return;
@@ -73,13 +73,13 @@ namespace ExpenseTracker.UI
             var year = DateTime.Now.Year;
             var fromDate = new DateTime(year, 1, 1);
             var toDate = DateTime.Now.SetToEndOfMonth();
-            this.Renderer.GetDateFilter(ref fromDate, ref toDate);
+            this.GetDateFilter(ref fromDate, ref toDate);
 
             var currentMonthDate = fromDate;
             while (currentMonthDate <= toDate.SetToEndOfMonth())
             {
-                this.Renderer.WriteLine();
-                this.Renderer.WriteLine($"{currentMonthDate.ToString("MMMM yyyy")}");
+                this.Output.NewLine();
+                this.Output.WriteLine($"{currentMonthDate.ToString("MMMM yyyy")}");
 
                 this.WriteMonthSummary(currentMonthDate, 5);
 
@@ -89,7 +89,7 @@ namespace ExpenseTracker.UI
             }
 
             this.WritePeriodSummary(fromDate, toDate);
-            this.Renderer.WriteLine();
+            this.Output.NewLine();
         }
 
         private void WriteCategoriesForMonth(bool detailed, DateTime currentMonthDate, int pad = 0)
@@ -100,7 +100,7 @@ namespace ExpenseTracker.UI
 
             if (monthCategories.Value != null)
             {
-                this.Renderer.WriteLine();
+                this.Output.NewLine();
 
                 foreach (var category in monthCategories.Value.OrderBy(x => x.Key))
                 {
@@ -126,7 +126,7 @@ namespace ExpenseTracker.UI
 
             source = source.PadLeft(45);
 
-            this.Renderer.WriteLine("".PadLeft(padding) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("F0").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
+            this.Output.WriteLine("".PadLeft(padding) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("F0").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
         }
 
         private void WriteCategoryForMonth(DateTime currentMonthDate, KeyValuePair<string, IEnumerable<Transaction>> category, int pad = 0)
@@ -139,20 +139,20 @@ namespace ExpenseTracker.UI
                 monthBudget?.ExpectedTransactions.Where(x => x.Category == category.Key && x.Type == TransactionType.Expense).Sum(x => x.Amount) : null;
             var shouldRenderBudget = monthBudget != null && monthBudget.FromMonth.SetToBeginningOfMonth() <= DateTime.Now && DateTime.Now <= monthBudget.ToMonth;
 
-            this.Renderer.Write($"{"".PadLeft(pad)}{categoryName} : ");
+            this.Output.Write($"{"".PadLeft(pad)}{categoryName} : ");
             if (catExpected != null && shouldRenderBudget)
             {
-                this.Renderer.RenderActualExpectedNewLine(categoryActual, catExpected.Value);
+                this.ShowActualExpectedNewLine(categoryActual, catExpected.Value);
             }
             else
             {
-                this.Renderer.WriteLine($"{categoryActual.ToString("F0")}");
+                this.Output.WriteLine($"{categoryActual.ToString("F0")}");
             }
         }
 
         private void WriteMonthSummary(DateTime month, int pad)
         {
-            this.Renderer.WriteLine();
+            this.Output.NewLine();
 
             var monthBudget = this.budgetService.GetCumulativeForMonth(month);
             var actualExpenses = this.budgetCalculator.CalculateActualExpenses(month.SetToBeginningOfMonth(), month.SetToEndOfMonth());
@@ -166,23 +166,23 @@ namespace ExpenseTracker.UI
                 var expectedSavings = this.budgetCalculator.CalculateExpectedSavings(monthBudget);
                 var expectedIncome = this.budgetCalculator.CalculateExpectedIncome(monthBudget);
 
-                this.Renderer.Write($"{"".PadLeft(pad)}Expenses: ");
-                this.Renderer.RenderActualExpectedNewLine(actualExpenses, expectedExpenses, true, isCurrentMonth);
+                this.Output.Write($"{"".PadLeft(pad)}Expenses: ");
+                this.ShowActualExpectedNewLine(actualExpenses, expectedExpenses, true, isCurrentMonth);
                 if (!isCurrentMonth)
                 {
-                    this.Renderer.Write($"{"".PadLeft(pad)}Income: ");
-                    this.Renderer.RenderActualExpectedNewLine(actualIncome, expectedIncome, false, false);
-                    this.Renderer.Write($"{"".PadLeft(pad)}Savings: ");
-                    this.Renderer.RenderActualExpectedNewLine(actualSavings, expectedSavings, false, false);
+                    this.Output.Write($"{"".PadLeft(pad)}Income: ");
+                    this.ShowActualExpectedNewLine(actualIncome, expectedIncome, false, false);
+                    this.Output.Write($"{"".PadLeft(pad)}Savings: ");
+                    this.ShowActualExpectedNewLine(actualSavings, expectedSavings, false, false);
                 }
             }
             else
             {
-                this.Renderer.WriteLine($"{"".PadLeft(pad)}Expenses: {actualExpenses}");
-                this.Renderer.WriteLine($"{"".PadLeft(pad)}Income: {actualIncome}");
-                this.Renderer.Write($"{"".PadLeft(pad)}Savings: ");
-                this.Renderer.RenderDiff(actualSavings);
-                this.Renderer.WriteLine();
+                this.Output.WriteLine($"{"".PadLeft(pad)}Expenses: {actualExpenses}");
+                this.Output.WriteLine($"{"".PadLeft(pad)}Income: {actualIncome}");
+                this.Output.Write($"{"".PadLeft(pad)}Savings: ");
+                this.ShowDiff(actualSavings);
+                this.Output.NewLine();
             }
         }
 
@@ -209,13 +209,13 @@ namespace ExpenseTracker.UI
                 currentMonthDate = currentMonthDate.AddMonths(1);
             }
 
-            this.Renderer.WriteLine();
-            this.Renderer.Write("Expected Total Savings: ");
-            this.Renderer.RenderDiff(actualSavings + expectedSavings);
+            this.Output.NewLine();
+            this.Output.Write("Expected Total Savings: ");
+            this.ShowDiff(actualSavings + expectedSavings);
 
-            this.Renderer.WriteLine();
-            this.Renderer.Write("Saved so far: ");
-            this.Renderer.RenderDiff(actualSavings);
+            this.Output.NewLine();
+            this.Output.Write("Saved so far: ");
+            this.ShowDiff(actualSavings);
         }
     }
 }

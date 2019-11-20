@@ -2,13 +2,14 @@
 using ExpenseTracker.Data;
 using ExpenseTracker.RestClient;
 using ExpenseTracker.UI;
-using Microsoft.Practices.Unity;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using Unity;
+using Unity.Injection;
 
 namespace ExpenseTracker.ConsoleClient
 {
@@ -20,17 +21,18 @@ namespace ExpenseTracker.ConsoleClient
         {
             LoadSettings();
             var container = RegisterIoCTypes();
-            container.Resolve<ExtendedMenuBuilder>().Build().Run();
+            container.Resolve<MenuBuilder>().Build().Run();
         }
 
         private static IUnityContainer RegisterIoCTypes()
         {
             var container = new UnityContainer();
-            container.RegisterInstance<IOutputRenderer>(new Renderer());
-            container.RegisterType<IMenuFactory, MenuFactory>();
+            var renderer = new IOProvider();
+            container.RegisterInstance<IOutputProvider>(renderer);
+            container.RegisterInstance<IInputProvider>(renderer);
+            container.RegisterInstance<Settings>(settings);
 
             RegisterServices(container);
-            container.RegisterInstance<ISettings>(settings);
 
             return container;
         }

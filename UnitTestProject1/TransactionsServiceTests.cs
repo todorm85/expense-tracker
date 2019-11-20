@@ -11,7 +11,7 @@ using Telerik.JustMock;
 namespace ExpenseTracker.Tests
 {
     [TestClass]
-    public class ExpensesServiceTests
+    public class TransactionsServiceTests
     {
         public TransactionsService Sut
         {
@@ -31,21 +31,22 @@ namespace ExpenseTracker.Tests
         {
             this.imptExpns = new List<Transaction>();
 
-            this.repo = Mock.Create<IGenericRepository<Transaction>>(Behavior.Strict);
+            this.repo = new GenericRepo<Transaction>(new LiteDatabase("Filename=transactionsTests.db;utc=true;"), "Transactions");
+            this.repo.Remove(this.repo.GetAll());
             this.uow = Mock.Create<IUnitOfWork>(Behavior.Strict);
             Mock.Arrange(() => this.uow.GetDataItemsRepo<Transaction>()).Returns(() => this.repo);
             this.sut = null;
         }
 
         [TestMethod]
-        public void Export_NoTransactionsInRange_ExportsNothing()
+        public void GetExpensesByCategoriesByMonths_NoTransactionsInRange_ExportsNothing()
         {
             var expeneses = new List<Transaction>
             {
                 TestExpensesFactory.GetTestExpense(new DateTime(2018, 6, 1))
             };
 
-            Mock.Arrange(() => this.repo.GetAll()).Returns(expeneses);
+            this.repo.Insert(expeneses);
 
             var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
 
@@ -53,12 +54,12 @@ namespace ExpenseTracker.Tests
         }
 
         [TestMethod]
-        public void Export_SingleMonthExpensesInRange()
+        public void GetExpensesByCategoriesByMonths_SingleMonthExpensesInRange()
         {
             var expeneses = new List<Transaction>();
             var cat = "cat";
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 1), cat));
-            Mock.Arrange(() => this.repo.GetAll()).Returns(expeneses);
+            this.repo.Insert(expeneses);
 
             var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
 
@@ -70,7 +71,7 @@ namespace ExpenseTracker.Tests
         }
 
         [TestMethod]
-        public void Export_DifferentMonthExpensesInRange()
+        public void GetExpensesByCategoriesByMonths_DifferentMonthExpensesInRange()
         {
             var expeneses = new List<Transaction>();
             var cat1 = "cat";
@@ -78,7 +79,7 @@ namespace ExpenseTracker.Tests
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), cat1));
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 4, 8), cat2));
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 4, 15), cat2));
-            Mock.Arrange(() => this.repo.GetAll()).Returns(expeneses);
+            this.repo.Insert(expeneses);
 
             var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
 
@@ -97,7 +98,7 @@ namespace ExpenseTracker.Tests
         }
 
         [TestMethod]
-        public void Export_NotDetailedDifferentMonthExpensesInRange()
+        public void GetExpensesByCategoriesByMonths_NotDetailedDifferentMonthExpensesInRange()
         {
             var expeneses = new List<Transaction>();
             var cat1 = "cat";
@@ -106,7 +107,7 @@ namespace ExpenseTracker.Tests
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), cat1));
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 4, 8), cat2));
             expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 4, 15), cat3));
-            Mock.Arrange(() => this.repo.GetAll()).Returns(expeneses);
+            this.repo.Insert(expeneses);
 
             var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
 
@@ -123,7 +124,21 @@ namespace ExpenseTracker.Tests
             Assert.IsTrue(results[expectedKey2].First().Key == cat2);
             Assert.IsTrue(results[expectedKey2].Skip(1).First().Key == cat3);
         }
-        
+
+        [TestMethod]
+        public void Add_DuplicateTransaction_DoesNothing()
+        {
+            var expense = TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), "dummyCategory");
+            this.repo.Insert(new Transaction[] { expense });
+
+            this.Sut.Add(new Transaction[] { expense });
+            var results = this.Sut.GetAll();
+            Assert.AreEqual(1, results.Count());
+            var result = results.First();
+            Assert.AreEqual(new DateTime(2018, 3, 9), result.Date);
+
+        }
+
         private List<Transaction> imptExpns = new List<Transaction>();
         private IGenericRepository<Transaction> repo;
         private IUnitOfWork uow;

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace ExpenseTracker.Core
 {
@@ -11,5 +13,7 @@ namespace ExpenseTracker.Core
         void Update(IEnumerable<T> items);
 
         IEnumerable<T> GetAll();
+
+        IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate);
     }
 }

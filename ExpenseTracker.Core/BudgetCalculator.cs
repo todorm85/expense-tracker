@@ -31,8 +31,7 @@ namespace ExpenseTracker.Core
 
         public decimal CalculateActualExpenses(DateTime from, DateTime to)
         {
-            return this.transactionsService.GetAll()
-                                    .Where(e => e.Date >= from
+            return this.transactionsService.GetAll(e => e.Date >= from
                                         && e.Date <= to
                                         && e.Type == TransactionType.Expense)
                                     .Sum(e => e.Amount);
@@ -40,8 +39,7 @@ namespace ExpenseTracker.Core
 
         public decimal CalculateActualIncome(DateTime from, DateTime to)
         {
-            return this.transactionsService.GetAll()
-                                    .Where(e => e.Date >= from
+            return this.transactionsService.GetAll(e => e.Date >= from
                                         && e.Date <= to
                                         && e.Type == TransactionType.Income)
                                     .Sum(e => e.Amount);

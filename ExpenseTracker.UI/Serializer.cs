@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ExpenseTracker.UI
 {
-    internal class Serializer
+    public class Serializer
     {
         public string Serialize(object value)
         {

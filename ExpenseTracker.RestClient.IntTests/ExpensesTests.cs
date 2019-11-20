@@ -11,6 +11,7 @@ namespace ExpenseTracker.RestClient.IntTests
         private const string baseAddress = "https://localhost:44376";
 
         [TestMethod]
+        [Ignore]
         public void Expenses_Get()
         {
             var service = new ExpensesRestClient(new RestHttpClient(baseAddress));
@@ -18,6 +19,7 @@ namespace ExpenseTracker.RestClient.IntTests
         }
 
         [TestMethod]
+        [Ignore]
         public void Expenses_Post()
         {
             var service = new ExpensesRestClient(new RestHttpClient(baseAddress));

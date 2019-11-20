@@ -1,26 +1,26 @@
-﻿using ExpenseTracker.Core;
+﻿using ExpenseTracker.UI;
 using System;
 using System.Linq;
 
-namespace ExpenseTracker.UI
+namespace ExpenseTracker.Core.UI
 {
-    public abstract class DataItemMenuBase<T> : MenuBase where T : class, IDataItem
+    public abstract class DataItemMenuBase<T> : Menu where T : class, IDataItem
     {
         public abstract IBaseDataItemService<T> Service { get; set; }
 
-        public DataItemMenuBase(IOutputRenderer renderer) : base(renderer)
+        public DataItemMenuBase(IOutputProvider renderer, IInputProvider input) : base(renderer, input)
         {
         }
 
         [MenuAction("ed", "Edit by id")]
         public void Edit()
         {
-            var id = int.Parse(this.Renderer.PromptInput("Enter id to edit:"));
-            var item = this.Service.GetAll().First(x => x.Id == id);
+            var id = int.Parse(this.PromptInput("Enter id to edit:"));
+            var item = this.Service.GetAll(x => x.Id == id).FirstOrDefault();
 
-            var editor = new ItemEditorMenu(item, this.Renderer);
+            var editor = new ItemEditorMenu(item, this.Output, this.Input);
             editor.Run();
-            if (this.Renderer.Confirm())
+            if (this.Confirm())
                 this.Service.Update(new T[] { item });
         }
 
@@ -28,17 +28,17 @@ namespace ExpenseTracker.UI
         public void Add()
         {
             T item = Activator.CreateInstance<T>();
-            var editor = new ItemEditorMenu(item, this.Renderer);
+            var editor = new ItemEditorMenu(item, this.Output, this.Input);
             editor.Run();
-            if (this.Renderer.Confirm())
+            if (this.Confirm())
                 this.Service.Add(new T[] { item });
         }
 
         [MenuAction("rem", "Remove")]
         public void Remove()
         {
-            var id = int.Parse(this.Renderer.PromptInput("Enter id to edit:"));
-            var item = this.Service.GetAll().First(x => x.Id == id);
+            var id = int.Parse(this.PromptInput("Enter id to edit:"));
+            var item = this.Service.GetAll(x => x.Id == id).FirstOrDefault();
             this.Service.Remove(new T[] { item });
         }
 
@@ -51,10 +51,10 @@ namespace ExpenseTracker.UI
                 var props = item.GetType().GetProperties();
                 foreach (var p in props)
                 {
-                    this.Renderer.Write($"{p.Name}:'{new Serializer().Serialize(p.GetValue(item))}'\n");
+                    this.Output.Write($"{p.Name}:'{new Serializer().Serialize(p.GetValue(item))}'\n");
                 }
 
-                this.Renderer.WriteLine("\n");
+                this.Output.WriteLine("\n");
             }
         }
     }

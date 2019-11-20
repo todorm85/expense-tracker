@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace ExpenseTracker.Core
 {
@@ -6,6 +8,7 @@ namespace ExpenseTracker.Core
         where T : IDataItem
     {
         IEnumerable<T> GetAll();
+        IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate);
 
         void Insert(IEnumerable<T> items);
 

@@ -5,23 +5,26 @@ using System.Reflection;
 
 namespace ExpenseTracker.UI
 {
-    public class MenuBase
+    public class Menu
     {
         protected IList<MenuAction> menuActions = new List<MenuAction>();
         private const string ExitCommand = "e";
         private string exitCommandText = "Exit";
 
-        public MenuBase(IOutputRenderer renderer)
+        public Menu(IOutputProvider output, IInputProvider input)
         {
-            this.Renderer = renderer;
+            this.exitCommandText = "Exit " + this.GetType().Name;
+            this.Output = output;
+            this.Input = input;
         }
 
-        protected IOutputRenderer Renderer { get; }
+        public IOutputProvider Output { get; }
+
+        public IInputProvider Input { get; }
 
         public virtual void Run()
         {
             this.GetActions();
-            this.exitCommandText = "Exit " + this.GetType().Name;
             this.PromptMenuActions(this.menuActions, ExitCommand, this.exitCommandText);
         }
 
@@ -47,12 +50,12 @@ namespace ExpenseTracker.UI
             {
                 foreach (var a in actions)
                 {
-                    this.Renderer.WriteLine($"{a.Command.PadRight(5)} : {a.GetDescription()}");
+                    this.Output.WriteLine($"{a.Command.PadRight(5)} : {a.GetDescription()}");
                 }
 
-                this.Renderer.WriteLine($"{exitCommand.PadRight(5)} : {exitText}");
+                this.Output.WriteLine($"{exitCommand.PadRight(5)} : {exitText}");
 
-                response = this.Renderer.PromptInput("");
+                response = this.PromptInput("");
                 var action = actions.FirstOrDefault(a => a.Command == response);
                 if (action != null)
                 {

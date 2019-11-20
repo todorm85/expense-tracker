@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 
 namespace ExpenseTracker.UI
 {
-    internal class ItemEditorMenu : MenuBase
+    public class ItemEditorMenu : Menu
     {
-        public ItemEditorMenu(object item, IOutputRenderer renderer) : base(renderer)
+        public ItemEditorMenu(object item, IOutputProvider renderer, IInputProvider input) : base(renderer, input)
         {
             this.editor = new ItemEditor(item);
             var props = this.editor.GetProperties();
@@ -23,7 +19,7 @@ namespace ExpenseTracker.UI
         private void Edit(PropertyInfo p)
         {
             var propValues = this.editor.GetPropVal(p);
-            var newValue = Renderer.PromptInput($"Enter prop value{p.GetAdditionalInfo()}: ", propValues);
+            var newValue = this.PromptInput($"Enter prop value{p.GetAdditionalInfo()}: ", propValues);
             this.editor.SetPropVal(p, newValue);
         }
 

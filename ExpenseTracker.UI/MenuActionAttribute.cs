@@ -2,7 +2,7 @@
 
 namespace ExpenseTracker.UI
 {
-    internal class MenuActionAttribute : Attribute
+    public class MenuActionAttribute : Attribute
     {
         public MenuActionAttribute(string command, string description)
         {

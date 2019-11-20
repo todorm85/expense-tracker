@@ -1,12 +1,13 @@
 ﻿using ExpenseTracker.Core;
+using ExpenseTracker.UI;
 using System;
 using System.Collections.Generic;
 
-namespace ExpenseTracker.UI
+namespace ExpenseTracker.Core.UI
 {
     public class BudgetMenu : DataItemMenuBase<Budget>
     {
-        public BudgetMenu(IBudgetService service, IOutputRenderer renderer, ITransactionsService expensesService, IBudgetCalculator calculator) : base(renderer)
+        public BudgetMenu(IBudgetService service, IOutputProvider renderer, ITransactionsService expensesService, IBudgetCalculator calculator, IInputProvider input) : base(renderer, input)
         {
             this.budgetService = service;
             this.expensesService = expensesService;
@@ -21,7 +22,7 @@ namespace ExpenseTracker.UI
         {
             var fromDate = new DateTime(DateTime.Now.Year, 1, 1);
             var toDate = new DateTime(DateTime.Now.Year + 1, 1, 1).AddDays(-1);
-            this.Renderer.GetDateFilter(ref fromDate, ref toDate);
+            this.GetDateFilter(ref fromDate, ref toDate);
 
             //var budgets = this.budgetService.GetAll()
             //    .Where(x => x.FromMonth >= fromDate && x.ToMonth <= toDate)
@@ -46,19 +47,19 @@ namespace ExpenseTracker.UI
                 var expectedExpense = this.calculator.CalculateExpectedExpenses(budget);
                 var expectedSavings = this.calculator.CalculateExpectedSavings(budget);
 
-                this.Renderer.WriteLine();
-                this.Renderer.Write($"{budget.FromMonth.ToString("MMMM yyyy")}");
+                this.Output.NewLine();
+                this.Output.Write($"{budget.FromMonth.ToString("MMMM yyyy")}");
                 var prefix = "  ";
-                this.Renderer.Write($"{prefix}Savings:");
-                this.Renderer.WriteLine($" {expectedSavings}", expectedSavings >= 0 ? Style.Success : Style.Error);
-                this.Renderer.WriteLine($"{prefix}Income: {expectedIncome}");
-                this.Renderer.WriteLine($"{prefix}Expense: {expectedExpense}");
+                this.Output.Write($"{prefix}Savings:");
+                this.Output.WriteLine($" {expectedSavings}", expectedSavings >= 0 ? Style.Success : Style.Error);
+                this.Output.WriteLine($"{prefix}Income: {expectedIncome}");
+                this.Output.WriteLine($"{prefix}Expense: {expectedExpense}");
 
-                this.Renderer.WriteLine(
+                this.Output.WriteLine(
                     $"{prefix}{prefix}Details: {new Serializer().Serialize(budget.ExpectedTransactions)}", Style.MoreInfo);
             }
 
-            this.Renderer.WriteLine();
+            this.Output.NewLine();
             //this.WriteSummary(budgets);
         }
 
@@ -71,9 +72,9 @@ namespace ExpenseTracker.UI
                 ToMonth = DateTime.Now,
             };
 
-            var res = this.Renderer.PromptInput("Define budget (fromDate-toDate;;transactions(category:source:type:amount;)", this.SerializeBudget(budget));
+            var res = this.PromptInput("Define budget (fromDate-toDate;;transactions(category:source:type:amount;)", this.SerializeBudget(budget));
             var newBudget = this.Deserialize(res);
-            if (this.Renderer.Confirm())
+            if (this.Confirm())
             {
                 this.budgetService.Add(new Budget[] { newBudget });
             }
@@ -101,7 +102,6 @@ namespace ExpenseTracker.UI
         private string SerializeBudget(Budget budget)
         {
             var res = $"{budget.FromMonth.ToShortDateString()}-{budget.ToMonth.ToShortDateString()}";
-            var serializer = new Serializer();
             return $"{res};;";
         }
 
