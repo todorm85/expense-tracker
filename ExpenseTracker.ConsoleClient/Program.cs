@@ -18,15 +18,14 @@ namespace ExpenseTracker.ConsoleClient
             container.Resolve<MenuBuilder>().Build<ExtendedMainMenu>().Run();
         }
 
-        private static IUnityContainer RegisterIoCTypes(IUnityContainer container)
+        private static void RegisterIoCTypes(IUnityContainer container)
         {
             var renderer = new IOProvider();
             container.RegisterInstance<IOutputProvider>(renderer);
             container.RegisterInstance<IInputProvider>(renderer);
+            container.RegisterSingleton<IMenuFactory, MenuFactory>();
 
             RegisterServices(container);
-
-            return container;
         }
 
         private static void RegisterServices(IUnityContainer container)

@@ -1,28 +1,26 @@
-﻿using Unity;
-
-namespace ExpenseTracker.UI
+﻿namespace ExpenseTracker.UI
 {
     public class MenuBuilder
     {
-        private readonly IUnityContainer unity;
+        private readonly IMenuFactory unity;
 
-        public MenuBuilder(IUnityContainer unity)
+        public MenuBuilder(IMenuFactory unity)
         {
             this.unity = unity;
         }
 
         public Menu Build<T>() where T : Menu
         {
-            var main = this.unity.Resolve<T>();
+            var main = this.unity.Create<T>(typeof(T));
             ResolveChildren(main);
             return main;
         }
 
         private void ResolveChildren(Menu main)
         {
-            foreach (var child in main.Children)
+            foreach (var childType in main.Children)
             {
-                var childMenu = this.unity.Resolve(child) as Menu;
+                var childMenu = this.unity.Create<Menu>(childType);
                 main.AddAction(childMenu.MenuCommandName, () => childMenu.MenuCommandDescription, () => childMenu.Run());
                 this.ResolveChildren(childMenu);
             }
