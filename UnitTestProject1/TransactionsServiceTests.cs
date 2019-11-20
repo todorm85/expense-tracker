@@ -131,12 +131,12 @@ namespace ExpenseTracker.Tests
             var expense = TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), "dummyCategory");
             this.repo.Insert(new Transaction[] { expense });
 
+            expense.Id = 0;
             this.Sut.Add(new Transaction[] { expense });
             var results = this.Sut.GetAll();
             Assert.AreEqual(1, results.Count());
             var result = results.First();
             Assert.AreEqual(new DateTime(2018, 3, 9), result.Date);
-
         }
 
         private List<Transaction> imptExpns = new List<Transaction>();

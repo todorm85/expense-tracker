@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.RestSDK", "E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.RestSDK.IntTests", "ExpenseTracker.RestClient.IntTests\ExpenseTracker.RestSDK.IntTests.csproj", "{E7FB6674-2BF0-4966-A96E-DEB97A93DB11}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.Core.UIComponents", "ExpenseTracker.Core.UIComponents\ExpenseTracker.Core.UIComponents.csproj", "{95232E00-C04B-4C2E-9605-C1C0384049C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.Core.UI", "ExpenseTracker.Core.UIComponents\ExpenseTracker.Core.UI.csproj", "{95232E00-C04B-4C2E-9605-C1C0384049C5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RestApi", "RestApi", "{3EBAF864-4C51-4027-8C5A-D07053030444}"
 EndProject

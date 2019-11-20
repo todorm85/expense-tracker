@@ -63,7 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MenuBuilder.cs" />
+    <Compile Include="ExtendedMainMenu.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IOProvider.cs" />
@@ -76,9 +76,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ExpenseTracker.Core.UIComponents\ExpenseTracker.Core.UIComponents.csproj">
+    <ProjectReference Include="..\ExpenseTracker.Core.UIComponents\ExpenseTracker.Core.UI.csproj">
       <Project>{95232e00-c04b-4c2e-9605-c1c0384049c5}</Project>
-      <Name>ExpenseTracker.Core.UIComponents</Name>
+      <Name>ExpenseTracker.Core.UI</Name>
     </ProjectReference>
     <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj">
       <Project>{d10a136b-d70d-43a7-a249-f99b6a0bf381}</Project>

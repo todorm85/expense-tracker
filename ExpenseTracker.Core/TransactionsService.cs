@@ -26,8 +26,8 @@ namespace ExpenseTracker.Core
 
         public override void Add(IEnumerable<Transaction> expenses)
         {
-            expenses = expenses.Where(newTran => string.IsNullOrEmpty(newTran.TransactionId) // new items
-                || this.repo.GetAll(t => t.TransactionId == newTran.TransactionId && t.Source == newTran.Source) == null); // there are transactions with duplicate ids -> withdrawal and taxes for the withdrawal are two transactions with same transaction reference for example
+            expenses = expenses.Where(newTran => newTran.Id == 0 // new items
+                && this.repo.GetAll(t => t.TransactionId == newTran.TransactionId && t.Source == newTran.Source).Count() == 0); // there are transactions with duplicate ids -> withdrawal and taxes for the withdrawal are two transactions with same transaction reference for example
 
             if (expenses.Count() != 0)
             {

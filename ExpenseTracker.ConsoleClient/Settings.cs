@@ -1,28 +1,42 @@
 ﻿using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Runtime.Serialization.Json;
+using System.Text;
 
 namespace ExpenseTracker.ConsoleClient
 {
-    internal class Settings
+    internal static class Settings
     {
-        public const string WebClientModeValue = "web";
-
-        private readonly IDictionary<string, string> settings;
-
-        public Settings(IDictionary<string, string> settings)
+        static Settings()
         {
-            this.settings = settings;
+            var settingsPath = ConfigurationManager.AppSettings["settingsPath"];
+            if (File.Exists(settingsPath))
+            {
+                var serializer = new DataContractJsonSerializer(typeof(Dictionary<string, string>), new DataContractJsonSerializerSettings()
+                {
+                    UseSimpleDictionaryFormat = true
+                });
+
+                var json = File.OpenText(settingsPath).ReadToEnd();
+                var jsonBytes = Encoding.UTF8.GetBytes(json);
+                var settingsCollection = serializer.ReadObject(new MemoryStream(jsonBytes)) as Dictionary<string, string>;
+                settings = settingsCollection;
+            }
         }
 
-        public string DbPath { get => this.GetSetting("DbPath"); }
-        public string MailUser { get => this.GetSetting("MailUser"); }
-        public string MailPass { get => this.GetSetting("MailPass"); }
-        public string ClientMode { get => this.GetSetting("ClientMode"); }
-        public string WebClientAuth { get => this.GetSetting("WebClientAuth"); }
-        public string WebServiceBase { get => this.GetSetting("WebServiceBase"); }
+        public const string WebClientModeValue = "web";
 
-        private string GetSetting(string key)
+        private static readonly IDictionary<string, string> settings;
+
+        public static string DbPath { get => GetSetting("DbPath"); }
+        public static string ClientMode { get => GetSetting("ClientMode"); }
+        public static string WebClientAuth { get => GetSetting("WebClientAuth"); }
+        public static string WebServiceBase { get => GetSetting("WebServiceBase"); }
+
+        private static string GetSetting(string key)
         {
-            if (this.settings.TryGetValue(key, out var value) && !string.IsNullOrEmpty(value))
+            if (settings.TryGetValue(key, out var value) && !string.IsNullOrEmpty(value))
             {
                 return value;
             }

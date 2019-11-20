@@ -16,7 +16,26 @@ namespace ExpenseTracker.UI
             this.exitCommandText = "Exit " + this.GetType().Name;
             this.Output = output;
             this.Input = input;
+            this.Children = new Type[0];
         }
+
+        public virtual string MenuCommandName
+        {
+            get
+            {
+                return this.GetType().Name.Substring(0, 3).ToLower();
+            }
+        }
+
+        public virtual string MenuCommandDescription
+        {
+            get
+            {
+                return this.GetType().Name;
+            }
+        }
+
+        public IEnumerable<Type> Children { get; set; }
 
         public IOutputProvider Output { get; }
 
