@@ -63,20 +63,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExtendedMainMenu.cs" />
-    <Compile Include="MenuFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IOProvider.cs" />
-    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="AppData\settings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ExpenseTracker.App\ExpenseTracker.App.csproj">
+      <Project>{AE4EF3A1-F670-42FF-A194-40FC7A82F4A0}</Project>
+      <Name>ExpenseTracker.App</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ExpenseTracker.Core.UIComponents\ExpenseTracker.Core.UI.csproj">
       <Project>{95232e00-c04b-4c2e-9605-c1c0384049c5}</Project>
       <Name>ExpenseTracker.Core.UI</Name>
@@ -105,11 +103,6 @@
       <Project>{8A059438-2017-41C2-ACF5-6F75DCCA7B92}</Project>
       <Name>ExpenseTracker.Allianz</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Unity">
-      <Version>5.11.1</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">

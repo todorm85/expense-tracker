@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Unity" Version="5.11.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ExpenseTracker.Core.UIComponents\ExpenseTracker.Core.UI.csproj" />
+    <ProjectReference Include="..\ExpenseTracker.UI\ExpenseTracker.UI.csproj" />
+    <ProjectReference Include="..\ExpenseTracker.XMLImporter\ExpenseTracker.Allianz.csproj" />
+  </ItemGroup>
+
+</Project>

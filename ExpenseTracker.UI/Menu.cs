@@ -11,12 +11,10 @@ namespace ExpenseTracker.UI
         private const string ExitCommand = "e";
         private string exitCommandText = "Exit";
 
-        public Menu(IOutputProvider output, IInputProvider input)
+        public Menu()
         {
             this.exitCommandText = "Exit " + this.GetType().Name;
-            this.Output = output;
-            this.Input = input;
-            this.Children = new Type[0];
+            this.Children = new Menu[0];
         }
 
         public virtual string MenuCommandName
@@ -35,14 +33,17 @@ namespace ExpenseTracker.UI
             }
         }
 
-        public IEnumerable<Type> Children { get; set; }
+        public IEnumerable<Menu> Children { get; set; }
 
-        public IOutputProvider Output { get; }
+        public IOutputProvider Output { get; private set; }
 
-        public IInputProvider Input { get; }
+        public IInputProvider Input { get; private set; }
 
-        public virtual void Run()
+        public virtual void Run(IOutputProvider output, IInputProvider input)
         {
+            this.Output = output;
+            this.Input = input;
+            this.ResolveChildren();
             this.GetActions();
             this.PromptMenuActions(this.menuActions, ExitCommand, this.exitCommandText);
         }
@@ -92,6 +93,14 @@ namespace ExpenseTracker.UI
             {
                 var attribute = m.GetCustomAttribute(typeof(MenuActionAttribute)) as MenuActionAttribute;
                 this.AddAction(attribute.Command, () => attribute.Description, () => m.Invoke(this, null));
+            }
+        }
+
+        private void ResolveChildren()
+        {
+            foreach (var childMenu in this.Children)
+            {
+                this.AddAction(childMenu.MenuCommandName, () => childMenu.MenuCommandDescription, () => childMenu.Run(this.Output, this.Input));
             }
         }
     }

@@ -1,6 +1,0 @@
-﻿{
-  "DbPath": ".\\AppData\\expenses.db",
-  "ClientMode": "local",
-  "WebClientAuth": "dev:devsecret",
-  "WebServiceBase": "https://localhost:44376"
-}

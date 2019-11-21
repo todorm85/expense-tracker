@@ -1,0 +1,30 @@
+﻿using ExpenseTracker.Core;
+using ExpenseTracker.Data;
+using ExpenseTracker.UI;
+using Unity;
+using Unity.Injection;
+
+namespace ExpenseTracker.App
+{
+    public class Application
+    {
+        internal static string DbPath;
+
+        public Application(string dbPath, IOutputProvider output, IInputProvider input)
+        {
+            DbPath = dbPath;
+            var container = new UnityContainer();
+            this.RegisterDependencies(container);
+            container.Resolve<MainMenu>().Run(output, input);
+        }
+
+        private void RegisterDependencies(IUnityContainer container)
+        {
+            container.RegisterType<IUnitOfWork, UnitOfWork>(new InjectionConstructor(DbPath));
+            container.RegisterType<ITransactionsService, TransactionsService>();
+            container.RegisterType<IBudgetService, BudgetService>();
+            container.RegisterType<IBaseDataItemService<Category>, CategoriesService>();
+            container.RegisterType<IBudgetCalculator, BudgetCalculator>();
+        }
+    }
+}

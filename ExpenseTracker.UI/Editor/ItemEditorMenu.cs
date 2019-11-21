@@ -4,7 +4,7 @@ namespace ExpenseTracker.UI
 {
     public class ItemEditorMenu : Menu
     {
-        public ItemEditorMenu(object item, IOutputProvider renderer, IInputProvider input) : base(renderer, input)
+        public ItemEditorMenu(object item)
         {
             this.editor = new ItemEditor(item);
             var props = this.editor.GetProperties();

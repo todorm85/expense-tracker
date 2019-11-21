@@ -8,18 +8,14 @@ namespace ExpenseTracker.Core.UI
     {
         public abstract IBaseDataItemService<T> Service { get; set; }
 
-        public DataItemMenuBase(IOutputProvider renderer, IInputProvider input) : base(renderer, input)
-        {
-        }
-
         [MenuAction("ed", "Edit by id")]
         public void Edit()
         {
             var id = int.Parse(this.PromptInput("Enter id to edit:"));
             var item = this.Service.GetAll(x => x.Id == id).FirstOrDefault();
 
-            var editor = new ItemEditorMenu(item, this.Output, this.Input);
-            editor.Run();
+            var editor = new ItemEditorMenu(item);
+            editor.Run(this.Output, this.Input);
             if (this.Confirm())
                 this.Service.Update(new T[] { item });
         }
@@ -28,8 +24,8 @@ namespace ExpenseTracker.Core.UI
         public void Add()
         {
             T item = Activator.CreateInstance<T>();
-            var editor = new ItemEditorMenu(item, this.Output, this.Input);
-            editor.Run();
+            var editor = new ItemEditorMenu(item);
+            editor.Run(this.Output, this.Input);
             if (this.Confirm())
                 this.Service.Add(new T[] { item });
         }

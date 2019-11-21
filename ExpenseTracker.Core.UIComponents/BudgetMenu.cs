@@ -7,7 +7,7 @@ namespace ExpenseTracker.Core.UI
 {
     public class BudgetMenu : DataItemMenuBase<Budget>
     {
-        public BudgetMenu(IBudgetService service, IOutputProvider renderer, ITransactionsService expensesService, IBudgetCalculator calculator, IInputProvider input) : base(renderer, input)
+        public BudgetMenu(IBudgetService service, ITransactionsService expensesService, IBudgetCalculator calculator)
         {
             this.budgetService = service;
             this.expensesService = expensesService;

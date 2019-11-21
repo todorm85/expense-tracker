@@ -12,7 +12,7 @@ namespace ExpenseTracker.Core.UI
         private readonly IBudgetService budgetService;
         private readonly IBudgetCalculator budgetCalculator;
 
-        public ExpensesMenu(ITransactionsService expensesService, IBudgetService budgetService, IOutputProvider renderer, IBudgetCalculator budgetCalculator, IInputProvider input) : base(renderer, input)
+        public ExpensesMenu(ITransactionsService expensesService, IBudgetService budgetService, IBudgetCalculator budgetCalculator)
         {
             this.Service = expensesService;
             this.expenseService = expensesService;

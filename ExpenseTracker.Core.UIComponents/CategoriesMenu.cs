@@ -7,7 +7,7 @@ namespace ExpenseTracker.Core.UI
 {
     public class CategoriesMenu : DataItemMenuBase<Category>
     {
-        public CategoriesMenu(IBaseDataItemService<Category> service, IOutputProvider renderer, IInputProvider input) : base(renderer, input)
+        public CategoriesMenu(IBaseDataItemService<Category> service)
         {
             this.Service = service;
         }
