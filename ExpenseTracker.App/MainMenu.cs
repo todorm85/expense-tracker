@@ -21,17 +21,23 @@ namespace ExpenseTracker.App
         {
             this.transactionsService = transactionsService;
 
-            this.CommandDescription = "Expenses main menu";
+            this.CommandDescription = "Main menu";
 
-            this.AddAction("se", () => "show expenses by categories", () => exp.ShowExpensesCategoriesOnly(), "Expenses");
-            this.AddAction("sed", () => "show expenses by categories with details", () => exp.ShowExpensesAll(), "Expenses");
-            this.AddAction("ae", () => "add", () => exp.QuickAddExpense(), "Expenses");
-            this.AddAction("de", () => "del", () => exp.Remove(), "Expenses");
-            this.AddAction("cl", () => "classify all", () => exp.Categorize(), "Expenses");
+            this.AddAction("sc", () => "show expenses by categories", () => exp.ShowExpensesCategoriesOnly(), "Expenses queries");
+            this.AddAction("s", () => "show expenses by categories with details", () => exp.ShowExpensesAll(), "Expenses queries");
+
+            this.AddAction("ae", () => "add", () => exp.QuickAddExpense(), "Expenses edit");
+            this.AddAction("de", () => "del", () => exp.Remove(), "Expenses edit");
+            this.AddAction("ee", () => "edit", () => exp.Edit(), "Expenses edit");
+            this.AddAction("cl", () => "classify all", () => exp.Categorize(), "Expenses edit");
+
+            this.AddAction("edf", () => "set expenses date filters", () => exp.SetDateFilters(), "Expenses filters");
+            this.AddAction("ecf", () => "set expenses category filter", () => exp.SetCategoryFilters(), "Expenses filters");
 
             this.AddAction("scg", () => "show categories by groups", () => cat.ShowAll(), "Categories");
             this.AddAction("rec", () => "remove category", () => cat.Remove(), "Categories");
-            this.AddAction("adc", () => "add category", () => cat.Add(), "Categories");
+            this.AddAction("adc", () => "add category", () => cat.QuickAdd(), "Categories");
+            this.AddAction("ec", () => "edit category", () => cat.Edit(), "Categories");
 
             var allianz = new Menu();
             allianz.AddAction("ime", () => "Import expenses from Allianz text", () => this.ImportExpenses(), "Allianz Group");

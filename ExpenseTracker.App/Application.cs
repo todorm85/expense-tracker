@@ -19,6 +19,7 @@ namespace ExpenseTracker.App
             var container = new UnityContainer();
             this.RegisterDependencies(container);
             container.Resolve<MainMenu>().Run();
+            container.Dispose();
         }
 
         private void RegisterDependencies(IUnityContainer container)

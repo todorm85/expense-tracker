@@ -7,10 +7,15 @@ namespace ExpenseTracker.Core.UI
 {
     public class ExpensesMenu : DataItemMenuBase<Transaction>
     {
+        private const string UnknownCategory = "n/a";
         private readonly ITransactionsService expenseService;
 
         private readonly IBudgetService budgetService;
         private readonly IBudgetCalculator budgetCalculator;
+
+        private DateTime fromDate = new DateTime(DateTime.Now.Year, 1, 1);
+        private DateTime toDate = new DateTime(DateTime.Now.Year + 1, 1, 1).AddDays(-1);
+        private string categoryFilter;
 
         public ExpensesMenu(ITransactionsService expensesService, IBudgetService budgetService, IBudgetCalculator budgetCalculator)
         {
@@ -24,13 +29,13 @@ namespace ExpenseTracker.Core.UI
 
         public override string CommandKey => "ex";
 
-        [MenuAction("sec", "Show expenses (categories only)")]
+        [MenuAction("sc", "Show expenses (categories only)")]
         public void ShowExpensesCategoriesOnly()
         {
             this.WriteExpensesByCategoriesByMonths(false);
         }
 
-        [MenuAction("sea", "Show expenses (all)")]
+        [MenuAction("s", "Show expenses (all)")]
         public void ShowExpensesAll()
         {
             this.WriteExpensesByCategoriesByMonths(true);
@@ -45,12 +50,33 @@ namespace ExpenseTracker.Core.UI
         [MenuAction("qa", "Quick add expense")]
         public void QuickAddExpense()
         {
+            var input = this.PromptInput("Enter category (amount:date(month,day(optional)(def 1),year(optional)(def - now)):category(optional):description(optional):type(+ or -(def))(optional))").Split(':');
+            if (input.Length < 2)
+            {
+                return;
+            }
+
+            var amount = decimal.Parse(input[0]);
+            DateTime date = ParseDate(input[1]);
+            var cat = string.Empty;
+            if (input.Length > 2)
+            {
+                cat = input[2];
+            }
+
+            var desc = string.Empty;
+            if (input.Length > 3)
+            {
+                desc = input[3];
+            }
+
+            var type = "-";
+            if (input.Length > 4)
+            {
+                type = input[4];
+            }
+
             var serializer = new Serializer();
-            var amount = decimal.Parse(this.PromptInput("Amount: ", "0"));
-            var cat = this.PromptInput("Category: ", string.Empty);
-            var desc = this.PromptInput("Description: ", string.Empty);
-            var type = this.PromptInput("Type: ", serializer.Serialize(TransactionType.Expense));
-            var date = DateTime.Parse(this.PromptInput("Date: ", DateTime.Now.ToString()));
             var save = this.PromptInput("Save: ", "y");
             if (save != "y")
             {
@@ -68,6 +94,57 @@ namespace ExpenseTracker.Core.UI
                     Date = date
                 }
             });
+        }
+
+        private static DateTime ParseDate(string dateString)
+        {
+            var dateParts = dateString.Split(',');
+            var month = int.Parse(dateParts[0]);
+            int day = 1;
+            if (dateParts.Length > 1)
+            {
+                day = int.Parse(dateParts[1]);
+            }
+
+            int year = DateTime.Now.Year;
+            if (dateParts.Length > 2)
+            {
+                year = int.Parse(dateParts[2]);
+            }
+
+            var date = new DateTime(year, month, day);
+            return date;
+        }
+
+        [MenuAction("ib", "Ignore bulk")]
+        public void IgnoreBulk()
+        {
+            var input = this.PromptInput("Ids to ignore separated by space:");
+            var ids = input.Split(' ');
+            foreach (var id in ids)
+            {
+                var item = this.Service.GetAll(x => x.Id == int.Parse(id)).First();
+                item.Ignored = true;
+                this.Service.Update(new Transaction[] { item });
+            }
+        }
+
+        [MenuAction("ibc", "Ignore bulk category")]
+        public void IgnoreBulkCategory()
+        {
+            var input = this.PromptInput("Category to ignore items of:");
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                this.Output.WriteLine("Invalid category");
+                return;
+            }
+
+            var items = this.Service.GetAll(x => x.Category == input);
+            foreach (var item in items)
+            {
+                item.Ignored = true;
+                this.Service.Update(new Transaction[] { item });
+            }
         }
 
         [MenuAction("si", "Show income")]
@@ -91,21 +168,29 @@ namespace ExpenseTracker.Core.UI
             }
         }
 
+        [MenuAction("sdf", "Set date filter", "filters")]
+        public void SetDateFilters()
+        {
+            this.PromptDateFilter(ref this.fromDate, ref this.toDate);
+        }
+
+        [MenuAction("scf", "Set category filter", "filters")]
+        public void SetCategoryFilters()
+        {
+            this.categoryFilter = this.PromptInput("Enter category filter ");
+        }
+
+
         private void WriteExpensesByCategoriesByMonths(bool detailed)
         {
-            var year = DateTime.Now.Year;
-            var fromDate = DateTime.Now.SetToBeginningOfMonth();
-            var toDate = DateTime.Now.SetToEndOfMonth();
-            this.PromptDateFilter(ref fromDate, ref toDate);
-
-            var currentMonthDate = fromDate;
-            while (currentMonthDate <= toDate.SetToEndOfMonth())
+            var currentMonthDate = this.fromDate;
+            while (currentMonthDate <= this.toDate.SetToEndOfMonth())
             {
                 this.Output.NewLine();
                 this.Output.Write($"{currentMonthDate.ToString("MMMM yyyy")}");
                 if (IsCurrentMonth(currentMonthDate))
                 {
-                    this.Output.Write(" (Current Month)", Style.MoreInfo);
+                    this.Output.Write(" (Current)", Style.MoreInfo);
                 }
 
                 this.Output.WriteLine("");
@@ -117,7 +202,7 @@ namespace ExpenseTracker.Core.UI
                 currentMonthDate = currentMonthDate.AddMonths(1);
             }
 
-            this.WritePeriodSummary(fromDate, toDate);
+            this.WritePeriodSummary(this.fromDate, this.toDate);
             this.Output.NewLine();
         }
 
@@ -131,7 +216,10 @@ namespace ExpenseTracker.Core.UI
             {
                 this.Output.NewLine();
 
-                foreach (var category in monthCategories.Value.OrderBy(x => x.Key))
+                foreach (var category in monthCategories.Value
+                    .Where(x => (string.IsNullOrWhiteSpace(this.categoryFilter) || x.Key == this.categoryFilter) ||
+                        (this.categoryFilter == UnknownCategory && string.IsNullOrWhiteSpace(x.Key)))
+                    .OrderBy(x => x.Key))
                 {
                     this.WriteCategoryForMonth(currentMonthDate, category, pad);
                     if (detailed)
@@ -161,7 +249,7 @@ namespace ExpenseTracker.Core.UI
         private void WriteCategoryForMonth(DateTime currentMonthDate, KeyValuePair<string, IEnumerable<Transaction>> category, int pad = 0)
         {
             var monthBudget = this.budgetService.GetCumulativeForMonth(currentMonthDate);
-            var categoryName = string.IsNullOrEmpty(category.Key) ? "unknown" : category.Key;
+            var categoryName = string.IsNullOrEmpty(category.Key) ? UnknownCategory : category.Key;
             var categoryActual = category.Value.Sum(e => e.Amount);
             var budgetCategoryExists = monthBudget?.ExpectedTransactions.Any(x => x.Category == category.Key && x.Type == TransactionType.Expense);
             var catExpected = budgetCategoryExists.HasValue && budgetCategoryExists.Value ?

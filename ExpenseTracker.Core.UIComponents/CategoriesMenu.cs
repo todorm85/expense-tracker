@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ExpenseTracker.UI;
@@ -50,6 +51,28 @@ namespace ExpenseTracker.Core.UI
             }
 
             this.Service.Add(cats);
+        }
+
+        public void QuickAdd()
+        {
+            var input = this.PromptInput("Create category (name:phrase):");
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return;
+            }
+
+            var parts = input.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Count() != 2)
+            {
+                this.Output.WriteLine("Unable to parse.");
+            }
+
+            this.Service.Add(new Category[] { new Category()
+                {
+                    Name = parts[0],
+                    ExpenseSourcePhrase = parts[1]
+                }
+            });
         }
     }
 }

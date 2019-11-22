@@ -101,6 +101,8 @@ namespace ExpenseTracker.UI
 
         private void PrintActions()
         {
+            this.Output.NewLine();
+            this.Output.NewLine();
             this.Output.WriteLine($"{this.CommandDescription}");
             this.WriteDelimiter();
             var groups = this.menuActions.GroupBy(x => x.Group).OrderBy(x => x.Key);
