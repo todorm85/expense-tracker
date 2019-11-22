@@ -111,6 +111,10 @@ namespace ExpenseTracker.UI
                     return TransactionType.Expense;
                 }
             }
+            else if (propertyType == typeof(bool))
+            {
+                return bool.Parse(newValue);
+            }
             else
             {
                 throw new ArgumentException("Unknown property type to edit");

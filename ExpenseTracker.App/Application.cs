@@ -13,9 +13,12 @@ namespace ExpenseTracker.App
         public Application(string dbPath, IOutputProvider output, IInputProvider input)
         {
             DbPath = dbPath;
+            Runtime.Output = output;
+            Runtime.Input = input;
+
             var container = new UnityContainer();
             this.RegisterDependencies(container);
-            container.Resolve<MainMenu>().Run(output, input);
+            container.Resolve<MainMenu>().Run();
         }
 
         private void RegisterDependencies(IUnityContainer container)

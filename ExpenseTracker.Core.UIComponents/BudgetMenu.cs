@@ -22,7 +22,7 @@ namespace ExpenseTracker.Core.UI
         {
             var fromDate = new DateTime(DateTime.Now.Year, 1, 1);
             var toDate = new DateTime(DateTime.Now.Year + 1, 1, 1).AddDays(-1);
-            this.GetDateFilter(ref fromDate, ref toDate);
+            this.PromptDateFilter(ref fromDate, ref toDate);
 
             //var budgets = this.budgetService.GetAll()
             //    .Where(x => x.FromMonth >= fromDate && x.ToMonth <= toDate)

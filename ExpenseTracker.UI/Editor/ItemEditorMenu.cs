@@ -6,6 +6,7 @@ namespace ExpenseTracker.UI
     {
         public ItemEditorMenu(object item)
         {
+            this.CommandDescription = $"Editor for {item.GetType().Name}";
             this.editor = new ItemEditor(item);
             var props = this.editor.GetProperties();
             var i = 1;
@@ -14,6 +15,11 @@ namespace ExpenseTracker.UI
                 this.AddAction(i.ToString(), () => $"{p.Name}:{this.editor.GetPropVal(p)}", () => this.Edit(p));
                 i++;
             }
+        }
+
+        public override void Run(bool prompt = false)
+        {
+            base.Run(true);
         }
 
         private void Edit(PropertyInfo p)

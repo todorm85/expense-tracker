@@ -33,7 +33,8 @@ namespace ExpenseTracker.Core
         {
             return this.transactionsService.GetAll(e => e.Date >= from
                                         && e.Date <= to
-                                        && e.Type == TransactionType.Expense)
+                                        && e.Type == TransactionType.Expense
+                                        && !e.Ignored)
                                     .Sum(e => e.Amount);
         }
 
@@ -41,7 +42,8 @@ namespace ExpenseTracker.Core
         {
             return this.transactionsService.GetAll(e => e.Date >= from
                                         && e.Date <= to
-                                        && e.Type == TransactionType.Income)
+                                        && e.Type == TransactionType.Income
+                                        && !e.Ignored)
                                     .Sum(e => e.Amount);
         }
 

@@ -10,45 +10,49 @@ namespace ExpenseTracker.UI
         protected IList<MenuAction> menuActions = new List<MenuAction>();
         private const string ExitCommand = "e";
         private string exitCommandText = "Exit";
+        private string menuCommandName;
+        private string menuCommandDescription;
 
         public Menu()
         {
             this.exitCommandText = "Exit " + this.GetType().Name;
-            this.Children = new Menu[0];
+
+            this.Output = Runtime.Output;
+            this.Input = Runtime.Input;
+
+            this.ResolveActionMethods();
+            this.menuActions = this.menuActions.Reverse().ToList();
         }
 
-        public virtual string MenuCommandName
+        public virtual string CommandKey
         {
             get
             {
-                return this.GetType().Name.Substring(0, 3).ToLower();
+                return this.menuCommandName ?? this.GetType().Name.Substring(0, 3).ToLower();
+            }
+            set
+            {
+                this.menuCommandName = value;
             }
         }
 
-        public virtual string MenuCommandDescription
+        public virtual string CommandDescription
         {
             get
             {
-                return this.GetType().Name;
+                return this.menuCommandDescription ?? this.GetType().Name;
+            }
+            set
+            {
+                this.menuCommandDescription = value;
             }
         }
-
-        public IEnumerable<Menu> Children { get; set; }
 
         public IOutputProvider Output { get; private set; }
 
         public IInputProvider Input { get; private set; }
 
-        public virtual void Run(IOutputProvider output, IInputProvider input)
-        {
-            this.Output = output;
-            this.Input = input;
-            this.ResolveChildren();
-            this.GetActions();
-            this.PromptMenuActions(this.menuActions, ExitCommand, this.exitCommandText);
-        }
-
-        public void AddAction(string command, Func<string> decsription, Action action)
+        public void AddAction(string command, Func<string> decsription, Action action, string group = "", int ordinal = 0)
         {
             if (command == ExitCommand || this.menuActions.Any(a => a.Command == command))
             {
@@ -59,24 +63,30 @@ namespace ExpenseTracker.UI
             {
                 Callback = action,
                 Command = command,
-                GetDescription = decsription
+                GetDescription = decsription,
+                Group = group,
+                Ordinal = ordinal
             });
         }
 
-        private void PromptMenuActions(IEnumerable<MenuAction> actions, string exitCommand, string exitText)
+        public virtual void Run(bool showActions = false)
         {
             string response = null;
-            while (response != exitCommand)
+            while (response != ExitCommand)
             {
-                foreach (var a in actions)
+                if (showActions)
                 {
-                    this.Output.WriteLine($"{a.Command.PadRight(5)} : {a.GetDescription()}");
+                    this.PrintActions();
                 }
 
-                this.Output.WriteLine($"{exitCommand.PadRight(5)} : {exitText}");
-
                 response = this.PromptInput("");
-                var action = actions.FirstOrDefault(a => a.Command == response);
+                if (response == "?")
+                {
+                    this.PrintActions();
+                    continue;
+                }
+
+                var action = this.menuActions.FirstOrDefault(a => a.Command == response);
                 if (action != null)
                 {
                     action.Callback();
@@ -84,7 +94,41 @@ namespace ExpenseTracker.UI
             }
         }
 
-        private void GetActions()
+        public void AddChild(Menu menu)
+        {
+            this.AddAction(menu.CommandKey, () => menu.CommandDescription, () => menu.Run(), "Submenus");
+        }
+
+        private void PrintActions()
+        {
+            this.Output.WriteLine($"{this.CommandDescription}");
+            this.WriteDelimiter();
+            var groups = this.menuActions.GroupBy(x => x.Group).OrderBy(x => x.Key);
+            foreach (var group in groups)
+            {
+                if (!string.IsNullOrWhiteSpace(group.Key))
+                {
+                    this.Output.WriteLine(group.Key);
+                    this.WriteDelimiter();
+                }
+
+                foreach (var a in group.OrderBy(x => x.Ordinal))
+                {
+                    this.Output.WriteLine($"{a.Command.PadRight(5)} : {a.GetDescription()}");
+                }
+
+                this.WriteDelimiter();
+            }
+
+            this.Output.WriteLine($"{ExitCommand.PadRight(5)} : {this.exitCommandText}");
+        }
+
+        private void WriteDelimiter()
+        {
+            this.Output.WriteLine($"{new string('-', 35)}");
+        }
+
+        protected virtual void ResolveActionMethods()
         {
             var methods = this.GetType()
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
@@ -92,15 +136,7 @@ namespace ExpenseTracker.UI
             foreach (var m in methods)
             {
                 var attribute = m.GetCustomAttribute(typeof(MenuActionAttribute)) as MenuActionAttribute;
-                this.AddAction(attribute.Command, () => attribute.Description, () => m.Invoke(this, null));
-            }
-        }
-
-        private void ResolveChildren()
-        {
-            foreach (var childMenu in this.Children)
-            {
-                this.AddAction(childMenu.MenuCommandName, () => childMenu.MenuCommandDescription, () => childMenu.Run(this.Output, this.Input));
+                this.AddAction(attribute.Command, () => attribute.Description, () => m.Invoke(this, null), attribute.Group);
             }
         }
     }

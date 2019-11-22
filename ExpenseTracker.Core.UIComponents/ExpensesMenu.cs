@@ -22,6 +22,8 @@ namespace ExpenseTracker.Core.UI
 
         public override IBaseDataItemService<Transaction> Service { get; set; }
 
+        public override string CommandKey => "ex";
+
         [MenuAction("sec", "Show expenses (categories only)")]
         public void ShowExpensesCategoriesOnly()
         {
@@ -68,18 +70,45 @@ namespace ExpenseTracker.Core.UI
             });
         }
 
+        [MenuAction("si", "Show income")]
+        public void ShowIncome()
+        {
+            var incomes = this.expenseService.GetAll(x => !x.Ignored && x.Type == TransactionType.Income);
+            var byYears = incomes.GroupBy(x => x.Date.Year);
+            foreach (var year in byYears)
+            {
+                var byMonths = year.GroupBy(x => x.Date.Month);
+                foreach (var month in byMonths)
+                {
+                    this.Output.NewLine();
+                    this.Output.WriteLine($"{new DateTime(year.Key, month.Key, 1).ToString("MMMM yyyy")}");
+
+                    foreach (var transaction in month)
+                    {
+                        this.WriteTransaction(transaction, 5);
+                    }
+                }
+            }
+        }
+
         private void WriteExpensesByCategoriesByMonths(bool detailed)
         {
             var year = DateTime.Now.Year;
-            var fromDate = new DateTime(year, 1, 1);
+            var fromDate = DateTime.Now.SetToBeginningOfMonth();
             var toDate = DateTime.Now.SetToEndOfMonth();
-            this.GetDateFilter(ref fromDate, ref toDate);
+            this.PromptDateFilter(ref fromDate, ref toDate);
 
             var currentMonthDate = fromDate;
             while (currentMonthDate <= toDate.SetToEndOfMonth())
             {
                 this.Output.NewLine();
-                this.Output.WriteLine($"{currentMonthDate.ToString("MMMM yyyy")}");
+                this.Output.Write($"{currentMonthDate.ToString("MMMM yyyy")}");
+                if (IsCurrentMonth(currentMonthDate))
+                {
+                    this.Output.Write(" (Current Month)", Style.MoreInfo);
+                }
+
+                this.Output.WriteLine("");
 
                 this.WriteMonthSummary(currentMonthDate, 5);
 
@@ -119,14 +148,14 @@ namespace ExpenseTracker.Core.UI
         private void WriteTransaction(Transaction e, int padding = 0)
         {
             var source = e.Source?.ToString() ?? "";
-            if (source.Length > 43)
+            if (source.Length > 110)
             {
-                source = source.Substring(0, 40) + "...";
+                source = source.Substring(0, 110) + "...";
             }
 
             source = source.PadLeft(45);
 
-            this.Output.WriteLine("".PadLeft(padding) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {source} {e.Amount.ToString("F0").PadLeft(10)} {e.Category?.ToString().PadLeft(10)}");
+            this.Output.WriteLine("".PadLeft(padding) + $"{e.Id.ToString().PadRight(5)} {e.Date.ToString("dd ddd HH:mm").PadLeft(15)} {e.Amount.ToString("F0").PadLeft(10)} {source} {e.Category?.ToString().PadLeft(10)}");
         }
 
         private void WriteCategoryForMonth(DateTime currentMonthDate, KeyValuePair<string, IEnumerable<Transaction>> category, int pad = 0)
@@ -139,6 +168,7 @@ namespace ExpenseTracker.Core.UI
                 monthBudget?.ExpectedTransactions.Where(x => x.Category == category.Key && x.Type == TransactionType.Expense).Sum(x => x.Amount) : null;
             var shouldRenderBudget = monthBudget != null && monthBudget.FromMonth.SetToBeginningOfMonth() <= DateTime.Now && DateTime.Now <= monthBudget.ToMonth;
 
+            this.Output.NewLine();
             this.Output.Write($"{"".PadLeft(pad)}{categoryName} : ");
             if (catExpected != null && shouldRenderBudget)
             {
@@ -161,19 +191,20 @@ namespace ExpenseTracker.Core.UI
 
             if (monthBudget != null && month.SetToBeginningOfMonth() >= DateTime.Now.SetToBeginningOfMonth())
             {
-                var isCurrentMonth = month.SetToBeginningOfMonth() == DateTime.Now.SetToBeginningOfMonth();
+                bool isCurrentMonth = IsCurrentMonth(month);
                 var expectedExpenses = this.budgetCalculator.CalculateExpectedExpenses(monthBudget);
                 var expectedSavings = this.budgetCalculator.CalculateExpectedSavings(monthBudget);
                 var expectedIncome = this.budgetCalculator.CalculateExpectedIncome(monthBudget);
 
                 this.Output.Write($"{"".PadLeft(pad)}Expenses: ");
-                this.ShowActualExpectedNewLine(actualExpenses, expectedExpenses, true, isCurrentMonth);
+                this.ShowActualExpected(actualExpenses, expectedExpenses, secondaryShouldBeHigher: true, renderDiff: isCurrentMonth);
                 if (!isCurrentMonth)
                 {
+                    this.Output.NewLine();
                     this.Output.Write($"{"".PadLeft(pad)}Income: ");
                     this.ShowActualExpectedNewLine(actualIncome, expectedIncome, false, false);
                     this.Output.Write($"{"".PadLeft(pad)}Savings: ");
-                    this.ShowActualExpectedNewLine(actualSavings, expectedSavings, false, false);
+                    this.ShowActualExpected(actualSavings, expectedSavings, false, false);
                 }
             }
             else
@@ -182,8 +213,12 @@ namespace ExpenseTracker.Core.UI
                 this.Output.WriteLine($"{"".PadLeft(pad)}Income: {actualIncome}");
                 this.Output.Write($"{"".PadLeft(pad)}Savings: ");
                 this.ShowDiff(actualSavings);
-                this.Output.NewLine();
             }
+        }
+
+        private static bool IsCurrentMonth(DateTime month)
+        {
+            return month.SetToBeginningOfMonth() == DateTime.Now.SetToBeginningOfMonth();
         }
 
         private void WritePeriodSummary(DateTime from, DateTime to)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ExpenseTracker.AllianzTxtParser;
@@ -18,11 +19,48 @@ namespace ExpenseTracker.App
             BudgetMenu bud,
             ExpensesMenu exp)
         {
-            this.Children = new Menu[] { cat, bud, exp };
             this.transactionsService = transactionsService;
-            this.AddAction("ba", () => "backup database", () => this.BackupFile(Application.DbPath));
 
-            this.AddAction("im", () => "Import text", () => this.Import());
+            this.CommandDescription = "Expenses main menu";
+
+            this.AddAction("se", () => "show expenses by categories", () => exp.ShowExpensesCategoriesOnly(), "Expenses");
+            this.AddAction("sed", () => "show expenses by categories with details", () => exp.ShowExpensesAll(), "Expenses");
+            this.AddAction("ae", () => "add", () => exp.QuickAddExpense(), "Expenses");
+            this.AddAction("de", () => "del", () => exp.Remove(), "Expenses");
+            this.AddAction("cl", () => "classify all", () => exp.Categorize(), "Expenses");
+
+            this.AddAction("scg", () => "show categories by groups", () => cat.ShowAll(), "Categories");
+            this.AddAction("rec", () => "remove category", () => cat.Remove(), "Categories");
+            this.AddAction("adc", () => "add category", () => cat.Add(), "Categories");
+
+            var allianz = new Menu();
+            allianz.AddAction("ime", () => "Import expenses from Allianz text", () => this.ImportExpenses(), "Allianz Group");
+            allianz.AddAction("ims", () => "Import income from Allianz text", () => this.ImportSalary(), "Allianz Group");
+            allianz.CommandKey = "al";
+            allianz.CommandDescription = "allianz";
+            this.AddChild(allianz);
+
+            var misc = new Menu();
+            misc.AddAction("clear", () => "Clear all transactions", () => this.Clear());
+            misc.AddAction("ba", () => "backup database", () => this.BackupFile(Application.DbPath));
+            misc.CommandKey = "misc";
+            misc.CommandDescription = "Misc commands";
+            this.AddChild(misc);
+
+            this.AddChild(cat);
+            this.AddChild(bud);
+            this.AddChild(exp);
+        }
+
+        private void Clear()
+        {
+            var respons = this.PromptInput("Are you sure?", "n");
+            if (respons != "y")
+            {
+                return;
+            }
+
+            transactionsService.Remove(transactionsService.GetAll());
         }
 
         public void BackupFile(string sourcePath)
@@ -44,15 +82,26 @@ namespace ExpenseTracker.App
             File.Copy(sourcePath, newPath);
         }
 
-        public void Import()
+        public void ImportExpenses()
+        {
+            string filePath = PromptFilePath();
+            var parser = new TxtFileParser();
+            IEnumerable<Transaction> expenses = parser.GetTransactions(TransactionType.Expense, filePath);
+            this.transactionsService.Add(expenses);
+        }
+
+        private void ImportSalary()
+        {
+            string filePath = PromptFilePath();
+            var parser = new TxtFileParser();
+            this.transactionsService.Add(parser.GetSalary(filePath));
+        }
+
+        private static string PromptFilePath()
         {
             Console.Write("Provide path to file: ");
             var filePath = Console.ReadLine();
-
-            var parser = new TxtFileParser();
-            var ts = parser.ParseFromFile(filePath).Where(t => t.Type == TransactionType.Expense);
-
-            this.transactionsService.Add(ts);
+            return filePath;
         }
     }
 }

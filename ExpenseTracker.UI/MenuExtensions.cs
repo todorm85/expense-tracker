@@ -4,7 +4,7 @@ namespace ExpenseTracker.UI
 {
     public static class MenuExtensions
     {
-        public static void GetDateFilter(this Menu menu, ref DateTime fromDate, ref DateTime toDate)
+        public static void PromptDateFilter(this Menu menu, ref DateTime fromDate, ref DateTime toDate)
         {
             var result = menu.PromptInput("Filter (Date from, Date to)", $"{fromDate.ToShortDateString()} {toDate.ToShortDateString()}");
             fromDate = DateTime.Parse(result.Split(' ')[0]);
@@ -31,7 +31,12 @@ namespace ExpenseTracker.UI
         public static void ShowActualExpectedNewLine(this Menu menu, decimal primary, decimal secondary, bool secondaryShouldBeHigher = true, bool renderDiff = true)
         {
             menu.ShowActualExpected(primary, secondary, secondaryShouldBeHigher, renderDiff);
-            menu.Output.NewLine();
+            menu.Output.Write($" (actual");
+            menu.Output.Write($" | ");
+            menu.Output.Write($"expected", Style.MoreInfo);
+            menu.Output.Write($" | ");
+            menu.Output.Write($"saved", Style.Success);
+            menu.Output.WriteLine(")");
         }
 
         public static void ShowDiff(this Menu menu, decimal amount, bool positiveIsGood = true)

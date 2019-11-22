@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using ExpenseTracker.Core;
 
 namespace ExpenseTracker.AllianzTxtParser
@@ -40,6 +41,19 @@ namespace ExpenseTracker.AllianzTxtParser
             }
 
             return trans;
+        }
+
+        public IEnumerable<Transaction> GetTransactions(TransactionType type, string filePath)
+        {
+            var parser = new TxtFileParser();
+            var ts = this.ParseFromFile(filePath).Where(t => t.Type == type);
+            return ts;
+        }
+
+        public IEnumerable<Transaction> GetSalary(string filePath)
+        {
+            var income = this.GetTransactions(TransactionType.Income, filePath);
+            return income.Where(x => x.Source.Contains("ЗАПЛАТА"));
         }
     }
 }
