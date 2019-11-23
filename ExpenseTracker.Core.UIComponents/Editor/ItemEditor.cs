@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace ExpenseTracker.UI
+namespace ExpenseTracker.Core.UI
 {
     internal class ItemEditor
     {

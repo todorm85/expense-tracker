@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
+using ExpenseTracker.UI;
 
-namespace ExpenseTracker.UI
+namespace ExpenseTracker.Core.UI
 {
     public class ItemEditorMenu : Menu
     {

@@ -96,34 +96,13 @@ namespace ExpenseTracker.Core.UI
             });
         }
 
-        private static DateTime ParseDate(string dateString)
-        {
-            var dateParts = dateString.Split(',');
-            var month = int.Parse(dateParts[0]);
-            int day = 1;
-            if (dateParts.Length > 1)
-            {
-                day = int.Parse(dateParts[1]);
-            }
-
-            int year = DateTime.Now.Year;
-            if (dateParts.Length > 2)
-            {
-                year = int.Parse(dateParts[2]);
-            }
-
-            var date = new DateTime(year, month, day);
-            return date;
-        }
-
         [MenuAction("ib", "Ignore bulk")]
         public void IgnoreBulk()
         {
-            var input = this.PromptInput("Ids to ignore separated by space:");
-            var ids = input.Split(' ');
+            var ids = PromptReadIds();
             foreach (var id in ids)
             {
-                var item = this.Service.GetAll(x => x.Id == int.Parse(id)).First();
+                var item = this.Service.GetAll(x => x.Id == id).First();
                 item.Ignored = true;
                 this.Service.Update(new Transaction[] { item });
             }
@@ -143,6 +122,25 @@ namespace ExpenseTracker.Core.UI
             foreach (var item in items)
             {
                 item.Ignored = true;
+                this.Service.Update(new Transaction[] { item });
+            }
+        }
+
+        [MenuAction("cb", "Categorize bulk")]
+        public void CategorizeBulk()
+        {
+            var input = PromptReadIds();
+            var cat = this.PromptInput("Enter category:");
+            if (input.Count() == 0 || string.IsNullOrWhiteSpace(cat))
+            {
+                this.Output.WriteLine("Invalid ids entered or empty category");
+                return;
+            }
+
+            var items = this.Service.GetAll(x => input.Contains(x.Id));
+            foreach (var item in items)
+            {
+                item.Category = cat;
                 this.Service.Update(new Transaction[] { item });
             }
         }
@@ -168,13 +166,13 @@ namespace ExpenseTracker.Core.UI
             }
         }
 
-        [MenuAction("sdf", "Set date filter", "filters")]
+        [MenuAction("df", "Set date filter", "filters")]
         public void SetDateFilters()
         {
             this.PromptDateFilter(ref this.fromDate, ref this.toDate);
         }
 
-        [MenuAction("scf", "Set category filter", "filters")]
+        [MenuAction("cf", "Set category filter", "filters")]
         public void SetCategoryFilters()
         {
             this.categoryFilter = this.PromptInput("Enter category filter ");
@@ -340,5 +338,39 @@ namespace ExpenseTracker.Core.UI
             this.Output.Write("Saved so far: ");
             this.ShowDiff(actualSavings);
         }
+
+        private IEnumerable<int> PromptReadIds()
+        {
+            var input = this.PromptInput("Ids to ignore separated by space:");
+            var ids = input.Split(' ');
+            List<int> results = new List<int>();
+            foreach (var id in ids)
+            {
+                results.Add(int.Parse(id));
+            }
+
+            return results;
+        }
+
+        private static DateTime ParseDate(string dateString)
+        {
+            var dateParts = dateString.Split(',');
+            var month = int.Parse(dateParts[0]);
+            int day = 1;
+            if (dateParts.Length > 1)
+            {
+                day = int.Parse(dateParts[1]);
+            }
+
+            int year = DateTime.Now.Year;
+            if (dateParts.Length > 2)
+            {
+                year = int.Parse(dateParts[2]);
+            }
+
+            var date = new DateTime(year, month, day);
+            return date;
+        }
+
     }
 }

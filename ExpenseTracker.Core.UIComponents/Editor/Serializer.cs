@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ExpenseTracker.UI
+namespace ExpenseTracker.Core.UI
 {
     public class Serializer
     {

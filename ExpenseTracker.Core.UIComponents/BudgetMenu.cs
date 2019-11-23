@@ -1,36 +1,48 @@
-﻿using ExpenseTracker.Core;
-using ExpenseTracker.UI;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using ExpenseTracker.UI;
 
 namespace ExpenseTracker.Core.UI
 {
     public class BudgetMenu : DataItemMenuBase<Budget>
     {
+        private readonly IBudgetService budgetService;
+
+        private readonly ITransactionsService expensesService;
+
+        private readonly IBudgetCalculator calculator;
+
+        private DateTime fromDate;
+
+        private DateTime toDate;
+
         public BudgetMenu(IBudgetService service, ITransactionsService expensesService, IBudgetCalculator calculator)
         {
             this.budgetService = service;
             this.expensesService = expensesService;
             this.calculator = calculator;
             this.Service = service;
+            this.fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            this.toDate = new DateTime(DateTime.Now.Year, 12, 1);
         }
 
         public override IBaseDataItemService<Budget> Service { get; set; }
 
-        [MenuAction("scu", "Show cumulative monthly budgets.")]
+        [MenuAction("s", "Show budgets.")]
+        public void ShowRelevant()
+        {
+            this.PromptDateFilter();
+            var items = this.Service.GetAll(x => x.FromMonth >= this.fromDate && x.ToMonth <= this.toDate);
+            this.Show(items);
+        }
+
+        [MenuAction("sc", "Show cumulative monthly budgets.")]
         public void ShowCumulative()
         {
-            var fromDate = new DateTime(DateTime.Now.Year, 1, 1);
-            var toDate = new DateTime(DateTime.Now.Year + 1, 1, 1).AddDays(-1);
-            this.PromptDateFilter(ref fromDate, ref toDate);
-
-            //var budgets = this.budgetService.GetAll()
-            //    .Where(x => x.FromMonth >= fromDate && x.ToMonth <= toDate)
-            //    .OrderBy(x => x.FromMonth);
-
-            var month = fromDate;
+            this.PromptDateFilter();
+            var month = this.fromDate;
             var budgets = new List<Budget>();
-            while (month <= toDate)
+            while (month <= this.toDate)
             {
                 var budget = this.budgetService.GetCumulativeForMonth(month);
                 if (budget != null)
@@ -60,7 +72,6 @@ namespace ExpenseTracker.Core.UI
             }
 
             this.Output.NewLine();
-            //this.WriteSummary(budgets);
         }
 
         [MenuAction("qa", "Quick add.")]
@@ -78,6 +89,11 @@ namespace ExpenseTracker.Core.UI
             {
                 this.budgetService.Add(new Budget[] { newBudget });
             }
+        }
+
+        private void PromptDateFilter()
+        {
+            this.PromptDateFilter(ref fromDate, ref toDate);
         }
 
         private Budget Deserialize(string res)
@@ -104,9 +120,5 @@ namespace ExpenseTracker.Core.UI
             var res = $"{budget.FromMonth.ToShortDateString()}-{budget.ToMonth.ToShortDateString()}";
             return $"{res};;";
         }
-
-        private readonly IBudgetService budgetService;
-        private readonly ITransactionsService expensesService;
-        private readonly IBudgetCalculator calculator;
     }
 }

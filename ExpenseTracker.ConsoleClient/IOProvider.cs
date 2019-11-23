@@ -1,5 +1,6 @@
 ﻿using System;
 using ExpenseTracker.UI;
+using WindowsInput;
 
 namespace ExpenseTracker.ConsoleClient
 {
@@ -44,7 +45,11 @@ namespace ExpenseTracker.ConsoleClient
 
         public string Read(string preenteredValue)
         {
-            System.Windows.Forms.SendKeys.SendWait(preenteredValue);
+            if (!string.IsNullOrWhiteSpace(preenteredValue))
+            {
+                new InputSimulator().Keyboard.TextEntry(preenteredValue);
+            }
+
             return Console.ReadLine();
         }
     }
