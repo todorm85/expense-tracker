@@ -5,33 +5,32 @@ namespace ExpenseTracker.GmailConnector
 {
     public class GmailClient
     {
-        public string User { get; set; }
-        public string Pass { get; set; }
-
-        public IEnumerable<Transaction> Get()
+        public IEnumerable<Transaction> Get(string user, string pass)
         {
-            IEnumerable<Transaction> expenses;
-            using (var folder = new GmailFolder(this.User, this.Pass))
+            IEnumerable<Transaction> transactions;
+            var expenseMessages = new List<ExpenseMessage>();
+            using (var folder = new GmailFolder(user, pass))
             {
-                var expenseMessages = new List<ExpenseMessage>();
-                for (int i = 0; i < folder.Count; i++)
+                while (folder.Count > 0)
                 {
-                    var serverMsg = folder.GetMessage(i);
+                    int msgIdx = 0;
+                    var serverMsg = folder.GetMessage(msgIdx);
                     expenseMessages.Add(new ExpenseMessage()
                     {
                         Body = serverMsg.HtmlBody,
                         Subject = serverMsg.Subject,
-                        Date = serverMsg.Date.LocalDateTime
+                        Date = serverMsg.Date.UtcDateTime
                     });
 
-                    folder.MarkRead(i);
+                    folder.Delete(msgIdx);
                 }
 
-                var messageParser = new ExpenseMessageParser();
-                expenses = messageParser.Parse(expenseMessages);
             }
 
-            return expenses;
+            var messageParser = new ExpenseMessageParser();
+            transactions = messageParser.Parse(expenseMessages);
+
+            return transactions;
         }
     }
 }

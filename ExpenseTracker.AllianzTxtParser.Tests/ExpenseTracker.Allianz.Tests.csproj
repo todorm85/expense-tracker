@@ -13,7 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExpenseTracker.XMLImporter\ExpenseTracker.Allianz.csproj" />
+    <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj" />
+    <ProjectReference Include="..\ExpenseTracker.Gmail\ExpenseTracker.Allianz.csproj" />
   </ItemGroup>
 
 </Project>

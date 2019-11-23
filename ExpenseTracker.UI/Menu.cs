@@ -72,6 +72,7 @@ namespace ExpenseTracker.UI
         public virtual void Run(bool showActions = false)
         {
             string response = null;
+            this.PrintActions();
             while (response != ExitCommand)
             {
                 if (showActions)

@@ -6,6 +6,10 @@ namespace ExpenseTracker.Core
 {
     public class TransactionsService : BaseDataItemService<Transaction>, ITransactionsService
     {
+        private readonly IUnitOfWork uow;
+
+        private TransactionsClassifier _classifier;
+
         public TransactionsService(IUnitOfWork data) : base(data)
         {
             this.uow = data;
@@ -26,15 +30,13 @@ namespace ExpenseTracker.Core
 
         public override void Add(IEnumerable<Transaction> expenses)
         {
-            expenses = expenses.Where(
-                newTran => newTran.Id == 0 && // new items
-                (string.IsNullOrWhiteSpace(newTran.TransactionId) || // manually added, not imported
-                this.repo.GetAll(t => t.TransactionId == newTran.TransactionId && t.Source == newTran.Source).Count() == 0)); // there are transactions with duplicate ids -> withdrawal and taxes for the withdrawal are two transactions with same transaction reference for example
-
-            if (expenses.Count() != 0)
+            var filtered = expenses.Where(newTran => newTran.Id == 0 && // new items
+                (newTran.IsManuallyCreated() ||
+                !this.IsDuplicate(newTran)));
+            if (filtered.Count() != 0)
             {
-                this.Classifier.Classify(expenses);
-                base.Add(expenses);
+                this.Classifier.Classify(filtered);
+                base.Add(filtered);
             }
         }
 
@@ -71,7 +73,14 @@ namespace ExpenseTracker.Core
             this.Update(new Transaction[] { expense });
         }
 
-        private readonly IUnitOfWork uow;
-        private TransactionsClassifier _classifier;
+        private bool IsDuplicate(Transaction t)
+        {
+            return this.GetDuplicates(t).Count() != 0;
+        }
+
+        public IEnumerable<Transaction> GetDuplicates(Transaction t)
+        {
+            return this.repo.GetAll(x => x.IsSame(t));
+        }
     }
 }

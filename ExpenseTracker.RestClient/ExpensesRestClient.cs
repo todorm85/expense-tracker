@@ -17,6 +17,11 @@ namespace ExpenseTracker.RestClient
             this.client.Put($"{this.EndpointPath}/classify", null);
         }
 
+        public IEnumerable<Transaction> GetDuplicates(Transaction t)
+        {
+            throw new NotImplementedException();
+        }
+
         public Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>> GetExpensesByCategoriesByMonths(
             DateTime fromDate, DateTime toDate)
         {

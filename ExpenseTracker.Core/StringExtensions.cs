@@ -1,4 +1,4 @@
-﻿namespace ExpenseTracker.AllianzTxtParser
+﻿namespace ExpenseTracker.Core
 {
     public static class StringExtensions
     {

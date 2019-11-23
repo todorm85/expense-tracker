@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ExpenseTracker.Core;
 
 namespace ExpenseTracker.AllianzTxtParser.Tests
 {

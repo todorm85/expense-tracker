@@ -22,7 +22,7 @@ namespace ExpenseTracker.Tests
             Assert.AreEqual(msgFactory.Account, expense.Account);
             Assert.AreEqual(decimal.Parse(msgFactory.Amount), expense.Amount);
             Assert.AreEqual(DateTime.Parse(msgFactory.Date), expense.Date);
-            Assert.AreEqual(msgFactory.Source, expense.Source);
+            Assert.AreEqual(msgFactory.Source.RemoveRepeatingSpaces(), expense.Source);
         }
 
         [TestMethod]

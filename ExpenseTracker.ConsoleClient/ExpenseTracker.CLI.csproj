@@ -74,33 +74,9 @@
       <Project>{AE4EF3A1-F670-42FF-A194-40FC7A82F4A0}</Project>
       <Name>ExpenseTracker.App</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.Core.UIComponents\ExpenseTracker.Core.UI.csproj">
-      <Project>{95232e00-c04b-4c2e-9605-c1c0384049c5}</Project>
-      <Name>ExpenseTracker.Core.UI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj">
-      <Project>{d10a136b-d70d-43a7-a249-f99b6a0bf381}</Project>
-      <Name>ExpenseTracker.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.Data\ExpenseTracker.Data.csproj">
-      <Project>{2e0fe626-d6c8-4170-922e-bcf851966c4e}</Project>
-      <Name>ExpenseTracker.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.Gmail\ExpenseTracker.Gmail.csproj">
-      <Project>{5179FA75-99C8-4462-BEE6-EA70B03EF4E2}</Project>
-      <Name>ExpenseTracker.Gmail</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.RestClient\ExpenseTracker.RestSDK.csproj">
-      <Project>{bf54c56d-621f-4c77-8a4f-bd12e9cb6057}</Project>
-      <Name>ExpenseTracker.RestSDK</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ExpenseTracker.UI\ExpenseTracker.UI.csproj">
       <Project>{1d400343-02ee-40b3-839c-45e4fd765243}</Project>
       <Name>ExpenseTracker.UI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ExpenseTracker.XMLImporter\ExpenseTracker.Allianz.csproj">
-      <Project>{8A059438-2017-41C2-ACF5-6F75DCCA7B92}</Project>
-      <Name>ExpenseTracker.Allianz</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

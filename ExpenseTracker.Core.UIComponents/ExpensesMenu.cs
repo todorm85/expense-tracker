@@ -12,39 +12,62 @@ namespace ExpenseTracker.Core.UI
 
         private readonly IBudgetService budgetService;
         private readonly IBudgetCalculator budgetCalculator;
-
+        private readonly CategoriesMenu catMenu;
         private DateTime fromDate = new DateTime(DateTime.Now.Year, 1, 1);
         private DateTime toDate = new DateTime(DateTime.Now.Year + 1, 1, 1).AddDays(-1);
         private string categoryFilter;
 
-        public ExpensesMenu(ITransactionsService expensesService, IBudgetService budgetService, IBudgetCalculator budgetCalculator)
+        public ExpensesMenu(
+            ITransactionsService expensesService,
+            IBudgetService budgetService,
+            IBudgetCalculator budgetCalculator,
+            CategoriesMenu catMenu)
         {
             this.Service = expensesService;
             this.expenseService = expensesService;
             this.budgetService = budgetService;
             this.budgetCalculator = budgetCalculator;
+            this.catMenu = catMenu;
         }
 
         public override IBaseDataItemService<Transaction> Service { get; set; }
 
         public override string CommandKey => "ex";
 
-        [MenuAction("sc", "Show expenses (categories only)")]
+        [MenuAction("sc", "Show expenses by categories", "queries")]
         public void ShowExpensesCategoriesOnly()
         {
             this.WriteExpensesByCategoriesByMonths(false);
         }
 
-        [MenuAction("s", "Show expenses (all)")]
+        [MenuAction("s", "Show expenses by categories (detailed)", "queries")]
         public void ShowExpensesAll()
         {
             this.WriteExpensesByCategoriesByMonths(true);
         }
 
-        [MenuAction("cl", "Classify all expenses")]
+        [MenuAction("ca", "Auto Categorize all expenses")]
         public void Categorize()
         {
             this.expenseService.Classify();
+        }
+
+        [MenuAction("qac", "Quick add category", "Categories")]
+        public void QuickAddCat()
+        {
+            this.catMenu.QuickAdd();
+        }
+
+        [MenuAction("scg", "Show category groups", "Categories")]
+        public void ShowCategoryGroups()
+        {
+            this.catMenu.ShowAllCategoryGroups();
+        }
+
+        [MenuAction("ec", "Edit category", "Categories")]
+        public void EditCategory()
+        {
+            this.catMenu.Edit();
         }
 
         [MenuAction("qa", "Quick add expense")]
@@ -108,7 +131,7 @@ namespace ExpenseTracker.Core.UI
             }
         }
 
-        [MenuAction("ibc", "Ignore bulk category")]
+        [MenuAction("ibc", "Ignore bulk in category")]
         public void IgnoreBulkCategory()
         {
             var input = this.PromptInput("Category to ignore items of:");
@@ -126,7 +149,7 @@ namespace ExpenseTracker.Core.UI
             }
         }
 
-        [MenuAction("cb", "Categorize bulk")]
+        [MenuAction("cb", "Manually Categorize bulk")]
         public void CategorizeBulk()
         {
             var input = PromptReadIds();
@@ -145,7 +168,7 @@ namespace ExpenseTracker.Core.UI
             }
         }
 
-        [MenuAction("si", "Show income")]
+        [MenuAction("si", "Show income", "queries")]
         public void ShowIncome()
         {
             var incomes = this.expenseService.GetAll(x => !x.Ignored && x.Type == TransactionType.Income);
@@ -178,6 +201,29 @@ namespace ExpenseTracker.Core.UI
             this.categoryFilter = this.PromptInput("Enter category filter ");
         }
 
+        [MenuAction("gd", "Get duplicates", "queries")]
+        public void GetDuplicates()
+        {
+            var duplicateIds = new List<int>();
+            foreach (var item in this.expenseService.GetAll())
+            {
+                if (duplicateIds.Contains(item.Id))
+                {
+                    continue;
+                }
+
+                var duplicates = this.expenseService.GetDuplicates(item);
+                if (duplicates.Count() > 1)
+                {
+                    this.Output.Write("Duplicates: ");
+                    foreach (var duplicate in duplicates)
+                    {
+                        this.WriteTransaction(duplicate);
+                        duplicateIds.Add(duplicate.Id);
+                    }
+                }
+            }
+        }
 
         private void WriteExpensesByCategoriesByMonths(bool detailed)
         {

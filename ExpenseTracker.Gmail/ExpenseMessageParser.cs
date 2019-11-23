@@ -81,7 +81,7 @@ namespace ExpenseTracker.GmailConnector
         private string GetSource(StringReader reader)
         {
             SkipLines(reader, 7);
-            return reader.ReadLine().Trim();
+            return reader.ReadLine().RemoveRepeatingSpaces();
         }
 
         private DateTime GetDate(StringReader reader)

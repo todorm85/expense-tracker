@@ -20,6 +20,7 @@ namespace ExpenseTracker.GmailConnector
             var personal = this.client.GetFolder(this.client.PersonalNamespaces[0]);
             this.expenses = personal.GetSubfolders(false).First(x => x.FullName == "expenses");
             this.expenses.Open(FolderAccess.ReadWrite);
+            this.trash = this.client.GetFolder(SpecialFolder.Trash);
         }
 
         public int Count
@@ -45,7 +46,13 @@ namespace ExpenseTracker.GmailConnector
             this.expenses.AddFlags(i, MessageFlags.Seen, true);
         }
 
+        internal void Delete(int i)
+        {
+            this.expenses.MoveTo(i, this.trash);
+        }
+
         private ImapClient client;
         private IMailFolder expenses;
+        private IMailFolder trash;
     }
 }

@@ -16,7 +16,7 @@ namespace ExpenseTracker.Core.UI
         public override IBaseDataItemService<Category> Service { get; set; }
 
         [MenuAction("sg", "Show groups")]
-        public void ShowAll()
+        public void ShowAllCategoryGroups()
         {
             var groupByCats = this.Service.GetAll().GroupBy(x => x.Name);
             foreach (var gbc in groupByCats)
@@ -53,6 +53,7 @@ namespace ExpenseTracker.Core.UI
             this.Service.Add(cats);
         }
 
+        [MenuAction("qa", "Quick add")]
         public void QuickAdd()
         {
             var input = this.PromptInput("Create category (name:phrase):");

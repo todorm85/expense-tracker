@@ -20,9 +20,30 @@ namespace ExpenseTracker.App
             ExpensesMenu exp)
         {
             this.transactionsService = transactionsService;
-
             this.CommandDescription = "Main menu";
 
+            AddExpensesMenu(exp);
+            AddCategoriesMenu(cat);
+            AddAllianzMenu();
+            AddMisceallaneous();
+
+            this.AddChild(cat);
+            this.AddChild(bud);
+            this.AddChild(exp);
+        }
+
+        private void AddMisceallaneous()
+        {
+            var misc = new Menu();
+            misc.AddAction("clear", () => "Clear all transactions", () => this.Clear());
+            misc.AddAction("ba", () => "backup database", () => this.BackupFile(Application.DbPath));
+            misc.CommandKey = "misc";
+            misc.CommandDescription = "Misc commands";
+            this.AddChild(misc);
+        }
+
+        private void AddExpensesMenu(ExpensesMenu exp)
+        {
             this.AddAction("sc", () => "show expenses by categories", () => exp.ShowExpensesCategoriesOnly(), "Expenses queries");
             this.AddAction("s", () => "show expenses by categories with details", () => exp.ShowExpensesAll(), "Expenses queries");
 
@@ -34,28 +55,33 @@ namespace ExpenseTracker.App
             this.AddAction("edf", () => "set expenses date filters", () => exp.SetDateFilters(), "Expenses filters");
             this.AddAction("ecf", () => "set expenses category filter", () => exp.SetCategoryFilters(), "Expenses filters");
 
-            this.AddAction("scg", () => "show categories by groups", () => cat.ShowAll(), "Categories");
+            this.AddAction("im", () => "Import expenses from Allianz mails", () => this.ImportExpensesGmail(), "Connectors");
+        }
+
+        private void AddCategoriesMenu(CategoriesMenu cat)
+        {
+            this.AddAction("scg", () => "show categories by groups", () => cat.ShowAllCategoryGroups(), "Categories");
             this.AddAction("rec", () => "remove category", () => cat.Remove(), "Categories");
             this.AddAction("adc", () => "add category", () => cat.QuickAdd(), "Categories");
             this.AddAction("ec", () => "edit category", () => cat.Edit(), "Categories");
+        }
 
+        private void AddAllianzMenu()
+        {
             var allianz = new Menu();
-            allianz.AddAction("ime", () => "Import expenses from Allianz text", () => this.ImportExpenses(), "Allianz Group");
+            allianz.AddAction("ime", () => "Import expenses from Allianz text", () => this.ImportExpensesText(), "Allianz Group");
             allianz.AddAction("ims", () => "Import income from Allianz text", () => this.ImportSalary(), "Allianz Group");
             allianz.CommandKey = "al";
             allianz.CommandDescription = "allianz";
             this.AddChild(allianz);
+        }
 
-            var misc = new Menu();
-            misc.AddAction("clear", () => "Clear all transactions", () => this.Clear());
-            misc.AddAction("ba", () => "backup database", () => this.BackupFile(Application.DbPath));
-            misc.CommandKey = "misc";
-            misc.CommandDescription = "Misc commands";
-            this.AddChild(misc);
-
-            this.AddChild(cat);
-            this.AddChild(bud);
-            this.AddChild(exp);
+        private void ImportExpensesGmail()
+        {
+            this.transactionsService.Add(
+                new GmailConnector.GmailClient().Get(
+                    System.Text.Encoding.ASCII.GetString(Convert.FromBase64String(Environment.GetEnvironmentVariable("trckrm", EnvironmentVariableTarget.User))),
+                    Environment.GetEnvironmentVariable("trckr", EnvironmentVariableTarget.User)));
         }
 
         private void Clear()
@@ -88,7 +114,7 @@ namespace ExpenseTracker.App
             File.Copy(sourcePath, newPath);
         }
 
-        public void ImportExpenses()
+        public void ImportExpensesText()
         {
             string filePath = PromptFilePath();
             var parser = new TxtFileParser();
