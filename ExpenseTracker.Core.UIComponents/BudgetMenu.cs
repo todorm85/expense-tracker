@@ -31,8 +31,7 @@ namespace ExpenseTracker.Core.UI
         [MenuAction("s", "Show budgets.")]
         public void ShowRelevant()
         {
-            this.PromptDateFilter();
-            var items = this.Service.GetAll(x => x.FromMonth >= this.fromDate && x.ToMonth <= this.toDate);
+            var items = this.Service.GetAll(x => x.ToMonth.SetToEndOfMonth() >= DateTime.Now);
             this.Show(items);
         }
 

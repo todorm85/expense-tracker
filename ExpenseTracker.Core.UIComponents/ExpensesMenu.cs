@@ -13,8 +13,8 @@ namespace ExpenseTracker.Core.UI
         private readonly IBudgetService budgetService;
         private readonly IBudgetCalculator budgetCalculator;
         private readonly CategoriesMenu catMenu;
-        private DateTime fromDate = new DateTime(DateTime.Now.Year, 1, 1);
-        private DateTime toDate = new DateTime(DateTime.Now.Year + 1, 1, 1).AddDays(-1);
+        private DateTime fromDate = DateTime.Now.SetToBeginningOfMonth();
+        private DateTime toDate = DateTime.Now.SetToEndOfMonth();
         private string categoryFilter;
 
         public ExpensesMenu(
