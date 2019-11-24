@@ -18,7 +18,7 @@ namespace ExpenseTracker.Core
         {
             foreach (var expense in expenses)
             {
-                Category foundPhrase = this.Categories.FirstOrDefault(category => expense.Source != null && !string.IsNullOrWhiteSpace(category.ExpenseSourcePhrase) && expense.Source.Contains(category.ExpenseSourcePhrase));
+                Category foundPhrase = this.Categories.FirstOrDefault(category => expense.Details != null && !string.IsNullOrWhiteSpace(category.ExpenseSourcePhrase) && expense.Details.Contains(category.ExpenseSourcePhrase));
                 if (foundPhrase != null)
                 {
                     expense.Category = foundPhrase.Name;

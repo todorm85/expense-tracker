@@ -18,42 +18,10 @@ namespace ExpenseTracker.GmailConnector
                 var expense = this.Parse(message);
                 if (expense != null)
                 {
+                    this.ValidateTransaction(expense);
                     result.Add(expense);
                 }
             }
-
-            return result;
-        }
-
-        private Transaction Parse(ExpenseMessage message)
-        {
-            if (!IsValidExpenseMessage(message))
-            {
-                return null;
-            }
-
-            Transaction result = new Transaction();
-
-            using (var html = new StringReader(message.Body))
-            {
-                var line = html.ReadLine();
-                while (line != null)
-                {
-                    ////if (line.Contains(">Дата<"))
-                    ////    result.Date = this.GetDate(html);
-                    if (line.Contains(">Сметка<"))
-                        result.Account = this.GetAccount(html);
-                    if (line.Contains(">Контрагент<"))
-                        result.Source = this.GetSource(html);
-                    if (line.Contains(">Сума<"))
-                        result.Amount = this.GetAmount(html);
-
-                    line = html.ReadLine();
-                }
-            }
-
-            result.TransactionId = this.GetTransactionId(message.Subject);
-            result.Date = message.Date;
 
             return result;
         }
@@ -78,6 +46,47 @@ namespace ExpenseTracker.GmailConnector
             }
         }
 
+        private void ValidateTransaction(Transaction expense)
+        {
+            if (expense.Date == default(DateTime))
+            {
+                throw new InvalidDataException("The transaction could not have its date processed correctly.");
+            }
+        }
+
+        private Transaction Parse(ExpenseMessage message)
+        {
+            if (!IsValidExpenseMessage(message))
+            {
+                return null;
+            }
+
+            Transaction result = new Transaction();
+
+            using (var html = new StringReader(message.Body))
+            {
+                var line = html.ReadLine();
+                while (line != null)
+                {
+                    if (line.Contains(">Дата<"))
+                        result.Date = this.GetDate(html);
+                    if (line.Contains(">Сметка<"))
+                        result.Account = this.GetAccount(html);
+                    if (line.Contains(">Контрагент<"))
+                        result.Details = this.GetSource(html);
+                    if (line.Contains(">Сума<"))
+                        result.Amount = this.GetAmount(html);
+
+                    line = html.ReadLine();
+                }
+            }
+
+            //result.TransactionId = this.GetTransactionId(message.Subject);
+            //result.Date = message.EmailDate;
+
+            return result;
+        }
+
         private string GetSource(StringReader reader)
         {
             SkipLines(reader, 7);
@@ -89,10 +98,9 @@ namespace ExpenseTracker.GmailConnector
             var dateLine = reader.ReadLine();
             var date = ExtractInnerText(dateLine);
             DateTime result;
-            var formatProvider = CultureInfo.GetCultureInfo("bg-BG");
-            if (DateTime.TryParse(date, formatProvider, DateTimeStyles.AssumeLocal, out result))
+            if (DateTime.TryParseExact(date, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
             {
-                return result;
+                return DateTime.SpecifyKind(result, DateTimeKind.Utc);
             }
             else
             {

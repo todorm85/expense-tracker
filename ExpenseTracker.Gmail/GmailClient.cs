@@ -19,7 +19,7 @@ namespace ExpenseTracker.GmailConnector
                     {
                         Body = serverMsg.HtmlBody,
                         Subject = serverMsg.Subject,
-                        Date = serverMsg.Date.UtcDateTime
+                        EmailDate = serverMsg.Date.UtcDateTime
                     });
 
                     folder.Delete(msgIdx);

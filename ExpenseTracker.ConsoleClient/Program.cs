@@ -1,4 +1,4 @@
-﻿using System.Configuration;
+﻿using System;
 using ExpenseTracker.App;
 
 namespace ExpenseTracker.ConsoleClient
@@ -8,7 +8,7 @@ namespace ExpenseTracker.ConsoleClient
         public static void Main(string[] args)
         {
             var renderer = new IOProvider();
-            new Application(ConfigurationManager.AppSettings["dbPath"], renderer, renderer);
+            new Application(Environment.GetEnvironmentVariable("trckrdb", EnvironmentVariableTarget.User), renderer, renderer);
         }
     }
 }

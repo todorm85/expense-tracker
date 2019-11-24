@@ -29,7 +29,7 @@ namespace ExpenseTracker.Tests
                 Account = Guid.NewGuid().ToString(),
                 Amount = (decimal)(random.NextDouble() * 100),
                 Date = newDate,
-                Source = Guid.NewGuid().ToString(),
+                Details = Guid.NewGuid().ToString(),
                 TransactionId = Guid.NewGuid().ToString(),
                 Category = category ?? Guid.NewGuid().ToString()
             };

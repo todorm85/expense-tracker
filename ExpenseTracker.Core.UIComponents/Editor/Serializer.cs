@@ -30,7 +30,7 @@ namespace ExpenseTracker.Core.UI
                 var sb = new StringBuilder();
                 foreach (var t in value as IEnumerable<Transaction>)
                 {
-                    sb.Append($"{t.Category}:{t.Source}:{this.Serialize(t.Type)}:{t.Amount};");
+                    sb.Append($"{t.Category}:{t.Details}:{this.Serialize(t.Type)}:{t.Amount};");
                 }
 
                 return sb.ToString();
@@ -92,7 +92,7 @@ namespace ExpenseTracker.Core.UI
                     transactions.Add(new Transaction()
                     {
                         Category = vals[0],
-                        Source = vals[1],
+                        Details = vals[1],
                         Type = (TransactionType)this.Deserialize(typeof(TransactionType), vals[2]),
                         Amount = decimal.Parse(vals[3])
                     });

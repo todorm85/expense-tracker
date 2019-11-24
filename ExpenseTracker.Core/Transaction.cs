@@ -6,7 +6,7 @@ namespace ExpenseTracker.Core
     {
         public int Id { get; set; }
         public decimal Amount { get; set; }
-        public string Source { get; set; }
+        public string Details { get; set; }
         public DateTime Date { get; set; }
         public string Account { get; set; }
         public string TransactionId { get; set; }

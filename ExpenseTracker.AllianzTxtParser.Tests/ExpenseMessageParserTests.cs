@@ -21,8 +21,8 @@ namespace ExpenseTracker.Tests
             var expense = expenses.First();
             Assert.AreEqual(msgFactory.Account, expense.Account);
             Assert.AreEqual(decimal.Parse(msgFactory.Amount), expense.Amount);
-            Assert.AreEqual(DateTime.Parse(msgFactory.Date), expense.Date);
-            Assert.AreEqual(msgFactory.Source.RemoveRepeatingSpaces(), expense.Source);
+            Assert.AreEqual(msgFactory.Date, expense.Date.ToString("dd.MM.yyyy"));
+            Assert.AreEqual(msgFactory.Source.RemoveRepeatingSpaces(), expense.Details);
         }
 
         [TestMethod]

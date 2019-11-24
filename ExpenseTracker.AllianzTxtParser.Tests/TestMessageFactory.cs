@@ -1,5 +1,4 @@
 ﻿using System;
-using ExpenseTracker.Core;
 using ExpenseTracker.GmailConnector;
 
 namespace ExpenseTracker.Tests
@@ -10,7 +9,7 @@ namespace ExpenseTracker.Tests
         {
             this.TransactionId = "20354987";
             this.Title = "Оторизирана картова транзакция";
-            this.Date = "12/11/2000";
+            this.Date = "12.11.2000";
             this.Amount = "35.67";
             this.Account = "24BUIN95611000591358";
             this.Source = "FANTASTICO 42                >SOFIYA  BG";
@@ -34,8 +33,8 @@ namespace ExpenseTracker.Tests
             {
                 Body = this.GetTestMessageBody(),
                 Subject = $"Движение по сметка: 24BUIN95611000591258 (#{this.TransactionId})",
-                Date = DateTime.Parse(this.Date)
-        };
+                EmailDate = DateTime.Now
+            };
         }
 
         private string GetTestMessageBody()

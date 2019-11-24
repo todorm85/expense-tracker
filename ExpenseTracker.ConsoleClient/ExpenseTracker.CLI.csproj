@@ -67,9 +67,6 @@
     <Compile Include="IOProvider.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\ExpenseTracker.App\ExpenseTracker.App.csproj">
       <Project>{AE4EF3A1-F670-42FF-A194-40FC7A82F4A0}</Project>
       <Name>ExpenseTracker.App</Name>

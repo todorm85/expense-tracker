@@ -112,7 +112,7 @@ namespace ExpenseTracker.Core.UI
                 {
                     Amount = amount,
                     Category = cat,
-                    Source = desc,
+                    Details = desc,
                     Type = (TransactionType)serializer.Deserialize(typeof(TransactionType), type),
                     Date = date
                 }
@@ -279,7 +279,7 @@ namespace ExpenseTracker.Core.UI
 
         private void WriteTransaction(Transaction e, int padding = 0)
         {
-            var source = e.Source?.ToString() ?? "";
+            var source = e.Details?.ToString() ?? "";
             if (source.Length > 110)
             {
                 source = source.Substring(0, 110) + "...";

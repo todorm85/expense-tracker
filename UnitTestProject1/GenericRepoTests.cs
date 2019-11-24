@@ -20,14 +20,14 @@ namespace ExpenseTracker.Tests
         {
             var expenses = TestExpensesFactory.GetTestExpenses(1);
             var details = Guid.NewGuid().ToString();
-            expenses.First().Source = details;
+            expenses.First().Details = details;
             var initialCount = sut.GetAll().Count();
             var newId = initialCount + 1;
             expenses.First().Id = newId;
             sut.Update(expenses);
             var expense = sut.GetAll().FirstOrDefault(x => x.Id == newId);
             Assert.IsNull(expense);
-            expense = sut.GetAll().FirstOrDefault(x => x.Source == details);
+            expense = sut.GetAll().FirstOrDefault(x => x.Details == details);
             Assert.IsNull(expense);
         }
 
@@ -39,10 +39,10 @@ namespace ExpenseTracker.Tests
             expenses = sut.GetAll();
             var firstExpense = expenses.First();
             var details = Guid.NewGuid().ToString();
-            firstExpense.Source = details;
+            firstExpense.Details = details;
             sut.Update(new Transaction[] { firstExpense });
             expenses = sut.GetAll();
-            Assert.AreEqual(details, expenses.First().Source);
+            Assert.AreEqual(details, expenses.First().Details);
         }
 
         private GenericRepo<Transaction> sut;

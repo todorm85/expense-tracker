@@ -23,7 +23,7 @@ namespace ExpenseTracker.Tests
         [TestMethod]
         public void Classify_NoCategories_NoClassification()
         {
-            expense.Source = "trop dedov opa";
+            expense.Details = "trop dedov opa";
             sut.Classify(new Transaction[] { expense });
             Assert.IsNull(expense.Category);
         }
@@ -31,7 +31,7 @@ namespace ExpenseTracker.Tests
         [TestMethod]
         public void Classify_CategoriesThatMatch()
         {
-            expense.Source = "trop dedov opa";
+            expense.Details = "trop dedov opa";
             this.categories.Add(new Category() { ExpenseSourcePhrase = "dedov", Name = "cat1" });
             sut.Classify(new Transaction[] { expense });
             Assert.AreEqual("cat1", expense.Category);
@@ -40,7 +40,7 @@ namespace ExpenseTracker.Tests
         [TestMethod]
         public void Classify_CategoriesThatDoNotMatch()
         {
-            expense.Source = "trop dedov opa";
+            expense.Details = "trop dedov opa";
             expense.Category = "test";
             this.categories.Add(new Category() { ExpenseSourcePhrase = "pisana", Name = "cat1" });
             sut.Classify(new Transaction[] { expense });
@@ -59,7 +59,7 @@ namespace ExpenseTracker.Tests
         [TestMethod]
         public void Classify_CategoriesThatMatchAndDoNotMatch()
         {
-            expense.Source = "trop pisana opa";
+            expense.Details = "trop pisana opa";
             this.categories.Add(new Category() { ExpenseSourcePhrase = "dedov", Name = "cat1" });
             this.categories.Add(new Category() { ExpenseSourcePhrase = "pisana", Name = "cat2" });
             sut.Classify(new Transaction[] { expense });

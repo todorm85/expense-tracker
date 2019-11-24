@@ -6,6 +6,6 @@ namespace ExpenseTracker.GmailConnector
     {
         public string Body { get; set; }
         public string Subject { get; set; }
-        public DateTime Date { get; set; }
+        public DateTime EmailDate { get; set; }
     }
 }
