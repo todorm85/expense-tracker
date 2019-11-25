@@ -8,8 +8,6 @@ namespace ExpenseTracker.Core
         public decimal Amount { get; set; }
         public string Details { get; set; }
         public DateTime Date { get; set; }
-        public string Account { get; set; }
-        public string TransactionId { get; set; }
         public string Category { get; set; }
         public TransactionType Type { get; set; }
         public bool Ignored { get; set; }

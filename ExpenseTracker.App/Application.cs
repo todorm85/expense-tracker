@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.Core;
+﻿using ExpenseTracker.Allianz;
+using ExpenseTracker.Core;
 using ExpenseTracker.Data;
 using ExpenseTracker.UI;
 using Unity;
@@ -29,6 +30,7 @@ namespace ExpenseTracker.App
             container.RegisterType<IBudgetService, BudgetService>();
             container.RegisterType<IBaseDataItemService<Category>, CategoriesService>();
             container.RegisterType<IBudgetCalculator, BudgetCalculator>();
+            container.RegisterType<ITransactionsClassifier, TransactionsClassifier>();
         }
     }
 }

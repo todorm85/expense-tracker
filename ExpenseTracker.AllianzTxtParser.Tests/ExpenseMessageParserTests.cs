@@ -19,7 +19,6 @@ namespace ExpenseTracker.Tests
             var expenses = this.parser.Parse(new List<ExpenseMessage>() { msgFactory.GetMessage() });
             Assert.IsTrue(expenses.Count() > 0);
             var expense = expenses.First();
-            Assert.AreEqual(msgFactory.Account, expense.Account);
             Assert.AreEqual(decimal.Parse(msgFactory.Amount), expense.Amount);
             Assert.AreEqual(msgFactory.Date, expense.Date.ToString("dd.MM.yyyy"));
             Assert.AreEqual(msgFactory.Source.RemoveRepeatingSpaces(), expense.Details);

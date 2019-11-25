@@ -20,7 +20,6 @@ namespace ExpenseTracker.Data
             {
                 var transactionsContext = this.context as LiteCollection<Transaction>;
                 transactionsContext.EnsureIndex(x => x.Date);
-                transactionsContext.EnsureIndex(x => x.TransactionId);
                 transactionsContext.EnsureIndex(x => x.Amount);
             }
 

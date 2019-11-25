@@ -7,35 +7,20 @@ namespace ExpenseTracker.Core
     public class TransactionsService : BaseDataItemService<Transaction>, ITransactionsService
     {
         private readonly IUnitOfWork uow;
+        private readonly ITransactionsClassifier _classifier;
 
-        private TransactionsClassifier _classifier;
-
-        public TransactionsService(IUnitOfWork data) : base(data)
+        public TransactionsService(IUnitOfWork data, ITransactionsClassifier _classifier) : base(data)
         {
             this.uow = data;
-        }
-
-        private TransactionsClassifier Classifier
-        {
-            get
-            {
-                if (this._classifier == null)
-                {
-                    this._classifier = new TransactionsClassifier(this.uow.GetDataItemsRepo<Category>().GetAll());
-                }
-
-                return this._classifier;
-            }
+            this._classifier = _classifier;
         }
 
         public override void Add(IEnumerable<Transaction> expenses)
         {
-            var filtered = expenses.Where(newTran => newTran.Id == 0 && // new items
-                (newTran.IsManuallyCreated() ||
-                !this.IsDuplicate(newTran)));
+            var filtered = expenses.Where(newTran => !this.IsDuplicate(newTran));
             if (filtered.Count() != 0)
             {
-                this.Classifier.Classify(filtered);
+                this._classifier.Classify(filtered);
                 base.Add(filtered);
             }
         }
@@ -43,7 +28,7 @@ namespace ExpenseTracker.Core
         public void Classify()
         {
             var msgs = this.repo.GetAll().ToList();
-            this.Classifier.Classify(msgs);
+            this._classifier.Classify(msgs);
             this.repo.Update(msgs);
         }
 

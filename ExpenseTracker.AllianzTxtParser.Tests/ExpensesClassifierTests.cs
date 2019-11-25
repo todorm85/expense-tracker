@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using ExpenseTracker.Allianz;
 using ExpenseTracker.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ExpenseTracker.Tests
+namespace ExpenseTracker.AllianzTxtParser.Tests
 {
     [TestClass]
     public class ExpensesClassifierTests
@@ -17,7 +18,9 @@ namespace ExpenseTracker.Tests
         {
             this.expense = new Transaction();
             this.categories = new List<Category>();
-            this.sut = new TransactionsClassifier(this.categories);
+            var uow = new TestUnitOfWork();
+            uow.Categories = this.categories;
+            this.sut = new TransactionsClassifier(uow);
         }
 
         [TestMethod]

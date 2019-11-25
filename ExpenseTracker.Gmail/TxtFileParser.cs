@@ -29,7 +29,6 @@ namespace ExpenseTracker.AllianzTxtParser
                     var t = new Transaction();
                     var fgs = line.Split('|');
 
-                    t.TransactionId = fgs[1];
                     t.Amount = Decimal.Parse(fgs[2]);
                     t.Type = fgs[3] == "D" ? TransactionType.Expense : TransactionType.Income;
                     t.Details = $"{fgs[4]}{fgs[5]}{fgs[6]}{fgs[7]}{fgs[8]}".RemoveRepeatingSpaces();

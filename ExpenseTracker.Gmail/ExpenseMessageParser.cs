@@ -70,8 +70,8 @@ namespace ExpenseTracker.GmailConnector
                 {
                     if (line.Contains(">Дата<"))
                         result.Date = this.GetDate(html);
-                    if (line.Contains(">Сметка<"))
-                        result.Account = this.GetAccount(html);
+                    //if (line.Contains(">Сметка<"))
+                    //    result.Account = this.GetAccount(html);
                     if (line.Contains(">Контрагент<"))
                         result.Details = this.GetSource(html);
                     if (line.Contains(">Сума<"))

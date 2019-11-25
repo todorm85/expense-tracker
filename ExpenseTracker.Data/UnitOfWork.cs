@@ -10,8 +10,27 @@ namespace ExpenseTracker.Data
         public UnitOfWork(string dbPath)
         {
             this.db = new LiteDatabase(dbPath);
+            this.HandleMigration();
         }
-        
+
+        private void HandleMigration()
+        {
+            if (this.db.Engine.UserVersion == 0)
+            {
+                var col = this.db.GetCollection(this.GetSetName<Transaction>());
+                foreach (var doc in col.FindAll())
+                {
+                    doc["Details"] = doc["Source"];
+                    doc.Remove("Source");
+                    doc.Remove("TransactionId");
+                    doc.Remove("Account");
+                    col.Update(doc);
+                }
+
+                this.db.Engine.UserVersion = 1;
+            }
+        }
+
         public IGenericRepository<T> GetDataItemsRepo<T>() where T : IDataItem
         {
             if (this.repos.ContainsKey(typeof(T)))
