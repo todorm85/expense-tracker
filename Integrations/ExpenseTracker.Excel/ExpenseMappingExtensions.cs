@@ -23,7 +23,7 @@ namespace ExpenseTracker.ExcelExporter
             }
         }
 
-        public static List<string> MapToExcelRow(this Expense expense)
+        public static List<string> MapToExcelRow(this Transaction expense)
         {
             var row = new List<string>();
             var props = GetExpenseProperties();
@@ -37,9 +37,9 @@ namespace ExpenseTracker.ExcelExporter
             return row;
         }
 
-        public static Expense MapRowToExpense(this List<dynamic> row)
+        public static Transaction MapRowToExpense(this List<dynamic> row)
         {
-            var expense = new Expense();
+            var expense = new Transaction();
 
             var props = GetExpenseProperties();
             for (int i = 0; i < OrderedPropertyNames.Count(); i++)
@@ -60,7 +60,7 @@ namespace ExpenseTracker.ExcelExporter
 
         private static PropertyInfo[] GetExpenseProperties()
         {
-            return typeof(Expense).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            return typeof(Transaction).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
         }
     }
 }

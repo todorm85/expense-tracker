@@ -15,9 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExpenseTracker.Core.UIComponents\ExpenseTracker.Core.UI.csproj" />
-    <ProjectReference Include="..\ExpenseTracker.Data\ExpenseTracker.Data.csproj" />
-    <ProjectReference Include="..\ExpenseTracker.UI\ExpenseTracker.UI.csproj" />
+    <ProjectReference Include="..\..\ExpenseTracker.Data\ExpenseTracker.Data.csproj" />
+    <ProjectReference Include="..\..\Integrations\ExpenseTracker.Allianz\ExpenseTracker.Allianz.csproj" />
+    <ProjectReference Include="..\ExpenseTracker.Core.UI\ExpenseTracker.Core.UI.csproj" />
   </ItemGroup>
 
 </Project>

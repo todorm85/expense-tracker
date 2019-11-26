@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Dynamic;
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
 namespace ExpenseTracker.Core.UI
@@ -58,7 +58,7 @@ namespace ExpenseTracker.Core.UI
         public virtual void ShowFiltered()
         {
             var input = this.PromptInput("Enter filter (Id >= 1 and ToDate <= DateTime.Now):");
-            var items = this.Service.GetAll().Where(input);
+            var items = this.Service.GetAll().AsQueryable().Where(input);
             Show(items);
         }
 

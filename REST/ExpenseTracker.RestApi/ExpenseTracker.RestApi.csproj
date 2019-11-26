@@ -22,8 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj" />
-    <ProjectReference Include="..\ExpenseTracker.Data\ExpenseTracker.Data.csproj" />
+    <ProjectReference Include="..\..\Core\ExpenseTracker.Core\ExpenseTracker.Core.csproj" />
+    <ProjectReference Include="..\..\ExpenseTracker.Data\ExpenseTracker.Data.csproj" />
   </ItemGroup>
 
 </Project>

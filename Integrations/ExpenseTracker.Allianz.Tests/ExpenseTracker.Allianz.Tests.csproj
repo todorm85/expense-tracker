@@ -7,14 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="JustMock" Version="2019.3.910.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.0.0" />
     <PackageReference Include="MSTest.TestFramework" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj" />
-    <ProjectReference Include="..\ExpenseTracker.RestClient\ExpenseTracker.RestSDK.csproj" />
+    <ProjectReference Include="..\..\Core\ExpenseTracker.Core\ExpenseTracker.Core.csproj" />
+    <ProjectReference Include="..\ExpenseTracker.Allianz\ExpenseTracker.Allianz.csproj" />
   </ItemGroup>
 
 </Project>

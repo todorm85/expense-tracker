@@ -5,10 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MailKit" Version="2.4.1" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.19" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\ExpenseTracker.UI\ExpenseTracker.UI.csproj" />
+    <ProjectReference Include="..\..\Integrations\ExpenseTracker.Allianz\ExpenseTracker.Allianz.csproj" />
     <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj" />
   </ItemGroup>
 
