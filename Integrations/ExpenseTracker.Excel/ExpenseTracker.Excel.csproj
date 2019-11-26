@@ -7,8 +7,8 @@
     <ProjectGuid>{47A028CD-D55E-452D-835C-0A870A1FDF79}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ExpenseTracker.ExcelConnector</RootNamespace>
-    <AssemblyName>ExpenseTracker.ExcelConnector</AssemblyName>
+    <RootNamespace>ExpenseTracker.Excel</RootNamespace>
+    <AssemblyName>ExpenseTracker.Excel</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

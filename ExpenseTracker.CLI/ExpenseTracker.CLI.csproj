@@ -7,8 +7,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{6D4274E8-0620-4E37-AFE1-A22D69B380E3}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ExpenseTracker.ConsoleClient</RootNamespace>
-    <AssemblyName>ExpenseTracker.ConsoleClient</AssemblyName>
+    <RootNamespace>ExpenseTracker.CLI</RootNamespace>
+    <AssemblyName>ExpenseTracker.CLI</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
