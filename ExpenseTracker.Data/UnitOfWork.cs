@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using ExpenseTracker.Core;
 using LiteDB;
 
@@ -20,10 +21,26 @@ namespace ExpenseTracker.Data
                 var col = this.db.GetCollection(this.GetSetName<Transaction>());
                 foreach (var doc in col.FindAll())
                 {
+                    // rename property
                     doc["Details"] = doc["Source"];
                     doc.Remove("Source");
-                    doc.Remove("TransactionId");
+
+                    // generate new transaction ids
+                    var date = doc["Date"].AsDateTime;
+                    var amnt = doc["Amount"].AsDecimal;
+                    doc["TransactionId"] = $"{date.ToString("dd_MM_yy", CultureInfo.InvariantCulture)}_{amnt}";
+
+                    // remove property
                     doc.Remove("Account");
+
+                    col.Update(doc);
+                }
+
+                col = this.db.GetCollection(this.GetSetName<Category>());
+                foreach (var doc in col.FindAll())
+                {
+                    doc["KeyWord"] = doc["ExpenseSourcePhrase"];
+                    doc.Remove("ExpenseSourcePhrase");
                     col.Update(doc);
                 }
 

@@ -7,12 +7,10 @@ namespace ExpenseTracker.Core
     public class TransactionsService : BaseDataItemService<Transaction>, ITransactionsService
     {
         private readonly IUnitOfWork uow;
-        private readonly ITransactionsClassifier _classifier;
 
-        public TransactionsService(IUnitOfWork data, ITransactionsClassifier _classifier) : base(data)
+        public TransactionsService(IUnitOfWork data) : base(data)
         {
             this.uow = data;
-            this._classifier = _classifier;
         }
 
         public override void Add(IEnumerable<Transaction> expenses)
@@ -20,16 +18,8 @@ namespace ExpenseTracker.Core
             var filtered = expenses.Where(newTran => !this.IsDuplicate(newTran));
             if (filtered.Count() != 0)
             {
-                this._classifier.Classify(filtered);
                 base.Add(filtered);
             }
-        }
-
-        public void Classify()
-        {
-            var msgs = this.repo.GetAll().ToList();
-            this._classifier.Classify(msgs);
-            this.repo.Update(msgs);
         }
 
         public Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>> GetExpensesByCategoriesByMonths(DateTime fromDate, DateTime toDate)
@@ -65,7 +55,7 @@ namespace ExpenseTracker.Core
 
         public IEnumerable<Transaction> GetDuplicates(Transaction t)
         {
-            return this.repo.GetAll(x => x.IsSame(t));
+            return this.repo.GetAll(x => x.TransactionId == t.TransactionId);
         }
     }
 }

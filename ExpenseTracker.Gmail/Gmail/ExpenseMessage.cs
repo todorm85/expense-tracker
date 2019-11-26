@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ExpenseTracker.GmailConnector
+namespace ExpenseTracker.Allianz
 {
     public class ExpenseMessage
     {

@@ -3,14 +3,20 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-
 using System.Text.RegularExpressions;
 using ExpenseTracker.Core;
 
-namespace ExpenseTracker.AllianzTxtParser
+namespace ExpenseTracker.Allianz
 {
     public class TxtFileParser
     {
+        private readonly ITransactionBuilder builder;
+
+        public TxtFileParser(ITransactionBuilder builder)
+        {
+            this.builder = builder;
+        }
+
         public IEnumerable<Transaction> ParseFromFile(string filePath)
         {
             return this.Parse(File.ReadAllText(filePath));
@@ -42,7 +48,7 @@ namespace ExpenseTracker.AllianzTxtParser
 
                     parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
                     t.Date = parsedDate;
-
+                    this.builder.Build(t);
                     trans.Add(t);
 
                     line = sr.ReadLine();
@@ -77,7 +83,6 @@ namespace ExpenseTracker.AllianzTxtParser
 
         public IEnumerable<Transaction> GetTransactions(TransactionType type, string filePath)
         {
-            var parser = new TxtFileParser();
             var ts = this.ParseFromFile(filePath).Where(t => t.Type == type);
             return ts;
         }

@@ -1,10 +1,17 @@
 ﻿using System.Collections.Generic;
 using ExpenseTracker.Core;
 
-namespace ExpenseTracker.GmailConnector
+namespace ExpenseTracker.Allianz
 {
     public class GmailClient
     {
+        private readonly IExpenseMessageParser parser;
+
+        public GmailClient(IExpenseMessageParser parser)
+        {
+            this.parser = parser;
+        }
+
         public IEnumerable<Transaction> Get(string user, string pass)
         {
             IEnumerable<Transaction> transactions;
@@ -24,11 +31,9 @@ namespace ExpenseTracker.GmailConnector
 
                     folder.Delete(msgIdx);
                 }
-
             }
 
-            var messageParser = new ExpenseMessageParser();
-            transactions = messageParser.Parse(expenseMessages);
+            transactions = this.parser.Parse(expenseMessages);
 
             return transactions;
         }

@@ -30,7 +30,10 @@ namespace ExpenseTracker.App
             container.RegisterType<IBudgetService, BudgetService>();
             container.RegisterType<IBaseDataItemService<Category>, CategoriesService>();
             container.RegisterType<IBudgetCalculator, BudgetCalculator>();
-            container.RegisterType<ITransactionsClassifier, TransactionsClassifier>();
+
+            // allianz dependencies
+            container.RegisterType<ITransactionBuilder, TransactionBuilder>();
+            container.RegisterType<IExpenseMessageParser, ExpenseMessageParser>();
         }
     }
 }

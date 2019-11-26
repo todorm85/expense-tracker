@@ -19,7 +19,7 @@ namespace ExpenseTracker.Tests
             {
                 if (this.sut == null)
                 {
-                    this.sut = new TransactionsService(this.uow, new DummyClassifier());
+                    this.sut = new TransactionsService(this.uow);
                 }
 
                 return this.sut;
@@ -143,13 +143,5 @@ namespace ExpenseTracker.Tests
         private IGenericRepository<Transaction> repo;
         private IUnitOfWork uow;
         private TransactionsService sut;
-
-        private class DummyClassifier : ITransactionsClassifier
-        {
-            public void Classify(IEnumerable<Transaction> filtered)
-            {
-                return;
-            }
-        }
     }
 }

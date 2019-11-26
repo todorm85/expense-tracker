@@ -1,25 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using ExpenseTracker.Core;
 
-[assembly: InternalsVisibleTo("ExpenseTracker.Allianz.Tests")]
 namespace ExpenseTracker.Allianz
 {
-    public class TransactionsClassifier : ITransactionsClassifier
+    public class TransactionsClassifier
     {
-        private readonly IGenericRepository<Category> categories;
-
-        public TransactionsClassifier(IUnitOfWork uow)
-        {
-            this.categories = uow.GetDataItemsRepo<Category>();
-        }
-
-        public void Classify(IEnumerable<Transaction> expenses)
+        public void Classify(IEnumerable<Transaction> expenses, IEnumerable<Category> categories)
         {
             foreach (var expense in expenses)
             {
-                Category foundPhrase = this.categories.GetAll(category => expense.Details != null && !string.IsNullOrWhiteSpace(category.ExpenseSourcePhrase) && expense.Details.Contains(category.ExpenseSourcePhrase)).FirstOrDefault();
+                Category foundPhrase = categories.Where(category => expense.Details != null && !string.IsNullOrWhiteSpace(category.KeyWord) && expense.Details.Contains(category.KeyWord)).FirstOrDefault();
                 if (foundPhrase != null)
                 {
                     expense.Category = foundPhrase.Name;

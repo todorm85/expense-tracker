@@ -1,5 +1,5 @@
 ﻿using System;
-using ExpenseTracker.GmailConnector;
+using ExpenseTracker.Allianz;
 
 namespace ExpenseTracker.Tests
 {
@@ -12,7 +12,7 @@ namespace ExpenseTracker.Tests
             this.Date = "12.11.2000";
             this.Amount = "35.67";
             this.Account = "24BUIN95611000591358";
-            this.Source = "FANTASTICO 42                >SOFIYA  BG";
+            this.Details = "FANTASTICO 42                >SOFIYA  BG";
         }
 
         public string TransactionId { get; set; }
@@ -25,7 +25,7 @@ namespace ExpenseTracker.Tests
 
         public string Account { get; set; }
 
-        public string Source { get; set; }
+        public string Details { get; set; }
 
         public ExpenseMessage GetMessage()
         {
@@ -90,7 +90,7 @@ namespace ExpenseTracker.Tests
         </tr>
         <tr style=""font-size:smaller"">
             <td align=""center""colspan=""3"">
-{this.Source}
+{this.Details}
             </td>
         </tr>
     </table>

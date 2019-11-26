@@ -5,10 +5,17 @@ using System.IO;
 using System.Text.RegularExpressions;
 using ExpenseTracker.Core;
 
-namespace ExpenseTracker.GmailConnector
+namespace ExpenseTracker.Allianz
 {
-    public class ExpenseMessageParser
+    public class ExpenseMessageParser : IExpenseMessageParser
     {
+        private readonly ITransactionBuilder builder;
+
+        public ExpenseMessageParser(ITransactionBuilder builder)
+        {
+            this.builder = builder;
+        }
+
         public IEnumerable<Transaction> Parse(List<ExpenseMessage> messages)
         {
             var result = new List<Transaction>();
@@ -18,6 +25,7 @@ namespace ExpenseTracker.GmailConnector
                 var expense = this.Parse(message);
                 if (expense != null)
                 {
+                    this.builder.Build(expense);
                     this.ValidateTransaction(expense);
                     result.Add(expense);
                 }

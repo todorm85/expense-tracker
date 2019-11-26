@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj" />
+    <ProjectReference Include="..\ExpenseTracker.Gmail\ExpenseTracker.Allianz.csproj" />
     <ProjectReference Include="..\ExpenseTracker.UI\ExpenseTracker.UI.csproj" />
   </ItemGroup>
 

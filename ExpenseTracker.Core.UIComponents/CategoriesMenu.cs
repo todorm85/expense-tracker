@@ -24,7 +24,7 @@ namespace ExpenseTracker.Core.UI
                 this.Output.WriteLine($"{gbc.Key}");
                 foreach (var cat in gbc)
                 {
-                    this.Output.WriteLine("".PadLeft(5) + $"({cat.Id}) " + cat.ExpenseSourcePhrase);
+                    this.Output.WriteLine("".PadLeft(5) + $"({cat.Id}) " + cat.KeyWord);
                 }
             }
         }
@@ -45,7 +45,7 @@ namespace ExpenseTracker.Core.UI
             {
                 cats.Add(new Category()
                 {
-                    ExpenseSourcePhrase = kc.Key,
+                    KeyWord = kc.Key,
                     Name = kc.Value
                 });
             }
@@ -71,7 +71,7 @@ namespace ExpenseTracker.Core.UI
             this.Service.Add(new Category[] { new Category()
                 {
                     Name = parts[0],
-                    ExpenseSourcePhrase = parts[1]
+                    KeyWord = parts[1]
                 }
             });
         }

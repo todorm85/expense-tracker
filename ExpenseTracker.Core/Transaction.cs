@@ -11,5 +11,6 @@ namespace ExpenseTracker.Core
         public string Category { get; set; }
         public TransactionType Type { get; set; }
         public bool Ignored { get; set; }
+        public string TransactionId { get; set; }
     }
 }

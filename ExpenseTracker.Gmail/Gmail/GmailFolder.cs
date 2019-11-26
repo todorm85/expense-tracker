@@ -4,7 +4,7 @@ using MailKit;
 using MailKit.Net.Imap;
 using MimeKit;
 
-namespace ExpenseTracker.GmailConnector
+namespace ExpenseTracker.Allianz
 {
     internal class GmailFolder : IDisposable
     {

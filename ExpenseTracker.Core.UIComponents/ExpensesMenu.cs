@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ExpenseTracker.Allianz;
 using ExpenseTracker.UI;
 
 namespace ExpenseTracker.Core.UI
@@ -44,12 +45,6 @@ namespace ExpenseTracker.Core.UI
         public void ShowExpensesAll()
         {
             this.WriteExpensesByCategoriesByMonths(true);
-        }
-
-        [MenuAction("ca", "Auto Categorize all expenses")]
-        public void Categorize()
-        {
-            this.expenseService.Classify();
         }
 
         [MenuAction("qac", "Quick add category", "Categories")]

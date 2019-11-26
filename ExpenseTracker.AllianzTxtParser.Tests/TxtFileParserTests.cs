@@ -1,20 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
 using ExpenseTracker.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Telerik.JustMock;
 
-namespace ExpenseTracker.AllianzTxtParser.Tests
+namespace ExpenseTracker.Allianz.Tests
 {
     [TestClass]
     public class TxtFileParserTests
     {
-        private TxtFileParser sut = new TxtFileParser();
+        private TxtFileParser sut;
+        private IEnumerable<Category> categories;
+
+        [TestInitialize]
+        public void Init()
+        {
+            var categoriesService = Mock.Create<IBaseDataItemService<Category>>();
+            this.categories = new Category[0];
+            Mock.Arrange(() => categoriesService.GetAll()).Returns(() => this.categories);
+            this.sut = new TxtFileParser(new TransactionBuilder(categoriesService));
+        }
 
         [TestMethod]
         public void Parser_OneTransaction_ReturnsOne()
         {
             var data = @"datetime|reference|amount|dtkt|trname|contragent|rem_i|rem_ii|rem_iii
-01/11/2019 09:12:29|161ADV4193050016|800.00|D|Теглене на АТМ в страната|424982***3480#RFB ATM 054203           SOF|IA        BG - В 09:17:00 на 31.1|0.2019 Теглене АТМ-в мрежата на БОРИКА Райфайзенбанкжк Младост, бл. 30 София КОД : 001678 PAN*3480|BG459115031";
-
+01/11/2019 09:12:29|161ADV4193050016|800.00|D|Теглене на АТМ в страната|424982***3480#RFB ATM 054203     test      SOF|IA        BG - В 09:17:00 на 31.1|0.2019 Теглене АТМ-в мрежата на БОРИКА Райфайзенбанкжк Младост, бл. 30 София КОД : 001678 PAN*3480|BG459115031";
+            this.categories = new Category[] { new Category() { Name = "cat1", KeyWord = "test" } };
             var res = this.sut.Parse(data);
             Assert.IsTrue(res.Count == 1, "Expected one transaction parsed");
             var t = res[0];
@@ -22,7 +34,9 @@ namespace ExpenseTracker.AllianzTxtParser.Tests
             Assert.IsTrue(t.Date.Kind == DateTimeKind.Utc);
             Assert.IsTrue(t.Amount == 800);
             Assert.IsTrue(t.Type == TransactionType.Expense);
-            Assert.IsTrue(t.Details == "Теглене на АТМ в страната424982***3480#RFB ATM 054203 SOFIA BG - В 09:17:00 на 31.10.2019 Теглене АТМ-в мрежата на БОРИКА Райфайзенбанкжк Младост, бл. 30 София КОД : 001678 PAN*3480BG459115031");
+            Assert.IsTrue(t.Category == "cat1");
+            Assert.IsTrue(t.Details == "Теглене на АТМ в страната424982***3480#RFB ATM 054203 test SOFIA BG - В 09:17:00 на 31.10.2019 Теглене АТМ-в мрежата на БОРИКА Райфайзенбанкжк Младост, бл. 30 София КОД : 001678 PAN*3480BG459115031");
+            Assert.AreEqual("31_10_19_800.00", t.TransactionId);
         }
 
         [TestMethod]

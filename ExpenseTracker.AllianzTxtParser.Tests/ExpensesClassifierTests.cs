@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using ExpenseTracker.Allianz;
+﻿using System.Collections.Generic;
 using ExpenseTracker.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ExpenseTracker.AllianzTxtParser.Tests
+namespace ExpenseTracker.Allianz.Tests
 {
     [TestClass]
     public class ExpensesClassifierTests
@@ -18,55 +16,53 @@ namespace ExpenseTracker.AllianzTxtParser.Tests
         {
             this.expense = new Transaction();
             this.categories = new List<Category>();
-            var uow = new TestUnitOfWork();
-            uow.Categories = this.categories;
-            this.sut = new TransactionsClassifier(uow);
+            this.sut = new TransactionsClassifier();
         }
 
         [TestMethod]
         public void Classify_NoCategories_NoClassification()
         {
-            expense.Details = "trop dedov opa";
-            sut.Classify(new Transaction[] { expense });
-            Assert.IsNull(expense.Category);
+            this.expense.Details = "trop dedov opa";
+            this.sut.Classify(new Transaction[] { this.expense }, this.categories);
+            Assert.IsNull(this.expense.Category);
         }
 
         [TestMethod]
         public void Classify_CategoriesThatMatch()
         {
-            expense.Details = "trop dedov opa";
-            this.categories.Add(new Category() { ExpenseSourcePhrase = "dedov", Name = "cat1" });
-            sut.Classify(new Transaction[] { expense });
-            Assert.AreEqual("cat1", expense.Category);
+            this.expense.Details = "trop dedov opa";
+            this.categories.Add(new Category() { KeyWord = "dedov", Name = "cat1" });
+            this.sut.Classify(new Transaction[] { this.expense }, this.categories);
+            Assert.AreEqual("cat1", this.expense.Category);
         }
 
         [TestMethod]
         public void Classify_CategoriesThatDoNotMatch()
         {
-            expense.Details = "trop dedov opa";
-            expense.Category = "test";
-            this.categories.Add(new Category() { ExpenseSourcePhrase = "pisana", Name = "cat1" });
-            sut.Classify(new Transaction[] { expense });
-            Assert.AreEqual("test", expense.Category);
+            this.expense.Details = "trop dedov opa";
+            this.expense.Category = "test";
+            this.categories.Add(new Category() { KeyWord = "pisana", Name = "cat1" });
+            this.sut.Classify(new Transaction[] { this.expense }, this.categories);
+            Assert.AreEqual("test", this.expense.Category);
         }
 
         [TestMethod]
         public void Classify_ExpensesWithNullSource()
         {
-            expense.Category = "test";
-            this.categories.Add(new Category() { ExpenseSourcePhrase = "pisana", Name = "cat1" });
-            sut.Classify(new Transaction[] { expense });
-            Assert.AreEqual("test", expense.Category);
+            this.expense.Category = "test";
+            this.categories.Add(new Category() { KeyWord = "pisana", Name = "cat1" });
+            this.sut.Classify(new Transaction[] { this.expense }, this.categories);
+            Assert.AreEqual("test", this.expense.Category);
         }
 
         [TestMethod]
         public void Classify_CategoriesThatMatchAndDoNotMatch()
         {
-            expense.Details = "trop pisana opa";
-            this.categories.Add(new Category() { ExpenseSourcePhrase = "dedov", Name = "cat1" });
-            this.categories.Add(new Category() { ExpenseSourcePhrase = "pisana", Name = "cat2" });
-            sut.Classify(new Transaction[] { expense });
-            Assert.AreEqual("cat2", expense.Category);
+            this.expense.Details = "trop pisana opa";
+            this.categories.Add(new Category() { KeyWord = "dedov", Name = "cat1" });
+            this.categories.Add(new Category() { KeyWord = "pisana", Name = "cat2" });
+            this.sut.Classify(new Transaction[] { this.expense }, this.categories);
+            Assert.AreEqual("cat2", this.expense.Category);
         }
     }
 }

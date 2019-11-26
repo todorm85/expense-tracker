@@ -21,12 +21,13 @@ namespace ExpenseTracker.Data
                 var transactionsContext = this.context as LiteCollection<Transaction>;
                 transactionsContext.EnsureIndex(x => x.Date);
                 transactionsContext.EnsureIndex(x => x.Amount);
+                transactionsContext.EnsureIndex(x => x.TransactionId);
             }
 
             if (typeof(T) == typeof(Category))
             {
                 var transactionsContext = this.context as LiteCollection<Category>;
-                transactionsContext.EnsureIndex(x => x.ExpenseSourcePhrase);
+                transactionsContext.EnsureIndex(x => x.KeyWord);
                 transactionsContext.EnsureIndex(x => x.Name);
             }
         }
