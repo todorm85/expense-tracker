@@ -55,7 +55,14 @@ namespace ExpenseTracker.Core
 
         public IEnumerable<Transaction> GetDuplicates(Transaction t)
         {
-            return this.repo.GetAll(x => x.TransactionId == t.TransactionId);
+            if (string.IsNullOrWhiteSpace(t.TransactionId))
+            {
+                return new Transaction[0];
+            }
+            else
+            {
+                return this.repo.GetAll(x => x.TransactionId == t.TransactionId);
+            }
         }
     }
 }

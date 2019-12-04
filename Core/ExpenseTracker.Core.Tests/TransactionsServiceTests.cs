@@ -126,7 +126,22 @@ namespace ExpenseTracker.Tests
         }
 
         [TestMethod]
-        public void Add_DuplicateTransaction_DoesNothing()
+        public void Add_TransactionsWhenSameTransactionIdExists_DoesNothing()
+        {
+            var expense = TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), "dummyCategory");
+            expense.TransactionId = Guid.NewGuid().ToString();
+            this.repo.Insert(new Transaction[] { expense });
+
+            expense.Id = 0;
+            this.Sut.Add(new Transaction[] { expense });
+            var results = this.Sut.GetAll();
+            Assert.AreEqual(1, results.Count());
+            var result = results.First();
+            Assert.AreEqual(new DateTime(2018, 3, 9), result.Date);
+        }
+
+        [TestMethod]
+        public void Add_TransactionsWithSameValuesButNoTransactionId_AddsBothEvenIfDuplicate()
         {
             var expense = TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), "dummyCategory");
             this.repo.Insert(new Transaction[] { expense });
@@ -134,7 +149,7 @@ namespace ExpenseTracker.Tests
             expense.Id = 0;
             this.Sut.Add(new Transaction[] { expense });
             var results = this.Sut.GetAll();
-            Assert.AreEqual(1, results.Count());
+            Assert.AreEqual(2, results.Count());
             var result = results.First();
             Assert.AreEqual(new DateTime(2018, 3, 9), result.Date);
         }
