@@ -8,7 +8,7 @@ namespace ExpenseTracker.UI
         public static void PromptDateFilter(this Menu menu, ref DateTime fromDate, ref DateTime toDate)
         {
             const string Format = "M/yy";
-            var result = menu.PromptInput("Filter (Date from month Date to month)", $"{fromDate.ToString(Format)} {toDate.ToString(Format)}");
+            var result = menu.PromptInput("Filter (Date from month Date to month)", $"{fromDate.ToString(Format, CultureInfo.InvariantCulture)} {toDate.ToString(Format, CultureInfo.InvariantCulture)}");
             fromDate = DateTime.ParseExact(result.Split(' ')[0], Format, CultureInfo.InvariantCulture);
             toDate = DateTime.ParseExact(result.Split(' ')[1], Format, CultureInfo.InvariantCulture);
         }
