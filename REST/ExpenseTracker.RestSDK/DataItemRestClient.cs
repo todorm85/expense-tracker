@@ -9,7 +9,7 @@ using System.Text;
 
 namespace ExpenseTracker.RestClient
 {
-    public class DataItemRestClient<T> : IBaseDataItemService<T> where T : IDataItem
+    public class DataItemRestClient<T> where T : IDataItem
     {
         protected readonly IHttpClient client;
         protected string EndpointPath { get; set; }

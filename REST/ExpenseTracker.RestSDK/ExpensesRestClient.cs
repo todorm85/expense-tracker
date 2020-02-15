@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ExpenseTracker.RestClient
 {
-    public class ExpensesRestClient : DataItemRestClient<Transaction>, ITransactionsService
+    public class ExpensesRestClient : DataItemRestClient<Transaction>
     {
         public ExpensesRestClient(IHttpClient client) : base(client)
         {
