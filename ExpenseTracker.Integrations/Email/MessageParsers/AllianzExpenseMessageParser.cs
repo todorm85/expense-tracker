@@ -9,13 +9,6 @@ namespace ExpenseTracker.Allianz
 {
     public class AllianzExpenseMessageParser : IExpenseMessageParser
     {
-        private readonly ITransactionBuilder builder;
-
-        public AllianzExpenseMessageParser(ITransactionBuilder builder)
-        {
-            this.builder = builder;
-        }
-
         public Transaction Parse(ExpenseMessage message)
         {
             if (!IsValidExpenseMessage(message))
@@ -41,7 +34,6 @@ namespace ExpenseTracker.Allianz
                 }
             }
 
-            this.builder.Build(result);
             this.ValidateTransaction(result);
 
             return result;

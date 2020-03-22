@@ -8,12 +8,14 @@ namespace ExpenseTracker.Allianz.Gmail
         private readonly IEnumerable<IExpenseMessageParser> messageParsers;
         private readonly ITransactionsService transactionsService;
         private readonly IMailClient mailClient;
+        private readonly ITransactionBuilder builder;
 
-        public MailImporter(IExpenseMessageParser[] parsers, ITransactionsService service, IMailClient mailClientFact)
+        public MailImporter(IExpenseMessageParser[] parsers, ITransactionsService service, IMailClient mailClientFact, ITransactionBuilder builder)
         {
             this.messageParsers = parsers;
             this.transactionsService = service;
             this.mailClient = mailClientFact;
+            this.builder = builder;
         }
 
         public void ImportTransactions()
@@ -38,6 +40,7 @@ namespace ExpenseTracker.Allianz.Gmail
 
                     if (t != null)
                     {
+                        this.builder.Build(t);
                         transactions.Add(t);
                         this.mailClient.Delete(msgIdx);
                         totalMsgsCount--;
