@@ -7,7 +7,7 @@ using ExpenseTracker.Core;
 
 namespace ExpenseTracker.Tests
 {
-    class TestExpensesFactory
+    internal class TestExpensesFactory
     {
         public static IEnumerable<Transaction> GetTestExpenses(int count)
         {
