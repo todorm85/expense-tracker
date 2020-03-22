@@ -15,6 +15,7 @@ namespace ExpenseTracker.App
         private readonly IBaseDataItemService<Category> categories;
         private readonly MailImporter mailImporter;
         private readonly AllianzTxtFileParser fileParser;
+        private readonly Config config;
 
         public MainMenu(
             ITransactionsService transactionsService,
@@ -23,12 +24,14 @@ namespace ExpenseTracker.App
             AllianzTxtFileParser fileParser,
             CategoriesMenu cat,
             BudgetMenu bud,
-            ExpensesMenu exp)
+            ExpensesMenu exp,
+            Config config)
         {
             this.transactionsService = transactionsService;
             this.categories = categories;
             this.mailImporter = gmailClient;
             this.fileParser = fileParser;
+            this.config = config;
             this.CommandDescription = "Main menu";
 
             AddExpensesMenu(exp);
@@ -45,7 +48,7 @@ namespace ExpenseTracker.App
         {
             var misc = new Menu();
             misc.AddAction("clear", () => "Clear all transactions", () => this.Clear());
-            misc.AddAction("ba", () => "backup database", () => this.BackupFile(Application.DbPath));
+            misc.AddAction("ba", () => "backup database", () => this.BackupFile(this.config.DbPath));
             misc.CommandKey = "misc";
             misc.CommandDescription = "Misc commands";
             this.AddChild(misc);
