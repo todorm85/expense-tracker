@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using ExpenseTracker.Allianz;
 using ExpenseTracker.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,9 +8,9 @@ using Telerik.JustMock;
 namespace ExpenseTracker.Tests
 {
     [TestClass]
-    public class ExpenseMessageParserTests
+    public class AllianzExpenseMessageParserTests
     {
-        private ExpenseMessageParser parser;
+        private AllianzExpenseMessageParser parser;
         private TestMessageFactory msgFactory = new TestMessageFactory();
         private IEnumerable<Category> categories;
 
@@ -20,7 +19,7 @@ namespace ExpenseTracker.Tests
         {
             var categoriesService = Mock.Create<IBaseDataItemService<Category>>();
             Mock.Arrange(() => categoriesService.GetAll()).Returns(() => this.categories);
-            this.parser = new ExpenseMessageParser(new TransactionBuilder(categoriesService));
+            this.parser = new AllianzExpenseMessageParser(new TransactionBuilder(categoriesService));
         }
 
         [TestMethod]
@@ -28,9 +27,7 @@ namespace ExpenseTracker.Tests
         {
             this.categories = new Category[] { new Category() { Name = "cat1", KeyWord = "test" } };
             this.msgFactory.Details += " test";
-            var expenses = this.parser.Parse(new List<ExpenseMessage>() { this.msgFactory.GetMessage() });
-            Assert.IsTrue(expenses.Count() > 0);
-            var expense = expenses.First();
+            var expense = this.parser.Parse(this.msgFactory.GetMessage());
             Assert.AreEqual(decimal.Parse(this.msgFactory.Amount), expense.Amount);
             Assert.AreEqual(this.msgFactory.Date, expense.Date.ToString("dd.MM.yyyy"));
             Assert.AreEqual(this.msgFactory.Details.RemoveRepeatingSpaces(), expense.Details);
@@ -42,8 +39,8 @@ namespace ExpenseTracker.Tests
         public void Parse_InValidExpenseMessage_NotParsed()
         {
             this.msgFactory.Title = "Неуспешна картова транзакция";
-            var expenses = this.parser.Parse(new List<ExpenseMessage>() { this.msgFactory.GetMessage() });
-            Assert.IsTrue(expenses.Count() == 0);
+            var expense = this.parser.Parse(this.msgFactory.GetMessage());
+            Assert.IsTrue(expense == null);
         }
     }
 }

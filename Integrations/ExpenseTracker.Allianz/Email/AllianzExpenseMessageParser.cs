@@ -7,29 +7,42 @@ using ExpenseTracker.Core;
 
 namespace ExpenseTracker.Allianz
 {
-    public class ExpenseMessageParser : IExpenseMessageParser
+    public class AllianzExpenseMessageParser : IExpenseMessageParser
     {
         private readonly ITransactionBuilder builder;
 
-        public ExpenseMessageParser(ITransactionBuilder builder)
+        public AllianzExpenseMessageParser(ITransactionBuilder builder)
         {
             this.builder = builder;
         }
 
-        public IEnumerable<Transaction> Parse(List<ExpenseMessage> messages)
+        public Transaction Parse(ExpenseMessage message)
         {
-            var result = new List<Transaction>();
-
-            foreach (var message in messages)
+            if (!IsValidExpenseMessage(message))
             {
-                var expense = this.Parse(message);
-                if (expense != null)
+                return null;
+            }
+
+            Transaction result = new Transaction();
+
+            using (var html = new StringReader(message.Body))
+            {
+                var line = html.ReadLine();
+                while (line != null)
                 {
-                    this.builder.Build(expense);
-                    this.ValidateTransaction(expense);
-                    result.Add(expense);
+                    if (line.Contains(">Дата<"))
+                        result.Date = this.GetDate(html);
+                    if (line.Contains(">Контрагент<"))
+                        result.Details = this.GetSource(html);
+                    if (line.Contains(">Сума<"))
+                        result.Amount = this.GetAmount(html);
+
+                    line = html.ReadLine();
                 }
             }
+
+            this.builder.Build(result);
+            this.ValidateTransaction(result);
 
             return result;
         }
@@ -60,39 +73,6 @@ namespace ExpenseTracker.Allianz
             {
                 throw new InvalidDataException("The transaction could not have its date processed correctly.");
             }
-        }
-
-        private Transaction Parse(ExpenseMessage message)
-        {
-            if (!IsValidExpenseMessage(message))
-            {
-                return null;
-            }
-
-            Transaction result = new Transaction();
-
-            using (var html = new StringReader(message.Body))
-            {
-                var line = html.ReadLine();
-                while (line != null)
-                {
-                    if (line.Contains(">Дата<"))
-                        result.Date = this.GetDate(html);
-                    //if (line.Contains(">Сметка<"))
-                    //    result.Account = this.GetAccount(html);
-                    if (line.Contains(">Контрагент<"))
-                        result.Details = this.GetSource(html);
-                    if (line.Contains(">Сума<"))
-                        result.Amount = this.GetAmount(html);
-
-                    line = html.ReadLine();
-                }
-            }
-
-            //result.TransactionId = this.GetTransactionId(message.Subject);
-            //result.Date = message.EmailDate;
-
-            return result;
         }
 
         private string GetSource(StringReader reader)

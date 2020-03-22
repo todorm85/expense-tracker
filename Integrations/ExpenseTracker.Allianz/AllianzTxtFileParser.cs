@@ -8,11 +8,11 @@ using ExpenseTracker.Core;
 
 namespace ExpenseTracker.Allianz
 {
-    public class TxtFileParser
+    public class AllianzTxtFileParser
     {
         private readonly ITransactionBuilder builder;
 
-        public TxtFileParser(ITransactionBuilder builder)
+        public AllianzTxtFileParser(ITransactionBuilder builder)
         {
             this.builder = builder;
         }

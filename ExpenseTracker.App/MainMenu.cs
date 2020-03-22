@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using ExpenseTracker.Allianz;
+using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core;
 using ExpenseTracker.Core.UI;
 using ExpenseTracker.UI;
@@ -12,21 +13,21 @@ namespace ExpenseTracker.App
     {
         private readonly ITransactionsService transactionsService;
         private readonly IBaseDataItemService<Category> categories;
-        private readonly GmailClient gmailClient;
-        private readonly TxtFileParser fileParser;
+        private readonly MailImporter mailImporter;
+        private readonly AllianzTxtFileParser fileParser;
 
         public MainMenu(
             ITransactionsService transactionsService,
             IBaseDataItemService<Category> categories,
-            GmailClient gmailClient,
-            TxtFileParser fileParser,
+            MailImporter gmailClient,
+            AllianzTxtFileParser fileParser,
             CategoriesMenu cat,
             BudgetMenu bud,
             ExpensesMenu exp)
         {
             this.transactionsService = transactionsService;
             this.categories = categories;
-            this.gmailClient = gmailClient;
+            this.mailImporter = gmailClient;
             this.fileParser = fileParser;
             this.CommandDescription = "Main menu";
 
@@ -63,7 +64,7 @@ namespace ExpenseTracker.App
             this.AddAction("edf", () => "set expenses date filters", () => exp.SetDateFilters(), "Expenses filters");
             this.AddAction("ecf", () => "set expenses category filter", () => exp.SetCategoryFilters(), "Expenses filters");
 
-            this.AddAction("im", () => "Import expenses from Allianz mails", () => this.ImportExpensesGmail(), "Connectors");
+            this.AddAction("im", () => "Import expenses from mails", () => this.ImportExpensesEmail(), "Connectors");
         }
 
         private void ClassifyAllTransactions()
@@ -91,12 +92,9 @@ namespace ExpenseTracker.App
             this.AddChild(allianz);
         }
 
-        private void ImportExpensesGmail()
+        private void ImportExpensesEmail()
         {
-            this.transactionsService.Add(
-                this.gmailClient.Get(
-                    System.Text.Encoding.ASCII.GetString(Convert.FromBase64String(Environment.GetEnvironmentVariable("trckrm", EnvironmentVariableTarget.User))),
-                    Environment.GetEnvironmentVariable("trckr", EnvironmentVariableTarget.User)));
+            this.mailImporter.ImportTransactions();
         }
 
         private void Clear()

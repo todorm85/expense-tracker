@@ -9,7 +9,7 @@ namespace ExpenseTracker.Allianz.Tests
     [TestClass]
     public class TxtFileParserTests
     {
-        private TxtFileParser sut;
+        private AllianzTxtFileParser sut;
         private IEnumerable<Category> categories;
 
         [TestInitialize]
@@ -18,7 +18,7 @@ namespace ExpenseTracker.Allianz.Tests
             var categoriesService = Mock.Create<IBaseDataItemService<Category>>();
             this.categories = new Category[0];
             Mock.Arrange(() => categoriesService.GetAll()).Returns(() => this.categories);
-            this.sut = new TxtFileParser(new TransactionBuilder(categoriesService));
+            this.sut = new AllianzTxtFileParser(new TransactionBuilder(categoriesService));
         }
 
         [TestMethod]

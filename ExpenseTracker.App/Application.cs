@@ -1,4 +1,8 @@
-﻿using ExpenseTracker.Allianz;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using ExpenseTracker.Allianz;
+using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core;
 using ExpenseTracker.Data;
 using ExpenseTracker.UI;
@@ -19,8 +23,9 @@ namespace ExpenseTracker.App
 
             var container = new UnityContainer();
             this.RegisterDependencies(container);
-            container.Resolve<MainMenu>().Run();
+            var mainMenu = container.Resolve<MainMenu>();
             container.Dispose();
+            mainMenu.Run();
         }
 
         private void RegisterDependencies(IUnityContainer container)
@@ -33,7 +38,11 @@ namespace ExpenseTracker.App
 
             // allianz dependencies
             container.RegisterType<ITransactionBuilder, TransactionBuilder>();
-            container.RegisterType<IExpenseMessageParser, ExpenseMessageParser>();
+            container.RegisterType<IExpenseMessageParser, AllianzExpenseMessageParser>("allianz");
+            container.RegisterType<IExpenseMessageParser, RaiffeisenMessageParser>("raiffeisen");
+            var user = Encoding.ASCII.GetString(Convert.FromBase64String(Environment.GetEnvironmentVariable("trckrm", EnvironmentVariableTarget.User)));
+            var pass = Environment.GetEnvironmentVariable("trckr", EnvironmentVariableTarget.User);
+            container.RegisterType<IMailClient, GmailClient>(new InjectionConstructor(user, pass));
         }
     }
 }

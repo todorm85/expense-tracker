@@ -2,7 +2,7 @@
 using System.Linq;
 using ExpenseTracker.Core;
 
-namespace ExpenseTracker.Allianz
+namespace ExpenseTracker.Core
 {
     public class TransactionsClassifier
     {

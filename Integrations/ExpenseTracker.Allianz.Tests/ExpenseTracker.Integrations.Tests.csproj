@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ExpenseTracker.Core\ExpenseTracker.Core.csproj" />
-    <ProjectReference Include="..\ExpenseTracker.Allianz\ExpenseTracker.Allianz.csproj" />
+    <ProjectReference Include="..\ExpenseTracker.Allianz\ExpenseTracker.Integrations.csproj" />
   </ItemGroup>
 
 </Project>
