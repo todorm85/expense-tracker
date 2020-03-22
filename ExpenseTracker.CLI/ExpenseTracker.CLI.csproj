@@ -13,7 +13,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ExpenseTracker.App\ExpenseTracker.App.csproj" />
-    <ProjectReference Include="..\Integrations\ExpenseTracker.Allianz\ExpenseTracker.Integrations.csproj" />
+    <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj" />
+    <ProjectReference Include="..\ExpenseTracker.Integrations\ExpenseTracker.Integrations.csproj" />
   </ItemGroup>
 
 </Project>
