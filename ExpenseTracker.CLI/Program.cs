@@ -1,14 +1,22 @@
 ﻿using System;
+using System.Text;
 using ExpenseTracker.App;
+using ExpenseTracker.ConsoleClient;
+using ExpenseTracker.UI;
+using Unity;
 
-namespace ExpenseTracker.ConsoleClient
+namespace ExpenseTracker.CoreCLI
 {
-    internal class Program
+    class Program
     {
-        public static void Main(string[] args)
+        static void Main()
         {
-            var renderer = new IOProvider();
-            new Application(Environment.GetEnvironmentVariable("trckrdb", EnvironmentVariableTarget.User), renderer, renderer);
+            var container = new UnityContainer();
+            Application.RegisterDependencies(container);
+            var mainMenu = container.Resolve<MainMenu>();
+            container.Dispose();
+
+            mainMenu.Run();
         }
     }
 }

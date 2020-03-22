@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
-[assembly: InternalsVisibleTo("ExpenseTracker.Core.Tests")]
+
+[assembly: InternalsVisibleTo("ExpenseTracker.Tests")]
 
 namespace ExpenseTracker.Core.UI
 {

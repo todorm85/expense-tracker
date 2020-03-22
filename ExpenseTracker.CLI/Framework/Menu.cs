@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ExpenseTracker.ConsoleClient;
 
 namespace ExpenseTracker.UI
 {
@@ -9,17 +10,19 @@ namespace ExpenseTracker.UI
     {
         protected IList<MenuAction> menuActions = new List<MenuAction>();
         private const string ExitCommand = "e";
+        private readonly IOutputProvider output;
+        private readonly IInputProvider input;
         private string exitCommandText = "Exit";
         private string menuCommandName;
         private string menuCommandDescription;
 
         public Menu()
         {
+            var io = new IOProvider();
+            this.output = io;
+            this.input = io;
+
             this.exitCommandText = "Exit " + this.GetType().Name;
-
-            this.Output = Runtime.Output;
-            this.Input = Runtime.Input;
-
             this.ResolveActionMethods();
             this.menuActions = this.menuActions.Reverse().ToList();
         }
@@ -48,9 +51,9 @@ namespace ExpenseTracker.UI
             }
         }
 
-        public IOutputProvider Output { get; private set; }
-
-        public IInputProvider Input { get; private set; }
+        public virtual IOutputProvider Output => output;
+        
+        public virtual IInputProvider Input => input;
 
         public void AddAction(string command, Func<string> decsription, Action action, string group = "", int ordinal = 0)
         {

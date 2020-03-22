@@ -35,7 +35,6 @@ namespace ExpenseTracker.Data
         public virtual IEnumerable<T> GetAll()
         {
             var all = this.context.FindAll();
-            this.GetAll(x => x.Id == 1);
             return all;
         }
 
