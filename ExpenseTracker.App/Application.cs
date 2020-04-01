@@ -15,7 +15,7 @@ namespace ExpenseTracker.App
         {
             container.RegisterInstance<IConfig>(config);
 
-            container.RegisterType<IUnitOfWork, UnitOfWork>(new InjectionConstructor(config.DbPath));
+            container.RegisterInstance<IUnitOfWork>(new UnitOfWork(config.DbPath));
             container.RegisterType<ITransactionsService, TransactionsService>();
             container.RegisterType<IBudgetService, BudgetService>();
             container.RegisterType<IBaseDataItemService<Category>, CategoriesService>();

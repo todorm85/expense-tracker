@@ -1,38 +1,33 @@
 ﻿using System;
 using ExpenseTracker.Allianz;
 
-namespace ExpenseTracker.Tests
+namespace ExpenseTracker.Tests.Common
 {
-    internal class TestMessageFactory
+    internal class AllianzMessageFactory : MessageFactoryBase
     {
-        public TestMessageFactory()
-        {
-            this.TransactionId = "20354987";
-            this.Title = "Оторизирана картова транзакция";
-            this.Date = "12.11.2000";
-            this.Amount = "35.67";
-            this.Account = "24BUIN95611000591358";
-            this.Details = "FANTASTICO 42                >SOFIYA  BG";
-        }
-
-        public string TransactionId { get; set; }
+        private const string ValidExpenseMessageTitle = "Оторизирана картова транзакция";
+        private const string InValidExpenseMessageTitle = "Неуспешна картова транзакция";
 
         public string Title { get; set; }
 
-        public string Date { get; set; }
-
-        public string Amount { get; set; }
-
-        public string Account { get; set; }
-
-        public string Details { get; set; }
-
-        public ExpenseMessage GetMessage()
+        public override ExpenseMessage GetValidMessage()
         {
+            return GetMessage(ValidExpenseMessageTitle);
+        }
+
+        public override ExpenseMessage GetInValidMessage()
+        {
+            return GetMessage(InValidExpenseMessageTitle);
+        }
+
+        public ExpenseMessage GetMessage(string title)
+        {
+            this.Title = title;
+
             return new ExpenseMessage()
             {
                 Body = this.GetTestMessageBody(),
-                Subject = $"Движение по сметка: 24BUIN95611000591258 (#{this.TransactionId})",
+                Subject = $"Движение по сметка: 24BUIN95611000591258",
                 EmailDate = DateTime.Now
             };
         }
@@ -66,7 +61,7 @@ namespace ExpenseTracker.Tests
         </tr>
         <tr>
             <td><strong>Сметка</strong></td>
-            <td align=""center"" colspan=""3""><strong>{this.Account}</strong></td>
+            <td align=""center"" colspan=""3""><strong>SDFSGDG8488TRSDRREE</strong></td>
         </tr>
         <tr>
             <td bgColor=""lemonchiffon"" colSpan=""1"">
@@ -90,7 +85,7 @@ namespace ExpenseTracker.Tests
         </tr>
         <tr style=""font-size:smaller"">
             <td align=""center""colspan=""3"">
-{this.Details}
+{this.Location}
             </td>
         </tr>
     </table>

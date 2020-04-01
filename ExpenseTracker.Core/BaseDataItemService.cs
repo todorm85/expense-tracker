@@ -6,10 +6,12 @@ namespace ExpenseTracker.Core
 {
     public abstract class BaseDataItemService<T> : IBaseDataItemService<T> where T : IDataItem
     {
+        private IUnitOfWork uow;
         protected IGenericRepository<T> repo;
 
         public BaseDataItemService(IUnitOfWork uow)
         {
+            this.uow = uow;
             this.repo = uow.GetDataItemsRepo<T>();
         }
 

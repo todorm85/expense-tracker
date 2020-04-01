@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ExpenseTracker.Core;
 
 namespace ExpenseTracker.Allianz.Gmail
 {
-    public class MailImporter
+    public class MailImporter : IDisposable
     {
         private readonly IEnumerable<IExpenseMessageParser> messageParsers;
         private readonly ITransactionsService transactionsService;
@@ -18,43 +19,45 @@ namespace ExpenseTracker.Allianz.Gmail
             this.builder = builder;
         }
 
+        public void Dispose()
+        {
+            this.mailClient.Dispose();
+        }
+
         public void ImportTransactions()
         {
             var transactions = new List<Transaction>();
             int msgIdx = 0;
-            using (this.mailClient)
+            int totalMsgsCount = this.mailClient.Count;
+            while (msgIdx < totalMsgsCount)
             {
-                int totalMsgsCount = this.mailClient.Count;
-                while (msgIdx < totalMsgsCount)
+                var expenseMessage = this.mailClient.GetMessage(msgIdx);
+                Transaction t = null;
+                foreach (var p in this.messageParsers)
                 {
-                    var expenseMessage = this.mailClient.GetMessage(msgIdx);
-                    Transaction t = null;
-                    foreach (var p in this.messageParsers)
-                    {
-                        t = p.Parse(expenseMessage);
-                        if (t != null)
-                        {
-                            break;
-                        }
-                    }
-
+                    t = p.Parse(expenseMessage);
                     if (t != null)
                     {
-                        this.builder.Build(t);
-                        transactions.Add(t);
-                        this.mailClient.Delete(msgIdx);
-                        totalMsgsCount--;
-                    }
-                    else
-                    {
-                        msgIdx++;
+                        break;
                     }
                 }
 
-                if (transactions.Count > 0)
+                if (t != null)
                 {
-                    this.transactionsService.Add(transactions);
+                    this.builder.Build(t);
+                    transactions.Add(t);
+                    this.mailClient.Delete(msgIdx);
+                    totalMsgsCount--;
                 }
+                else
+                {
+                    msgIdx++;
+                }
+            }
+
+            if (transactions.Count > 0)
+            {
+                this.transactionsService.Add(transactions);
             }
         }
     }

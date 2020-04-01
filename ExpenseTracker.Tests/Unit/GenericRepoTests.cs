@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace ExpenseTracker.Tests
 {
     [TestClass]
-    public class MailImporter
+    public class MailImporterTests
     {
         [TestInitialize]
         public void SetUp()

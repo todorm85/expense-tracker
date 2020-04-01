@@ -4,7 +4,7 @@ using ExpenseTracker.Allianz.Gmail;
 
 namespace ExpenseTracker.Tests.Int
 {
-    internal class MailClientMock : IMailClient
+    public class MailClientMock : IMailClient
     {
         public MailClientMock()
         {

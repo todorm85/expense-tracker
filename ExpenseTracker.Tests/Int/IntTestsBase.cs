@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.App;
+using ExpenseTracker.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Unity;
 
@@ -11,14 +12,23 @@ namespace ExpenseTracker.Tests.Int
         private const string DirectoryPath = "c:\\temp";
         private static readonly string DbPath = $"{DirectoryPath}\\test.db";
         protected UnityContainer container;
+        protected MailClientMock mailClient;
 
         [TestInitialize]
-        public void Initialize()
+        public virtual void Initialize()
         {
             InitializeDbFile();
             this.container = new UnityContainer();
             Application.RegisterDependencies(container, GetConfig());
-            this.container.RegisterType<IMailClient, MailClientMock>();
+            this.mailClient = new MailClientMock();
+            this.container.RegisterInstance<IMailClient>(this.mailClient);
+        }
+
+        [TestCleanup]
+        public virtual void CleanUp()
+        {
+            this.container.Resolve<IUnitOfWork>().Dispose();
+            this.container.Dispose();
         }
 
         private void InitializeDbFile()

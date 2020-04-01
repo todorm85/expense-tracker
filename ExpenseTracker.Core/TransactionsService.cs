@@ -6,12 +6,8 @@ namespace ExpenseTracker.Core
 {
     public class TransactionsService : BaseDataItemService<Transaction>, ITransactionsService
     {
-        private readonly IUnitOfWork uow;
-
         public TransactionsService(IUnitOfWork data) : base(data)
-        {
-            this.uow = data;
-        }
+        { }
 
         public override void Add(IEnumerable<Transaction> expenses)
         {
