@@ -9,6 +9,13 @@ namespace ExpenseTracker.Allianz
 {
     public class AllianzExpenseMessageParser : IExpenseMessageParser
     {
+        private readonly ITransactionImporter builder;
+
+        public AllianzExpenseMessageParser(ITransactionImporter builder)
+        {
+            this.builder = builder;
+        }
+
         public Transaction Parse(ExpenseMessage message)
         {
             if (!IsValidExpenseMessage(message))
@@ -34,9 +41,7 @@ namespace ExpenseTracker.Allianz
                 }
             }
 
-            this.ValidateTransaction(result);
-
-            return result;
+            return this.builder.Import(result.Amount, result.Details, result.Type, result.Date);
         }
 
         private static bool IsValidExpenseMessage(ExpenseMessage message)
@@ -59,14 +64,6 @@ namespace ExpenseTracker.Allianz
             for (int i = 0; i < count; i++)
             {
                 reader.ReadLine();
-            }
-        }
-
-        private void ValidateTransaction(Transaction expense)
-        {
-            if (expense.Date == default(DateTime))
-            {
-                throw new InvalidDataException("The transaction could not have its date processed correctly.");
             }
         }
 

@@ -18,7 +18,7 @@ namespace ExpenseTracker.Allianz.Tests
             var categoriesService = Mock.Create<IBaseDataItemService<Category>>();
             this.categories = new Category[0];
             Mock.Arrange(() => categoriesService.GetAll()).Returns(() => this.categories);
-            this.sut = new AllianzTxtFileParser(new TransactionBuilder(categoriesService));
+            this.sut = new AllianzTxtFileParser(new TransactionImporter(categoriesService));
         }
 
         [TestMethod]
@@ -36,7 +36,6 @@ namespace ExpenseTracker.Allianz.Tests
             Assert.IsTrue(t.Type == TransactionType.Expense);
             Assert.IsTrue(t.Category == "cat1");
             Assert.IsTrue(t.Details == "Теглене на АТМ в страната424982***3480#RFB ATM 054203 test SOFIA BG - В 09:17:00 на 31.10.2019 Теглене АТМ-в мрежата на БОРИКА Райфайзенбанкжк Младост, бл. 30 София КОД : 001678 PAN*3480BG459115031");
-            Assert.AreEqual("31_10_19_800.00", t.TransactionId);
         }
 
         [TestMethod]

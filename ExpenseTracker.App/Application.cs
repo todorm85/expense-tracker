@@ -22,7 +22,7 @@ namespace ExpenseTracker.App
             container.RegisterType<IBudgetCalculator, BudgetCalculator>();
 
             // allianz dependencies
-            container.RegisterType<ITransactionBuilder, TransactionBuilder>();
+            container.RegisterType<ITransactionImporter, TransactionImporter>();
             container.RegisterType<IExpenseMessageParser, AllianzExpenseMessageParser>("allianz");
             container.RegisterType<IExpenseMessageParser, RaiffeisenMessageParser>("raiffeisen");
             container.RegisterType<IMailClient, GmailClient>(new InjectionConstructor(config.MailUser, config.MailPass));

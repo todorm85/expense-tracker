@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using ExpenseTracker.Allianz;
+using ExpenseTracker.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Telerik.JustMock;
 
 namespace ExpenseTracker.Integrations.Tests
 {
@@ -12,7 +14,8 @@ namespace ExpenseTracker.Integrations.Tests
         [TestMethod]
         public void ValidMessageIsParsedCorrectly()
         {
-            var parser = new RaiffeisenMessageParser();
+            var importer = new TransactionImporter(Mock.Create<IBaseDataItemService<Category>>());
+            var parser = new RaiffeisenMessageParser(importer);
             var result = parser.Parse(new ExpenseMessage()
             {
                 Body = @"Uvazhaemi g-ne/g-zho,

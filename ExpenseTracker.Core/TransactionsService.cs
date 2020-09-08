@@ -11,6 +11,12 @@ namespace ExpenseTracker.Core
 
         public override void Add(IEnumerable<Transaction> expenses)
         {
+            foreach (var expense in expenses)
+            {
+                if (string.IsNullOrWhiteSpace(expense.TransactionId))
+                    expense.GenerateTransactionId();
+            }
+
             var filtered = expenses.Where(newTran => !this.IsDuplicate(newTran));
             if (filtered.Count() != 0)
             {
@@ -52,13 +58,8 @@ namespace ExpenseTracker.Core
         public IEnumerable<Transaction> GetDuplicates(Transaction t)
         {
             if (string.IsNullOrWhiteSpace(t.TransactionId))
-            {
-                return new Transaction[0];
-            }
-            else
-            {
-                return this.repo.GetAll(x => x.TransactionId == t.TransactionId);
-            }
+                t.GenerateTransactionId();
+            return this.repo.GetAll(x => x.TransactionId == t.TransactionId);
         }
     }
 }

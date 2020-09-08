@@ -10,9 +10,9 @@ namespace ExpenseTracker.Allianz
 {
     public class AllianzTxtFileParser
     {
-        private readonly ITransactionBuilder builder;
+        private readonly ITransactionImporter builder;
 
-        public AllianzTxtFileParser(ITransactionBuilder builder)
+        public AllianzTxtFileParser(ITransactionImporter builder)
         {
             this.builder = builder;
         }
@@ -32,14 +32,11 @@ namespace ExpenseTracker.Allianz
                 var line = sr.ReadLine();
                 while (!string.IsNullOrWhiteSpace(line))
                 {
-                    var t = new Transaction();
                     var fgs = line.Split('|');
-
-                    t.Amount = Decimal.Parse(fgs[2]);
-                    t.Type = fgs[3] == "D" ? TransactionType.Expense : TransactionType.Income;
-                    t.Details = $"{fgs[4]}{fgs[5]}{fgs[6]}{fgs[7]}{fgs[8]}".RemoveRepeatingSpaces();
-
-                    var parsedDate = ParseDateFromDetails(t.Details);
+                    var amount = Decimal.Parse(fgs[2]);
+                    var type = fgs[3] == "D" ? TransactionType.Expense : TransactionType.Income;
+                    var details = $"{fgs[4]}{fgs[5]}{fgs[6]}{fgs[7]}{fgs[8]}".RemoveRepeatingSpaces();
+                    var parsedDate = ParseDateFromDetails(details);
                     if (parsedDate == default(DateTime))
                     {
                         // fallback to date when transaction has settled in bank
@@ -47,10 +44,8 @@ namespace ExpenseTracker.Allianz
                     }
 
                     parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
-                    t.Date = parsedDate;
-                    this.builder.Build(t);
+                    var t = this.builder.Import(amount, details, type, parsedDate);
                     trans.Add(t);
-
                     line = sr.ReadLine();
                 }
             }

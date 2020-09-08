@@ -18,7 +18,7 @@ namespace ExpenseTracker.Tests
         [TestInitialize]
         public void Init()
         {
-            this.parser = new AllianzExpenseMessageParser();
+            this.parser = new AllianzExpenseMessageParser(new TransactionImporter(Mock.Create<IBaseDataItemService<Category>>()));
         }
 
         [TestMethod]
