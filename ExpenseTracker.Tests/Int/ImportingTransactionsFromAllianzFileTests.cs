@@ -29,7 +29,13 @@ namespace ExpenseTracker.Tests.Int
             base.Initialize();
             this.fileParser = container.Resolve<AllianzTxtFileParser>();
             this.expensesService = container.Resolve<TransactionsService>();
+        }
+
+        [TestCleanup]
+        public override void CleanUp()
+        {
             this.expensesService.Remove(this.expensesService.GetAll());
+            base.CleanUp();
         }
 
         [TestMethod]
