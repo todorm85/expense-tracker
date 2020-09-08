@@ -45,7 +45,11 @@ namespace ExpenseTracker.Allianz
 
                     parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
                     var t = this.builder.Import(amount, details, type, parsedDate);
-                    trans.Add(t);
+                    if (this.IsValid(t))
+                    {
+                        trans.Add(t);
+                    }
+
                     line = sr.ReadLine();
                 }
             }
@@ -53,9 +57,14 @@ namespace ExpenseTracker.Allianz
             return trans;
         }
 
+        private bool IsValid(Transaction t)
+        {
+            return !t.Details.Contains("собствени сметки");
+        }
+
         private DateTime ParseDateFromDetails(string source)
         {
-            var regex = new Regex(@"\d\d.\d\d.\d\d\d\d");
+            var regex = new Regex(@"\d\d\.\d\d\.\d\d\d\d");
             var date = regex.Match(source).Value;
             regex = new Regex(@"\d\d:\d\d:\d\d");
             var time = regex.Match(source).Value;
