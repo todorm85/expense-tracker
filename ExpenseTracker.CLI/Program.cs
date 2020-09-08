@@ -15,9 +15,8 @@ namespace ExpenseTracker.CoreCLI
             var container = new UnityContainer();
             Application.RegisterDependencies(container, GetConfig());
             var mainMenu = container.Resolve<MainMenu>();
-            container.Dispose();
-
             mainMenu.Run();
+            container.Dispose();
         }
 
         private static IConfig GetConfig()
