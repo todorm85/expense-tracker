@@ -35,7 +35,7 @@ namespace ExpenseTracker.Allianz
                     var fgs = line.Split('|');
                     var amount = Decimal.Parse(fgs[2]);
                     var type = fgs[3] == "D" ? TransactionType.Expense : TransactionType.Income;
-                    var details = $"{fgs[4]}{fgs[5]}{fgs[6]}{fgs[7]}{fgs[8]}".RemoveRepeatingSpaces();
+                    var details = $"{fgs[4]} {fgs[5]} {fgs[6]} {fgs[7]} {fgs[8]}".RemoveRepeatingSpaces();
                     var parsedDate = ParseDateFromDetails(details);
                     if (parsedDate == default(DateTime))
                     {
@@ -64,10 +64,10 @@ namespace ExpenseTracker.Allianz
 
         private DateTime ParseDateFromDetails(string source)
         {
-            var regex = new Regex(@"\d\d\.\d\d\.\d\d\d\d");
-            var date = regex.Match(source).Value;
-            regex = new Regex(@"\d\d:\d\d:\d\d");
-            var time = regex.Match(source).Value;
+            var regex = new Regex(@"\d *\d *\. *\d *\d *\. *\d *\d *\d *\d");
+            var date = regex.Match(source).Value.Replace(" ", "");
+            regex = new Regex(@"\d *\d *: *\d *\d *: *\d *\d");
+            var time = regex.Match(source).Value.Replace(" ", "");
             if (string.IsNullOrEmpty(date))
             {
                 return default(DateTime);
@@ -85,16 +85,10 @@ namespace ExpenseTracker.Allianz
             }
         }
 
-        public IEnumerable<Transaction> GetTransactions(TransactionType type, string filePath)
+        public IEnumerable<Transaction> GetTransactions(string filePath)
         {
-            var ts = this.ParseFromFile(filePath).Where(t => t.Type == type);
+            var ts = this.ParseFromFile(filePath);
             return ts;
-        }
-
-        public IEnumerable<Transaction> GetSalary(string filePath)
-        {
-            var income = this.GetTransactions(TransactionType.Income, filePath);
-            return income.Where(x => x.Details.Contains("ЗАПЛАТА"));
         }
     }
 }

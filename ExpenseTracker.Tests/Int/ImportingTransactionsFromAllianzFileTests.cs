@@ -73,7 +73,7 @@ namespace ExpenseTracker.Tests.Int
         }
 
         [TestMethod]
-        public void ImportsDateFromDetailsWhenNoneInDescription()
+        public void ImportsDateFromDetails()
         {
             var testData = GetTestData(EpayEntry);
             var expenses = this.fileParser.Parse(testData);

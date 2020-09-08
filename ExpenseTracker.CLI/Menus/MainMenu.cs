@@ -36,7 +36,6 @@ namespace ExpenseTracker.App
 
             AddExpensesMenu(exp);
             AddCategoriesMenu(cat);
-            AddAllianzMenu();
             AddMisceallaneous();
 
             this.AddChild(cat);
@@ -68,6 +67,7 @@ namespace ExpenseTracker.App
             this.AddAction("ecf", () => "set expenses category filter", () => exp.SetCategoryFilters(), "Expenses filters");
 
             this.AddAction("im", () => "Import expenses from mails", () => this.ImportExpensesEmail(), "Connectors");
+            this.AddAction("ime", () => "Import expenses from Allianz text", () => this.ImportExpensesText(), "Connectors");
         }
 
         private void ClassifyAllTransactions()
@@ -83,16 +83,6 @@ namespace ExpenseTracker.App
             this.AddAction("rec", () => "remove category", () => cat.Remove(), "Categories");
             this.AddAction("adc", () => "add category", () => cat.QuickAdd(), "Categories");
             this.AddAction("ec", () => "edit category", () => cat.Edit(), "Categories");
-        }
-
-        private void AddAllianzMenu()
-        {
-            var allianz = new Menu();
-            allianz.AddAction("ime", () => "Import expenses from Allianz text", () => this.ImportExpensesText(), "Allianz Group");
-            allianz.AddAction("ims", () => "Import income from Allianz text", () => this.ImportSalary(), "Allianz Group");
-            allianz.CommandKey = "al";
-            allianz.CommandDescription = "allianz";
-            this.AddChild(allianz);
         }
 
         private void ImportExpensesEmail()
@@ -133,20 +123,14 @@ namespace ExpenseTracker.App
         public void ImportExpensesText()
         {
             string filePath = PromptFilePath();
-            IEnumerable<Transaction> expenses = this.fileParser.GetTransactions(TransactionType.Expense, filePath);
+            IEnumerable<Transaction> expenses = this.fileParser.GetTransactions(filePath);
             this.transactionsService.Add(expenses);
-        }
-
-        private void ImportSalary()
-        {
-            string filePath = PromptFilePath();
-            this.transactionsService.Add(this.fileParser.GetSalary(filePath));
         }
 
         private static string PromptFilePath()
         {
             Console.Write("Provide path to file: ");
-            var filePath = Console.ReadLine();
+            var filePath = Console.ReadLine().Trim('"');
             return filePath;
         }
     }
