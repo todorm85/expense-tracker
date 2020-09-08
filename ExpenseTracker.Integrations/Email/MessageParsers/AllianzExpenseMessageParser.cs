@@ -41,7 +41,10 @@ namespace ExpenseTracker.Allianz
 
         private static bool IsValidExpenseMessage(ExpenseMessage message)
         {
-            return message.Body.Contains("<title>Оторизирана картова транзакция</title>");
+            return message.Body.Contains("<title>Оторизирана картова транзакция</title>") ||
+                message.Body.Contains("<title>Такса за поддръжка на сметка</title>") ||
+                message.Body.Contains("<title>Такса издаване на карта</ title>") ||
+                message.Body.Contains("<title>Такса-проверка баланс,промяна ПИН</title>");
         }
 
         private static string ExtractInnerText(string line)
