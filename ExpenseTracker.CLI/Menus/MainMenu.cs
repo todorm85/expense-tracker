@@ -15,6 +15,7 @@ namespace ExpenseTracker.App
         private readonly IBaseDataItemService<Category> categories;
         private readonly MailImporter mailImporter;
         private readonly AllianzTxtFileParser fileParser;
+        private readonly RaiffeizenTxtFileParser raiFileParser;
         private readonly IConfig config;
 
         public MainMenu(
@@ -22,6 +23,7 @@ namespace ExpenseTracker.App
             IBaseDataItemService<Category> categories,
             MailImporter gmailClient,
             AllianzTxtFileParser fileParser,
+            RaiffeizenTxtFileParser raiFileParser,
             CategoriesMenu cat,
             BudgetMenu bud,
             ExpensesMenu exp,
@@ -31,6 +33,7 @@ namespace ExpenseTracker.App
             this.categories = categories;
             this.mailImporter = gmailClient;
             this.fileParser = fileParser;
+            this.raiFileParser = raiFileParser;
             this.config = config;
             this.CommandDescription = "Main menu";
 
@@ -62,12 +65,14 @@ namespace ExpenseTracker.App
             this.AddAction("de", () => "del", () => exp.Remove(), "Expenses edit");
             this.AddAction("ee", () => "edit", () => exp.Edit(), "Expenses edit");
             this.AddAction("cl", () => "classify all", () => ClassifyAllTransactions(), "Expenses edit");
+            this.AddAction("dea", () => "del all", () => exp.RemoveAll(), "Expenses edit");
 
             this.AddAction("edf", () => "set expenses date filters", () => exp.SetDateFilters(), "Expenses filters");
             this.AddAction("ecf", () => "set expenses category filter", () => exp.SetCategoryFilters(), "Expenses filters");
 
             this.AddAction("im", () => "Import expenses from mails", () => this.ImportExpensesEmail(), "Connectors");
             this.AddAction("ime", () => "Import expenses from Allianz text", () => this.ImportExpensesText(), "Connectors");
+            this.AddAction("imer", () => "Import expenses from Raiffeizen text", () => this.ImportExpensesRaiText(), "Connectors");
         }
 
         private void ClassifyAllTransactions()
@@ -124,6 +129,13 @@ namespace ExpenseTracker.App
         {
             string filePath = PromptFilePath();
             IEnumerable<Transaction> expenses = this.fileParser.GetTransactions(filePath);
+            this.transactionsService.Add(expenses);
+        }
+
+        private void ImportExpensesRaiText()
+        {
+            string filePath = PromptFilePath();
+            var expenses = raiFileParser.ParseFile(filePath);
             this.transactionsService.Add(expenses);
         }
 
