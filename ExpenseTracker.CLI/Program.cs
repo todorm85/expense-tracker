@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 using ExpenseTracker.App;
+using Microsoft.Extensions.Configuration;
 using Unity;
 
 namespace ExpenseTracker.CoreCLI
@@ -11,7 +14,6 @@ namespace ExpenseTracker.CoreCLI
         {
             var container = new UnityContainer();
             Application.RegisterDependencies(container, GetConfig());
-
             var mainMenu = container.Resolve<MainMenu>();
             container.Dispose();
 
@@ -20,16 +22,21 @@ namespace ExpenseTracker.CoreCLI
 
         private static IConfig GetConfig()
         {
-            var user = Encoding.ASCII.GetString(Convert.FromBase64String(Environment.GetEnvironmentVariable("trckrm", EnvironmentVariableTarget.User)));
-            var pass = Environment.GetEnvironmentVariable("trckr", EnvironmentVariableTarget.User);
-            var config = new Config()
-            {
-                DbPath = Environment.GetEnvironmentVariable("trckrdb", EnvironmentVariableTarget.User),
-                MailPass = pass,
-                MailUser = user
-            };
+            IConfiguration config = new ConfigurationBuilder()
+                .SetBasePath(GetBasePath())
+                .AddJsonFile(".\\settings.json", optional: true, reloadOnChange: true)
+                .Build();
 
-            return config;
+            var appConfig = config.Get<Config>();
+
+            return appConfig ?? new Config();
+        }
+
+        // https://stackoverflow.com/questions/58307558/how-can-i-get-my-net-core-3-single-file-app-to-find-the-appsettings-json-file
+        private static string GetBasePath()
+        {
+            using var processModule = Process.GetCurrentProcess().MainModule;
+            return Path.GetDirectoryName(processModule?.FileName);
         }
     }
 }
