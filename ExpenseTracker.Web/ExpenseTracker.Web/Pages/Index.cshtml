@@ -1,0 +1,58 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <form method="post">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Details</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><textarea asp-for="CreateTransaction.Details" rows="2"></textarea></td>
+                    <td><input type="text" asp-for="CreateTransaction.Amount" /></td>
+                    <td><input type="datetime-local" asp-for="CreateTransaction.Date" /></td>
+                    <td><input type="text" asp-for="CreateTransaction.Category" /></td>
+                    <td>
+                        <button type="submit" asp-page-handler="create" asp-route-expense="0">
+                            create expense
+                        </button>
+                        <button type="submit" asp-page-handler="create" asp-route-expense="1">
+                            create income
+                        </button>
+                    </td>
+                </tr>
+                @for (var i = 0; i < 5; i++)
+                {
+                    var t = Model.Transactions[i];
+                <tr>
+                    <td><textarea asp-for="Transactions[i].Details" rows="2"></textarea></td>
+                    <td><input type="text" asp-for="Transactions[i].Amount" /></td>
+                    <td><input type="datetime-local" asp-for="Transactions[i].Date" /></td>
+                    <td><input type="text" asp-for="Transactions[i].Category" /></td>
+                    <td>
+                        <a asp-page="./Edit" asp-route-id="@t.Id">Edit</a> |
+                        <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id">
+                            delete
+                        </button>
+                        <button type="submit" asp-page-handler="update" asp-route-id="@t.Id">
+                            update
+                        </button>
+                    </td>
+                    <td><input type="hidden" asp-for="Transactions[i].Id" /></td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+</div>

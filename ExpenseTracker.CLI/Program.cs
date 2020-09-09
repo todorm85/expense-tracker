@@ -19,7 +19,7 @@ namespace ExpenseTracker.CoreCLI
             container.Dispose();
         }
 
-        private static IConfig GetConfig()
+        private static Config GetConfig()
         {
             IConfiguration config = new ConfigurationBuilder()
                 .SetBasePath(GetBasePath())

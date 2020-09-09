@@ -16,7 +16,7 @@ namespace ExpenseTracker.App
         private readonly MailImporter mailImporter;
         private readonly AllianzTxtFileParser allianzFileParser;
         private readonly RaiffeizenTxtFileParser raiFileParser;
-        private readonly IConfig config;
+        private readonly Config config;
 
         public MainMenu(
             ITransactionsService transactionsService,
@@ -27,7 +27,7 @@ namespace ExpenseTracker.App
             CategoriesMenu cat,
             BudgetMenu bud,
             ExpensesMenu exp,
-            IConfig config)
+            Config config)
         {
             this.transactionsService = transactionsService;
             this.categories = categories;

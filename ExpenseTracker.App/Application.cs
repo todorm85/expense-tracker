@@ -11,9 +11,9 @@ namespace ExpenseTracker.App
 {
     public class Application
     {
-        public static void RegisterDependencies(IUnityContainer container, IConfig config)
+        public static void RegisterDependencies(IUnityContainer container, Config config)
         {
-            container.RegisterInstance<IConfig>(config);
+            container.RegisterInstance<Config>(config);
 
             container.RegisterInstance<IUnitOfWork>(new UnitOfWork(config.DbPath));
             container.RegisterType<ITransactionsService, TransactionsService>();

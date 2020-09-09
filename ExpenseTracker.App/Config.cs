@@ -1,6 +1,6 @@
 ﻿namespace ExpenseTracker.App
 {
-    public interface IConfig
+    public class Config
     {
         public string DbPath { get; set; }
         public string MailUser { get; set; }

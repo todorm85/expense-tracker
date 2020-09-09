@@ -44,7 +44,7 @@ namespace ExpenseTracker.Tests.Int
             }
         }
 
-        private static IConfig GetConfig()
+        private static Config GetConfig()
         {
             var config = new Config()
             {
