@@ -114,12 +114,6 @@ namespace ExpenseTracker.Core.UI
             });
         }
 
-        [MenuAction("ra", "Ignore bulk")]
-        public void RemoveAll()
-        {
-            this.Service.Remove(this.Service.GetAll());
-        }
-
         [MenuAction("ib", "Ignore bulk")]
         public void IgnoreBulk()
         {

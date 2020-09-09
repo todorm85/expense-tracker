@@ -14,7 +14,7 @@ namespace ExpenseTracker.App
         private readonly ITransactionsService transactionsService;
         private readonly IBaseDataItemService<Category> categories;
         private readonly MailImporter mailImporter;
-        private readonly AllianzTxtFileParser fileParser;
+        private readonly AllianzTxtFileParser allianzFileParser;
         private readonly RaiffeizenTxtFileParser raiFileParser;
         private readonly IConfig config;
 
@@ -32,7 +32,7 @@ namespace ExpenseTracker.App
             this.transactionsService = transactionsService;
             this.categories = categories;
             this.mailImporter = gmailClient;
-            this.fileParser = fileParser;
+            this.allianzFileParser = fileParser;
             this.raiFileParser = raiFileParser;
             this.config = config;
             this.CommandDescription = "Main menu";
@@ -65,14 +65,12 @@ namespace ExpenseTracker.App
             this.AddAction("de", () => "del", () => exp.Remove(), "Expenses edit");
             this.AddAction("ee", () => "edit", () => exp.Edit(), "Expenses edit");
             this.AddAction("cl", () => "classify all", () => ClassifyAllTransactions(), "Expenses edit");
-            this.AddAction("dea", () => "del all", () => exp.RemoveAll(), "Expenses edit");
 
             this.AddAction("edf", () => "set expenses date filters", () => exp.SetDateFilters(), "Expenses filters");
             this.AddAction("ecf", () => "set expenses category filter", () => exp.SetCategoryFilters(), "Expenses filters");
 
             this.AddAction("im", () => "Import expenses from mails", () => this.ImportExpensesEmail(), "Connectors");
-            this.AddAction("ime", () => "Import expenses from Allianz text", () => this.ImportExpensesText(), "Connectors");
-            this.AddAction("imer", () => "Import expenses from Raiffeizen text", () => this.ImportExpensesRaiText(), "Connectors");
+            this.AddAction("ime", () => "Import expenses from files", () => this.ImportExpensesFiles(), "Connectors");
         }
 
         private void ClassifyAllTransactions()
@@ -125,25 +123,17 @@ namespace ExpenseTracker.App
             File.Copy(sourcePath, newPath);
         }
 
-        public void ImportExpensesText()
+        public void ImportExpensesFiles()
         {
-            string filePath = PromptFilePath();
-            IEnumerable<Transaction> expenses = this.fileParser.GetTransactions(filePath);
+            Console.Write("Provide path to files: ");
+            var dirPath = Console.ReadLine().Trim('"');
+            IEnumerable<Transaction> expenses = this.allianzFileParser.GetTransactions(dirPath + "\\stmtBG24BUIN95611000591258.txt");
             this.transactionsService.Add(expenses);
-        }
-
-        private void ImportExpensesRaiText()
-        {
-            string filePath = PromptFilePath();
-            var expenses = raiFileParser.ParseFile(filePath);
+            expenses = this.allianzFileParser.GetTransactions(dirPath + "\\stmtBG94BUIN95611000529567.txt");
             this.transactionsService.Add(expenses);
-        }
-
-        private static string PromptFilePath()
-        {
-            Console.Write("Provide path to file: ");
-            var filePath = Console.ReadLine().Trim('"');
-            return filePath;
+            expenses = raiFileParser.ParseFile(dirPath + "\\report.xml");
+            this.transactionsService.Add(expenses);
+            Console.Write("Done!");
         }
     }
 }
