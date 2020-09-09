@@ -7,6 +7,31 @@
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <form method="post">
+        <div class="mb-3">
+            @{
+                var savingsClassValue = "success";
+                if (Model.Saved < 0)
+                {
+                    savingsClassValue = "danger";
+                }
+            }
+            <span class="badge badge-@savingsClassValue">Saved: @Model.Saved.ToString("N0")</span> |
+            <span class="badge badge-secondary">Spent: @Model.Expenses.ToString("N0")</span> |
+            <span class="badge badge-secondary">Income: @Model.Income.ToString("N0")</span>
+        </div>
+        <div class="mb-3">
+            From: <input type="text" asp-for="DateFrom" />
+            To: <input type="text" asp-for="DateTo" />
+        </div>
+        <div>
+            Sort by:
+            <select asp-for="SortBy" asp-items="Html.GetEnumSelectList<SortOptions>()"></select>
+            Search: <input type="text" asp-for="Search" />
+            Category Filter: <input type="text" asp-for="CategoryFilter" />
+            <button type="submit" asp-page-handler="sort">
+                Apply
+            </button>
+        </div>
         <table class="table">
             <thead>
                 <tr>
@@ -20,9 +45,9 @@
             <tbody>
                 <tr>
                     <td><textarea asp-for="CreateTransaction.Details" rows="2"></textarea></td>
-                    <td><input type="text" asp-for="CreateTransaction.Amount" /></td>
-                    <td><input type="datetime-local" asp-for="CreateTransaction.Date" /></td>
-                    <td><input type="text" asp-for="CreateTransaction.Category" /></td>
+                    <td><input asp-for="CreateTransaction.Amount" /></td>
+                    <td><input type="text" asp-for="CreateTransaction.Date" /></td>
+                    <td><input asp-for="CreateTransaction.Category" /></td>
                     <td>
                         <button type="submit" asp-page-handler="create" asp-route-expense="0">
                             create expense
@@ -32,26 +57,26 @@
                         </button>
                     </td>
                 </tr>
-                @for (var i = 0; i < 5; i++)
-                {
-                    var t = Model.Transactions[i];
-                <tr>
-                    <td><textarea asp-for="Transactions[i].Details" rows="2"></textarea></td>
-                    <td><input type="text" asp-for="Transactions[i].Amount" /></td>
-                    <td><input type="datetime-local" asp-for="Transactions[i].Date" /></td>
-                    <td><input type="text" asp-for="Transactions[i].Category" /></td>
-                    <td>
-                        <a asp-page="./Edit" asp-route-id="@t.Id">Edit</a> |
-                        <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id">
-                            delete
-                        </button>
-                        <button type="submit" asp-page-handler="update" asp-route-id="@t.Id">
-                            update
-                        </button>
-                    </td>
-                    <td><input type="hidden" asp-for="Transactions[i].Id" /></td>
-                </tr>
-                }
+                @for (var i = 0; i<Model.Transactions.Count; i++)
+                                                {
+                                                    var t = Model.Transactions[i];
+                        <tr>
+                            <td><textarea asp-for="Transactions[i].Details" rows="2"></textarea></td>
+                            <td><input asp-for="Transactions[i].Amount" /></td>
+                            <td><input type="text" asp-for="Transactions[i].Date" /></td>
+                            <td><input asp-for="Transactions[i].Category" /></td>
+                            <td>
+                                <a asp-page="./Edit" asp-route-id="@t.Id">Edit</a> |
+                                <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id">
+                                    delete
+                                </button>
+                                <button type="submit" asp-page-handler="update" asp-route-id="@t.Id">
+                                    update
+                                </button>
+                            </td>
+                            <td><input type="hidden" asp-for="Transactions[i].Id" /></td>
+                        </tr>
+                    }
             </tbody>
         </table>
     </form>

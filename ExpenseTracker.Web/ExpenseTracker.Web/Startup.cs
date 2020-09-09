@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ExpenseTracker.App;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,6 +26,7 @@ namespace ExpenseTracker.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+            services.Configure<FormOptions>(options => options.ValueCountLimit = 4096);
         }
 
         public void ConfigureContainer(IUnityContainer container)
