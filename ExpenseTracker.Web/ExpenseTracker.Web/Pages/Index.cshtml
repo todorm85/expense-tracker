@@ -16,7 +16,7 @@
         <span class="badge">Income: @Model.Income.ToString("N0")</span> |
         <span class="badge badge-@savingsClassValue">Balance: @Model.Saved.ToString("N0")</span>
     </div>
-    <form enctype="multipart/form-data" method="post">
+    <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';" >
         <div class="mb-4">
             <input type="file" multiple asp-for="Files">
             <input asp-page-handler="Upload" type="submit" value="Upload" />
@@ -31,26 +31,26 @@
                 To <input type="text" asp-for="DateTo" class="rounded" />
                 <span class="ml-2">Sort </span><select asp-for="SortBy" asp-items="Html.GetEnumSelectList<SortOptions>()" class="rounded"></select>
                 <input type="text" asp-for="Search" class="rounded ml-2" placeholder="Search" />
-                <select asp-for="CategoryFilter" class="rounded ml-2" asp-items="Model.Categories" ></select>
+                <select asp-for="CategoryFilter" class="rounded ml-2" asp-items="Model.Categories"></select>
                 <button type="submit" asp-page-handler="sort" class="ml-4"> Apply </button>
             </div>
         </div>
         <table class="table border rounded table-sm">
             <thead>
                 <tr>
-                    <th style="width:45%">Details</th>
-                    <th style="width:7.5%">Amount</th>
-                    <th style="width:15%">Category</th>
                     <th style="width:17.5%">Date</th>
+                    <th style="width:7.5%">Amount</th>
+                    <th style="width:45%">Details</th>
+                    <th style="width:15%">Category</th>
                     <th style="width:15%">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="table-light">
-                    <td><textarea asp-for="CreateTransaction.Details" rows="3" class="form-control"></textarea></td>
-                    <td><input asp-for="CreateTransaction.Amount" class="form-control" /></td>
-                    <td><input asp-for="CreateTransaction.Category" class="form-control" placeholder="name:key(opt)"/></td>
                     <td><input type="text" asp-for="CreateTransaction.Date" class="form-control" /></td>
+                    <td><input asp-for="CreateTransaction.Amount" class="form-control" /></td>
+                    <td><textarea asp-for="CreateTransaction.Details" rows="3" class="form-control"></textarea></td>
+                    <td><input asp-for="CreateTransaction.Category" class="form-control" placeholder="name:key(opt)" /></td>
                     <td>
                         <button type="submit" asp-page-handler="create" asp-route-expense="0" class="w-75 mb-2"> Add Expense </button>
                         <button type="submit" asp-page-handler="create" asp-route-expense="1" class="w-75"> Add Income </button>
@@ -60,29 +60,45 @@
                 {
                     var t = Model.Transactions[i];
                     var typeClass = t.Type == Core.TransactionType.Income ? "table-success" : "";
+                    var ident = "updateInput" + i;
+                <tr class="@typeClass">
+                    <td><input type="text" asp-for="Transactions[i].Date" class="form-control" /></td>
+                    <td><input asp-for="Transactions[i].Amount" class="form-control" /></td>
+                    <td><textarea asp-for="Transactions[i].Details" rows="2" class="form-control"></textarea></td>
+                    <td><input asp-for="Transactions[i].Category" class="form-control" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" /></td>
+                    <td>
+                        <button type="submit" asp-page-handler="update" asp-route-id="@t.Id"> update </button>
+                        <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id"> delete </button>
+                    </td>
+                    <td><input type="hidden" asp-for="Transactions[i].Id" /></td>
+                </tr>
 
-                    <tr class="@typeClass">
-                        <td><textarea asp-for="Transactions[i].Details" rows="2" class="form-control"></textarea></td>
-                        <td><input asp-for="Transactions[i].Amount" class="form-control" /></td>
-                        <td><input asp-for="Transactions[i].Category" class="form-control" placeholder="name:key(opt)" /></td>
-                        <td><input type="text" asp-for="Transactions[i].Date" class="form-control" /></td>
-                        <td>
-                            <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id"> delete </button>
-                            <button type="submit" asp-page-handler="update" asp-route-id="@t.Id"> update </button>
-                        </td>
-                        <td><input type="hidden" asp-for="Transactions[i].Id" /></td>
-                    </tr>
                 }
             </tbody>
         </table>
     </form>
 </div>
 
+<script>
+    window.scrollTo(@Model.XPosition, @Model.YPosition);
+    function onCreateEnter(e) {
+        if (event.isComposing || event.keyCode === 229)
+            return;
+        e.stopPropagation();
+        if (e.keyCode === 13) {
+            var btn = e.originalTarget.parentElement.nextElementSibling.childNodes[1];
+            btn.formAction = btn.formAction + "&XPosition=" + window.pageXOffset + "&YPosition=" + window.pageYOffset;
+            btn.click();
+        }
+    }
+</script>
+
 <style>
     .form-control::-webkit-input-placeholder {
         color: gray !important;
         opacity: 0.5;
     }
+
     .form-control:-moz-placeholder {
         color: gray !important;
         opacity: 0.5;

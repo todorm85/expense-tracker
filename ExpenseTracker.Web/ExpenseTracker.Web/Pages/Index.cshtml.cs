@@ -59,6 +59,12 @@ namespace ExpenseTracker.Web.Pages
         [BindProperty]
         public IList<IFormFile> Files { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public int XPosition { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int YPosition { get; set; }
+
         public void OnGet()
         {
             this.Categories = new List<SelectListItem>()
@@ -99,6 +105,7 @@ namespace ExpenseTracker.Web.Pages
                 viewModel.Category = parts[0];
                 var key = parts[1];
                 this.categories.Add(new Category[] { new Category() { Name = parts[0], KeyWord = parts[1] } });
+                this.ClassifyAll();
             }
 
             dbModel.Details = viewModel.Details;
@@ -130,6 +137,12 @@ namespace ExpenseTracker.Web.Pages
 
         public IActionResult OnPostClassifyCurrent()
         {
+            ClassifyFiltered();
+            return RedirectToPageWithState();
+        }
+
+        private void ClassifyFiltered()
+        {
             new TransactionsClassifier().Classify(this.Transactions, this.categories.GetAll());
             var all = new List<Transaction>();
             foreach (var t in Transactions)
@@ -142,7 +155,6 @@ namespace ExpenseTracker.Web.Pages
             }
 
             this.service.Update(all);
-            return RedirectToPageWithState();
         }
 
         public IActionResult OnPostDeleteFiltered()
@@ -169,9 +181,7 @@ namespace ExpenseTracker.Web.Pages
 
         public IActionResult OnPostClassifyAll()
         {
-            var all = this.service.GetAll().ToList();
-            new TransactionsClassifier().Classify(all, this.categories.GetAll());
-            this.service.Update(all);
+            ClassifyAll();
             return RedirectToPageWithState();
         }
 
@@ -260,9 +270,19 @@ namespace ExpenseTracker.Web.Pages
                     DateFrom,
                     DateTo,
                     Search,
-                    CategoryFilter
+                    CategoryFilter,
+                    XPosition = this.Request.Query["XPosition"],
+                    YPosition = this.Request.Query["YPosition"]
                 });
         }
+
+        private void ClassifyAll()
+        {
+            var all = this.service.GetAll().ToList();
+            new TransactionsClassifier().Classify(all, this.categories.GetAll());
+            this.service.Update(all);
+        }
+
     }
 
     public enum SortOptions
