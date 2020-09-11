@@ -1,83 +1,105 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Expenses";
+    var savingsClassValue = "success";
+    if (Model.Saved < 0)
+    {
+        savingsClassValue = "danger";
+    }
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <form method="post">
-        <div class="mb-3">
-            @{
-                var savingsClassValue = "success";
-                if (Model.Saved < 0)
-                {
-                    savingsClassValue = "danger";
-                }
-            }
-            <span class="badge badge-@savingsClassValue">Saved: @Model.Saved.ToString("N0")</span> |
-            <span class="badge badge-secondary">Spent: @Model.Expenses.ToString("N0")</span> |
-            <span class="badge badge-secondary">Income: @Model.Income.ToString("N0")</span>
+    <h1 class="display-4">Expenses</h1>
+    <div class="mb-4">
+        <span class="badge">Spent: @Model.Expenses.ToString("N0")</span> |
+        <span class="badge">Income: @Model.Income.ToString("N0")</span> |
+        <span class="badge badge-@savingsClassValue">Balance: @Model.Saved.ToString("N0")</span>
+    </div>
+    <form enctype="multipart/form-data" method="post">
+        <div class="mb-4">
+            <input type="file" multiple asp-for="Files">
+            <input asp-page-handler="Upload" type="submit" value="Upload" />
+            <button type="submit" asp-page-handler="ClassifyCurrent">Classify Filtered</button>
+            <button type="submit" asp-page-handler="ClassifyAll">Classify All</button>
+            <button type="submit" asp-page-handler="DeleteFiltered">Delete Filtered</button>
+            <button type="submit" asp-page-handler="DeleteAll">Delete All</button>
         </div>
-        <div class="mb-3">
-            From: <input type="text" asp-for="DateFrom" />
-            To: <input type="text" asp-for="DateTo" />
+        <div class="border mb-3 rounded">
+            <div class="mb-3 mt-3">
+                From <input type="text" asp-for="DateFrom" class="rounded" />
+                To <input type="text" asp-for="DateTo" class="rounded" />
+                <span class="ml-2">Sort </span><select asp-for="SortBy" asp-items="Html.GetEnumSelectList<SortOptions>()" class="rounded"></select>
+                <input type="text" asp-for="Search" class="rounded ml-2" placeholder="Search" />
+                <select asp-for="CategoryFilter" class="rounded ml-2" asp-items="Model.Categories" ></select>
+                <button type="submit" asp-page-handler="sort" class="ml-4"> Apply </button>
+            </div>
         </div>
-        <div>
-            Sort by:
-            <select asp-for="SortBy" asp-items="Html.GetEnumSelectList<SortOptions>()"></select>
-            Search: <input type="text" asp-for="Search" />
-            Category Filter: <input type="text" asp-for="CategoryFilter" />
-            <button type="submit" asp-page-handler="sort">
-                Apply
-            </button>
-        </div>
-        <table class="table">
+        <table class="table border rounded table-sm">
             <thead>
                 <tr>
-                    <th>Details</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                    <th>Category</th>
-                    <th>Actions</th>
+                    <th style="width:45%">Details</th>
+                    <th style="width:7.5%">Amount</th>
+                    <th style="width:15%">Category</th>
+                    <th style="width:17.5%">Date</th>
+                    <th style="width:15%">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><textarea asp-for="CreateTransaction.Details" rows="2"></textarea></td>
-                    <td><input asp-for="CreateTransaction.Amount" /></td>
-                    <td><input type="text" asp-for="CreateTransaction.Date" /></td>
-                    <td><input asp-for="CreateTransaction.Category" /></td>
+                <tr class="table-light">
+                    <td><textarea asp-for="CreateTransaction.Details" rows="3" class="form-control"></textarea></td>
+                    <td><input asp-for="CreateTransaction.Amount" class="form-control" /></td>
+                    <td><input asp-for="CreateTransaction.Category" class="form-control" placeholder="name:key(opt)"/></td>
+                    <td><input type="text" asp-for="CreateTransaction.Date" class="form-control" /></td>
                     <td>
-                        <button type="submit" asp-page-handler="create" asp-route-expense="0">
-                            create expense
-                        </button>
-                        <button type="submit" asp-page-handler="create" asp-route-expense="1">
-                            create income
-                        </button>
+                        <button type="submit" asp-page-handler="create" asp-route-expense="0" class="w-75 mb-2"> Add Expense </button>
+                        <button type="submit" asp-page-handler="create" asp-route-expense="1" class="w-75"> Add Income </button>
                     </td>
                 </tr>
-                @for (var i = 0; i<Model.Transactions.Count; i++)
-                                                {
-                                                    var t = Model.Transactions[i];
-                        <tr>
-                            <td><textarea asp-for="Transactions[i].Details" rows="2"></textarea></td>
-                            <td><input asp-for="Transactions[i].Amount" /></td>
-                            <td><input type="text" asp-for="Transactions[i].Date" /></td>
-                            <td><input asp-for="Transactions[i].Category" /></td>
-                            <td>
-                                <a asp-page="./Edit" asp-route-id="@t.Id">Edit</a> |
-                                <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id">
-                                    delete
-                                </button>
-                                <button type="submit" asp-page-handler="update" asp-route-id="@t.Id">
-                                    update
-                                </button>
-                            </td>
-                            <td><input type="hidden" asp-for="Transactions[i].Id" /></td>
-                        </tr>
-                    }
+                @for (var i = 0; i < Model.Transactions.Count; i++)
+                {
+                    var t = Model.Transactions[i];
+                    var typeClass = t.Type == Core.TransactionType.Income ? "table-success" : "";
+
+                    <tr class="@typeClass">
+                        <td><textarea asp-for="Transactions[i].Details" rows="2" class="form-control"></textarea></td>
+                        <td><input asp-for="Transactions[i].Amount" class="form-control" /></td>
+                        <td><input asp-for="Transactions[i].Category" class="form-control" placeholder="name:key(opt)" /></td>
+                        <td><input type="text" asp-for="Transactions[i].Date" class="form-control" /></td>
+                        <td>
+                            <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id"> delete </button>
+                            <button type="submit" asp-page-handler="update" asp-route-id="@t.Id"> update </button>
+                        </td>
+                        <td><input type="hidden" asp-for="Transactions[i].Id" /></td>
+                    </tr>
+                }
             </tbody>
         </table>
     </form>
 </div>
+
+<style>
+    .form-control::-webkit-input-placeholder {
+        color: gray !important;
+        opacity: 0.5;
+    }
+    .form-control:-moz-placeholder {
+        color: gray !important;
+        opacity: 0.5;
+    }
+
+    .form-control::-moz-placeholder {
+        color: gray !important;
+        opacity: 0.5;
+    }
+
+    .form-control::placeholder {
+        color: gray !important;
+        opacity: 0.5;
+    }
+
+    .form-control:-ms-input-placeholder {
+        color: gray !important;
+        opacity: 0.5;
+    }
+</style>

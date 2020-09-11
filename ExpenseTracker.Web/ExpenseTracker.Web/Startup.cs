@@ -31,7 +31,9 @@ namespace ExpenseTracker.Web
 
         public void ConfigureContainer(IUnityContainer container)
         {
-            Application.RegisterDependencies(container, new Config() { DbPath = "D:\\GDrive\\expenses\\expenses.db" });
+            var expenseTrackerConfig = Configuration.GetSection("ExpenseTracker");
+            var dbPath = expenseTrackerConfig.GetValue<string>("DatabasePath");
+            Application.RegisterDependencies(container, new Config() { DbPath = dbPath });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

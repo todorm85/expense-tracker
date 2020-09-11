@@ -1,0 +1,43 @@
+﻿@page
+@model ExpenseTracker.Web.Pages.CategoriesModel
+@{
+    ViewData["Title"] = "Categories page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Categories</h1>
+    <form method="post">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Criteria Match</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input asp-for="CreateCategory.Name" /></td>
+                    <td><input asp-for="CreateCategory.KeyWord" /></td>
+                    <td>
+                        <button type="submit" asp-page-handler="Create">
+                            Create
+                        </button>
+                    </td>
+                </tr>
+                @foreach (var c in Model.Categories)
+                {
+                    <tr>
+                        <td>@c.Name</td>
+                        <td>@c.KeyWord</td>
+                        <td>
+                            <button type="submit" asp-page-handler="Remove" asp-route-id="@c.Id">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+</div>
