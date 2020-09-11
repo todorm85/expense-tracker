@@ -72,6 +72,7 @@ namespace ExpenseTracker.Web.Pages
                     .OrderBy(x => x)
                     .Distinct()
                     .Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
+
             this.CreateTransaction = new Transaction() { Date = DateTime.Now };
             if (DateFrom == default)
             {
@@ -85,7 +86,7 @@ namespace ExpenseTracker.Web.Pages
         public IActionResult OnPostDelete(int id)
         {
             this.service.Remove(this.service.GetAll(x => x.Id == id));
-            return RedirectToPage();
+            return RedirectToPageWithState();
         }
 
         public IActionResult OnPostUpdate(int id)
@@ -105,7 +106,7 @@ namespace ExpenseTracker.Web.Pages
             dbModel.Date = viewModel.Date;
             dbModel.Category = viewModel.Category;
             this.service.Update(new Transaction[] { dbModel });
-            return RedirectToPage();
+            return RedirectToPageWithState();
         }
 
         public IActionResult OnPostCreate(int expense)
@@ -119,20 +120,12 @@ namespace ExpenseTracker.Web.Pages
                 Type = (TransactionType)expense
             };
             this.service.Add(new Transaction[] { dbModel });
-            return RedirectToPage();
+            return RedirectToPageWithState();
         }
 
         public IActionResult OnPostSort()
         {
-            return RedirectToPage("Index",
-                new
-                {
-                    SortBy,
-                    DateFrom,
-                    DateTo,
-                    Search,
-                    CategoryFilter
-                });
+            return RedirectToPageWithState();
         }
 
         public IActionResult OnPostClassifyCurrent()
@@ -149,7 +142,7 @@ namespace ExpenseTracker.Web.Pages
             }
 
             this.service.Update(all);
-            return RedirectToPage();
+            return RedirectToPageWithState();
         }
 
         public IActionResult OnPostDeleteFiltered()
@@ -164,14 +157,14 @@ namespace ExpenseTracker.Web.Pages
             }
 
             this.service.Remove(all);
-            return RedirectToPage();
+            return RedirectToPageWithState();
         }
 
         public IActionResult OnPostDeleteAll()
         {
             var all = this.service.GetAll().ToList();
             this.service.Remove(all);
-            return RedirectToPage();
+            return RedirectToPageWithState();
         }
 
         public IActionResult OnPostClassifyAll()
@@ -179,7 +172,7 @@ namespace ExpenseTracker.Web.Pages
             var all = this.service.GetAll().ToList();
             new TransactionsClassifier().Classify(all, this.categories.GetAll());
             this.service.Update(all);
-            return RedirectToPage();
+            return RedirectToPageWithState();
         }
 
         public IActionResult OnPostUpload(List<IFormFile> files)
@@ -208,7 +201,7 @@ namespace ExpenseTracker.Web.Pages
                 }
             }
 
-            return RedirectToPage();
+            return RedirectToPageWithState();
         }
 
         private void RefreshTransactions()
@@ -256,6 +249,19 @@ namespace ExpenseTracker.Web.Pages
             this.Income = this.Transactions.Where(x => x.Type == TransactionType.Income)
                 .Sum(x => x.Amount);
             this.Saved = this.Income - this.Expenses;
+        }
+
+        private IActionResult RedirectToPageWithState()
+        {
+            return RedirectToPage("Index",
+                new
+                {
+                    SortBy,
+                    DateFrom,
+                    DateTo,
+                    Search,
+                    CategoryFilter
+                });
         }
     }
 
