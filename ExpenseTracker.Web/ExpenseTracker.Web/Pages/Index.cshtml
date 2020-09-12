@@ -16,7 +16,7 @@
         <span class="badge">Income: @Model.Income.ToString("N0")</span> |
         <span class="badge badge-@savingsClassValue">Balance: @Model.Saved.ToString("N0")</span>
     </div>
-    <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';" >
+    <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';">
         <div class="mb-4">
             <input type="file" multiple asp-for="Files">
             <input asp-page-handler="Upload" type="submit" value="Upload" />
@@ -37,7 +37,7 @@
         </div>
         <table class="table border rounded table-sm">
             <thead>
-                <tr>
+                <tr class="table-info">
                     <th style="width:17.5%">Date</th>
                     <th style="width:7.5%">Amount</th>
                     <th style="width:45%">Details</th>
@@ -46,7 +46,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="table-light">
+                <tr class="table-dark">
                     <td><input type="text" asp-for="CreateTransaction.Date" class="form-control" /></td>
                     <td><input asp-for="CreateTransaction.Amount" class="form-control" /></td>
                     <td><textarea asp-for="CreateTransaction.Details" rows="3" class="form-control"></textarea></td>
@@ -56,66 +56,110 @@
                         <button type="submit" asp-page-handler="create" asp-route-expense="1" class="w-75"> Add Income </button>
                     </td>
                 </tr>
-                @for (var i = 0; i < Model.Transactions.Count; i++)
-                {
-                    var t = Model.Transactions[i];
-                    var typeClass = t.Type == Core.TransactionType.Income ? "table-success" : "";
-                    var ident = "updateInput" + i;
-                <tr class="@typeClass">
-                    <td><input type="text" asp-for="Transactions[i].Date" class="form-control" /></td>
-                    <td><input asp-for="Transactions[i].Amount" class="form-control" /></td>
-                    <td><textarea asp-for="Transactions[i].Details" rows="2" class="form-control"></textarea></td>
-                    <td><input asp-for="Transactions[i].Category" class="form-control" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" /></td>
-                    <td>
-                        <button type="submit" asp-page-handler="update" asp-route-id="@t.Id"> update </button>
-                        <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id"> delete </button>
-                    </td>
-                    <td><input type="hidden" asp-for="Transactions[i].Id" /></td>
-                </tr>
-
+                @{
+                    var currentMonth = "";
+                    for (var i = 0; i < Model.Transactions.Count; i++)
+                    {
+                        var dateFormat = "MMMM yyyy";
+                        var t = Model.Transactions[i];
+                        var typeClass = t.Type == Core.TransactionType.Income ? "table-success" : "";
+                        if (t.Date.ToString(dateFormat) != currentMonth)
+                        {
+                            currentMonth = t.Date.ToString(dateFormat);
+                            var monthTransactions = Model.Transactions.Where(x => x.Date.ToString("MMMM yyyy") == currentMonth && x.Type == Core.TransactionType.Expense);
+                            <tr class="border table-info">
+                                <td class="border" colspan="2">
+                                    <div class="text-left">
+                                        <h4>@currentMonth</h4>
+                                        <h5>Total @monthTransactions.Sum(x => x.Amount).ToString("N0")</h5>
+                                    </div>
+                                </td>
+                                <td class="border container" colspan="3">
+                                    @{
+                                        var byCategories = monthTransactions.GroupBy(x => x.Category);
+                                        var catExpenses = new Dictionary<string, decimal>();
+                                        foreach (var catGr in byCategories)
+                                        {
+                                            catExpenses.Add(catGr.Key == null ? "uncategorized" : catGr.Key, catGr.Sum(x => x.Amount));
+                                        }
+                                        foreach (var catExp in catExpenses.Where(x => x.Value >= 50).OrderByDescending(x => x.Value))
+                                        {
+                                            <div class="row"><div class="col-11 text-right">@catExp.Key</div> <div class="col-1 text-right">@catExp.Value.ToString("N0")</div></div>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        <tr class="@typeClass">
+                            <td><input type="text" asp-for="Transactions[i].Date" class="form-control" /></td>
+                            <td><input asp-for="Transactions[i].Amount" class="form-control" /></td>
+                            <td><textarea asp-for="Transactions[i].Details" rows="3" class="form-control @("initial" + @i)"></textarea></td>
+                            <td><input asp-for="Transactions[i].Category" class="form-control" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" /></td>
+                            <td>
+                                <input type="hidden" asp-for="Transactions[i].Id" />
+                                <button type="submit" asp-page-handler="update" asp-route-id="@t.Id" onclick="appendPosition(event)"> update </button>
+                                <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id" onclick="appendPosition(event)"> delete </button>
+                            </td>
+                        </tr>
+                    }
                 }
-            </tbody>
-        </table>
-    </form>
-</div>
+                </tbody>
+                </table>
+                </form>
+                </div>
 
-<script>
+                <script>
     window.scrollTo(@Model.XPosition, @Model.YPosition);
     function onCreateEnter(e) {
         if (event.isComposing || event.keyCode === 229)
             return;
         e.stopPropagation();
         if (e.keyCode === 13) {
-            var btn = e.originalTarget.parentElement.nextElementSibling.childNodes[1];
-            btn.formAction = btn.formAction + "&XPosition=" + window.pageXOffset + "&YPosition=" + window.pageYOffset;
+            var trgBtn = e.originalTarget || e.target;
+            var btn = trgBtn.parentElement.nextElementSibling.childNodes[1];
+            btn.formAction = btn.formAction + "&XPosition=" + window.pageXOffset + "&YPosition=" + window.pageYOffset + "&FocusOnLoad=true";
             btn.click();
         }
     }
-</script>
 
-<style>
-    .form-control::-webkit-input-placeholder {
-        color: gray !important;
-        opacity: 0.5;
+    function appendPosition(e) {
+        var btn = e.originalTarget;
+        btn.formAction = btn.formAction + "&XPosition=" + window.pageXOffset + "&YPosition=" + window.pageYOffset;
     }
 
-    .form-control:-moz-placeholder {
-        color: gray !important;
-        opacity: 0.5;
+    @if (Model.FocusOnLoad)
+    {
+        <text>
+            window.onload = function () {
+                document.getElementsByClassName("initial0")[0].focus();
+        }
+        </text>
     }
+                </script>
 
-    .form-control::-moz-placeholder {
-        color: gray !important;
-        opacity: 0.5;
-    }
+                <style>
+                    .form-control::-webkit-input-placeholder {
+                        color: gray !important;
+                        opacity: 0.5;
+                    }
 
-    .form-control::placeholder {
-        color: gray !important;
-        opacity: 0.5;
-    }
+                    .form-control:-moz-placeholder {
+                        color: gray !important;
+                        opacity: 0.5;
+                    }
 
-    .form-control:-ms-input-placeholder {
-        color: gray !important;
-        opacity: 0.5;
-    }
-</style>
+                    .form-control::-moz-placeholder {
+                        color: gray !important;
+                        opacity: 0.5;
+                    }
+
+                    .form-control::placeholder {
+                        color: gray !important;
+                        opacity: 0.5;
+                    }
+
+                    .form-control:-ms-input-placeholder {
+                        color: gray !important;
+                        opacity: 0.5;
+                    }
+                </style>

@@ -65,6 +65,9 @@ namespace ExpenseTracker.Web.Pages
         [BindProperty(SupportsGet = true)]
         public int YPosition { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public bool FocusOnLoad { get; set; }
+
         public void OnGet()
         {
             this.Categories = new List<SelectListItem>()
@@ -272,7 +275,8 @@ namespace ExpenseTracker.Web.Pages
                     Search,
                     CategoryFilter,
                     XPosition = this.Request.Query["XPosition"],
-                    YPosition = this.Request.Query["YPosition"]
+                    YPosition = this.Request.Query["YPosition"],
+                    FocusOnLoad = this.Request.Query["FocusOnLoad"]
                 });
         }
 
