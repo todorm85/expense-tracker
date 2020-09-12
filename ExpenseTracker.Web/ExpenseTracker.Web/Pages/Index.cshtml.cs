@@ -66,7 +66,7 @@ namespace ExpenseTracker.Web.Pages
         public int YPosition { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public bool FocusOnLoad { get; set; }
+        public string Operation { get; set; }
 
         public void OnGet()
         {
@@ -82,11 +82,12 @@ namespace ExpenseTracker.Web.Pages
                     .Distinct()
                     .Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
 
-            this.CreateTransaction = new Transaction() { Date = DateTime.Now };
+            var now = DateTime.Now;
+            this.CreateTransaction = new Transaction() { Date = now };
             if (DateFrom == default)
             {
                 this.DateFrom = DateTime.Now.SetToBeginningOfMonth();
-                this.DateTo = DateTime.Now;
+                this.DateTo = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
             }
 
             RefreshTransactions();
@@ -276,7 +277,7 @@ namespace ExpenseTracker.Web.Pages
                     CategoryFilter,
                     XPosition = this.Request.Query["XPosition"],
                     YPosition = this.Request.Query["YPosition"],
-                    FocusOnLoad = this.Request.Query["FocusOnLoad"]
+                    Operation = this.Request.Query["Operation"]
                 });
         }
 
