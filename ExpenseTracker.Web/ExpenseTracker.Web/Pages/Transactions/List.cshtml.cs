@@ -103,7 +103,7 @@ namespace ExpenseTracker.Web.Pages
         {
             var viewModel = Transactions.First(x => x.Id == id);
             var dbModel = this.service.GetAll(x => x.Id == id).First();
-            if (viewModel.Category != dbModel.Category && viewModel.Category.Contains(":"))
+            if (viewModel.Category != dbModel.Category && viewModel.Category?.Contains(":") == true)
             {
                 var parts = viewModel.Category.Split(":");
                 viewModel.Category = parts[0];
@@ -115,7 +115,7 @@ namespace ExpenseTracker.Web.Pages
             dbModel.Details = viewModel.Details;
             dbModel.Amount = viewModel.Amount;
             dbModel.Date = viewModel.Date;
-            dbModel.Category = viewModel.Category;
+            dbModel.Category = viewModel.Category ?? "";
             this.service.Update(new Transaction[] { dbModel });
             return RedirectToPageWithState();
         }
@@ -267,7 +267,7 @@ namespace ExpenseTracker.Web.Pages
 
         private IActionResult RedirectToPageWithState()
         {
-            return RedirectToPage("Index",
+            return RedirectToPage("List",
                 new
                 {
                     SortBy,

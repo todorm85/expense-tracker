@@ -32,6 +32,10 @@ namespace ExpenseTracker.Web
             if (this.env.IsDevelopment())
             {
                 mvcBuilder.AddRazorRuntimeCompilation();
+                mvcBuilder.AddRazorPagesOptions(o =>
+                {
+                    o.Conventions.AddPageRoute("/Transactions/List", "");
+                });
             }
 
             services.Configure<FormOptions>(options => options.ValueCountLimit = 4096);

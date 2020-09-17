@@ -1,0 +1,128 @@
+﻿@page
+@using ExpenseTracker.Core
+@model ExpenseTracker.Web.Pages.TransactionsByMonthByCategoryModel
+@{
+    ViewData["Title"] = "Expenses by months by categories";
+}
+<div class="text-center">
+    <h1 class="display-4">@ViewData["Title"]</h1>
+    <form method="post">
+        <div class="container">
+            @{DateTime lastDateTime = default(DateTime); }
+            @for (int i = 0; i < Model.Transactions.Count; i++)
+            {
+                var t = Model.Transactions[i];
+                lastDateTime = t.Date.SetToBeginningOfMonth();
+                <div class="row">
+                    <div class="col text-right">
+                        <button class="btn btn-link" type="button" onclick="onToggleDetails('@t.Date.ToString("month_MMyy")')">
+                            <h3>@(t.Date.ToString("yyyy MMMM"))</h3>
+                        </button>
+                    </div>
+                    <div class="col text-left">
+                        <h3 class="pt-2">@Model.MonthsTotals[lastDateTime].ToString("N0")</h3>
+                    </div>
+                </div>
+                <div class="row" id="@t.Date.ToString("month_MMyy")" style="display: none">
+                    <div class="col text-left">
+                        @while (t != null && t.Date.SetToBeginningOfMonth() == lastDateTime)
+                        {
+                            var lastCategory = t.Category ?? "";
+                            <div class="row">
+                                <div class="col-2">
+                                    <button class="btn btn-link btn-sm" type="button" onclick="onToggleDetails('@(t.Date.ToString("category_MMyy") + t.Category)')">
+                                        <h5>@(string.IsNullOrWhiteSpace(t.Category) ? "Unspecified" : t.Category)</h5>
+                                    </button>
+                                </div>
+                                <div class="col-1 text-left mt-1">
+                                    <h5>@Model.MonthsCategoriesTotals[lastDateTime][lastCategory].ToString("N0")</h5>
+                                </div>
+                            </div>
+                            <div id="@(t.Date.ToString("category_MMyy") + t.Category)" style="display: none" class="row">
+                                <div class="col border">
+                                    @while ((t.Category ?? "") == lastCategory)
+                                    {
+                                        <div class="row border bg-light">
+                                            <div class="col-3">@t.Date</div>
+                                            <div class="col-2">@t.Amount.ToString("N0")</div>
+                                            <div class="col-5">@t.Details</div>
+                                            <div class="col-2"><button type="button" onclick="onToggleDetails('entry_@(t.Id)')">Edit</button></div>
+                                        </div>
+                                        <div class="row border" style="display: none" id='entry_@(t.Id)'>
+                                            <div class="col-3">
+                                                <input type="text" value="@(t.Date)" asp-for="Transactions[i].Date" />
+                                            </div>
+                                            <div class="col-2">
+                                                <input type="text" value="@(t.Amount)" asp-for="Transactions[i].Amount" />
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="text" value="@(t.Details)" asp-for="Transactions[i].Details" />
+                                            </div>
+                                            <div class="col-2">
+                                                <input type="text" value="@(t.Category)" asp-for="Transactions[i].Category" />
+                                            </div>
+                                            <div class="col-2">
+                                                <button type="submit"
+                                                        asp-page-handler="UpdateCategory"
+                                                        asp-route-id="@(t.Id)"
+                                                        onclick="appendPosition(this)">
+                                                    Save
+                                                </button>
+                                            </div>
+                                        </div>
+                                        i++;
+                                        if (i == Model.Transactions.Count)
+                                        {
+                                            t = null;
+                                            break;
+                                        }
+                                        t = Model.Transactions[i];
+                                    }
+                                </div>
+                            </div>
+                        }
+                         @{
+                             i--;
+                         }
+                    </div>
+                </div>
+            }
+        </div>
+    </form>
+</div>
+
+<script>
+    var expanded = [];
+    @foreach (var item in Model.ExpandedElements)
+    {
+        <text>expanded.push('</text>@item<text>');</text>
+    }
+
+    for (var i = 0; i < expanded.length; i++) {
+        document.getElementById(expanded[i]).style.display = "inline";
+    }
+
+    function onToggleDetails(elId) {
+        var el = document.getElementById(elId);
+        if (el.style.display == "none") {
+            el.style.display = "inline"
+            expanded.push(el.id)
+        } else {
+            el.style.display = "none"
+            var idx = expanded.indexOf(el.id);
+            if (idx >= 0)
+                expanded = expanded.splice(idx, 1);
+        }
+    }
+
+    function appendPosition(btn) {
+        for (var i = 0; i < expanded.length; i++) {
+            if (i == 0) {
+                bt.formAction = btn.formAction + "&expanded=" + expanded[i]
+            } else {
+                btn.formAction = btn.formAction + "," + expanded[i]
+            }
+        }
+    }
+
+</script>

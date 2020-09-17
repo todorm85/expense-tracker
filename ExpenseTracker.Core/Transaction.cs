@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace ExpenseTracker.Core
 {
+    [DebuggerDisplay("{Date.Month}|{Category}|{Amount}")]
     public class Transaction : IDataItem
     {
         public int Id { get; set; }
