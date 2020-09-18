@@ -32,13 +32,15 @@ namespace ExpenseTracker.Web
             if (this.env.IsDevelopment())
             {
                 mvcBuilder.AddRazorRuntimeCompilation();
-                mvcBuilder.AddRazorPagesOptions(o =>
-                {
-                    o.Conventions.AddPageRoute("/Transactions/List", "");
-                });
             }
 
-            services.Configure<FormOptions>(options => options.ValueCountLimit = 4096);
+            mvcBuilder.AddRazorPagesOptions(o =>
+            {
+                o.Conventions.AddPageRoute("/Transactions/List", "");
+            });
+
+            services.Configure<Microsoft.AspNetCore.Mvc.MvcOptions>(options => options.MaxModelBindingCollectionSize = 10000);
+            services.Configure<FormOptions>(options => options.ValueCountLimit = 100000);
         }
 
         public void ConfigureContainer(IUnityContainer container)

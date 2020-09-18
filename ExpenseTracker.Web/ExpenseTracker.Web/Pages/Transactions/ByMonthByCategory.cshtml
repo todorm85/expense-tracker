@@ -90,7 +90,7 @@
                                         <div class="row border bg-light">
                                             <div class="col-3 pl-4">@t.Date.ToString("dd HH:mm")</div>
                                             <div class="col-1">@t.Amount.ToString("N0")</div>
-                                            <div class="col-4"><textarea asp-for="Transactions[i].Details" rows="1" class="form-control updateInitialFocus"></textarea></div>
+                                            <div class="col-4"><textarea asp-for="Transactions[i].Details" rows="3" class="form-control updateInitialFocus"></textarea></div>
                                             <div class="col-2"><input asp-for="Transactions[i].Category" class="form-control" placeholder="name:key(opt)" /></div>
                                             <div class="col-2">
                                                 <input type="hidden" asp-for="Transactions[i].Date" />
