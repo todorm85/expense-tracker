@@ -1,61 +1,107 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using ExpenseTracker.Core;
+using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Routing;
 
 namespace ExpenseTracker.Web.Pages
 {
-    public class TransactionsByMonthByCategoryModel : PageModel
+    public class TransactionsByMonthByCategoryModel : GridBase
     {
-        private readonly ITransactionsService transactionsService;
-
         public TransactionsByMonthByCategoryModel(
-            ITransactionsService transactionsService)
+            ITransactionsService transactionsService, CategoriesService categoriesService) : base(transactionsService, categoriesService)
         {
-            this.transactionsService = transactionsService;
+            this.pageName = "ByMonthByCategory";
         }
 
-        [BindProperty]
-        public IList<Transaction> Transactions { get; set; }
-
-        public IEnumerable<string> ExpandedElements { get; set; }
-
-        public IDictionary<DateTime, IDictionary<string, decimal>> MonthsCategoriesTotals { get;  set; }
+        public IDictionary<DateTime, IDictionary<string, decimal>> MonthsCategoriesTotals { get; set; }
 
         public IDictionary<DateTime, decimal> MonthsTotals { get; private set; }
+        public IDictionary<DateTime, decimal> MonthsIncomeTotals { get; private set; }
 
-        public void OnGet()
+        public IDictionary<DateTime, bool> ExpandedMonths { get; set; }
+        public IDictionary<DateTime, IDictionary<string, bool>> ExpandedCategories { get; set; }
+
+        public override void OnGet()
         {
+            InitializeExpanded();
+            if (DateFrom == default)
+                DateFrom = DateTime.Now.AddMonths(-5).SetToBeginningOfMonth();
+
+            base.OnGet();
             this.MonthsCategoriesTotals = new Dictionary<DateTime, IDictionary<string, decimal>>();
             this.MonthsTotals = new Dictionary<DateTime, decimal>();
+            this.MonthsIncomeTotals = new Dictionary<DateTime, decimal>();
             this.Transactions = new List<Transaction>();
 
-            var months = this.transactionsService.GetAll(x => x.Date >= DateTime.Now.AddMonths(-6) && x.Date <= DateTime.Now && x.Type == TransactionType.Expense)
+            var months = this.transactionsService.GetAll(x => x.Date >= DateFrom && x.Date <= DateTo && x.Type == TransactionType.Expense)
                 .ToLookup(x => x.Date.SetToBeginningOfMonth()).OrderByDescending(x => x.Key);
+            var monthsIncome = this.transactionsService.GetAll(x => x.Date >= DateFrom && x.Date <= DateTo && x.Type == TransactionType.Income)
+                .ToLookup(x => x.Date.SetToBeginningOfMonth());
             foreach (var month in months)
             {
                 this.MonthsTotals[month.Key] = month.Sum(x => x.Amount);
+                this.MonthsIncomeTotals[month.Key] = monthsIncome[month.Key].Sum(x => x.Amount);
                 this.MonthsCategoriesTotals[month.Key] = new Dictionary<string, decimal>();
                 var categories = month.ToLookup(x => x.Category).OrderByDescending(x => x.Sum(y => y.Amount));
                 foreach (var c in categories)
                 {
                     this.MonthsCategoriesTotals[month.Key][c.Key ?? ""] = c.Sum(x => x.Amount);
-                    foreach (var t in c)
+                    foreach (var t in c.OrderByDescending(x => x.Amount))
                     {
                         this.Transactions.Add(t);
                     }
                 }
             }
-
-            this.ExpandedElements = new List<string>();
         }
 
-        public IActionResult OnPostUpdateTransaction()
+        private void InitializeExpanded()
         {
-            return RedirectToPage();
+            this.ExpandedMonths = new Dictionary<DateTime, bool>();
+            this.ExpandedCategories = new Dictionary<DateTime, IDictionary<string, bool>>();
+            var expandedQuery = this.Request.Query["expanded"].ToString();
+            if (!string.IsNullOrEmpty(expandedQuery))
+            {
+                var expandedElements = expandedQuery.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var expandedElement in expandedElements)
+                {
+                    var expandedElementParts = expandedElement.Split("__");
+                    var type = expandedElementParts[0];
+                    var date = DateTime.ParseExact(expandedElementParts[1], "MM_yy", CultureInfo.InvariantCulture).SetToBeginningOfMonth();
+                    if (type == "category")
+                    {
+                        var category = expandedElementParts[2];
+                        if (!ExpandedCategories.ContainsKey(date))
+                        {
+                            ExpandedCategories.Add(date, new Dictionary<string, bool>());
+                        }
+
+                        if (!ExpandedCategories[date].ContainsKey(category))
+                        {
+                            ExpandedCategories[date].Add(category, true);
+                        }
+                    }
+                    else
+                    {
+                        if (!ExpandedMonths.ContainsKey(date))
+                        {
+                            ExpandedMonths.Add(date, true);
+                        }
+                    }
+                }
+            }
+        }
+
+        protected override RouteValueDictionary GetQueryParameters()
+        {
+            var res = base.GetQueryParameters();
+            res.Add("expanded", this.Request.Query["expanded"]);
+            return res;
         }
     }
 }

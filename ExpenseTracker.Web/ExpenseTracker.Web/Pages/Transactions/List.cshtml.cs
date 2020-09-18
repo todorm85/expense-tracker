@@ -6,44 +6,36 @@ using System.Linq;
 using System.Threading.Tasks;
 using ExpenseTracker.Allianz;
 using ExpenseTracker.Core;
+using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Asn1.X509.Qualified;
 using Org.BouncyCastle.Crypto.Digests;
 
 namespace ExpenseTracker.Web.Pages
 {
-    public class IndexModel : PageModel
+    public class IndexModel : GridBase
     {
-        private readonly ITransactionsService service;
-        private readonly CategoriesService categories;
         private readonly AllianzTxtFileParser allianz;
         private readonly RaiffeizenTxtFileParser rai;
 
-        public IndexModel(ITransactionsService expenses, CategoriesService categories, AllianzTxtFileParser allianz, RaiffeizenTxtFileParser rai)
+        public IndexModel(ITransactionsService transactions, CategoriesService categories, AllianzTxtFileParser allianz, RaiffeizenTxtFileParser rai)
+            : base (transactions, categories)
         {
-            this.service = expenses;
-            this.categories = categories;
+            this.pageName = "List";
             this.allianz = allianz;
             this.rai = rai;
         }
 
-        [BindProperty]
-        public IList<Transaction> Transactions { get; set; }
         public decimal Expenses { get; set; }
         public decimal Income { get; set; }
         public decimal Saved { get; set; }
         [BindProperty]
         public Transaction CreateTransaction { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public DateTime DateFrom { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public DateTime DateTo { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public SortOptions SortBy { get; set; }
@@ -60,21 +52,17 @@ namespace ExpenseTracker.Web.Pages
         public IList<IFormFile> Files { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public int XPosition { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public int YPosition { get; set; }
-
-        [BindProperty(SupportsGet = true)]
         public string Operation { get; set; }
 
-        public void OnGet()
+        public override void OnGet()
         {
+            base.OnGet();
             this.Categories = new List<SelectListItem>()
             {
                 new SelectListItem("Select Category", ""),
                 new SelectListItem("Uncategorised", "-")
             };
+
             this.Categories = this.Categories.Union(
                 this.categories.GetAll()
                     .Select(x => x.Name)
@@ -82,42 +70,9 @@ namespace ExpenseTracker.Web.Pages
                     .Distinct()
                     .Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
 
-            var now = DateTime.Now;
-            this.CreateTransaction = new Transaction() { Date = now };
-            if (DateFrom == default)
-            {
-                this.DateFrom = DateTime.Now.SetToBeginningOfMonth();
-                this.DateTo = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
-            }
+            this.CreateTransaction = new Transaction() { Date = DateTime.Now };
 
             RefreshTransactions();
-        }
-
-        public IActionResult OnPostDelete(int id)
-        {
-            this.service.Remove(this.service.GetAll(x => x.Id == id));
-            return RedirectToPageWithState();
-        }
-
-        public IActionResult OnPostUpdate(int id)
-        {
-            var viewModel = Transactions.First(x => x.Id == id);
-            var dbModel = this.service.GetAll(x => x.Id == id).First();
-            if (viewModel.Category != dbModel.Category && viewModel.Category?.Contains(":") == true)
-            {
-                var parts = viewModel.Category.Split(":");
-                viewModel.Category = parts[0];
-                var key = parts[1];
-                this.categories.Add(new Category[] { new Category() { Name = parts[0], KeyWord = parts[1] } });
-                this.ClassifyAll();
-            }
-
-            dbModel.Details = viewModel.Details;
-            dbModel.Amount = viewModel.Amount;
-            dbModel.Date = viewModel.Date;
-            dbModel.Category = viewModel.Category ?? "";
-            this.service.Update(new Transaction[] { dbModel });
-            return RedirectToPageWithState();
         }
 
         public IActionResult OnPostCreate(int expense)
@@ -130,12 +85,7 @@ namespace ExpenseTracker.Web.Pages
                 Details = CreateTransaction.Details,
                 Type = (TransactionType)expense
             };
-            this.service.Add(new Transaction[] { dbModel });
-            return RedirectToPageWithState();
-        }
-
-        public IActionResult OnPostSort()
-        {
+            this.transactionsService.Add(new Transaction[] { dbModel });
             return RedirectToPageWithState();
         }
 
@@ -145,41 +95,25 @@ namespace ExpenseTracker.Web.Pages
             return RedirectToPageWithState();
         }
 
-        private void ClassifyFiltered()
-        {
-            new TransactionsClassifier().Classify(this.Transactions, this.categories.GetAll());
-            var all = new List<Transaction>();
-            foreach (var t in Transactions)
-            {
-                var tdb = this.service.GetAll(x => x.Id == t.Id && string.IsNullOrEmpty(x.Category)).FirstOrDefault();
-                if (tdb == null)
-                    continue;
-                tdb.Category = t.Category;
-                all.Add(tdb);
-            }
-
-            this.service.Update(all);
-        }
-
         public IActionResult OnPostDeleteFiltered()
         {
             var all = new List<Transaction>();
             foreach (var t in Transactions)
             {
-                var tdb = this.service.GetAll(x => x.Id == t.Id).FirstOrDefault();
+                var tdb = this.transactionsService.GetAll(x => x.Id == t.Id).FirstOrDefault();
                 if (tdb == null)
                     continue;
                 all.Add(tdb);
             }
 
-            this.service.Remove(all);
+            this.transactionsService.Remove(all);
             return RedirectToPageWithState();
         }
 
         public IActionResult OnPostDeleteAll()
         {
-            var all = this.service.GetAll().ToList();
-            this.service.Remove(all);
+            var all = this.transactionsService.GetAll().ToList();
+            this.transactionsService.Remove(all);
             return RedirectToPageWithState();
         }
 
@@ -205,12 +139,12 @@ namespace ExpenseTracker.Web.Pages
                     if (formFile.FileName.EndsWith("xml"))
                     {
                         IEnumerable<Transaction> expenses = this.rai.ParseFile(filePath);
-                        this.service.Add(expenses);
+                        this.transactionsService.Add(expenses);
                     }
                     else if (formFile.FileName.EndsWith("txt"))
                     {
                         IEnumerable<Transaction> expenses = this.allianz.GetTransactions(filePath);
-                        this.service.Add(expenses);
+                        this.transactionsService.Add(expenses);
                     }
                 }
             }
@@ -218,9 +152,35 @@ namespace ExpenseTracker.Web.Pages
             return RedirectToPageWithState();
         }
 
+        protected override RouteValueDictionary GetQueryParameters()
+        {
+            var parameters = base.GetQueryParameters();
+            parameters.Add("SortBy", SortBy);
+            parameters.Add("Search", Search);
+            parameters.Add("CategoryFilter", CategoryFilter);
+            parameters.Add("Operation", this.Request.Query["Operation"]);
+            return parameters;
+        }
+
+        private void ClassifyFiltered()
+        {
+            new TransactionsClassifier().Classify(this.Transactions, this.categories.GetAll());
+            var all = new List<Transaction>();
+            foreach (var t in Transactions)
+            {
+                var tdb = this.transactionsService.GetAll(x => x.Id == t.Id && string.IsNullOrEmpty(x.Category)).FirstOrDefault();
+                if (tdb == null)
+                    continue;
+                tdb.Category = t.Category;
+                all.Add(tdb);
+            }
+
+            this.transactionsService.Update(all);
+        }
+
         private void RefreshTransactions()
         {
-            var transactions = service
+            var transactions = transactionsService
                 .GetAll(x => x.Date >= DateFrom &&
                     x.Date <= DateTo);
 
@@ -264,30 +224,6 @@ namespace ExpenseTracker.Web.Pages
                 .Sum(x => x.Amount);
             this.Saved = this.Income - this.Expenses;
         }
-
-        private IActionResult RedirectToPageWithState()
-        {
-            return RedirectToPage("List",
-                new
-                {
-                    SortBy,
-                    DateFrom,
-                    DateTo,
-                    Search,
-                    CategoryFilter,
-                    XPosition = this.Request.Query["XPosition"],
-                    YPosition = this.Request.Query["YPosition"],
-                    Operation = this.Request.Query["Operation"]
-                });
-        }
-
-        private void ClassifyAll()
-        {
-            var all = this.service.GetAll().ToList();
-            new TransactionsClassifier().Classify(all, this.categories.GetAll());
-            this.service.Update(all);
-        }
-
     }
 
     public enum SortOptions

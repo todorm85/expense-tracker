@@ -7,10 +7,14 @@
     {
         savingsClassValue = "danger";
     }
+
+    Layout = "_GridBaseLayout";
 }
 
+<partial name="_Submenu" />
+
 <div class="text-center">
-    <h1 class="display-4">Expenses</h1>
+    <h1 class="display-4">Transactions</h1>
     <div class="mb-4">
         <span class="badge">Spent: @Model.Expenses.ToString("N0")</span> |
         <span class="badge">Income: @Model.Income.ToString("N0")</span> |
@@ -68,8 +72,8 @@
                             <td><input asp-for="Transactions[i].Category" class="form-control" placeholder="name:key(opt)" onkeyup="onUpdateEnter(event)" /></td>
                             <td>
                                 <input type="hidden" asp-for="Transactions[i].Id" />
-                                <button class="updateBtn" type="submit" asp-page-handler="update" asp-route-id="@t.Id" onclick="appendPosition(event)"> update </button>
-                                <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id" onclick="appendPosition(event)"> delete </button>
+                                <button class="updateBtn" type="submit" asp-page-handler="update" asp-route-id="@t.Id" onclick="appendPosition(this)"> update </button>
+                                <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id" onclick="appendPosition(this)"> delete </button>
                             </td>
                         </tr>
                     }
@@ -79,68 +83,36 @@
     </form>
 </div>
 
-<script>
-    window.scrollTo(@Model.XPosition, @Model.YPosition);
-    function onUpdateEnter(e) {
-        createOrUpdateTransaction(e, "update")
-    }
-
-    function onCreateEnter(e) {
-        createOrUpdateTransaction(e, "create")
-    }
-
-    // operation is create or update
-    function createOrUpdateTransaction(e, operation) {
-        debugger
-        if (e.isComposing || e.keyCode === 229)
-            return;
-        e.stopPropagation();
-        if (e.keyCode === 13) {
-            var trgBtn = e.originalTarget || e.target;
-            var btn = trgBtn.parentElement.parentElement.getElementsByClassName("updateBtn")[0];
-            btn.formAction = btn.formAction + "&XPosition=" + window.pageXOffset + "&YPosition=" + window.pageYOffset + "&Operation=" + operation;
-            btn.click();
+@section Scripts {
+    <script>
+        function onUpdateEnter(e) {
+            createOrUpdateTransaction(e, "update")
         }
-    }
 
-    function appendPosition(e) {
-        var btn = e.originalTarget || e.target;
-        btn.formAction = btn.formAction + "&XPosition=" + window.pageXOffset + "&YPosition=" + window.pageYOffset;
-    }
-
-    @if (!string.IsNullOrWhiteSpace(Model.Operation))
-    {
-        <text>
-            window.onload = function () {
-                document.getElementsByClassName("@(Model.Operation)InitialFocus")[0].focus();
+        function onCreateEnter(e) {
+            createOrUpdateTransaction(e, "create")
         }
-        </text>
-    }
-</script>
 
-<style>
-    .form-control::-webkit-input-placeholder {
-        color: gray !important;
-        opacity: 0.5;
-    }
+        function createOrUpdateTransaction(e, operation) {
+            if (e.isComposing || e.keyCode === 229)
+                return;
+            e.stopPropagation();
+            if (e.keyCode === 13) {
+                var trgBtn = e.originalTarget || e.target;
+                var btn = trgBtn.parentElement.parentElement.getElementsByClassName("updateBtn")[0];
+                appendPosition(btn);
+                btn.formAction = "&Operation=" + operation;
+                btn.click();
+            }
+        }
 
-    .form-control:-moz-placeholder {
-        color: gray !important;
-        opacity: 0.5;
-    }
-
-    .form-control::-moz-placeholder {
-        color: gray !important;
-        opacity: 0.5;
-    }
-
-    .form-control::placeholder {
-        color: gray !important;
-        opacity: 0.5;
-    }
-
-    .form-control:-ms-input-placeholder {
-        color: gray !important;
-        opacity: 0.5;
-    }
-</style>
+        @if (!string.IsNullOrWhiteSpace(Model.Operation))
+        {
+            <text>
+                window.onload = function () {
+                    document.getElementsByClassName("@(Model.Operation)InitialFocus")[0].focus();
+            }
+            </text>
+        }
+    </script>
+}

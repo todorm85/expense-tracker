@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@RenderBody()
+
+@section Scripts {
+    <script>
+        window.scrollTo(@Model.XPosition, @Model.YPosition);
+
+        function appendPosition(btn) {
+            btn.formAction = btn.formAction + "&XPosition=" + window.pageXOffset + "&YPosition=" + window.pageYOffset;
+        }
+    </script>
+    @RenderSection("Scripts", required:false)
+}

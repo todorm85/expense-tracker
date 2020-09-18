@@ -69,3 +69,30 @@ body {
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
 }
+
+/*Greyed placeholder texts*/
+
+.form-control::-webkit-input-placeholder {
+    color: gray !important;
+    opacity: 0.5;
+}
+
+.form-control:-moz-placeholder {
+    color: gray !important;
+    opacity: 0.5;
+}
+
+.form-control::-moz-placeholder {
+    color: gray !important;
+    opacity: 0.5;
+}
+
+.form-control::placeholder {
+    color: gray !important;
+    opacity: 0.5;
+}
+
+.form-control:-ms-input-placeholder {
+    color: gray !important;
+    opacity: 0.5;
+}
