@@ -62,6 +62,7 @@ namespace ExpenseTracker.Web.Pages.Shared
 
             this.Categories = this.Categories.Union(
                 this.Transactions
+                    .Where(x => !string.IsNullOrEmpty(x.Category))
                     .Select(x => x.Category)
                     .OrderBy(x => x)
                     .Distinct()
