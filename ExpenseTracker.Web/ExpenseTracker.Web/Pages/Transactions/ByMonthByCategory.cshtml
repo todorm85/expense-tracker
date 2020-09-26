@@ -14,10 +14,39 @@
             <div class="mb-3 mt-3">
                 From <input type="text" asp-for="DateFrom" class="rounded" />
                 To <input type="text" asp-for="DateTo" class="rounded" />
+                <select asp-for="CategoryFilter" class="rounded ml-2" asp-items="Model.Categories"></select>
                 <button type="submit" asp-page-handler="sort" class="ml-4"> Apply </button>
             </div>
         </div>
+
         <div class="container">
+            <div class="row">
+                @foreach (var catAvg in Model.CategoriesAverages.OrderByDescending(x => x.Value[1]))
+                {
+                <div class="d-inline-block p-2 m-1 bg-light border rounded">
+                    <span class="badge badge-primary">@(string.IsNullOrEmpty(catAvg.Key) ? "Unspecified" : catAvg.Key) </span>
+                    <span class="badge badge-secondary"> @catAvg.Value[1].ToString("N0") </span> | 
+                    <span class="text-secondary"> @catAvg.Value[0].ToString("N0") </span>
+                </div>
+                }
+            </div>
+
+            <h3 class="row text-left border-top mt-3">
+                <div class="col-2">Average</div>
+                <div class="col-2 text-right"><span class="badge badge-secondary">@Model.AverageExpense.ToString("N0")</span></div>
+                <div class="col-2 text-center"><span class="badge">@Model.AverageIncome.ToString("N0")</span></div>
+                @{ 
+                    var avgBalClass = "danger";
+                    if (Model.AverageBalance >= 0)
+                    {
+                        avgBalClass = "success";
+                    }
+                }
+                <div class="col-1"><span class="badge badge-@avgBalClass">@Model.AverageBalance.ToString("N0")</span></div>
+                <div class="col"></div>
+            </h3>
+            
+
             @{DateTime lastDateTime = default(DateTime); }
             @for (int i = 0; i < Model.Transactions.Count; i++)
             {
@@ -41,26 +70,26 @@
                             }
 
                             <div class="col text-left">
-                                    <div class="badge badge-secondary">@Model.MonthsTotals[lastDateTime].ToString("N0")</div>
-                            </div> 
-                            <span class="ml-2 mr-2">|</span>
-                            <div class="col text-center">
-                                    <div>@Model.MonthsIncomeTotals[lastDateTime].ToString("N0")</div>
+                                <div class="badge badge-secondary">@Model.MonthsTotals[lastDateTime].ToString("N0")</div>
                             </div>
                             <span class="ml-2 mr-2">|</span>
                             <div class="col text-center">
-                                    <div class="badge badge-@savingsClassValue">@saved.ToString("N0")</div>
+                                <div>@Model.MonthsIncomeTotals[lastDateTime].ToString("N0")</div>
+                            </div>
+                            <span class="ml-2 mr-2">|</span>
+                            <div class="col text-center">
+                                <div class="badge badge-@savingsClassValue">@saved.ToString("N0")</div>
                             </div>
                         </h5>
                     </div>
                 </div>
-                
-                    var monthDisplay = "none";
-                    if (Model.ExpandedMonths.ContainsKey(t.Date.SetToBeginningOfMonth()))
-                    {
-                        monthDisplay = "revert";
-                    }
-                
+
+                var monthDisplay = "none";
+                if (Model.ExpandedMonths.ContainsKey(t.Date.SetToBeginningOfMonth()))
+                {
+                    monthDisplay = "revert";
+                }
+
                 <div class="row border border-secondary alert-secondary gridExpandable" id="@("month__" + t.Date.ToString("MM_yy"))" style="display: @monthDisplay">
                     <div class="col text-left">
                         @while (t != null && t.Date.SetToBeginningOfMonth() == lastDateTime)
@@ -76,16 +105,18 @@
                                     <h5>@Model.MonthsCategoriesTotals[lastDateTime][lastCategory].ToString("N0")</h5>
                                 </div>
                             </div>
-                            
-                                var categoryDisplay = "none";
-                                if (Model.ExpandedCategories.ContainsKey(t.Date.SetToBeginningOfMonth()) && Model.ExpandedCategories[t.Date.SetToBeginningOfMonth()].ContainsKey(t.Category ?? ""))
-                                {
-                                    categoryDisplay = "revert";
-                                }
-                            
+
+                            var categoryDisplay = "none";
+                            if (Model.ExpandedCategories.ContainsKey(t.Date.SetToBeginningOfMonth()) &&
+                                Model.ExpandedCategories[t.Date.SetToBeginningOfMonth()].ContainsKey(t.Category ?? "") ||
+                                Model.MonthsCategoriesTotals[lastDateTime].Count == 1)
+                            {
+                                categoryDisplay = "revert";
+                            }
+
                             <div id="@("category__" + t.Date.ToString("MM_yy__") + t.Category)" style="display: @categoryDisplay" class="row gridExpandable">
                                 <div class="col border">
-                                    @while ((t.Category ?? "") == lastCategory)
+                                    @while ((t.Category ?? "") == lastCategory && t.Date.SetToBeginningOfMonth() == lastDateTime)
                                     {
                                         <div class="row border bg-light">
                                             <div class="col-3 pl-4">@t.Date.ToString("dd HH:mm")</div>

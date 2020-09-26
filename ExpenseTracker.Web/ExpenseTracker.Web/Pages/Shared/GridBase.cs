@@ -6,13 +6,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ExpenseTracker.Core;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ExpenseTracker.Web.Pages.Shared
 {
-    public class GridBase : PageModel
+    public abstract class GridBase : PageModel
     {
         protected readonly ITransactionsService transactionsService;
         protected string pageName;
+        protected int initialMonthsBack = 0;
         protected readonly CategoriesService categories;
 
         public GridBase(ITransactionsService transactionsService, CategoriesService categories)
@@ -36,9 +38,34 @@ namespace ExpenseTracker.Web.Pages.Shared
         [BindProperty(SupportsGet = true)]
         public int YPosition { get; set; }
 
-        public virtual void OnGet()
+        [BindProperty(SupportsGet = true)]
+        public string CategoryFilter { get; set; }
+
+        public List<SelectListItem> Categories { get; set; }
+
+        public void OnGet()
         {
             InitializeDateFilters();
+            Initialize();
+            InitializeCategories();
+        }
+
+        protected abstract void Initialize();
+
+        private void InitializeCategories()
+        {
+            this.Categories = new List<SelectListItem>()
+            {
+                new SelectListItem("Select Category", ""),
+                new SelectListItem("Uncategorised", "-")
+            };
+
+            this.Categories = this.Categories.Union(
+                this.Transactions
+                    .Select(x => x.Category)
+                    .OrderBy(x => x)
+                    .Distinct()
+                    .Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
         }
 
         public IActionResult OnPostUpdate(int id)
@@ -80,12 +107,37 @@ namespace ExpenseTracker.Web.Pages.Shared
             queryParameters.Add("DateTo", DateTo);
             queryParameters.Add("XPosition", this.Request.Query["XPosition"]);
             queryParameters.Add("YPosition", this.Request.Query["YPosition"]);
+            queryParameters.Add("CategoryFilter", CategoryFilter);
             return queryParameters;
         }
 
         protected IActionResult RedirectToPageWithState()
         {
             return RedirectToPage(this.pageName, this.GetQueryParameters());
+        }
+
+        protected IEnumerable<Transaction> ApplyCategoriesFilter(IEnumerable<Transaction> transactions)
+        {
+            if (!string.IsNullOrWhiteSpace(CategoryFilter))
+            {
+                if (CategoryFilter == "-")
+                {
+                    transactions = transactions.Where(x => string.IsNullOrWhiteSpace(x.Category));
+                }
+                else
+                {
+                    transactions = transactions.Where(x => x.Category != null && x.Category == CategoryFilter);
+                }
+            }
+
+            return transactions;
+        }
+
+        protected IEnumerable<Transaction> GetTransactionsFilteredByDates()
+        {
+            return transactionsService
+                            .GetAll(x => x.Date >= DateFrom &&
+                                x.Date <= DateTo && !x.Ignored);
         }
 
         private void InitializeDateFilters()
@@ -98,7 +150,7 @@ namespace ExpenseTracker.Web.Pages.Shared
 
             if (DateFrom == default)
             {
-                this.DateFrom = DateTime.Now.SetToBeginningOfMonth();
+                this.DateFrom = DateTime.Now.AddMonths(initialMonthsBack).SetToBeginningOfMonth();
             }
         }
         

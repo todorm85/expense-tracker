@@ -43,35 +43,15 @@ namespace ExpenseTracker.Web.Pages
         [BindProperty(SupportsGet = true)]
         public string Search { get; set; }
 
-        [BindProperty(SupportsGet = true)]
-        public string CategoryFilter { get; set; }
-
-        public List<SelectListItem> Categories { get; set; }
-
         [BindProperty]
         public IList<IFormFile> Files { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public string Operation { get; set; }
 
-        public override void OnGet()
+        protected override void Initialize()
         {
-            base.OnGet();
-            this.Categories = new List<SelectListItem>()
-            {
-                new SelectListItem("Select Category", ""),
-                new SelectListItem("Uncategorised", "-")
-            };
-
-            this.Categories = this.Categories.Union(
-                this.categories.GetAll()
-                    .Select(x => x.Name)
-                    .OrderBy(x => x)
-                    .Distinct()
-                    .Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
-
             this.CreateTransaction = new Transaction() { Date = DateTime.Now };
-
             RefreshTransactions();
         }
 
@@ -157,7 +137,6 @@ namespace ExpenseTracker.Web.Pages
             var parameters = base.GetQueryParameters();
             parameters.Add("SortBy", SortBy);
             parameters.Add("Search", Search);
-            parameters.Add("CategoryFilter", CategoryFilter);
             parameters.Add("Operation", this.Request.Query["Operation"]);
             return parameters;
         }
@@ -180,26 +159,14 @@ namespace ExpenseTracker.Web.Pages
 
         private void RefreshTransactions()
         {
-            var transactions = transactionsService
-                .GetAll(x => x.Date >= DateFrom &&
-                    x.Date <= DateTo);
+            IEnumerable<Transaction> transactions = GetTransactionsFilteredByDates();
 
             if (!string.IsNullOrWhiteSpace(Search))
             {
                 transactions = transactions.Where(x => x.Details.Contains(Search));
             }
 
-            if (!string.IsNullOrWhiteSpace(CategoryFilter))
-            {
-                if (CategoryFilter == "-")
-                {
-                    transactions = transactions.Where(x => string.IsNullOrWhiteSpace(x.Category));
-                }
-                else
-                {
-                    transactions = transactions.Where(x => x.Category != null && x.Category.Contains(CategoryFilter));
-                }
-            }
+            transactions = ApplyCategoriesFilter(transactions);
 
             IEnumerable<Transaction> sort = new List<Transaction>();
             switch (this.SortBy)

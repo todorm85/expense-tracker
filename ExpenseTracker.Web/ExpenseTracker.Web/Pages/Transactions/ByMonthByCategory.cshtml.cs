@@ -17,6 +17,7 @@ namespace ExpenseTracker.Web.Pages
             ITransactionsService transactionsService, CategoriesService categoriesService) : base(transactionsService, categoriesService)
         {
             this.pageName = "ByMonthByCategory";
+            this.initialMonthsBack = -5;
         }
 
         public IDictionary<DateTime, IDictionary<string, decimal>> MonthsCategoriesTotals { get; set; }
@@ -26,22 +27,38 @@ namespace ExpenseTracker.Web.Pages
 
         public IDictionary<DateTime, bool> ExpandedMonths { get; set; }
         public IDictionary<DateTime, IDictionary<string, bool>> ExpandedCategories { get; set; }
+        public decimal AverageExpense { get; private set; }
+        public decimal AverageIncome { get; private set; }
+        public decimal AverageBalance { get; private set; }
+        public Dictionary<string, decimal[]> CategoriesAverages { get; private set; }
 
-        public override void OnGet()
+        protected override void Initialize()
         {
             InitializeExpanded();
-            if (DateFrom == default)
-                DateFrom = DateTime.Now.AddMonths(-5).SetToBeginningOfMonth();
+            InitializeTransactions();
+        }
 
-            base.OnGet();
+        protected override RouteValueDictionary GetQueryParameters()
+        {
+            var res = base.GetQueryParameters();
+            res.Add("expanded", this.Request.Query["expanded"]);
+            return res;
+        }
+
+        private void InitializeTransactions()
+        {
             this.MonthsCategoriesTotals = new Dictionary<DateTime, IDictionary<string, decimal>>();
             this.MonthsTotals = new Dictionary<DateTime, decimal>();
             this.MonthsIncomeTotals = new Dictionary<DateTime, decimal>();
             this.Transactions = new List<Transaction>();
 
-            var months = this.transactionsService.GetAll(x => x.Date >= DateFrom && x.Date <= DateTo && x.Type == TransactionType.Expense)
+            var all = this.GetTransactionsFilteredByDates();
+            all = ApplyCategoriesFilter(all);
+            var expenses = all.Where(x => x.Type == TransactionType.Expense);
+            var income = all.Where(x => x.Type == TransactionType.Income);
+            var months = expenses
                 .ToLookup(x => x.Date.SetToBeginningOfMonth()).OrderByDescending(x => x.Key);
-            var monthsIncome = this.transactionsService.GetAll(x => x.Date >= DateFrom && x.Date <= DateTo && x.Type == TransactionType.Income)
+            var monthsIncome = income
                 .ToLookup(x => x.Date.SetToBeginningOfMonth());
             foreach (var month in months)
             {
@@ -57,6 +74,39 @@ namespace ExpenseTracker.Web.Pages
                         this.Transactions.Add(t);
                     }
                 }
+            }
+
+            this.AverageExpense = this.MonthsTotals.Sum(x => x.Value) / this.MonthsTotals.Count;
+            this.AverageIncome = this.MonthsIncomeTotals.Sum(x => x.Value) / this.MonthsTotals.Count;
+            decimal allBalance = 0;
+            foreach (var monthIncome in MonthsIncomeTotals)
+            {
+                allBalance += monthIncome.Value - MonthsTotals[monthIncome.Key];
+            }
+
+            this.AverageBalance = allBalance / this.MonthsTotals.Count;
+            this.CategoriesAverages = new Dictionary<string, decimal[]>();
+            var categoriesAveragesTemp = new Dictionary<string, decimal[]>();
+            foreach (var monthCatTotal in MonthsCategoriesTotals)
+            {
+                foreach (var cat in monthCatTotal.Value)
+                {
+                    if (this.CategoriesAverages.ContainsKey(cat.Key))
+                    {
+                        categoriesAveragesTemp[cat.Key][0] += cat.Value;
+                        this.CategoriesAverages[cat.Key][0] += cat.Value;
+                    }
+                    else
+                    {
+                        categoriesAveragesTemp[cat.Key] = new decimal[] { cat.Value, 0m };
+                        this.CategoriesAverages[cat.Key] = new decimal[] { cat.Value, 0m };
+                    }
+                }
+            }
+
+            foreach (var catAvg in categoriesAveragesTemp)
+            {
+                this.CategoriesAverages[catAvg.Key][1] = catAvg.Value[0] / this.MonthsTotals.Count;
             }
         }
 
@@ -95,13 +145,6 @@ namespace ExpenseTracker.Web.Pages
                     }
                 }
             }
-        }
-
-        protected override RouteValueDictionary GetQueryParameters()
-        {
-            var res = base.GetQueryParameters();
-            res.Add("expanded", this.Request.Query["expanded"]);
-            return res;
-        }
+        }        
     }
 }
