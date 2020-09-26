@@ -1,22 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using ExpenseTracker.Allianz;
 using ExpenseTracker.Core;
-using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Asn1.X509.Qualified;
-using Org.BouncyCastle.Crypto.Digests;
 
-namespace ExpenseTracker.Web.Pages
+namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class IndexModel : GridBase
     {

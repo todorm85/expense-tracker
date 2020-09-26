@@ -1,0 +1,10 @@
+﻿<script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const XPosition = urlParams.get('XPosition');
+        const YPosition = urlParams.get('YPosition');
+        window.scrollTo(XPosition, YPosition);
+
+        function appendPosition(btn) {
+            btn.formAction = btn.formAction + "&XPosition=" + window.pageXOffset + "&YPosition=" + window.pageYOffset;
+        }
+</script>

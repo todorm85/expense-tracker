@@ -7,8 +7,6 @@
     {
         savingsClassValue = "danger";
     }
-
-    Layout = "_GridBaseLayout";
 }
 
 <partial name="_Submenu" />
@@ -84,6 +82,7 @@
 </div>
 
 @section Scripts {
+    <partial name="_AutoScrollScriptPartial" />
     <script>
         function onUpdateEnter(e) {
             createOrUpdateTransaction(e, "update")

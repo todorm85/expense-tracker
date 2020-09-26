@@ -8,7 +8,7 @@ using ExpenseTracker.Core;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace ExpenseTracker.Web.Pages.Shared
+namespace ExpenseTracker.Web.Pages.Transactions
 {
     public abstract class GridBase : PageModel
     {
@@ -31,12 +31,6 @@ namespace ExpenseTracker.Web.Pages.Shared
 
         [BindProperty(SupportsGet = true)]
         public DateTime DateTo { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public int XPosition { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public int YPosition { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public string CategoryFilter { get; set; }

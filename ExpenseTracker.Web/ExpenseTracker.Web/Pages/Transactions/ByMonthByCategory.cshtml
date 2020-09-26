@@ -1,9 +1,8 @@
 ﻿@page
 @using ExpenseTracker.Core
-@model ExpenseTracker.Web.Pages.TransactionsByMonthByCategoryModel
+@model ExpenseTracker.Web.Pages.Transactions.TransactionsByMonthByCategoryModel
 @{
     ViewData["Title"] = "Expenses by months by categories";
-    Layout = "_GridBaseLayout";
 }
 
 <partial name="_Submenu" />
@@ -23,11 +22,11 @@
             <div class="row">
                 @foreach (var catAvg in Model.CategoriesAverages.OrderByDescending(x => x.Value[1]))
                 {
-                <div class="d-inline-block p-2 m-1 bg-light border rounded">
-                    <span class="badge badge-primary">@(string.IsNullOrEmpty(catAvg.Key) ? "Unspecified" : catAvg.Key) </span>
-                    <span class="badge badge-secondary"> @catAvg.Value[1].ToString("N0") </span> | 
-                    <span class="text-secondary"> @catAvg.Value[0].ToString("N0") </span>
-                </div>
+                    <div class="d-inline-block p-2 m-1 bg-light border rounded">
+                        <span class="badge badge-primary">@(string.IsNullOrEmpty(catAvg.Key) ? "Unspecified" : catAvg.Key) </span>
+                        <span class="badge badge-secondary"> @catAvg.Value[1].ToString("N0") </span> |
+                        <span class="text-secondary"> @catAvg.Value[0].ToString("N0") </span>
+                    </div>
                 }
             </div>
 
@@ -35,7 +34,7 @@
                 <div class="col-2">Average</div>
                 <div class="col-2 text-right"><span class="badge badge-secondary">@Model.AverageExpense.ToString("N0")</span></div>
                 <div class="col-2 text-center"><span class="badge">@Model.AverageIncome.ToString("N0")</span></div>
-                @{ 
+                @{
                     var avgBalClass = "danger";
                     if (Model.AverageBalance >= 0)
                     {
@@ -45,7 +44,7 @@
                 <div class="col-1"><span class="badge badge-@avgBalClass">@Model.AverageBalance.ToString("N0")</span></div>
                 <div class="col"></div>
             </h3>
-            
+
 
             @{DateTime lastDateTime = default(DateTime); }
             @for (int i = 0; i < Model.Transactions.Count; i++)
@@ -153,20 +152,21 @@
 </div>
 
 @section Scripts {
-<script>
-    function appendPositionAndExpansion(el) {
-        appendPosition(el);
-        debugger;
-        var expandables = document.getElementsByClassName("gridExpandable");
-        var expanded = "";
-        for (var i = 0; i < expandables.length; i++) {
-            var e = expandables[i];
-            if (e.style.display !== "none") {
-                expanded = expanded + "," + e.id;
+    <partial name="_AutoScrollScriptPartial" />
+    <script>
+        function appendPositionAndExpansion(el) {
+            appendPosition(el);
+            debugger;
+            var expandables = document.getElementsByClassName("gridExpandable");
+            var expanded = "";
+            for (var i = 0; i < expandables.length; i++) {
+                var e = expandables[i];
+                if (e.style.display !== "none") {
+                    expanded = expanded + "," + e.id;
+                }
             }
-        }
 
-        el.formAction = el.formAction + "&expanded=" + expanded;
-    }
-</script>
+            el.formAction = el.formAction + "&expanded=" + expanded;
+        }
+    </script>
 }

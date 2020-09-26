@@ -2,14 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using ExpenseTracker.Core;
-using ExpenseTracker.Web.Pages.Shared;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Routing;
 
-namespace ExpenseTracker.Web.Pages
+namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class TransactionsByMonthByCategoryModel : GridBase
     {
