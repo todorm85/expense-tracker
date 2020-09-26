@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using ExpenseTracker.Core;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ExpenseTracker.Web.Pages.Shared;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
@@ -100,8 +101,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             var queryParameters = new RouteValueDictionary();
             queryParameters.Add("DateFrom", DateFrom);
             queryParameters.Add("DateTo", DateTo);
-            queryParameters.Add("XPosition", this.Request.Query["XPosition"]);
-            queryParameters.Add("YPosition", this.Request.Query["YPosition"]);
+            AutoScrollScriptPartial.AppendQueryParamsFromRequest(this.Request, queryParameters);
             queryParameters.Add("CategoryFilter", CategoryFilter);
             return queryParameters;
         }

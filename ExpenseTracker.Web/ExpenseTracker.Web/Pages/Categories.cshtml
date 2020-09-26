@@ -20,7 +20,7 @@
                     <td><input asp-for="CreateCategory.Name" /></td>
                     <td><input asp-for="CreateCategory.KeyWord" /></td>
                     <td>
-                        <button type="submit" asp-page-handler="Create">
+                        <button type="submit" asp-page-handler="Create" onclick="appendPosition(this)">
                             Create
                         </button>
                     </td>
@@ -31,7 +31,7 @@
                         <td>@c.Name</td>
                         <td>@c.KeyWord</td>
                         <td>
-                            <button type="submit" asp-page-handler="Remove" asp-route-id="@c.Id">
+                            <button type="submit" asp-page-handler="Remove" asp-route-id="@c.Id" onclick="appendPosition(this)">
                                 Delete
                             </button>
                         </td>
@@ -41,3 +41,7 @@
         </table>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_AutoScrollScriptPartial" />
+}
