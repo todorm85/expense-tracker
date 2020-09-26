@@ -41,11 +41,11 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public void OnGet()
         {
             InitializeDateFilters();
-            Initialize();
+            InitializeTransactions();
             InitializeCategories();
         }
 
-        protected abstract void Initialize();
+        protected abstract void InitializeTransactions();
 
         private void InitializeCategories()
         {

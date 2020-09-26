@@ -41,7 +41,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         [BindProperty(SupportsGet = true)]
         public string Operation { get; set; }
 
-        protected override void Initialize()
+        protected override void InitializeTransactions()
         {
             this.CreateTransaction = new Transaction() { Date = DateTime.Now };
             RefreshTransactions();

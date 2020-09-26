@@ -28,10 +28,10 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal AverageBalance { get; private set; }
         public Dictionary<string, decimal[]> CategoriesAverages { get; private set; }
 
-        protected override void Initialize()
+        protected override void InitializeTransactions()
         {
             InitializeExpanded();
-            InitializeTransactions();
+            GetTransactions();
         }
 
         protected override RouteValueDictionary GetQueryParameters()
@@ -41,7 +41,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return res;
         }
 
-        private void InitializeTransactions()
+        private void GetTransactions()
         {
             this.MonthsCategoriesTotals = new Dictionary<DateTime, IDictionary<string, decimal>>();
             this.MonthsTotals = new Dictionary<DateTime, decimal>();
