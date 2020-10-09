@@ -43,7 +43,16 @@ namespace ExpenseTracker.Allianz
                         parsedDate = DateTime.ParseExact(fgs[0], "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
                     }
 
-                    parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
+                    parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
+
+                    if (parsedDate.TimeOfDay != new TimeSpan())
+                    {
+                        var bgTz = TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time");
+                        var offset = bgTz.GetUtcOffset(parsedDate);
+                        parsedDate = parsedDate.Add(-offset);
+                        parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
+                    }
+
                     var t = this.builder.Import(amount, details, type, parsedDate);
                     if (this.IsValid(t))
                     {
