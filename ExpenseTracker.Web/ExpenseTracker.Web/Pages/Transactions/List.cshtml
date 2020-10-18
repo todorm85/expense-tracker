@@ -18,25 +18,14 @@
         <span class="badge">Income: @Model.Income.ToString("N0")</span> |
         <span class="badge badge-@savingsClassValue">Balance: @Model.Saved.ToString("N0")</span>
     </div>
-    <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';">
+    <form method="post" onkeydown="return event.key != 'Enter';">
         <div class="mb-4">
-            <input type="file" multiple asp-for="Files">
-            <input asp-page-handler="Upload" type="submit" value="Upload" />
             <button type="submit" asp-page-handler="ClassifyCurrent">Classify Filtered</button>
             <button type="submit" asp-page-handler="ClassifyAll">Classify All</button>
             <button type="submit" asp-page-handler="DeleteFiltered">Delete Filtered</button>
             <button type="submit" asp-page-handler="DeleteAll">Delete All</button>
         </div>
-        <div class="border mb-3 rounded">
-            <div class="mb-3 mt-3">
-                From <input type="text" asp-for="DateFrom" class="rounded" />
-                To <input type="text" asp-for="DateTo" class="rounded" />
-                <span class="ml-2">Sort </span><select asp-for="SortBy" asp-items="Html.GetEnumSelectList<SortOptions>()" class="rounded"></select>
-                <input type="text" asp-for="Search" class="rounded ml-2" placeholder="Search" />
-                <select asp-for="CategoryFilter" class="rounded ml-2" asp-items="Model.Categories"></select>
-                <button type="submit" asp-page-handler="sort" class="ml-4"> Apply </button>
-            </div>
-        </div>
+        <partial name="_Filters" />
         <table class="table border rounded table-sm">
             <thead>
                 <tr class="table-info">

@@ -9,14 +9,7 @@
 <div class="text-center">
     <h1 class="display-4 mb-4">@ViewData["Title"]</h1>
     <form method="post">
-        <div class="border mb-3 rounded">
-            <div class="mb-3 mt-3">
-                From <input type="text" asp-for="DateFrom" class="rounded" />
-                To <input type="text" asp-for="DateTo" class="rounded" />
-                <select asp-for="CategoryFilter" class="rounded ml-2" asp-items="Model.Categories"></select>
-                <button type="submit" asp-page-handler="sort" class="ml-4"> Apply </button>
-            </div>
-        </div>
+        <partial name="_Filters" />
 
         <div class="container">
             <div class="row">

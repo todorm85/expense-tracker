@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using ExpenseTracker.Core;
+using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using ExpenseTracker.Core;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using ExpenseTracker.Web.Pages.Shared;
+using Microsoft.AspNetCore.Routing;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
@@ -35,6 +34,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         [BindProperty(SupportsGet = true)]
         public string CategoryFilter { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public SortOptions SortBy { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public string Search { get; set; }
 
         public List<SelectListItem> Categories { get; set; }
 
@@ -101,6 +106,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
             var queryParameters = new RouteValueDictionary();
             queryParameters.Add("DateFrom", DateFrom);
             queryParameters.Add("DateTo", DateTo);
+            queryParameters.Add("SortBy", SortBy);
+            queryParameters.Add("Search", Search);
             AutoScrollScriptPartial.AppendQueryParamsFromRequest(this.Request, queryParameters);
             queryParameters.Add("CategoryFilter", CategoryFilter);
             return queryParameters;
@@ -111,28 +118,45 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return RedirectToPage(this.pageName, this.GetQueryParameters());
         }
 
-        protected IEnumerable<Transaction> ApplyCategoriesFilter(IEnumerable<Transaction> transactions)
+        protected IEnumerable<Transaction> GetTransactionsFiltered()
+        {
+            return transactionsService
+                            .GetAll(x => ApplyDateFilter(x) &&
+                                ApplyCategoriesFilter(x) &&
+                                ApplySearchFilter(x) &&
+                                !x.Ignored);
+        }
+
+        private bool ApplySearchFilter(Transaction x)
+        {
+            if (!string.IsNullOrWhiteSpace(Search))
+            {
+                return x.Details.Contains(Search));
+            }
+
+            return true;
+        }
+
+        private bool ApplyCategoriesFilter(Transaction x)
         {
             if (!string.IsNullOrWhiteSpace(CategoryFilter))
             {
                 if (CategoryFilter == "-")
                 {
-                    transactions = transactions.Where(x => string.IsNullOrWhiteSpace(x.Category));
+                    return string.IsNullOrWhiteSpace(x.Category);
                 }
                 else
                 {
-                    transactions = transactions.Where(x => x.Category != null && x.Category == CategoryFilter);
+                    return x.Category == CategoryFilter;
                 }
             }
 
-            return transactions;
+            return true;
         }
 
-        protected IEnumerable<Transaction> GetTransactionsFilteredByDates()
+        private bool ApplyDateFilter(Transaction x)
         {
-            return transactionsService
-                            .GetAll(x => x.Date >= DateFrom &&
-                                x.Date <= DateTo && !x.Ignored);
+            return x.Date >= DateFrom && x.Date <= DateTo;
         }
 
         private void InitializeDateFilters()
@@ -155,5 +179,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
             new TransactionsClassifier().Classify(all, this.categories.GetAll());
             this.transactionsService.Update(all);
         }
+    }
+
+    public enum SortOptions
+    {
+        Date,
+        Category,
+        Amount
     }
 }

@@ -1,0 +1,10 @@
+﻿<div class="border mb-3 rounded">
+    <div class="mb-3 mt-3">
+        From <input type="text" asp-for="DateFrom" class="rounded" />
+        To <input type="text" asp-for="DateTo" class="rounded" />
+        <span class="ml-2">Sort </span><select asp-for="SortBy" asp-items="Html.GetEnumSelectList<SortOptions>()" class="rounded"></select>
+        <input type="text" asp-for="Search" class="rounded ml-2" placeholder="Search" />
+        <select asp-for="CategoryFilter" class="rounded ml-2" asp-items="Model.Categories"></select>
+        <button type="submit" asp-page-handler="sort" class="ml-4"> Apply </button>
+    </div>
+</div>

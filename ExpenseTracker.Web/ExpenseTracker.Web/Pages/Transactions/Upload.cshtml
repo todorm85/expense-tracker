@@ -1,0 +1,16 @@
+﻿@page
+@model ExpenseTracker.Web.Pages.Transactions.UploadModel
+@{
+}
+
+<partial name="_Submenu" />
+
+<div class="text-center">
+    <h1 class="display-4">Upload</h1>
+    <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';">
+        <div class="mb-4">
+            <input type="file" multiple asp-for="Files">
+            <input asp-page-handler="Upload" type="submit" value="Upload" />
+        </div>
+    </form>
+</div>

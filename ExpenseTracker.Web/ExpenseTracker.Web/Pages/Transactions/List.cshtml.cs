@@ -12,15 +12,10 @@ namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class IndexModel : GridBase
     {
-        private readonly AllianzTxtFileParser allianz;
-        private readonly RaiffeizenTxtFileParser rai;
-
-        public IndexModel(ITransactionsService transactions, CategoriesService categories, AllianzTxtFileParser allianz, RaiffeizenTxtFileParser rai)
+        public IndexModel(ITransactionsService transactions, CategoriesService categories)
             : base (transactions, categories)
         {
             this.pageName = "List";
-            this.allianz = allianz;
-            this.rai = rai;
         }
 
         public decimal Expenses { get; set; }
@@ -28,15 +23,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal Saved { get; set; }
         [BindProperty]
         public Transaction CreateTransaction { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public SortOptions SortBy { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public string Search { get; set; }
-
-        [BindProperty]
-        public IList<IFormFile> Files { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public string Operation { get; set; }
@@ -95,40 +81,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return RedirectToPageWithState();
         }
 
-        public IActionResult OnPostUpload(List<IFormFile> files)
-        {
-            foreach (var formFile in files)
-            {
-                if (formFile.Length > 0)
-                {
-                    var filePath = Path.GetTempFileName();
-
-                    using (var stream = System.IO.File.Create(filePath))
-                    {
-                        formFile.CopyTo(stream);
-                    }
-
-                    if (formFile.FileName.EndsWith("xml"))
-                    {
-                        IEnumerable<Transaction> expenses = this.rai.ParseFile(filePath);
-                        this.transactionsService.Add(expenses);
-                    }
-                    else if (formFile.FileName.EndsWith("txt"))
-                    {
-                        IEnumerable<Transaction> expenses = this.allianz.GetTransactions(filePath);
-                        this.transactionsService.Add(expenses);
-                    }
-                }
-            }
-
-            return RedirectToPageWithState();
-        }
-
         protected override RouteValueDictionary GetQueryParameters()
         {
             var parameters = base.GetQueryParameters();
-            parameters.Add("SortBy", SortBy);
-            parameters.Add("Search", Search);
             parameters.Add("Operation", this.Request.Query["Operation"]);
             return parameters;
         }
@@ -151,14 +106,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private void RefreshTransactions()
         {
-            IEnumerable<Transaction> transactions = GetTransactionsFilteredByDates();
-
-            if (!string.IsNullOrWhiteSpace(Search))
-            {
-                transactions = transactions.Where(x => x.Details.Contains(Search));
-            }
-
-            transactions = ApplyCategoriesFilter(transactions);
+            IEnumerable<Transaction> transactions = GetTransactionsFiltered();
 
             IEnumerable<Transaction> sort = new List<Transaction>();
             switch (this.SortBy)
@@ -183,12 +131,5 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 .Sum(x => x.Amount);
             this.Saved = this.Income - this.Expenses;
         }
-    }
-
-    public enum SortOptions
-    {
-        Date,
-        Category,
-        Amount
     }
 }
