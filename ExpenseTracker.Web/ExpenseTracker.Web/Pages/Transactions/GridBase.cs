@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ExpenseTracker.Core;
+using ExpenseTracker.Web.Models.Transactions;
 using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -21,27 +22,14 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             this.transactionsService = transactionsService;
             this.categories = categories;
+            this.Filters = new FiltersModel();
         }
 
         [BindProperty]
         public IList<Transaction> Transactions { get; set; }
 
-        [BindProperty(SupportsGet = true)]
-        public DateTime DateFrom { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public DateTime DateTo { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public string CategoryFilter { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public SortOptions SortBy { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public string Search { get; set; }
-
-        public List<SelectListItem> Categories { get; set; }
+        [BindProperty]
+        public FiltersModel Filters { get; set; }
 
         public void OnGet()
         {
@@ -54,13 +42,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private void InitializeCategories()
         {
-            this.Categories = new List<SelectListItem>()
+            this.Filters.Categories = new List<SelectListItem>()
             {
                 new SelectListItem("Select Category", ""),
                 new SelectListItem("Uncategorised", "-")
             };
 
-            this.Categories = this.Categories.Union(
+            this.Filters.Categories = this.Filters.Categories.Union(
                 this.Transactions
                     .Where(x => !string.IsNullOrEmpty(x.Category))
                     .Select(x => x.Category)
@@ -104,12 +92,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
         protected virtual RouteValueDictionary GetQueryParameters()
         {
             var queryParameters = new RouteValueDictionary();
-            queryParameters.Add("DateFrom", DateFrom);
-            queryParameters.Add("DateTo", DateTo);
-            queryParameters.Add("SortBy", SortBy);
-            queryParameters.Add("Search", Search);
+            queryParameters.Add("DateFrom", Filters.DateFrom);
+            queryParameters.Add("DateTo", Filters.DateTo);
+            queryParameters.Add("SortBy", Filters.SortBy);
+            queryParameters.Add("Search", Filters.Search);
             AutoScrollScriptPartial.AppendQueryParamsFromRequest(this.Request, queryParameters);
-            queryParameters.Add("CategoryFilter", CategoryFilter);
+            queryParameters.Add("CategoryFilter", Filters.CategoryFilter);
             return queryParameters;
         }
 
@@ -129,9 +117,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private bool ApplySearchFilter(Transaction x)
         {
-            if (!string.IsNullOrWhiteSpace(Search))
+            if (!string.IsNullOrWhiteSpace(Filters.Search))
             {
-                return x.Details.Contains(Search));
+                return x.Details.Contains(Filters.Search);
             }
 
             return true;
@@ -139,15 +127,15 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private bool ApplyCategoriesFilter(Transaction x)
         {
-            if (!string.IsNullOrWhiteSpace(CategoryFilter))
+            if (!string.IsNullOrWhiteSpace(Filters.CategoryFilter))
             {
-                if (CategoryFilter == "-")
+                if (Filters.CategoryFilter == "-")
                 {
                     return string.IsNullOrWhiteSpace(x.Category);
                 }
                 else
                 {
-                    return x.Category == CategoryFilter;
+                    return x.Category == Filters.CategoryFilter;
                 }
             }
 
@@ -156,20 +144,20 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private bool ApplyDateFilter(Transaction x)
         {
-            return x.Date >= DateFrom && x.Date <= DateTo;
+            return x.Date >= Filters.DateFrom && x.Date <= Filters.DateTo;
         }
 
         private void InitializeDateFilters()
         {
             var now = DateTime.Now;
-            if (DateTo == default)
+            if (Filters.DateTo == default)
             {
-                this.DateTo = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
+                this.Filters.DateTo = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
             }
 
-            if (DateFrom == default)
+            if (Filters.DateFrom == default)
             {
-                this.DateFrom = DateTime.Now.AddMonths(initialMonthsBack).SetToBeginningOfMonth();
+                this.Filters.DateFrom = DateTime.Now.AddMonths(initialMonthsBack).SetToBeginningOfMonth();
             }
         }
         

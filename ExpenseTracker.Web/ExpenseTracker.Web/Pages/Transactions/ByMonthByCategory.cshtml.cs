@@ -47,9 +47,14 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.MonthsTotals = new Dictionary<DateTime, decimal>();
             this.MonthsIncomeTotals = new Dictionary<DateTime, decimal>();
             this.Transactions = new List<Transaction>();
+            this.CategoriesAverages = new Dictionary<string, decimal[]>();
 
-            var all = this.GetTransactionsFilteredByDates();
-            all = ApplyCategoriesFilter(all);
+            var all = this.GetTransactionsFiltered();
+            if (all.Count() == 0)
+            {
+                return;
+            }
+
             var expenses = all.Where(x => x.Type == TransactionType.Expense);
             var income = all.Where(x => x.Type == TransactionType.Income);
             var months = expenses
@@ -81,7 +86,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
             }
 
             this.AverageBalance = allBalance / this.MonthsTotals.Count;
-            this.CategoriesAverages = new Dictionary<string, decimal[]>();
             var categoriesAveragesTemp = new Dictionary<string, decimal[]>();
             foreach (var monthCatTotal in MonthsCategoriesTotals)
             {

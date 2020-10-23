@@ -109,7 +109,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             IEnumerable<Transaction> transactions = GetTransactionsFiltered();
 
             IEnumerable<Transaction> sort = new List<Transaction>();
-            switch (this.SortBy)
+            switch (this.Filters.SortBy)
             {
                 case SortOptions.Date:
                     sort = transactions.OrderByDescending(x => x.Date);

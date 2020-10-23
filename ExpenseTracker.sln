@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.Data", "ExpenseTracker.Data\ExpenseTracker.Data.csproj", "{2E0FE626-D6C8-4170-922E-BCF851966C4E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Data", "ExpenseTracker.Data\ExpenseTracker.Data.csproj", "{2E0FE626-D6C8-4170-922E-BCF851966C4E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.App", "ExpenseTracker.App\ExpenseTracker.App.csproj", "{AE4EF3A1-F670-42FF-A194-40FC7A82F4A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.App", "ExpenseTracker.App\ExpenseTracker.App.csproj", "{AE4EF3A1-F670-42FF-A194-40FC7A82F4A0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.Tests", "ExpenseTracker.Tests\ExpenseTracker.Tests.csproj", "{827AADBB-C502-4211-86C7-B4FE5814669C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Tests", "ExpenseTracker.Tests\ExpenseTracker.Tests.csproj", "{827AADBB-C502-4211-86C7-B4FE5814669C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.CLI", "ExpenseTracker.CLI\ExpenseTracker.CLI.csproj", "{20A3F135-3E4B-47AE-B7F5-E70F94FD4B5B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.CLI", "ExpenseTracker.CLI\ExpenseTracker.CLI.csproj", "{20A3F135-3E4B-47AE-B7F5-E70F94FD4B5B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.Core", "ExpenseTracker.Core\ExpenseTracker.Core.csproj", "{DA58DD2A-8170-46C8-9161-50E5FC84BABB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Core", "ExpenseTracker.Core\ExpenseTracker.Core.csproj", "{DA58DD2A-8170-46C8-9161-50E5FC84BABB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.Integrations", "ExpenseTracker.Integrations\ExpenseTracker.Integrations.csproj", "{6BD97C16-284C-4D89-9E7E-2ECEE4BD74EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Integrations", "ExpenseTracker.Integrations\ExpenseTracker.Integrations.csproj", "{6BD97C16-284C-4D89-9E7E-2ECEE4BD74EE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.Web", "ExpenseTracker.Web\ExpenseTracker.Web\ExpenseTracker.Web.csproj", "{1D39AFEA-3C44-4180-A685-AFDB0A63FD4E}"
 EndProject
