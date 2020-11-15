@@ -69,7 +69,7 @@ namespace ExpenseTracker.Tests.Int
             var testData = GetTestData(YouTubeExpenseEntry);
             var expenses = this.fileParser.Parse(testData);
 
-            Assert.AreEqual(new DateTime(2020, 09, 01, 12, 55, 37).ToString(CultureInfo.InvariantCulture), expenses[0].Date.ToString(CultureInfo.InvariantCulture));
+            Assert.AreEqual(new DateTime(2020, 09, 01, 9, 55, 37).ToString(CultureInfo.InvariantCulture), expenses[0].Date.ToString(CultureInfo.InvariantCulture));
         }
 
         [TestMethod]
@@ -78,7 +78,7 @@ namespace ExpenseTracker.Tests.Int
             var testData = GetTestData(EpayEntry);
             var expenses = this.fileParser.Parse(testData);
 
-            Assert.AreEqual(new DateTime(2020, 09, 01, 21, 50, 38).ToString(CultureInfo.InvariantCulture), expenses[0].Date.ToString(CultureInfo.InvariantCulture));
+            Assert.AreEqual(new DateTime(2020, 09, 01, 18, 50, 38).ToString(CultureInfo.InvariantCulture), expenses[0].Date.ToString(CultureInfo.InvariantCulture));
         }
 
         [TestMethod]

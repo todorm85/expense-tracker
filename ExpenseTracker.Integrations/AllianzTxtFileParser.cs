@@ -45,7 +45,7 @@ namespace ExpenseTracker.Allianz
 
                     parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
                     var rawDate = parsedDate;
-                    if (parsedDate.TimeOfDay != new TimeSpan())
+                    if (parsedDate.TimeOfDay != default)
                     {
                         var bgTz = TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time");
                         var offset = bgTz.GetUtcOffset(parsedDate);
