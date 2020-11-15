@@ -11,5 +11,10 @@ namespace ExpenseTracker.Core
         {
             t.TransactionId = $"{t.Date.ToString("dd/MM/yy_HH:mm:ss", CultureInfo.InvariantCulture)}_{t.Amount.ToString("F2")}_{t.Details}";
         }
+
+        public static void GenerateTransactionId(this Transaction t, DateTime date)
+        {
+            t.TransactionId = $"{date.ToString("dd/MM/yy_HH:mm:ss", CultureInfo.InvariantCulture)}_{t.Amount.ToString("F2")}_{t.Details}";
+        }
     }
 }

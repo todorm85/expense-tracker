@@ -44,7 +44,7 @@ namespace ExpenseTracker.Allianz
                     }
 
                     parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
-
+                    var rawDate = parsedDate;
                     if (parsedDate.TimeOfDay != new TimeSpan())
                     {
                         var bgTz = TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time");
@@ -56,6 +56,7 @@ namespace ExpenseTracker.Allianz
                     var t = this.builder.Import(amount, details, type, parsedDate);
                     if (this.IsValid(t))
                     {
+                        t.GenerateTransactionId(rawDate);
                         trans.Add(t);
                     }
 
