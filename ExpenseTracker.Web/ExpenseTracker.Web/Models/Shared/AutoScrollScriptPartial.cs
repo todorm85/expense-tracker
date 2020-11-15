@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace ExpenseTracker.Web.Pages.Shared
+namespace ExpenseTracker.Web.Models.Shared
 {
     public class AutoScrollScriptPartial
     {

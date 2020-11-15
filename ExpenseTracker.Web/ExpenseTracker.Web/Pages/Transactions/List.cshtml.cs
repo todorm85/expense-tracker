@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using ExpenseTracker.Allianz;
-using ExpenseTracker.Core;
-using Microsoft.AspNetCore.Http;
+﻿using ExpenseTracker.Core;
+using ExpenseTracker.Web.Models.Transactions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class IndexModel : GridBase
     {
         public IndexModel(ITransactionsService transactions, CategoriesService categories)
-            : base (transactions, categories)
+            : base(transactions, categories)
         {
             this.pageName = "List";
         }

@@ -1,9 +1,10 @@
+using ExpenseTracker.Core;
+using ExpenseTracker.Web.Models.Transactions;
+using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using ExpenseTracker.Core;
-using Microsoft.AspNetCore.Routing;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {

@@ -1,15 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ExpenseTracker.Core;
-using ExpenseTracker.Web.Models.Transactions;
-using ExpenseTracker.Web.Pages.Shared;
+using ExpenseTracker.Web.Models.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace ExpenseTracker.Web.Pages.Transactions
+namespace ExpenseTracker.Web.Models.Transactions
 {
     public abstract class GridBase : PageModel
     {
@@ -22,18 +21,17 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             this.transactionsService = transactionsService;
             this.categories = categories;
-            this.Filters = new FiltersModel();
         }
 
         [BindProperty]
         public IList<Transaction> Transactions { get; set; }
 
-        [BindProperty]
+        [BindProperty(SupportsGet = true)]
         public FiltersModel Filters { get; set; }
 
         public void OnGet()
         {
-            InitializeDateFilters();
+            InitializeFilters();
             InitializeTransactions();
             InitializeCategories();
         }
@@ -147,8 +145,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return x.Date >= Filters.DateFrom && x.Date <= Filters.DateTo;
         }
 
-        private void InitializeDateFilters()
+        private void InitializeFilters()
         {
+            if (this.Filters == null)
+            {
+                this.Filters = new FiltersModel();
+            }
+
             var now = DateTime.Now;
             if (Filters.DateTo == default)
             {
@@ -160,7 +163,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 this.Filters.DateFrom = DateTime.Now.AddMonths(initialMonthsBack).SetToBeginningOfMonth();
             }
         }
-        
+
         protected void ClassifyAll()
         {
             var all = this.transactionsService.GetAll().ToList();
