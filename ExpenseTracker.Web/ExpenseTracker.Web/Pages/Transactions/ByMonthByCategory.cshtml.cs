@@ -1,6 +1,7 @@
 using ExpenseTracker.Core;
 using ExpenseTracker.Web.Models.Transactions;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -33,6 +34,16 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             InitializeExpanded();
             GetTransactions();
+        }
+
+        protected override void InitializeFilters()
+        {
+            if (!this.HttpContext.Request.Query.TryGetValue("SortBy", out StringValues result))
+            {
+                this.Filters.SortBy = SortOptions.Amount;
+            }
+
+            base.InitializeFilters();
         }
 
         protected override RouteValueDictionary GetQueryParameters()
@@ -71,7 +82,14 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 foreach (var c in categories)
                 {
                     this.MonthsCategoriesTotals[month.Key][c.Key ?? ""] = c.Sum(x => x.Amount);
-                    foreach (var t in c.OrderByDescending(x => x.Amount))
+
+                    var orderedCats = c.OrderByDescending(x => x.Amount);
+                    if (this.Filters.SortBy == SortOptions.Date)
+                    {
+                        orderedCats = c.OrderByDescending(x => x.Date);
+                    }
+
+                    foreach (var t in orderedCats)
                     {
                         this.Transactions.Add(t);
                     }

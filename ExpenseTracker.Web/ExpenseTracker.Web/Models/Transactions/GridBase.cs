@@ -145,13 +145,8 @@ namespace ExpenseTracker.Web.Models.Transactions
             return x.Date >= Filters.DateFrom && x.Date <= Filters.DateTo;
         }
 
-        private void InitializeFilters()
+        protected virtual void InitializeFilters()
         {
-            if (this.Filters == null)
-            {
-                this.Filters = new FiltersModel();
-            }
-
             var now = DateTime.Now;
             if (Filters.DateTo == default)
             {
