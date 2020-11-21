@@ -106,23 +106,23 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             IEnumerable<Transaction> transactions = GetTransactionsFiltered();
 
-            IEnumerable<Transaction> sort = new List<Transaction>();
+            IEnumerable<Transaction> sorted = new List<Transaction>();
             switch (this.Filters.SortBy)
             {
                 case SortOptions.Date:
-                    sort = transactions.OrderByDescending(x => x.Date);
+                    sorted = transactions.OrderByDescending(x => x.Date);
                     break;
                 case SortOptions.Category:
-                    sort = transactions.OrderBy(x => x.Category);
+                    sorted = transactions.OrderBy(x => x.Category);
                     break;
                 case SortOptions.Amount:
-                    sort = transactions.OrderByDescending(x => x.Amount);
+                    sorted = transactions.OrderByDescending(x => x.Amount);
                     break;
                 default:
                     break;
             }
 
-            this.Transactions = sort.ToList();
+            this.Transactions = sorted.ToList();
             this.Expenses = this.Transactions.Where(x => x.Type == TransactionType.Expense)
                 .Sum(x => x.Amount);
             this.Income = this.Transactions.Where(x => x.Type == TransactionType.Income)

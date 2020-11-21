@@ -1,5 +1,6 @@
 using ExpenseTracker.Core;
 using ExpenseTracker.Web.Models.Shared;
+using ExpenseTracker.Web.Models.Transactions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ExpenseTracker.Web.Models.Transactions
+namespace ExpenseTracker.Web.Pages.Transactions
 {
     public abstract class GridBase : PageModel
     {

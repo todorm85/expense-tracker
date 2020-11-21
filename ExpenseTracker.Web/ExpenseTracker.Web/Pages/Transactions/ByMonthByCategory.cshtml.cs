@@ -15,7 +15,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             ITransactionsService transactionsService, CategoriesService categoriesService) : base(transactionsService, categoriesService)
         {
             this.pageName = "ByMonthByCategory";
-            this.initialMonthsBack = -5;
+            this.initialMonthsBack = -1;
         }
 
         public IDictionary<DateTime, IDictionary<string, decimal>> MonthsCategoriesTotals { get; set; }
