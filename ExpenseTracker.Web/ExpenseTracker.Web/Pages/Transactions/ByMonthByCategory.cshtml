@@ -87,35 +87,30 @@
                         <div class="col text-left">
                             @while (t != null && t.Date.SetToBeginningOfMonth() == lastDateTime)
                             {
-                                var lastCategory = t.Category ?? "";
-                                <div class="row">
+                                var currentCategoryKey = this.Model.GetCategoryKey(t);
+                                var rowClass = t.Type == TransactionType.Expense ? "" : "alert-success";
+                                <div class="row @rowClass">
                                     <div class="col-3">
-                                        <button class="btn btn-link text-dark" type="button" onclick="onToggleElement('@("category__" + t.Date.ToString("MM_yy__") + t.Category)')">
-                                            @{ 
-                                                var unspecifiedCategoryTitle = t.Type == TransactionType.Expense ? "Unspecified" : "Income";
-                                            }
-                                            <h5>@(string.IsNullOrWhiteSpace(t.Category) ? unspecifiedCategoryTitle : t.Category)</h5>
+                                        <button class="btn btn-link text-dark" type="button" onclick="onToggleElement('@("category__" + t.Date.ToString("MM_yy__") + currentCategoryKey)')">
+                                            <h5>@(currentCategoryKey)</h5>
                                         </button>
                                     </div>
                                     <div class="col text-left mt-1">
-                                        @{ 
-                                            var categoryKey = t.Type == TransactionType.Income ? "income" : lastCategory;
-                                        }
-                                        <h5>@Model.MonthsCategoriesTotals[lastDateTime][categoryKey].ToString("N0")</h5>
+                                        <h5>@Model.MonthsCategoriesTotals[lastDateTime][currentCategoryKey].ToString("N0")</h5>
                                     </div>
                                 </div>
 
                                 var categoryDisplay = "none";
                                 if (Model.ExpandedCategories.ContainsKey(t.Date.SetToBeginningOfMonth()) &&
-                                    Model.ExpandedCategories[t.Date.SetToBeginningOfMonth()].ContainsKey(t.Category ?? "") ||
-                                    Model.MonthsCategoriesTotals[lastDateTime].Count == 1)
+                                Model.ExpandedCategories[t.Date.SetToBeginningOfMonth()].ContainsKey(currentCategoryKey) ||
+                                Model.MonthsCategoriesTotals[lastDateTime].Count == 1)
                                 {
                                     categoryDisplay = "revert";
                                 }
 
-                                <div id="@("category__" + t.Date.ToString("MM_yy__") + t.Category)" style="display: @categoryDisplay" class="row gridExpandable">
+                                <div id="@("category__" + t.Date.ToString("MM_yy__") + currentCategoryKey)" style="display: @categoryDisplay" class="row gridExpandable">
                                     <div class="col border">
-                                        @while ((t.Category ?? "") == lastCategory && t.Date.SetToBeginningOfMonth() == lastDateTime)
+                                        @while (this.Model.GetCategoryKey(t) == currentCategoryKey && t.Date.SetToBeginningOfMonth() == lastDateTime)
                                         {
                                             <div class="row border bg-light">
                                                 <div class="col-3 pl-4">@t.Date.ToString("dd HH:mm")</div>

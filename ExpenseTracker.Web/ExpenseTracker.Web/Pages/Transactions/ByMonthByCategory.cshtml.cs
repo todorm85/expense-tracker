@@ -11,6 +11,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class TransactionsByMonthByCategoryModel : GridBase
     {
+        private const string UnspecifiedCategoryKeyName = "unspecified";
+
         public TransactionsByMonthByCategoryModel(
             ITransactionsService transactionsService, CategoriesService categoriesService) : base(transactionsService, categoriesService)
         {
@@ -29,6 +31,14 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal AverageIncome { get; private set; }
         public decimal AverageBalance { get; private set; }
         public Dictionary<string, decimal[]> CategoriesAverages { get; private set; }
+
+        public string GetCategoryKey(Transaction t)
+        {
+            var currentCategory = t.Category ?? "";
+            currentCategory = t.Type == TransactionType.Income ? "income" : currentCategory;
+            currentCategory = string.IsNullOrEmpty(currentCategory) ? UnspecifiedCategoryKeyName : currentCategory;
+            return currentCategory;
+        }
 
         protected override void InitializeTransactions()
         {
@@ -81,7 +91,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 var categories = month.ToLookup(x => x.Category).OrderByDescending(x => x.Sum(y => y.Amount));
                 foreach (var c in categories)
                 {
-                    this.MonthsCategoriesTotals[month.Key][c.Key ?? ""] = c.Sum(x => x.Amount);
+                    this.MonthsCategoriesTotals[month.Key][c.Key ?? UnspecifiedCategoryKeyName] = c.Sum(x => x.Amount);
 
                     var orderedCats = c.OrderByDescending(x => x.Amount);
                     if (this.Filters.SortBy == SortOptions.Date)
