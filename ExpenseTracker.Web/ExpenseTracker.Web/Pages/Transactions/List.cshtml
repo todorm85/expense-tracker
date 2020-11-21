@@ -38,7 +38,7 @@
             </thead>
             <tbody>
                 <tr class="table-dark">
-                    <td><input type="text" asp-for="CreateTransaction.Date" class="form-control" /></td>
+                    <td><input type="datetime-local" asp-for="CreateTransaction.Date" class="form-control" /></td>
                     <td><input onfocus="this.select();" onmouseup="return false;" asp-for="CreateTransaction.Amount" class="form-control createInitialFocus" /></td>
                     <td><textarea asp-for="CreateTransaction.Details" rows="3" class="form-control"></textarea></td>
                     <td><input asp-for="CreateTransaction.Category" class="form-control" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" /></td>

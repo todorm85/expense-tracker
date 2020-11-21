@@ -143,7 +143,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private bool ApplyDateFilter(Transaction x)
         {
-            return x.Date >= Filters.DateFrom && x.Date <= Filters.DateTo;
+            return x.Date >= Filters.DateFrom && x.Date <= Filters.DateTo.AddDays(1);
         }
 
         protected virtual void InitializeFilters()
@@ -151,7 +151,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             var now = DateTime.Now;
             if (Filters.DateTo == default)
             {
-                this.Filters.DateTo = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
+                this.Filters.DateTo = new DateTime(now.Year, now.Month, now.Day);
             }
 
             if (Filters.DateFrom == default)
