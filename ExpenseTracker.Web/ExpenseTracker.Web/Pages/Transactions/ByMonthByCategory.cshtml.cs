@@ -94,6 +94,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
                         this.Transactions.Add(t);
                     }
                 }
+
+                this.MonthsCategoriesTotals[month.Key]["income"] = monthsIncome[month.Key].Sum(x => x.Amount);
+                this.Transactions = this.Transactions.Concat(monthsIncome[month.Key]).ToList();
             }
 
             this.AverageExpense = this.MonthsTotals.Sum(x => x.Value) / this.MonthsTotals.Count;
@@ -164,6 +167,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
                     }
                 }
             }
-        }        
+        }
     }
 }

@@ -91,11 +91,17 @@
                                 <div class="row">
                                     <div class="col-3">
                                         <button class="btn btn-link text-dark" type="button" onclick="onToggleElement('@("category__" + t.Date.ToString("MM_yy__") + t.Category)')">
-                                            <h5>@(string.IsNullOrWhiteSpace(t.Category) ? "Unspecified" : t.Category)</h5>
+                                            @{ 
+                                                var unspecifiedCategoryTitle = t.Type == TransactionType.Expense ? "Unspecified" : "Income";
+                                            }
+                                            <h5>@(string.IsNullOrWhiteSpace(t.Category) ? unspecifiedCategoryTitle : t.Category)</h5>
                                         </button>
                                     </div>
                                     <div class="col text-left mt-1">
-                                        <h5>@Model.MonthsCategoriesTotals[lastDateTime][lastCategory].ToString("N0")</h5>
+                                        @{ 
+                                            var categoryKey = t.Type == TransactionType.Income ? "income" : lastCategory;
+                                        }
+                                        <h5>@Model.MonthsCategoriesTotals[lastDateTime][categoryKey].ToString("N0")</h5>
                                     </div>
                                 </div>
 
