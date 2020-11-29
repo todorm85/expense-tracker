@@ -5,6 +5,11 @@ namespace ExpenseTracker.Core
 {
     public class Budget : IDataItem
     {
+        public Budget()
+        {
+            this.ExpectedTransactions = new List<Transaction>();
+        }
+
         public int Id { get; set; }
 
         public DateTime FromMonth { get; set; }

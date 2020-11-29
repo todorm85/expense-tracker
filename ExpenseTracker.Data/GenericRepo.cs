@@ -61,5 +61,20 @@ namespace ExpenseTracker.Data
                 this.context.Delete(item.Id);
             }
         }
+
+        public void Remove(int id)
+        {
+            this.context.Delete(id);
+        }
+
+        public void Update(T item)
+        {
+            this.context.Update(item);
+        }
+
+        public void Insert(T item)
+        {
+            this.context.Insert(item);
+        }
     }
 }

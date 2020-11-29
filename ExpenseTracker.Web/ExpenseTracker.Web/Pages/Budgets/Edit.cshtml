@@ -1,0 +1,67 @@
+﻿@page "{id:int?}"
+@model ExpenseTracker.Web.Pages.Budgets.EditModel
+
+@{
+    var dateFormat = "MMM yyyy";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <form method="post">
+            <input asp-for="Budget.Id" type="hidden" />
+            <div class="form-row my-1">
+                <div class="col-4">
+                    <input class="form-control" asp-for="Budget.FromMonth" type="date" />
+                </div>
+                <div class="col-4">
+                    <input class="form-control" asp-for="Budget.ToMonth" type="date" />
+                </div>
+            </div>
+            @for (int i = 0; i < Model.Budget.ExpectedTransactions.Count; i++)
+            {
+                // using asp-for- here does not bind the list correctly when removing items
+                <div class="form-row my-1">
+                    <div class="col-4">
+                        <input class="form-control" name="Budget.ExpectedTransactions[@i].Amount" value="@Model.Budget.ExpectedTransactions[i].Amount" />
+                    </div>
+                    <div class="col-4">
+                        <input class="form-control" name="Budget.ExpectedTransactions[@i].Category" value="@Model.Budget.ExpectedTransactions[i].Category" />
+                    </div>
+                    <div class="col-3">
+                        <select class="form-control" name="Budget.ExpectedTransactions[@i].Type">
+                            @foreach (var val in Html.GetEnumSelectList<ExpenseTracker.Core.TransactionType>())
+                            {
+                                string selected = null;
+                                if (Model.Budget.ExpectedTransactions[i].Type.ToString() == val.Text)
+                                {
+                                    selected = "selected";
+                                }
+                                <option selected="@selected" value="@(val.Value)">@val.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-1">
+
+                        <input class="btn btn-light" type="submit" asp-page-handler="removeTransaction" asp-route-idx="@i" value="X" />
+                    </div>
+                </div>
+            }
+            <div class="form-row my-2">
+                <div class="col-4">
+                    <input class="form-control" name="TransactionToAdd.Category" value="@Model.TransactionToAdd?.Category" placeholder="Category" />
+                </div>
+                <div class="col-4">
+                    <input class="form-control" name="TransactionToAdd.Amount" value="@Model.TransactionToAdd?.Amount" placeholder="Amount" />
+                </div>
+                <div class="col-4">
+                    <input class="btn btn-secondary" type="submit" asp-page-handler="addTransaction" value="Add" />
+                </div>
+            </div>
+            @{
+                var saveBtnTxt = Model.Budget.Id != default ? "Save" : "Create";
+            }
+            <input class="btn btn-primary" type="submit" asp-page-handler="save" value="@saveBtnTxt" />
+            <a class="btn btn-light" asp-page="Index" value="Cancel">Cancel</a>
+        </form>
+    </div>
+</div>

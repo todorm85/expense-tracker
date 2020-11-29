@@ -39,5 +39,21 @@ namespace ExpenseTracker.Core
         {
             return this.repo.GetAll(predicate);
         }
+
+        public void Remove(int id)
+        {
+            this.repo.Remove(id);
+        }
+
+        public void Update(T item)
+        {
+            this.repo.Update(item);
+        }
+
+        public void Add(T item)
+        {
+            this.repo.Insert(item);
+        }
+
     }
 }

@@ -15,5 +15,11 @@ namespace ExpenseTracker.Core
         IEnumerable<T> GetAll();
 
         IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate);
+
+        void Remove(int id);
+
+        void Update(T item);
+
+        void Add(T item);
     }
 }

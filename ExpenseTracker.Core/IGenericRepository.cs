@@ -14,5 +14,8 @@ namespace ExpenseTracker.Core
 
         void Update(IEnumerable<T> items);
         void Remove(IEnumerable<T> items);
+        void Remove(int id);
+        void Update(T item);
+        void Insert(T item);
     }
 }

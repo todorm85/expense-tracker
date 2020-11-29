@@ -11,18 +11,35 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">ExpenseTracker.Web</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Transactions/List">Transactions</a>
+                        <li class="nav-item dropdown">
+                            <div class="btn-group">
+                                <a class="btn nav-link text-dark" asp-page="/Transactions/List">Transactions</a>
+                                <button type="button" class="btn text-dark dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-reference="parent"></button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item text-dark" href="/Transactions/List">List</a>
+                                    <a class="dropdown-item text-dark" href="/Transactions/ByMonthByCategory">By Months/Category</a>
+                                    <a class="dropdown-item text-dark" href="/Transactions/Upload">Upload</a>
+                                </div>
+                            </div>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Categories">Categories</a>
+                            <a class="nav-link text-dark" asp-page="/Categories">Categories</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <div class="btn-group">
+                                <a class="nav-link text-dark" asp-page="/Budgets/Index">Budget</a>
+                                <button type="button" class="btn text-dark dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-reference="parent"></button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item text-dark" asp-page="/Budgets/Index">List</a>
+                                    <a class="dropdown-item text-dark" asp-page="/Budgets/Projections">Projections</a>
+                                </div>
+                            </div>
                         </li>
                     </ul>
                 </div>
@@ -34,12 +51,6 @@
             @RenderBody()
         </main>
     </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2020 - ExpenseTracker.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
-        </div>
-    </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
