@@ -35,17 +35,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="table-dark">
-                    <td><input type="datetime-local" asp-for="CreateTransaction.Date" class="form-control" /></td>
-                    <td><input onfocus="this.select();" onmouseup="return false;" asp-for="CreateTransaction.Amount" class="form-control createInitialFocus" /></td>
-                    <td><textarea asp-for="CreateTransaction.Details" rows="3" class="form-control"></textarea></td>
-                    <td><input asp-for="CreateTransaction.Category" class="form-control" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" /></td>
-                    <td>
-                        <button type="submit" asp-page-handler="create" asp-route-expense="0" class="w-75 mb-2 updateBtn"> Add Expense </button>
-                        <button type="submit" asp-page-handler="create" asp-route-expense="1" class="w-75"> Add Income </button>
-                    </td>
-                </tr>
                 @{
+
                     for (var i = 0; i < Model.Transactions.Count; i++)
                     {
                         var t = Model.Transactions[i];

@@ -3,12 +3,63 @@
 @{
 }
 
-<div class="text-center">
-    <h1 class="display-4">Upload</h1>
+<div class="col-lg-6">
     <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';">
-        <div class="mb-4">
-            <input type="file" multiple asp-for="Files">
-            <input asp-page-handler="Upload" type="submit" value="Upload" />
+        <h4>Upload files</h4>
+        <div class="form-row">
+            <div class="form-group col">
+                <input id="files" type="file" multiple asp-for="Files" class="form-control-file" />
+            </div>
+            <div class="form-group col">
+                <button asp-page-handler="Upload" type="submit" value="Upload" class="btn btn-primary">Upload</button>
+            </div>
         </div>
     </form>
+    <form method="post" onkeydown="return event.key != 'Enter';">
+        <h4>Enter manually</h4>
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="date">Date</label>
+                <input id="date" type="datetime-local" asp-for="CreateTransaction.Date" class="form-control" />
+            </div>
+            <div class="form-group col">
+                <label for="amount">Amount</label>
+                <input id="amount" onfocus="this.select();" onmouseup="return false;" asp-for="CreateTransaction.Amount" class="form-control" />
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="details">Details</label>
+                <textarea id="details" asp-for="CreateTransaction.Details" rows="4" class="form-control"></textarea>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="category">Category</label>
+                <input id="category" asp-for="CreateTransaction.Category" class="form-control col" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" />
+            </div>
+            <div class="form-group col">
+                <label for="type">Type</label>
+                <select id="type" class="form-control col" asp-for="CreateTransaction.Type" asp-items="Html.GetEnumSelectList<ExpenseTracker.Core.TransactionType>()"></select>
+            </div>
+        </div>
+        <button type="submit" asp-page-handler="create" asp-route-expense="0" class="btn btn-primary">Add</button>
+    </form>
 </div>
+
+@section Scripts {
+    <script>
+        function createOrUpdateTransaction(e, operation) {
+            if (e.isComposing || e.keyCode === 229)
+                return;
+            e.stopPropagation();
+            if (e.keyCode === 13) {
+                var trgBtn = e.originalTarget || e.target;
+                var btn = trgBtn.parentElement.parentElement.getElementsByClassName("updateBtn")[0];
+                appendPosition(btn);
+                btn.formAction = "&Operation=" + operation;
+                btn.click();
+            }
+        }
+    </script>
+}

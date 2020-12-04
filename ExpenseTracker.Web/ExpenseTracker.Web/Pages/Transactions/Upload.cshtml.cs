@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpenseTracker.Allianz;
 using ExpenseTracker.Core;
 using Microsoft.AspNetCore.Http;
@@ -26,9 +24,28 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         [BindProperty]
         public IList<IFormFile> Files { get; set; }
+        
+        [BindProperty]
+        public Transaction CreateTransaction { get; set; }
 
         public void OnGet()
         {
+            this.CreateTransaction = new Transaction() { Date = DateTime.Now };
+        }
+
+        public IActionResult OnPostCreate(int expense)
+        {
+            var dbModel = new Transaction()
+            {
+                Amount = CreateTransaction.Amount,
+                Category = CreateTransaction.Category,
+                Date = CreateTransaction.Date,
+                Details = CreateTransaction.Details,
+                Type = (TransactionType)expense
+            };
+
+            this.transactionsService.Add(dbModel);
+            return RedirectToPage();
         }
 
         public IActionResult OnPostUpload(List<IFormFile> files)

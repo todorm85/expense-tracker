@@ -1,8 +1,6 @@
 ﻿using ExpenseTracker.Core;
-using ExpenseTracker.Web.Models.Transactions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,30 +17,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal Expenses { get; set; }
         public decimal Income { get; set; }
         public decimal Saved { get; set; }
-        [BindProperty]
-        public Transaction CreateTransaction { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public string Operation { get; set; }
 
         protected override void InitializeTransactions()
         {
-            this.CreateTransaction = new Transaction() { Date = DateTime.Now };
             RefreshTransactions();
-        }
-
-        public IActionResult OnPostCreate(int expense)
-        {
-            var dbModel = new Transaction()
-            {
-                Amount = CreateTransaction.Amount,
-                Category = CreateTransaction.Category,
-                Date = CreateTransaction.Date,
-                Details = CreateTransaction.Details,
-                Type = (TransactionType)expense
-            };
-            this.transactionsService.Add(new Transaction[] { dbModel });
-            return RedirectToPageWithState();
         }
 
         public IActionResult OnPostClassifyCurrent()
