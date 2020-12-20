@@ -14,7 +14,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
     public abstract class GridBase : PageModel
     {
         protected readonly ITransactionsService transactionsService;
-        protected string pageName;
         protected int initialMonthsBack = 0;
         protected readonly CategoriesService categories;
 
@@ -102,7 +101,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         protected IActionResult RedirectToPageWithState()
         {
-            return RedirectToPage(this.pageName, this.GetQueryParameters());
+            return this.RedirectToPage(this.GetQueryParameters());
         }
 
         protected IEnumerable<Transaction> GetTransactionsFiltered()

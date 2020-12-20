@@ -11,7 +11,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IndexModel(ITransactionsService transactions, CategoriesService categories)
             : base(transactions, categories)
         {
-            this.pageName = "List";
         }
 
         public decimal Expenses { get; set; }
