@@ -36,7 +36,7 @@ namespace ExpenseTracker.Web
 
             mvcBuilder.AddRazorPagesOptions(o =>
             {
-                o.Conventions.AddPageRoute("/Transactions/List", "");
+                o.Conventions.AddPageRoute("/Transactions/Index", "");
             });
 
             services.Configure<Microsoft.AspNetCore.Mvc.MvcOptions>(options => options.MaxModelBindingCollectionSize = 10000);
