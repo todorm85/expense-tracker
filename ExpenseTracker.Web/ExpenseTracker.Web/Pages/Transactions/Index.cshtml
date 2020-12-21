@@ -19,77 +19,11 @@
     <form method="post" onkeydown="return event.key != 'Enter';">
         <div class="mb-4">
             <button type="submit" asp-page-handler="ClassifyCurrent">Classify Filtered</button>
-            <button type="submit" asp-page-handler="ClassifyAll">Classify All</button>
+            @*<button type="submit" asp-page-handler="ClassifyAll">Classify All</button>*@
             <button type="submit" asp-page-handler="DeleteFiltered">Delete Filtered</button>
-            <button type="submit" asp-page-handler="DeleteAll">Delete All</button>
+            @*<button type="submit" asp-page-handler="DeleteAll">Delete All</button>*@
         </div>
-        <partial name="_Filters" for="Filters"/>
-        <table class="table border rounded table-sm">
-            <thead>
-                <tr class="table-info">
-                    <th style="width:17.5%">Date</th>
-                    <th style="width:7.5%">Amount</th>
-                    <th style="width:45%">Details</th>
-                    <th style="width:15%">Category</th>
-                    <th style="width:15%">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{
-
-                    for (var i = 0; i < Model.Transactions.Count; i++)
-                    {
-                        var t = Model.Transactions[i];
-                        var typeClass = t.Type == Core.TransactionType.Income ? "table-success" : "";
-                        <tr class="@typeClass">
-                            <td><input type="text" asp-for="Transactions[i].Date" class="form-control" /></td>
-                            <td><input asp-for="Transactions[i].Amount" class="form-control" /></td>
-                            <td><textarea asp-for="Transactions[i].Details" rows="3" class="form-control updateInitialFocus"></textarea></td>
-                            <td><input asp-for="Transactions[i].Category" class="form-control" placeholder="name:key(opt)" onkeyup="onUpdateEnter(event)" /></td>
-                            <td>
-                                <input type="hidden" asp-for="Transactions[i].Id" />
-                                <button class="updateBtn" type="submit" asp-page-handler="update" asp-route-id="@t.Id" onclick="appendPosition(this)"> update </button>
-                                <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id" onclick="appendPosition(this)"> delete </button>
-                            </td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
+        <partial name="_Filters" for="Filters" />
+        <partial name="_Transactions" for="Transactions" />
     </form>
 </div>
-
-@section Scripts {
-    <partial name="_AutoScrollScriptPartial" />
-    <script>
-        function onUpdateEnter(e) {
-            createOrUpdateTransaction(e, "update")
-        }
-
-        function onCreateEnter(e) {
-            createOrUpdateTransaction(e, "create")
-        }
-
-        function createOrUpdateTransaction(e, operation) {
-            if (e.isComposing || e.keyCode === 229)
-                return;
-            e.stopPropagation();
-            if (e.keyCode === 13) {
-                var trgBtn = e.originalTarget || e.target;
-                var btn = trgBtn.parentElement.parentElement.getElementsByClassName("updateBtn")[0];
-                appendPosition(btn);
-                btn.formAction = "&Operation=" + operation;
-                btn.click();
-            }
-        }
-
-        @if (!string.IsNullOrWhiteSpace(Model.Operation))
-        {
-            <text>
-                window.onload = function () {
-                    document.getElementsByClassName("@(Model.Operation)InitialFocus")[0].focus();
-            }
-            </text>
-        }
-    </script>
-}

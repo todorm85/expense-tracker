@@ -61,17 +61,17 @@
                                     }
                                 }
 
-                                <div class="col text-left">
-                                    <div class="badge badge-secondary">@Model.MonthsTotals[lastDateTime].ToString("N0")</div>
-                                </div>
+                                <span class="col text-left">
+                                    <span class="badge badge-secondary">@Model.MonthsTotals[lastDateTime].ToString("N0")</span>
+                                </span>
                                 <span class="ml-2 mr-2">|</span>
-                                <div class="col text-center">
-                                    <div>@Model.MonthsIncomeTotals[lastDateTime].ToString("N0")</div>
-                                </div>
+                                <span class="col text-center">
+                                    <span>@Model.MonthsIncomeTotals[lastDateTime].ToString("N0")</span>
+                                </span>
                                 <span class="ml-2 mr-2">|</span>
-                                <div class="col text-center">
-                                    <div class="badge badge-@savingsClassValue">@saved.ToString("N0")</div>
-                                </div>
+                                <span class="col text-center">
+                                    <span class="badge badge-@savingsClassValue">@saved.ToString("N0")</span>
+                                </span>
                             </h5>
                         </div>
                     </div>

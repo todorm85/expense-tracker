@@ -1,0 +1,36 @@
+﻿@model IList<Core.Transaction>
+
+<table class="table border rounded table-sm">
+    <thead>
+        <tr class="table-info">
+            <th style="width:18%">Date</th>
+            <th style="width:7%">Amount</th>
+            <th style="width:45%">Details</th>
+            <th style="width:15%">Category</th>
+            <th style="width:15%">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (var i = 0; i < Model.Count; i++)
+        {
+            var t = Model[i];
+            var typeClass = t.Type == Core.TransactionType.Income ? "table-success" : "";
+            <tr class="@typeClass">
+                <td><input type="text" asp-for="@Model[i].Date" class="form-control" /></td>
+                <td><input asp-for="@Model[i].Amount" class="form-control" /></td>
+                <td><textarea asp-for="@Model[i].Details" rows="3" class="form-control"></textarea></td>
+                <td><input asp-for="@Model[i].Category" class="form-control" placeholder="name:key(opt)" /></td>
+                <td>
+                    <input type="hidden" asp-for="@Model[i].Id" />
+                    <button class="updateBtn" type="submit" asp-page-handler="update" asp-route-id="@t.Id" 
+                            onclick="appendPosition(this)"> update </button>
+                    <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id" onclick="appendPosition(this)"> 
+                        delete 
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<partial name="_AutoScrollScriptPartial" />

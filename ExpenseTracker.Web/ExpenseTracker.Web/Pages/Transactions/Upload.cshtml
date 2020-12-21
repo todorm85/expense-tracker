@@ -1,7 +1,5 @@
 ﻿@page
 @model ExpenseTracker.Web.Pages.Transactions.UploadModel
-@{
-}
 
 <div class="col-lg-6">
     <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';">
@@ -43,21 +41,22 @@
                 <select id="type" class="form-control col" asp-for="CreateTransaction.Type" asp-items="Html.GetEnumSelectList<ExpenseTracker.Core.TransactionType>()"></select>
             </div>
         </div>
-        <button type="submit" asp-page-handler="create" asp-route-expense="0" class="btn btn-primary">Add</button>
+        <button type="submit" id="submitBtn" asp-page-handler="create" asp-route-expense="0" class="btn btn-primary">Add</button>
     </form>
 </div>
 
 @section Scripts {
     <script>
-        function createOrUpdateTransaction(e, operation) {
+        window.onload = function () {
+            document.getElementById("amount").focus();
+        }
+
+        function onCreateEnter(e) {
             if (e.isComposing || e.keyCode === 229)
                 return;
             e.stopPropagation();
             if (e.keyCode === 13) {
-                var trgBtn = e.originalTarget || e.target;
-                var btn = trgBtn.parentElement.parentElement.getElementsByClassName("updateBtn")[0];
-                appendPosition(btn);
-                btn.formAction = "&Operation=" + operation;
+                var btn = document.getElementById("submitBtn");
                 btn.click();
             }
         }

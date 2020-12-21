@@ -17,9 +17,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal Income { get; set; }
         public decimal Saved { get; set; }
 
-        [BindProperty(SupportsGet = true)]
-        public string Operation { get; set; }
-
         protected override void InitializeTransactions()
         {
             RefreshTransactions();
@@ -57,13 +54,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             ClassifyAll();
             return RedirectToPageWithState();
-        }
-
-        protected override RouteValueDictionary GetQueryParameters()
-        {
-            var parameters = base.GetQueryParameters();
-            parameters.Add("Operation", this.Request.Query["Operation"]);
-            return parameters;
         }
 
         private void ClassifyFiltered()
