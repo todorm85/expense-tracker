@@ -27,11 +27,14 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
 
         public decimal AverageExpense { get; private set; }
+        public decimal TotalExpense { get; private set; }
         public decimal AverageIncome { get; private set; }
-        public decimal AverageBalance { get; private set; }
+        public decimal TotalIncome { get; private set; }
+
+        public decimal AverageBalance => this.AverageIncome - this.AverageExpense;
+        public decimal Balance => this.TotalIncome - this.TotalExpense;
         public IDictionary<string, decimal[]> AverageAndTotalsForCategory { get; set; }
         
-        [BindProperty()]
         public List<CategoriesForMonthModel> CategoriesForMonths { get; set; }
         [BindProperty]
         public FiltersModel Filters { get; set; }
@@ -49,6 +52,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             if (all.Count() == 0)
                 return;
 
+            
             foreach (var t in all.OrderByDescending(x => x.Date.ToMonthStart()).ThenBy(x => x.Category))
             {
                 var categoriesForMonth = this.CategoriesForMonths.FirstOrDefault(x => x.Month == t.Date.ToMonthStart());
@@ -62,6 +66,11 @@ namespace ExpenseTracker.Web.Pages.Transactions
             }
 
             this.CategoriesForMonths.ForEach(x => x.OrderCategories());
+
+            this.AverageExpense = all.Where(x => x.Type == TransactionType.Expense).Sum(x => x.Amount) / this.CategoriesForMonths.Count;
+            this.TotalExpense = all.Where(x => x.Type == TransactionType.Expense).Sum(x => x.Amount);
+            this.AverageIncome = all.Where(x => x.Type == TransactionType.Income).Sum(x => x.Amount) / this.CategoriesForMonths.Count;
+            this.TotalIncome = all.Where(x => x.Type == TransactionType.Income).Sum(x => x.Amount);
         }
 
         public void OnPost()

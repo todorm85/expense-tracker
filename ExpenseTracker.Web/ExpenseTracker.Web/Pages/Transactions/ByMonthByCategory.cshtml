@@ -23,11 +23,17 @@
             </div>
 
             <h3 class="row text-left border-top mt-3">
-                <span class="col-2 d-block">Average</span>
-                <span class="col-2 text-right d-block"><span class="badge badge-secondary">@Model.AverageExpense.ToString("N0")</span></span>
-                <span class="col-2 text-center d-block"><span class="badge">@Model.AverageIncome.ToString("N0")</span></span>
+                <span class="col-2 d-block">Total/Average</span>
+                <span class="col-2 text-right d-block">
+                    <span class="badge badge-secondary">@Model.TotalExpense.ToString("N0") / @Model.AverageExpense.ToString("N0")</span>
+                </span>
+                <span class="col-2 text-center d-block">
+                    <span class="badge">@Model.TotalIncome.ToString("N0") / @Model.AverageIncome.ToString("N0")</span>
+                </span>
                 @{ var avgBalClass = (Model.AverageBalance >= 0) ? "success" : "danger"; }
-                <span class="col-1 d-block"><span class="badge badge-@avgBalClass">@Model.AverageBalance.ToString("N0")</span></span>
+                <span class="col-1 d-block">
+                    <span class="badge badge-@avgBalClass">@Model.Balance.ToString("N0") / @Model.AverageBalance.ToString("N0")</span>
+                </span>
                 <span class="col d-block"></span>
             </h3>
 
