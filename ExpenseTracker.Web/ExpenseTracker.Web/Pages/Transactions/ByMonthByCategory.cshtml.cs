@@ -2,11 +2,8 @@ using ExpenseTracker.Core;
 using ExpenseTracker.Web.Models.Transactions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
@@ -34,7 +31,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal AverageBalance => this.AverageIncome - this.AverageExpense;
         public decimal Balance => this.TotalIncome - this.TotalExpense;
         public IDictionary<string, decimal[]> AverageAndTotalsForCategory { get; set; }
-        
+
         public List<CategoriesForMonthModel> CategoriesForMonths { get; set; }
         [BindProperty]
         public FiltersModel Filters { get; set; }
@@ -52,7 +49,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             if (all.Count() == 0)
                 return;
 
-            
+
             foreach (var t in all.OrderByDescending(x => x.Date.ToMonthStart()).ThenBy(x => x.Category))
             {
                 var categoriesForMonth = this.CategoriesForMonths.FirstOrDefault(x => x.Month == t.Date.ToMonthStart());
@@ -65,7 +62,22 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 categoriesForMonth.AddTransaction(t);
             }
 
-            this.CategoriesForMonths.ForEach(x => x.OrderCategories());
+            this.CategoriesForMonths.ForEach(x =>
+            {
+                x.OrderCategories();
+                foreach (var category in x)
+                {
+                    var categoryKey = GetCategoryKey(category.CategoryName);
+                    if (!this.AverageAndTotalsForCategory.ContainsKey(categoryKey))
+                        this.AverageAndTotalsForCategory.Add(categoryKey, new decimal[] { 0, 0 });
+                    this.AverageAndTotalsForCategory[categoryKey][1] = this.AverageAndTotalsForCategory[categoryKey][1] + category.Balance;
+                }
+            });
+
+            foreach (var item in this.AverageAndTotalsForCategory)
+            {
+                item.Value[0] = item.Value[1] / this.CategoriesForMonths.Count;
+            }
 
             this.AverageExpense = all.Where(x => x.Type == TransactionType.Expense).Sum(x => x.Amount) / this.CategoriesForMonths.Count;
             this.TotalExpense = all.Where(x => x.Type == TransactionType.Expense).Sum(x => x.Amount);
@@ -115,7 +127,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
 
         public decimal Balance => this.TotalIncome - this.TotalExpenses;
-        public int Count => this.transactionsByCateories.Count; 
+        public int Count => this.transactionsByCateories.Count;
 
         internal void AddTransaction(Transaction t)
         {
