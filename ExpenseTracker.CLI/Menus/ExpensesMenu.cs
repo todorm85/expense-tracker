@@ -14,8 +14,8 @@ namespace ExpenseTracker.Core.UI
         private readonly IBudgetService budgetService;
         private readonly IBudgetCalculator budgetCalculator;
         private readonly CategoriesMenu catMenu;
-        private DateTime fromDate = DateTime.Now.SetToBeginningOfMonth();
-        private DateTime toDate = DateTime.Now.SetToEndOfMonth();
+        private DateTime fromDate = DateTime.Now.ToMonthStart();
+        private DateTime toDate = DateTime.Now.ToMonthEnd();
         private string categoryFilter;
 
         public ExpensesMenu(
@@ -223,7 +223,7 @@ namespace ExpenseTracker.Core.UI
         private void WriteExpensesByCategoriesByMonths(bool detailed)
         {
             var currentMonthDate = this.fromDate;
-            while (currentMonthDate <= this.toDate.SetToEndOfMonth())
+            while (currentMonthDate <= this.toDate.ToMonthEnd())
             {
                 this.Output.NewLine();
                 this.Output.Write($"{currentMonthDate.ToString("MMMM yyyy")}");
@@ -248,7 +248,7 @@ namespace ExpenseTracker.Core.UI
         private void WriteCategoriesForMonth(bool detailed, DateTime currentMonthDate, int pad = 0)
         {
             var monthCategories = this.expenseService
-                                .GetExpensesByCategoriesByMonths(currentMonthDate.SetToBeginningOfMonth(), currentMonthDate.SetToEndOfMonth())
+                                .GetExpensesByCategoriesByMonths(currentMonthDate.ToMonthStart(), currentMonthDate.ToMonthEnd())
                                 .FirstOrDefault();
 
             if (monthCategories.Value != null)
@@ -293,7 +293,7 @@ namespace ExpenseTracker.Core.UI
             var budgetCategoryExists = monthBudget?.ExpectedTransactions.Any(x => x.Category == category.Key && x.Type == TransactionType.Expense);
             var catExpected = budgetCategoryExists.HasValue && budgetCategoryExists.Value ?
                 monthBudget?.ExpectedTransactions.Where(x => x.Category == category.Key && x.Type == TransactionType.Expense).Sum(x => x.Amount) : null;
-            var shouldRenderBudget = monthBudget != null && monthBudget.FromMonth.SetToBeginningOfMonth() <= DateTime.Now && DateTime.Now <= monthBudget.ToMonth;
+            var shouldRenderBudget = monthBudget != null && monthBudget.FromMonth.ToMonthStart() <= DateTime.Now && DateTime.Now <= monthBudget.ToMonth;
 
             this.Output.NewLine();
             this.Output.Write($"{"".PadLeft(pad)}{categoryName} : ");
@@ -312,11 +312,11 @@ namespace ExpenseTracker.Core.UI
             this.Output.NewLine();
 
             var monthBudget = this.budgetService.GetCumulativeForMonth(month);
-            var actualExpenses = this.budgetCalculator.CalculateActualExpenses(month.SetToBeginningOfMonth(), month.SetToEndOfMonth());
-            var actualSavings = this.budgetCalculator.CalculateActualSavings(month.SetToBeginningOfMonth(), month.SetToEndOfMonth());
-            var actualIncome = this.budgetCalculator.CalculateActualIncome(month.SetToBeginningOfMonth(), month.SetToEndOfMonth());
+            var actualExpenses = this.budgetCalculator.CalculateActualExpenses(month.ToMonthStart(), month.ToMonthEnd());
+            var actualSavings = this.budgetCalculator.CalculateActualSavings(month.ToMonthStart(), month.ToMonthEnd());
+            var actualIncome = this.budgetCalculator.CalculateActualIncome(month.ToMonthStart(), month.ToMonthEnd());
 
-            if (monthBudget != null && month.SetToBeginningOfMonth() >= DateTime.Now.SetToBeginningOfMonth())
+            if (monthBudget != null && month.ToMonthStart() >= DateTime.Now.ToMonthStart())
             {
                 bool isCurrentMonth = IsCurrentMonth(month);
                 var expectedExpenses = this.budgetCalculator.CalculateExpectedExpenses(monthBudget);
@@ -345,7 +345,7 @@ namespace ExpenseTracker.Core.UI
 
         private static bool IsCurrentMonth(DateTime month)
         {
-            return month.SetToBeginningOfMonth() == DateTime.Now.SetToBeginningOfMonth();
+            return month.ToMonthStart() == DateTime.Now.ToMonthStart();
         }
 
         private void WritePeriodSummary(DateTime from, DateTime to)
@@ -353,9 +353,9 @@ namespace ExpenseTracker.Core.UI
             var currentMonthDate = from;
             decimal actualSavings = 0;
             decimal expectedSavings = 0;
-            while (currentMonthDate <= to.SetToEndOfMonth())
+            while (currentMonthDate <= to.ToMonthEnd())
             {
-                if (currentMonthDate.SetToBeginningOfMonth() >= DateTime.Now.SetToBeginningOfMonth())
+                if (currentMonthDate.ToMonthStart() >= DateTime.Now.ToMonthStart())
                 {
                     var budget = this.budgetService.GetCumulativeForMonth(currentMonthDate);
                     if (budget != null)
@@ -365,7 +365,7 @@ namespace ExpenseTracker.Core.UI
                 }
                 else
                 {
-                    actualSavings += this.budgetCalculator.CalculateActualSavings(currentMonthDate.SetToBeginningOfMonth(), currentMonthDate.SetToEndOfMonth());
+                    actualSavings += this.budgetCalculator.CalculateActualSavings(currentMonthDate.ToMonthStart(), currentMonthDate.ToMonthEnd());
                 }
 
                 currentMonthDate = currentMonthDate.AddMonths(1);

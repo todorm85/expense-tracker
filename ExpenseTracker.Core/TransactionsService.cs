@@ -45,11 +45,6 @@ namespace ExpenseTracker.Core
             return byCategoryByMonths;
         }
 
-        public void Update(Transaction expense)
-        {
-            this.Update(new Transaction[] { expense });
-        }
-
         private bool IsDuplicate(Transaction t)
         {
             return this.GetDuplicates(t).Count() != 0;

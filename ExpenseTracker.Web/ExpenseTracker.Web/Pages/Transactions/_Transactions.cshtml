@@ -1,30 +1,34 @@
 ﻿@model IList<Core.Transaction>
 
 <table class="table border rounded table-sm">
-    <thead>
-        <tr class="table-info">
-            <th style="width:18%">Date</th>
-            <th style="width:7%">Amount</th>
-            <th style="width:45%">Details</th>
-            <th style="width:15%">Category</th>
-            <th style="width:15%">Actions</th>
-        </tr>
-    </thead>
+    @if (!ViewData.ContainsKey("HideHeader") || !(bool)ViewData["HideHeader"])
+    {
+        <thead>
+            <tr class="table-info">
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Details</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+    }
     <tbody>
         @for (var i = 0; i < Model.Count; i++)
         {
             var t = Model[i];
             var typeClass = t.Type == Core.TransactionType.Income ? "table-success" : "";
-            <tr class="@typeClass">
-                <td><input type="text" asp-for="@Model[i].Date" class="form-control" /></td>
-                <td><input asp-for="@Model[i].Amount" class="form-control" /></td>
-                <td><textarea asp-for="@Model[i].Details" rows="3" class="form-control"></textarea></td>
-                <td><input asp-for="@Model[i].Category" class="form-control" placeholder="name:key(opt)" /></td>
-                <td>
+            <tr id="trRow_@t.Id" class="@typeClass">
+                <td style="width:18%"><input id="date_@t.Id" type="text" asp-for="@Model[i].Date" class="form-control" /></td>
+                <td style="width:7%"><input id="amount_@t.Id" asp-for="@Model[i].Amount" class="form-control" /></td>
+                <td style="width:45%"><textarea id="details_@t.Id" asp-for="@Model[i].Details" rows="3" class="form-control"></textarea></td>
+                <td style="width:15%"><input id="category_@t.Id" asp-for="@Model[i].Category" class="form-control" placeholder="name:key(opt)" /></td>
+                <td style="width:15%">
                     <input type="hidden" asp-for="@Model[i].Id" />
-                    <button class="updateBtn" type="submit" asp-page-handler="update" asp-route-id="@t.Id" 
-                            onclick="appendPosition(this)"> update </button>
-                    <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id" onclick="appendPosition(this)"> 
+                    <button class="updateBtn" type="button" asp-page-handler="update" asp-page="Index"
+                            onclick="onTransactionUpdate(this, @t.Id)"> update </button>
+                    <button type="button" asp-page-handler="delete" asp-route-id="@t.Id" asp-page="Index"
+                            onclick="onDelete(this, @t.Id)"> 
                         delete 
                     </button>
                 </td>
@@ -33,4 +37,55 @@
     </tbody>
 </table>
 
-<partial name="_AutoScrollScriptPartial" />
+<script>
+    function onTransactionUpdate(button, id) {
+        var date = document.getElementById("date_" + id).value;
+        var details = document.getElementById("details_" + id).value;
+        var amount = document.getElementById("amount_" + id).value;
+        var category = document.getElementById("category_" + id).value;
+
+        var handler = button.formAction;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    alert("succes");
+                } else {
+                    alert("error");
+                }
+            }
+        };
+
+        xhttp.open("POST", handler, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.setRequestHeader("XSRF-TOKEN", document.querySelector('input[name="__RequestVerificationToken"]').value);
+        xhttp.send(JSON.stringify({
+            Date: new Date(date),
+            Details: details,
+            Amount: +amount,
+            Category: category,
+            Id: id,
+        }));
+    }
+
+    function onDelete(btn, id) {
+        var handler = btn.formAction;
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    var rowToRemove = document.getElementById("trRow_" + id);
+                    rowToRemove.parentNode.removeChild(rowToRemove)
+                } else {
+                    alert("error");
+                }
+            }
+        };
+
+        xhttp.open("POST", handler, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.setRequestHeader("XSRF-TOKEN", document.querySelector('input[name="__RequestVerificationToken"]').value);
+        xhttp.send();
+    }
+</script>

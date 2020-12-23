@@ -1,5 +1,7 @@
 using ExpenseTracker.Core;
 using ExpenseTracker.Web.Models.Transactions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using System;
@@ -9,173 +11,228 @@ using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
-    public class TransactionsByMonthByCategoryModel : GridBase
+    public class TransactionsByMonthByCategoryModel : PageModel
     {
         private const string UnspecifiedCategoryKeyName = "unspecified";
+        private const int initialMonthsBack = -1;
+        private readonly ITransactionsService transactionsService;
 
         public TransactionsByMonthByCategoryModel(
-            ITransactionsService transactionsService, CategoriesService categoriesService) : base(transactionsService, categoriesService)
+            ITransactionsService transactionsService)
         {
-            this.initialMonthsBack = -1;
+            this.AverageAndTotalsForCategory = new Dictionary<string, decimal[]>();
+            this.CategoriesForMonths = new List<CategoriesForMonthModel>();
+            this.transactionsService = transactionsService;
+            this.Filters = new FiltersModel(initialMonthsBack);
         }
 
-        public IDictionary<DateTime, IDictionary<string, decimal>> MonthsCategoriesTotals { get; set; }
-
-        public IDictionary<DateTime, decimal> MonthsTotals { get; private set; }
-        public IDictionary<DateTime, decimal> MonthsIncomeTotals { get; private set; }
-
-        public IDictionary<DateTime, bool> ExpandedMonths { get; set; }
-        public IDictionary<DateTime, IDictionary<string, bool>> ExpandedCategories { get; set; }
         public decimal AverageExpense { get; private set; }
         public decimal AverageIncome { get; private set; }
         public decimal AverageBalance { get; private set; }
-        public Dictionary<string, decimal[]> CategoriesAverages { get; private set; }
+        public IDictionary<string, decimal[]> AverageAndTotalsForCategory { get; set; }
+        
+        [BindProperty()]
+        public List<CategoriesForMonthModel> CategoriesForMonths { get; set; }
+        [BindProperty]
+        public FiltersModel Filters { get; set; }
 
-        public string GetCategoryKey(Transaction t)
+        public string GetCategoryKey(string currentCategory)
         {
-            var currentCategory = t.Category ?? "";
-            currentCategory = t.Type == TransactionType.Income ? "income" : currentCategory;
             currentCategory = string.IsNullOrEmpty(currentCategory) ? UnspecifiedCategoryKeyName : currentCategory;
             return currentCategory;
         }
 
-        protected override void InitializeTransactions()
+        public void OnGet()
         {
-            InitializeExpanded();
-            GetTransactions();
-        }
-
-        protected override void InitializeFilters()
-        {
-            if (!this.HttpContext.Request.Query.TryGetValue("SortBy", out StringValues result))
-            {
-                this.Filters.SortBy = SortOptions.Amount;
-            }
-
-            base.InitializeFilters();
-        }
-
-        protected override RouteValueDictionary GetQueryParameters()
-        {
-            var res = base.GetQueryParameters();
-            res.Add("expanded", this.Request.Query["expanded"]);
-            return res;
-        }
-
-        private void GetTransactions()
-        {
-            this.MonthsCategoriesTotals = new Dictionary<DateTime, IDictionary<string, decimal>>();
-            this.MonthsTotals = new Dictionary<DateTime, decimal>();
-            this.MonthsIncomeTotals = new Dictionary<DateTime, decimal>();
-            this.Transactions = new List<Transaction>();
-            this.CategoriesAverages = new Dictionary<string, decimal[]>();
-
-            var all = this.GetTransactionsFiltered();
+            this.ModelState.Clear();
+            var all = this.Filters.GetTransactionsFiltered(this.transactionsService);
             if (all.Count() == 0)
-            {
                 return;
-            }
 
-            var expenses = all.Where(x => x.Type == TransactionType.Expense);
-            var income = all.Where(x => x.Type == TransactionType.Income);
-            var months = expenses
-                .ToLookup(x => x.Date.SetToBeginningOfMonth()).OrderByDescending(x => x.Key);
-            var monthsIncome = income
-                .ToLookup(x => x.Date.SetToBeginningOfMonth());
-            foreach (var month in months)
+            foreach (var t in all.OrderByDescending(x => x.Date.ToMonthStart()).ThenBy(x => x.Category))
             {
-                this.MonthsTotals[month.Key] = month.Sum(x => x.Amount);
-                this.MonthsIncomeTotals[month.Key] = monthsIncome[month.Key].Sum(x => x.Amount);
-                this.MonthsCategoriesTotals[month.Key] = new Dictionary<string, decimal>();
-                var categories = month.ToLookup(x => x.Category).OrderByDescending(x => x.Sum(y => y.Amount));
-                foreach (var c in categories)
+                var categoriesForMonth = this.CategoriesForMonths.FirstOrDefault(x => x.Month == t.Date.ToMonthStart());
+                if (categoriesForMonth == null)
                 {
-                    this.MonthsCategoriesTotals[month.Key][c.Key ?? UnspecifiedCategoryKeyName] = c.Sum(x => x.Amount);
-
-                    var orderedCats = c.OrderByDescending(x => x.Amount);
-                    if (this.Filters.SortBy == SortOptions.Date)
-                    {
-                        orderedCats = c.OrderByDescending(x => x.Date);
-                    }
-
-                    foreach (var t in orderedCats)
-                    {
-                        this.Transactions.Add(t);
-                    }
+                    categoriesForMonth = new CategoriesForMonthModel(t.Date.ToMonthStart());
+                    this.CategoriesForMonths.Add(categoriesForMonth);
                 }
 
-                this.MonthsCategoriesTotals[month.Key]["income"] = monthsIncome[month.Key].Sum(x => x.Amount);
-                this.Transactions = this.Transactions.Concat(monthsIncome[month.Key]).ToList();
+                categoriesForMonth.AddTransaction(t);
             }
 
-            this.AverageExpense = this.MonthsTotals.Sum(x => x.Value) / this.MonthsTotals.Count;
-            this.AverageIncome = this.MonthsIncomeTotals.Sum(x => x.Value) / this.MonthsTotals.Count;
-            decimal allBalance = 0;
-            foreach (var monthIncome in MonthsIncomeTotals)
-            {
-                allBalance += monthIncome.Value - MonthsTotals[monthIncome.Key];
-            }
+            this.CategoriesForMonths.ForEach(x => x.OrderCategories());
+        }
 
-            this.AverageBalance = allBalance / this.MonthsTotals.Count;
-            var categoriesAveragesTemp = new Dictionary<string, decimal[]>();
-            foreach (var monthCatTotal in MonthsCategoriesTotals)
-            {
-                foreach (var cat in monthCatTotal.Value)
-                {
-                    if (this.CategoriesAverages.ContainsKey(cat.Key))
-                    {
-                        categoriesAveragesTemp[cat.Key][0] += cat.Value;
-                        this.CategoriesAverages[cat.Key][0] += cat.Value;
-                    }
-                    else
-                    {
-                        categoriesAveragesTemp[cat.Key] = new decimal[] { cat.Value, 0m };
-                        this.CategoriesAverages[cat.Key] = new decimal[] { cat.Value, 0m };
-                    }
-                }
-            }
+        public void OnPost()
+        {
+            OnGet();
+        }
+    }
 
-            foreach (var catAvg in categoriesAveragesTemp)
+    public class CategoriesForMonthModel : IEnumerable<TransactionsForCategoryModel>
+    {
+        private decimal? totalExpenses;
+        private decimal? totalIncome;
+        private IList<TransactionsForCategoryModel> transactionsByCateories = new List<TransactionsForCategoryModel>();
+
+        public CategoriesForMonthModel(DateTime month)
+        {
+            this.Month = month;
+        }
+
+        public TransactionsForCategoryModel this[int index] { get => this.transactionsByCateories[index]; set => this.transactionsByCateories[index] = value; }
+
+        public DateTime Month { get; private set; }
+        public bool IsExpanded { get; set; }
+        public decimal TotalExpenses
+        {
+            get
             {
-                this.CategoriesAverages[catAvg.Key][1] = catAvg.Value[0] / this.MonthsTotals.Count;
+                if (!this.totalExpenses.HasValue)
+                    this.totalExpenses = this.transactionsByCateories.Sum(x => x.TotalExpense);
+                return this.totalExpenses.Value;
             }
         }
 
-        private void InitializeExpanded()
+        public decimal TotalIncome
         {
-            this.ExpandedMonths = new Dictionary<DateTime, bool>();
-            this.ExpandedCategories = new Dictionary<DateTime, IDictionary<string, bool>>();
-            var expandedQuery = this.Request.Query["expanded"].ToString();
-            if (!string.IsNullOrEmpty(expandedQuery))
+            get
             {
-                var expandedElements = expandedQuery.Split(",", StringSplitOptions.RemoveEmptyEntries);
-                foreach (var expandedElement in expandedElements)
-                {
-                    var expandedElementParts = expandedElement.Split("__");
-                    var type = expandedElementParts[0];
-                    var date = DateTime.ParseExact(expandedElementParts[1], "MM_yy", CultureInfo.InvariantCulture).SetToBeginningOfMonth();
-                    if (type == "category")
-                    {
-                        var category = expandedElementParts[2];
-                        if (!ExpandedCategories.ContainsKey(date))
-                        {
-                            ExpandedCategories.Add(date, new Dictionary<string, bool>());
-                        }
-
-                        if (!ExpandedCategories[date].ContainsKey(category))
-                        {
-                            ExpandedCategories[date].Add(category, true);
-                        }
-                    }
-                    else
-                    {
-                        if (!ExpandedMonths.ContainsKey(date))
-                        {
-                            ExpandedMonths.Add(date, true);
-                        }
-                    }
-                }
+                if (!this.totalIncome.HasValue)
+                    this.totalIncome = this.transactionsByCateories.Sum(x => x.TotalIncome);
+                return this.totalIncome.Value;
             }
+        }
+
+        public decimal Balance => this.TotalIncome - this.TotalExpenses;
+        public int Count => this.transactionsByCateories.Count; 
+
+        internal void AddTransaction(Transaction t)
+        {
+            var transactionsForCategory = this.transactionsByCateories.FirstOrDefault(x => x.CategoryName == t.Category);
+            if (transactionsForCategory == null)
+            {
+                transactionsForCategory = new TransactionsForCategoryModel(t.Category);
+                this.transactionsByCateories.Add(transactionsForCategory);
+            }
+
+            transactionsForCategory.Add(t);
+        }
+
+        public IEnumerator<TransactionsForCategoryModel> GetEnumerator()
+        {
+            foreach (var item in this.transactionsByCateories)
+            {
+                yield return item;
+            }
+        }
+
+        public void OrderCategories()
+        {
+            this.transactionsByCateories = this.transactionsByCateories.OrderByDescending(x => x.TotalExpense).ToList();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+    }
+
+    public class TransactionsForCategoryModel : IList<Transaction>
+    {
+        private string categoryName;
+        private IList<Transaction> transactions = new List<Transaction>();
+        private decimal? totalExpense;
+        private decimal? totalIncome;
+
+        public TransactionsForCategoryModel(string categoryName)
+        {
+            this.categoryName = categoryName;
+        }
+
+        public Transaction this[int index] { get => this.transactions[index]; set => this.transactions[index] = value; }
+
+        public bool IsExpanded { get; set; }
+        public decimal TotalExpense
+        {
+            get
+            {
+                if (!this.totalExpense.HasValue)
+                    this.totalExpense = this.transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount);
+                return this.totalExpense.Value;
+            }
+        }
+
+        public decimal TotalIncome
+        {
+            get
+            {
+                if (!this.totalIncome.HasValue)
+                    this.totalIncome = this.transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);
+                return this.totalIncome.Value;
+            }
+        }
+
+        public decimal Balance => this.TotalIncome - this.TotalExpense;
+
+        public bool IsNegativeBalance => this.Balance < 0;
+        public string CategoryName => categoryName;
+        public int Count => this.transactions.Count;
+
+        public bool IsReadOnly => this.transactions.IsReadOnly;
+
+        public void Add(Transaction item)
+        {
+            this.transactions.Add(item);
+        }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Contains(Transaction item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(Transaction[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerator<Transaction> GetEnumerator()
+        {
+            foreach (var item in this.transactions)
+            {
+                yield return item;
+            }
+        }
+
+        public int IndexOf(Transaction item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Insert(int index, Transaction item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(Transaction item)
+        {
+            return this.transactions.Remove(item);
+        }
+
+        public void RemoveAt(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }

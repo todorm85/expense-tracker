@@ -35,8 +35,8 @@ namespace ExpenseTracker.Web.Pages.Budgets
             {
                 this.Budget = new Core.Budget()
                 {
-                    FromMonth = DateTime.Now.SetToBeginningOfMonth(),
-                    ToMonth = DateTime.Now.AddMonths(1).SetToEndOfMonth()
+                    FromMonth = DateTime.Now.ToMonthStart(),
+                    ToMonth = DateTime.Now.AddMonths(1).ToMonthEnd()
                 };
             }
         }

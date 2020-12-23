@@ -14,5 +14,8 @@ namespace ExpenseTracker.Core
         public TransactionType Type { get; set; }
         public bool Ignored { get; set; }
         public string TransactionId { get; set; }
+
+        public override bool Equals(object obj) => this.Id == ((Transaction)obj).Id;
+        public override int GetHashCode() => this.Id;
     }
 }

@@ -9,139 +9,78 @@
     <h1 class="display-4 mb-4">@ViewData["Title"]</h1>
     <form method="post">
         <partial name="_Filters" for="Filters" />
-        @if (Model.Transactions.Count > 0)
+        @if (Model.CategoriesForMonths.Count > 0)
         {
-            <div class="container">
-                <div class="row">
-                    @foreach (var catAvg in Model.CategoriesAverages.OrderByDescending(x => x.Value[1]))
-                    {
-                        <div class="d-inline-block p-2 m-1 bg-light border rounded">
-                            <span class="badge badge-primary">@(string.IsNullOrEmpty(catAvg.Key) ? "Unspecified" : catAvg.Key) </span>
-                            <span class="badge badge-secondary"> @catAvg.Value[1].ToString("N0") </span> |
-                            <span class="text-secondary"> @catAvg.Value[0].ToString("N0") </span>
-                        </div>
-                    }
-                </div>
-
-                <h3 class="row text-left border-top mt-3">
-                    <div class="col-2">Average</div>
-                    <div class="col-2 text-right"><span class="badge badge-secondary">@Model.AverageExpense.ToString("N0")</span></div>
-                    <div class="col-2 text-center"><span class="badge">@Model.AverageIncome.ToString("N0")</span></div>
-                    @{
-                        var avgBalClass = "danger";
-                        if (Model.AverageBalance >= 0)
-                        {
-                            avgBalClass = "success";
-                        }
-                    }
-                    <div class="col-1"><span class="badge badge-@avgBalClass">@Model.AverageBalance.ToString("N0")</span></div>
-                    <div class="col"></div>
-                </h3>
-
-
-                @{DateTime lastDateTime = default(DateTime); }
-                @for (int i = 0; i < Model.Transactions.Count; i++)
+            <div class="row">
+                @foreach (var catAvg in Model.AverageAndTotalsForCategory.OrderByDescending(x => x.Value[1]))
                 {
-                    var t = Model.Transactions[i];
-                    lastDateTime = t.Date.SetToBeginningOfMonth();
-                    <div class="row border border-primary alert-primary">
-                        <div class="col-3 text-left">
-                            <button class="btn btn-link" type="button" onclick="onToggleElement('@("month__" + t.Date.ToString("MM_yy"))')">
-                                <h4>@(t.Date.ToString("yyyy MMMM"))</h4>
-                            </button>
-                        </div>
-                        <div class="col-4 text-right">
-                            <h5 class="row pt-2">
-
-                                @{var savingsClassValue = "success";
-                                    var saved = Model.MonthsIncomeTotals[lastDateTime] - Model.MonthsTotals[lastDateTime];
-                                    if (saved < 0)
-                                    {
-                                        savingsClassValue = "danger";
-                                    }
-                                }
-
-                                <span class="col text-left">
-                                    <span class="badge badge-secondary">@Model.MonthsTotals[lastDateTime].ToString("N0")</span>
-                                </span>
-                                <span class="ml-2 mr-2">|</span>
-                                <span class="col text-center">
-                                    <span>@Model.MonthsIncomeTotals[lastDateTime].ToString("N0")</span>
-                                </span>
-                                <span class="ml-2 mr-2">|</span>
-                                <span class="col text-center">
-                                    <span class="badge badge-@savingsClassValue">@saved.ToString("N0")</span>
-                                </span>
-                            </h5>
-                        </div>
-                    </div>
-
-                    var monthDisplay = "none";
-                    if (Model.ExpandedMonths.ContainsKey(t.Date.SetToBeginningOfMonth()))
-                    {
-                        monthDisplay = "revert";
-                    }
-
-                    <div class="row border border-secondary alert-secondary gridExpandable" id="@("month__" + t.Date.ToString("MM_yy"))" style="display: @monthDisplay">
-                        <div class="col text-left">
-                            @while (t != null && t.Date.SetToBeginningOfMonth() == lastDateTime)
-                            {
-                                var currentCategoryKey = this.Model.GetCategoryKey(t);
-                                var rowClass = t.Type == TransactionType.Expense ? "" : "alert-success";
-                                <div class="row @rowClass">
-                                    <div class="col-3">
-                                        <button class="btn btn-link text-dark" type="button" onclick="onToggleElement('@("category__" + t.Date.ToString("MM_yy__") + currentCategoryKey)')">
-                                            <h5>@(currentCategoryKey)</h5>
-                                        </button>
-                                    </div>
-                                    <div class="col text-left mt-1">
-                                        <h5>@Model.MonthsCategoriesTotals[lastDateTime][currentCategoryKey].ToString("N0")</h5>
-                                    </div>
-                                </div>
-
-                                var categoryDisplay = "none";
-                                if (Model.ExpandedCategories.ContainsKey(t.Date.SetToBeginningOfMonth()) &&
-                                Model.ExpandedCategories[t.Date.SetToBeginningOfMonth()].ContainsKey(currentCategoryKey) ||
-                                Model.MonthsCategoriesTotals[lastDateTime].Count == 1)
-                                {
-                                    categoryDisplay = "revert";
-                                }
-
-                                <div id="@("category__" + t.Date.ToString("MM_yy__") + currentCategoryKey)" style="display: @categoryDisplay" class="row gridExpandable">
-                                    <div class="col border">
-                                        @while (this.Model.GetCategoryKey(t) == currentCategoryKey && t.Date.SetToBeginningOfMonth() == lastDateTime)
-                                        {
-                                            <div class="row border bg-light">
-                                                <div class="col-3 pl-4">@t.Date.ToString("dd HH:mm")</div>
-                                                <div class="col-1">@t.Amount.ToString("N0")</div>
-                                                <div class="col-4"><textarea asp-for="Transactions[i].Details" rows="3" class="form-control updateInitialFocus"></textarea></div>
-                                                <div class="col-2"><input asp-for="Transactions[i].Category" class="form-control" placeholder="name:key(opt)" /></div>
-                                                <div class="col-2">
-                                                    <input type="hidden" asp-for="Transactions[i].Date" />
-                                                    <input type="hidden" asp-for="Transactions[i].Amount" />
-                                                    <input type="hidden" asp-for="Transactions[i].Id" />
-                                                    <button class="updateBtn" type="submit" asp-page-handler="update" asp-route-id="@t.Id" onclick="appendPositionAndExpansion(this)"> update </button>
-                                                    <button type="submit" asp-page-handler="delete" asp-route-id="@t.Id" onclick="appendPositionAndExpansion(this)"> delete </button>
-                                                </div>
-                                            </div>
-                                            i++;
-                                            if (i == Model.Transactions.Count)
-                                            {
-                                                t = null;
-                                                break;
-                                            }
-                                            t = Model.Transactions[i];
-                                        }
-                                    </div>
-                                </div>
-                            }
-                            @{
-                                i--;
-                            }
-                        </div>
+                    <div class="d-inline-block p-2 m-1 bg-light border rounded">
+                        <span class="badge badge-primary">@(string.IsNullOrEmpty(catAvg.Key) ? "Unspecified" : catAvg.Key) </span>
+                        <span class="badge badge-secondary"> @catAvg.Value[1].ToString("N0") </span> |
+                        <span class="text-secondary"> @catAvg.Value[0].ToString("N0") </span>
                     </div>
                 }
             </div>
+
+            <h3 class="row text-left border-top mt-3">
+                <span class="col-2 d-block">Average</span>
+                <span class="col-2 text-right d-block"><span class="badge badge-secondary">@Model.AverageExpense.ToString("N0")</span></span>
+                <span class="col-2 text-center d-block"><span class="badge">@Model.AverageIncome.ToString("N0")</span></span>
+                @{ var avgBalClass = (Model.AverageBalance >= 0) ? "success" : "danger"; }
+                <span class="col-1 d-block"><span class="badge badge-@avgBalClass">@Model.AverageBalance.ToString("N0")</span></span>
+                <span class="col d-block"></span>
+            </h3>
+
+
+            @for (int mi = 0; mi < Model.CategoriesForMonths.Count; mi++)
+            {
+                var monthCategories = Model.CategoriesForMonths[mi];
+                <div class="row border border-primary alert-primary">
+                    <div class="col-3 text-left">
+                        <button class="btn btn-link" type="button" onclick="onToggleElement('@("month__" + monthCategories.Month.ToString("MM_yy"))')">
+                            <h4>@(monthCategories.Month.ToString("yyyy MMMM"))</h4>
+                        </button>
+                    </div>
+                    <div class="col-4 text-right pt-2">
+                        <partial name="_Summary" model="new decimal[] { monthCategories.TotalExpenses,monthCategories.TotalIncome,monthCategories.Balance }" />
+                    </div>
+                </div>
+
+                var monthDisplay = monthCategories.IsExpanded ? "revert" : "none";
+
+                <div class="row border border-secondary alert-secondary gridExpandable" id="@("month__" + monthCategories.Month.ToString("MM_yy"))" style="display: @monthDisplay">
+                    <div class="col text-left">
+                        @for (int ci = 0; ci < monthCategories.Count; ci++)
+                        {
+                            var categoryTransactions = monthCategories[ci];
+                            var currentCategoryKey = this.Model.GetCategoryKey(categoryTransactions.CategoryName);
+                            var rowClass = categoryTransactions.IsNegativeBalance ? "" : "alert-success";
+                            <div class="row @rowClass">
+                                <div class="col-3">
+                                    <button class="btn btn-link text-dark" type="button" onclick="onToggleElement('@("category__" + monthCategories.Month.ToString("MM_yy__") + currentCategoryKey)')">
+                                        <h5>@(currentCategoryKey)</h5>
+                                    </button>
+                                </div>
+                                <div class="col-4 mt-1">
+                                    <partial name="_Summary" model="new decimal[] { categoryTransactions.TotalExpense,categoryTransactions.TotalIncome,categoryTransactions.Balance }" />
+                                </div>
+                            </div>
+
+                            var categoryDisplay = "none";
+                            if (categoryTransactions.IsExpanded || monthCategories.Count == 1)
+                            {
+                                categoryDisplay = "revert";
+                            }
+
+                            <div id="@("category__" + monthCategories.Month.ToString("MM_yy__") + currentCategoryKey)" style="display: @categoryDisplay" class="row gridExpandable">
+                                <div class="col border">
+                                    <partial name="_Transactions" for="CategoriesForMonths[mi][ci]" view-data='@(new ViewDataDictionary(ViewData) { { "HideHeader", true } } )' />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
         }
         else
         {
@@ -149,22 +88,3 @@
         }
     </form>
 </div>
-
-@section Scripts {
-    <partial name="_AutoScrollScriptPartial" />
-    <script>
-        function appendPositionAndExpansion(el) {
-            appendPosition(el);
-            var expandables = document.getElementsByClassName("gridExpandable");
-            var expanded = "";
-            for (var i = 0; i < expandables.length; i++) {
-                var e = expandables[i];
-                if (e.style.display !== "none") {
-                    expanded = expanded + "," + e.id;
-                }
-            }
-
-            el.formAction = el.formAction + "&expanded=" + expanded;
-        }
-    </script>
-}

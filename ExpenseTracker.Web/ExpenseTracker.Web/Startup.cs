@@ -41,6 +41,7 @@ namespace ExpenseTracker.Web
 
             services.Configure<Microsoft.AspNetCore.Mvc.MvcOptions>(options => options.MaxModelBindingCollectionSize = 10000);
             services.Configure<FormOptions>(options => options.ValueCountLimit = 100000);
+            services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
         }
 
         public void ConfigureContainer(IUnityContainer container)

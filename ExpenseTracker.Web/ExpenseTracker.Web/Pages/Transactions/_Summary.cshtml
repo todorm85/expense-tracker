@@ -1,0 +1,15 @@
+﻿@model decimal[]
+<h5 class="row">
+    <span class="col text-left">
+        <span class="badge badge-secondary">@Model[0].ToString("N0")</span>
+    </span>
+    <span class="ml-2 mr-2">|</span>
+    <span class="col text-center">
+        <span>@Model[1].ToString("N0")</span>
+    </span>
+    <span class="ml-2 mr-2">|</span>
+    <span class="col text-center">
+        @{var savingsClassValue = Model[2] < 0 ? "danger" : "success";}
+        <span class="badge badge-@savingsClassValue">@Model[2].ToString("N0")</span>
+    </span>
+</h5>

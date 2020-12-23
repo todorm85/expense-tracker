@@ -21,7 +21,7 @@ namespace ExpenseTracker.Web.Pages.Budget
 
         public void OnGet()
         {
-            this.Budgets = this.service.GetAll(x => x.ToMonth >= DateTime.Now.SetToBeginningOfMonth())
+            this.Budgets = this.service.GetAll(x => x.ToMonth >= DateTime.Now.ToMonthStart())
                 .OrderByDescending(b => b.ToMonth).ThenByDescending(b => b.FromMonth);
         }
 

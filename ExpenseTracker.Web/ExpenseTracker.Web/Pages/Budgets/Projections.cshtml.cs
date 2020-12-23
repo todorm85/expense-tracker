@@ -15,7 +15,7 @@ namespace ExpenseTracker.Web.Pages.Budgets
         public ProjectionsModel(IBudgetService budgetsService)
         {
             this.budgetsService = budgetsService;
-            this.FromMonth = DateTime.Now.SetToBeginningOfMonth();
+            this.FromMonth = DateTime.Now.ToMonthStart();
             this.ToMonth = this.FromMonth.AddMonths(6);
             this.Projections = new List<MonthProjection>();
         }
@@ -30,8 +30,8 @@ namespace ExpenseTracker.Web.Pages.Budgets
 
         public void OnGet()
         {
-            var currentMonth = FromMonth.SetToBeginningOfMonth();
-            while (currentMonth <= ToMonth.SetToBeginningOfMonth())
+            var currentMonth = FromMonth.ToMonthStart();
+            while (currentMonth <= ToMonth.ToMonthStart())
             {
                 var budget = this.budgetsService.GetCumulativeForMonth(currentMonth);
                 if (budget != null)

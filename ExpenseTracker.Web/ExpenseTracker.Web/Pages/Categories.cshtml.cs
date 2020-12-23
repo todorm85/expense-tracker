@@ -1,5 +1,4 @@
 using ExpenseTracker.Core;
-using ExpenseTracker.Web.Models.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
@@ -29,14 +28,14 @@ namespace ExpenseTracker.Web.Pages
         public IActionResult OnPostCreate()
         {
             this.service.Add(new Category[] { this.CreateCategory });
-            return RedirectToPage(AutoScrollScriptPartial.GetQueryParamsFromRequest(this.Request));
+            return RedirectToPage();
         }
 
         public IActionResult OnPostRemove(int id)
         {
             var cat = this.service.GetAll(x => x.Id == id).First();
             this.service.Remove(new Category[] { cat });
-            return RedirectToPage(AutoScrollScriptPartial.GetQueryParamsFromRequest(this.Request));
+            return RedirectToPage();
         }
     }
 }
