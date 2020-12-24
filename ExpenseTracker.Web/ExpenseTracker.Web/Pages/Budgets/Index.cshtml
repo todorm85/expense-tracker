@@ -22,15 +22,17 @@
                         <td>@budget.FromMonth.ToString(dateFormat)</td>
                         <td>@budget.ToMonth.ToString(dateFormat)</td>
                         <td>
-                            @foreach (var t in budget.ExpectedTransactions)
-                            {
-                                var typeClass = t.Type == Core.TransactionType.Expense ? "danger" : "success";
-                                <div class="row">
-                                    <div class="col-2 text-@typeClass">@t.Amount</div>
-                                    <div class="col-2">@t.Category</div>
-                                    <div class="col-6">@t.Details</div>
-                                </div>
-                            }
+                            <table class="table table-borderless table-sm">
+                                @foreach (var t in budget.ExpectedTransactions)
+                                {
+                                    var typeClass = t.Type == Core.TransactionType.Expense ? "danger" : "success";
+                                    <tr>
+                                        <td class="text-@typeClass">@t.Amount.ToString("N0")</td>
+                                        <td>@t.Category</td>
+                                        <td>@t.Details</td>
+                                    </tr>
+                                }
+                            </table>
                         </td>
                         <td>
                             <a class="btn btn-sm btn-secondary" asp-page="./Edit" asp-route-id="@budget.Id">Edit</a>

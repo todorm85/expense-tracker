@@ -15,25 +15,16 @@
             </div>
             @for (int i = 0; i < Model.Budget.ExpectedTransactions.Count; i++)
             {
-                // using asp-for- here does not bind the list correctly when removing items
                 <div class="form-row my-1">
                     <div class="col-4">
-                        <input class="form-control" name="Budget.ExpectedTransactions[@i].Amount" value="@Model.Budget.ExpectedTransactions[i].Amount" />
+                        <input class="form-control" asp-for="Budget.ExpectedTransactions[i].Amount" />
                     </div>
                     <div class="col-4">
-                        <input class="form-control" name="Budget.ExpectedTransactions[@i].Category" value="@Model.Budget.ExpectedTransactions[i].Category" />
+                        <input class="form-control" asp-for="Budget.ExpectedTransactions[i].Category" />
                     </div>
                     <div class="col-3">
-                        <select class="form-control" name="Budget.ExpectedTransactions[@i].Type">
-                            @foreach (var val in Html.GetEnumSelectList<ExpenseTracker.Core.TransactionType>())
-                            {
-                                string selected = null;
-                                if (Model.Budget.ExpectedTransactions[i].Type.ToString() == val.Text)
-                                {
-                                    selected = "selected";
-                                }
-                                <option selected="@selected" value="@(val.Value)">@val.Text</option>
-                            }
+                        <select class="form-control" asp-for="Budget.ExpectedTransactions[i].Type" 
+                                asp-items="Html.GetEnumSelectList<ExpenseTracker.Core.TransactionType>()">
                         </select>
                     </div>
                     <div class="col-1">
@@ -44,10 +35,10 @@
             }
             <div class="form-row my-2">
                 <div class="col-4">
-                    <input class="form-control" name="TransactionToAdd.Category" value="@Model.TransactionToAdd?.Category" placeholder="Category" />
+                    <input class="form-control" asp-for="TransactionToAdd.Category" placeholder="Category" />
                 </div>
                 <div class="col-4">
-                    <input class="form-control" name="TransactionToAdd.Amount" value="@Model.TransactionToAdd?.Amount" placeholder="Amount" />
+                    <input class="form-control" asp-for="TransactionToAdd.Amount" placeholder="Amount" />
                 </div>
                 <div class="col-4">
                     <input class="btn btn-secondary" type="submit" asp-page-handler="addTransaction" value="Add" />

@@ -41,17 +41,16 @@ namespace ExpenseTracker.Web.Pages.Budgets
             }
         }
 
-        public IActionResult OnPostAddTransaction()
+        public void OnPostAddTransaction()
         {
             this.Budget.ExpectedTransactions.Add(TransactionToAdd);
             this.TransactionToAdd = new Transaction();
-            return this.Page();
         }
 
-        public IActionResult OnPostRemoveTransaction(int idx)
+        public void OnPostRemoveTransaction(int idx)
         {
+            this.ModelState.Clear();
             this.Budget.ExpectedTransactions.RemoveAt(idx);
-            return this.Page();
         }
 
         public IActionResult OnPostSave()
