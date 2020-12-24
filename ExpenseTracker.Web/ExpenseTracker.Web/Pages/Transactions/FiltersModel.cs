@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ExpenseTracker.Web.Models.Transactions
+namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class FiltersModel
     {

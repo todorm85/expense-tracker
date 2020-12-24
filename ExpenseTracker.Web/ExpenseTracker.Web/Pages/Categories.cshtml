@@ -31,7 +31,7 @@
                         <td>@c.Name</td>
                         <td>@c.KeyWord</td>
                         <td>
-                            <button type="submit" asp-page-handler="Remove" asp-route-id="@c.Id" onclick="appendPosition(this)">
+                            <button type="submit" asp-page-handler="Remove" asp-route-id="@c.Id">
                                 Delete
                             </button>
                         </td>
@@ -41,7 +41,3 @@
         </table>
     </form>
 </div>
-
-@section Scripts {
-    <partial name="_AutoScrollScriptPartial" />
-}
