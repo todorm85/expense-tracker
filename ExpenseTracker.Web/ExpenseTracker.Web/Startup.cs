@@ -48,7 +48,11 @@ namespace ExpenseTracker.Web
         {
             var expenseTrackerConfig = Configuration.GetSection("ExpenseTracker");
             var dbPath = expenseTrackerConfig.GetValue<string>("DatabasePath");
-            Application.RegisterDependencies(container, new Config() { DbPath = dbPath });
+            Application.RegisterDependencies(container, new Config() { 
+                DbPath = dbPath,
+                MailUser = Configuration["mailUser"],
+                MailPass = Configuration["mailPass"]
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -22,8 +22,9 @@ namespace ExpenseTracker.Allianz.Gmail
             this.mailClient.Dispose();
         }
 
-        public void ImportTransactions()
+        public void ImportTransactions(out IEnumerable<Transaction> added)
         {
+            added = new List<Transaction>();
             var transactions = new List<Transaction>();
             int msgIdx = 0;
             int totalMsgsCount = this.mailClient.Count;
@@ -54,7 +55,7 @@ namespace ExpenseTracker.Allianz.Gmail
 
             if (transactions.Count > 0)
             {
-                this.transactionsService.Add(transactions);
+                this.transactionsService.Add(transactions, out added);
             }
         }
     }

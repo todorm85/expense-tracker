@@ -9,8 +9,9 @@ namespace ExpenseTracker.Core
         public TransactionsService(IUnitOfWork data) : base(data)
         { }
 
-        public override void Add(IEnumerable<Transaction> expenses)
+        public void Add(IEnumerable<Transaction> expenses, out IEnumerable<Transaction> added)
         {
+            added = Enumerable.Empty<Transaction>();
             foreach (var expense in expenses)
             {
                 if (string.IsNullOrWhiteSpace(expense.TransactionId))
@@ -20,8 +21,14 @@ namespace ExpenseTracker.Core
             var filtered = expenses.Where(newTran => !this.IsDuplicate(newTran));
             if (filtered.Count() != 0)
             {
+                added = filtered.ToList(); // the query returns a different result after the objects have been added to DB
                 base.Add(filtered);
             }
+        }
+
+        public override void Add(IEnumerable<Transaction> expenses)
+        {
+            this.Add(expenses, out IEnumerable<Transaction> ts);
         }
 
         public Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>> GetExpensesByCategoriesByMonths(DateTime fromDate, DateTime toDate)

@@ -1,53 +1,64 @@
 ﻿@page
 @model ExpenseTracker.Web.Pages.Transactions.UploadModel
 
-<partial name="_Message" model='new { message = "Done", success = Model.Success }' />
-<div class="col-lg-6">
-    <form method="post" onkeydown="return event.key != 'Enter';">
-        <h4>Enter manually</h4>
-        <div class="form-row">
-            <div class="form-group col">
-                <label for="date">Date</label>
-                <input id="date" type="date" asp-for="CreateTransaction.Date" class="form-control" />
+<form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';">
+    <div class="row">
+        <div class="col-lg-6 col-12">
+            <button class="btn btn-primary" type="submit" asp-page-handler="SyncMail">Sync Mail</button> or
+            <h4 class="mt-1">Enter manually</h4>
+            <div class="form-row">
+                <div class="form-group col">
+                    <label for="date">Date</label>
+                    <input id="date" type="date" asp-for="CreateTransaction.Date" class="form-control" />
+                </div>
+                <div class="form-group col">
+                    <label for="amount">Amount</label>
+                    <input id="amount" onmouseup="return false;" asp-for="CreateTransaction.Amount" class="form-control auto-select" />
+                </div>
             </div>
-            <div class="form-group col">
-                <label for="amount">Amount</label>
-                <input id="amount" onmouseup="return false;" asp-for="CreateTransaction.Amount" class="form-control auto-select" />
+            <div class="form-row">
+                <div class="form-group col">
+                    <label for="category">Category</label>
+                    <input id="category" asp-for="CreateTransaction.Category" class="form-control col" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" />
+                </div>
+                <div class="form-group col">
+                    <label for="type">Type</label>
+                    <select id="type" class="form-control col" asp-for="CreateTransaction.Type" asp-items="Html.GetEnumSelectList<ExpenseTracker.Core.TransactionType>()"></select>
+                </div>
             </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col">
-                <label for="category">Category</label>
-                <input id="category" asp-for="CreateTransaction.Category" class="form-control col" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" />
+            <div class="form-row">
+                <div class="form-group col-11 col-sm-12">
+                    <label for="details">Details</label>
+                    <textarea id="details" asp-for="CreateTransaction.Details" rows="4" class="form-control" onkeyup="onCreateEnter(event)"></textarea>
+                </div>
+                <div class="form-group col-1 col-sm-12">
+                    <button type="submit" id="submitBtn" asp-page-handler="create" class="btn btn-primary mt-sm-4 mt-0">Add</button>
+                </div>
             </div>
-            <div class="form-group col">
-                <label for="type">Type</label>
-                <select id="type" class="form-control col" asp-for="CreateTransaction.Type" asp-items="Html.GetEnumSelectList<ExpenseTracker.Core.TransactionType>()"></select>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-11 col-sm-12">
-                <label for="details">Details</label>
-                <textarea id="details" asp-for="CreateTransaction.Details" rows="4" class="form-control"></textarea>
-            </div>
-            <div class="form-group col-1 col-sm-12">
-                <button type="submit" id="submitBtn" asp-page-handler="create" class="btn btn-primary mt-sm-4 mt-0">Add</button>
-            </div>
-        </div>
-    </form>
 
-    <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';" class="mt-5">
-        <h4>Upload files</h4>
-        <div class="form-row">
-            <div class="form-group col">
-                <input id="files" type="file" multiple asp-for="Files" class="form-control-file" />
-            </div>
-            <div class="form-group col">
-                <button asp-page-handler="Upload" type="submit" value="Upload" class="btn btn-primary">Upload</button>
+            <h4 class="mt-5">Upload files</h4>
+            <div class="form-row">
+                <div class="form-group col">
+                    <input id="files" type="file" multiple asp-for="Files" class="form-control-file" />
+                </div>
+                <div class="form-group col">
+                    <button asp-page-handler="Upload" type="submit" value="Upload" class="btn btn-primary">Upload</button>
+                </div>
             </div>
         </div>
-    </form>
-</div>
+
+        <div class="col-lg-6">
+            <div class="row">
+                <h3 class="mr-2 my-3">Just Added</h3>
+                @if (Model.ShowMessage)
+                {
+                    <partial name="_Message" model='new Shared.MessageModel { Message = "Done", Success = Model.Success }' />
+                }
+                <partial name="_Transactions" for="Transactions" />
+            </div>
+        </div>
+    </div>
+</form>
 
 @section Scripts {
     <script>

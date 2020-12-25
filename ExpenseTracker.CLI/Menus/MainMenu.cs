@@ -90,7 +90,7 @@ namespace ExpenseTracker.App
 
         private void ImportExpensesEmail()
         {
-            this.mailImporter.ImportTransactions();
+            this.mailImporter.ImportTransactions(out IList<Transaction> ts);
         }
 
         private void Clear()

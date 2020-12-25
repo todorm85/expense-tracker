@@ -1,13 +1,13 @@
-﻿@model dynamic
+﻿@model MessageModel
 
 @{
     var msgCss = "alert-danger";
-    if (Model.success)
+    if (Model.Success)
     {
         msgCss = "alert-success";
     }
 }
-<div class="alert @msgCss" onclick="onToggleMessageElement(this)">@Model.message</div>
+<div class="alert @msgCss" onclick="onToggleMessageElement(this)">@Model.Message</div>
 
 <script>
     function onToggleMessageElement(el) {

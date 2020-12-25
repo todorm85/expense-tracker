@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.Core;
+﻿using ExpenseTracker.Allianz.Gmail;
+using ExpenseTracker.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -124,6 +125,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
             this.transactionsService.Remove(all);
             this.OnGet();
+        }
+
+        public void OnPostDeleteAll()
+        {
+            this.transactionsService.Remove(this.transactionsService.GetAll());
+            this.ModelState.Clear();
+            this.Transactions.Clear();
         }
     }
 

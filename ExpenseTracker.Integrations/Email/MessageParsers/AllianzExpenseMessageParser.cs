@@ -25,11 +25,14 @@ namespace ExpenseTracker.Allianz
 
             Transaction result = new Transaction();
 
+            var title = string.Empty;
             using (var html = new StringReader(message.Body))
             {
                 var line = html.ReadLine();
                 while (line != null)
                 {
+                    if (line.Contains("<title>"))
+                        title = ExtractInnerText(line);
                     if (line.Contains(">Дата<"))
                         result.Date = this.GetDate(html);
                     if (line.Contains(">Контрагент<"))
@@ -41,6 +44,10 @@ namespace ExpenseTracker.Allianz
                 }
             }
 
+            result.Type = IsIncome(message) ? TransactionType.Income : TransactionType.Expense;
+            if (string.IsNullOrEmpty(result.Details))
+                result.Details = title;
+
             return this.builder.Import(result.Amount, result.Details, result.Type, result.Date);
         }
 
@@ -48,8 +55,17 @@ namespace ExpenseTracker.Allianz
         {
             return message.Body.Contains("<title>Оторизирана картова транзакция</title>") ||
                 message.Body.Contains("<title>Такса за поддръжка на сметка</title>") ||
-                message.Body.Contains("<title>Такса издаване на карта</title>") ||
-                message.Body.Contains("<title>Такса-проверка баланс,промяна ПИН</title>");
+                message.Body.Contains("Такса издаване на  карта") ||
+                message.Body.Contains("<title>Такса-проверка баланс,промяна ПИН</title>") ||
+                message.Body.Contains("Такса  Нар.превод,IB - БИСЕРА: превод м/ъ собствени сметки") ||
+                (message.Body.Contains("Получен кредитен превод-IB") && !message.Body.Contains("/94BUIN95611000529567")) ||
+                message.Body.Contains("Вноска по сметка");
+        }
+
+        private static bool IsIncome(ExpenseMessage message)
+        {
+            return message.Body.Contains("Получен кредитен превод-IB") ||
+                message.Body.Contains("Вноска по сметка");
         }
 
         private static string ExtractInnerText(string line)
@@ -92,7 +108,7 @@ namespace ExpenseTracker.Allianz
         {
             SkipLines(reader, 2);
             var amountText = ExtractInnerText(reader.ReadLine()).Split(' ')[0];
-            return (decimal)double.Parse(amountText);
+            return (decimal)double.Parse(amountText.Replace(" ", ""));
         }
     }
 }
