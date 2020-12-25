@@ -63,19 +63,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.OnGet();
         }
 
-        public IActionResult OnPostUpdate()
+        public IActionResult OnPostUpdate([FromBody]Transaction viewModel)
         {
-            MemoryStream stream = new MemoryStream();
-            Request.Body.CopyToAsync(stream);
-            stream.Position = 0;
-            Transaction viewModel = null;
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                string requestBody = reader.ReadToEnd();
-                if (requestBody.Length > 0)
-                    viewModel = JsonSerializer.Deserialize<Transaction>(requestBody);
-            }
-
             if (viewModel == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error parsing the request parameters.");
 
