@@ -56,7 +56,7 @@ namespace ExpenseTracker.Allianz
                     var t = this.builder.Import(amount, details, type, parsedDate);
                     if (this.IsValid(t))
                     {
-                        t.GenerateTransactionId(rawDate);
+                        t.GenerateTransactionId(rawDate); // backwards comaptibility, old date ids have been used before
                         trans.Add(t);
                     }
 
