@@ -88,23 +88,11 @@ namespace ExpenseTracker.Allianz
             }
         }
 
-        private string GetAccount(StringReader reader)
-        {
-            return ExtractInnerText(reader.ReadLine());
-        }
-
         private decimal GetAmount(StringReader reader)
         {
             SkipLines(reader, 2);
             var amountText = ExtractInnerText(reader.ReadLine()).Split(' ')[0];
             return (decimal)double.Parse(amountText);
-        }
-
-        private string GetTransactionId(string line)
-        {
-            var rx = new Regex(@"\(#(?<text>\w+)\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            var matches = rx.Matches(line);
-            return matches[0].Groups["text"].Value.Trim();
         }
     }
 }
