@@ -16,12 +16,6 @@
         </div>
         <div class="form-row">
             <div class="form-group col">
-                <label for="details">Details</label>
-                <textarea id="details" asp-for="CreateTransaction.Details" rows="4" class="form-control"></textarea>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col">
                 <label for="category">Category</label>
                 <input id="category" asp-for="CreateTransaction.Category" class="form-control col" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" />
             </div>
@@ -30,7 +24,15 @@
                 <select id="type" class="form-control col" asp-for="CreateTransaction.Type" asp-items="Html.GetEnumSelectList<ExpenseTracker.Core.TransactionType>()"></select>
             </div>
         </div>
-        <button type="submit" id="submitBtn" asp-page-handler="create" class="btn btn-primary">Add</button>
+        <div class="form-row">
+            <div class="form-group col-11 col-sm-12">
+                <label for="details">Details</label>
+                <textarea id="details" asp-for="CreateTransaction.Details" rows="4" class="form-control"></textarea>
+            </div>
+            <div class="form-group col-1 col-sm-12">
+                <button type="submit" id="submitBtn" asp-page-handler="create" class="btn btn-primary mt-sm-4 mt-0">Add</button>
+            </div>
+        </div>
     </form>
 
     <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';" class="mt-5">
