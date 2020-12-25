@@ -33,7 +33,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.CreateTransaction = new Transaction() { Date = DateTime.Now };
         }
 
-        public IActionResult OnPostCreate(int expense)
+        public IActionResult OnPostCreate()
         {
             var dbModel = new Transaction()
             {
@@ -41,7 +41,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 Category = CreateTransaction.Category,
                 Date = CreateTransaction.Date,
                 Details = CreateTransaction.Details,
-                Type = (TransactionType)expense
+                Type = CreateTransaction.Type
             };
 
             this.transactionsService.Add(dbModel);
