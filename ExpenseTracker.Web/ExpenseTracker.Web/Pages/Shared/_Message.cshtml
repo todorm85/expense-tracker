@@ -1,0 +1,20 @@
+﻿@model dynamic
+
+@{
+    var msgCss = "alert-danger";
+    if (Model.success)
+    {
+        msgCss = "alert-success";
+    }
+}
+<div class="alert @msgCss" onclick="onToggleMessageElement(this)">@Model.message</div>
+
+<script>
+    function onToggleMessageElement(el) {
+        if (el.style.display == "none") {
+            el.style.display = "revert"
+        } else {
+            el.style.display = "none"
+        }
+    }
+</script>

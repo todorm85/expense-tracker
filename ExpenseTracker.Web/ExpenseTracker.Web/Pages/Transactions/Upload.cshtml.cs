@@ -24,9 +24,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         [BindProperty]
         public IList<IFormFile> Files { get; set; }
-        
+
         [BindProperty]
         public Transaction CreateTransaction { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public bool Success { get; set; }
 
         public void OnGet()
         {
@@ -37,6 +40,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             var dbModel = new Transaction()
             {
+                TransactionId = Guid.NewGuid().ToString(),
                 Amount = CreateTransaction.Amount,
                 Category = CreateTransaction.Category,
                 Date = CreateTransaction.Date,

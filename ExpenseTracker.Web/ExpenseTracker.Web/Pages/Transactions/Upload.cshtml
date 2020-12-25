@@ -1,6 +1,7 @@
 ﻿@page
 @model ExpenseTracker.Web.Pages.Transactions.UploadModel
 
+<partial name="_Message" model='new { message = "Done", success = Model.Success }' />
 <div class="col-lg-6">
     <form method="post" onkeydown="return event.key != 'Enter';">
         <h4>Enter manually</h4>
