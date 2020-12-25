@@ -10,3 +10,7 @@ function onToggleElement(elId) {
         el.style.display = "none"
     }
 }
+
+document.querySelectorAll(".auto-select").forEach(e => {
+    e.onfocus = ev => { ev.srcElement.select();}
+})

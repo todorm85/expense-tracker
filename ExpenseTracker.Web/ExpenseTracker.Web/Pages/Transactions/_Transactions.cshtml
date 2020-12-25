@@ -19,15 +19,18 @@
             var t = Model[i];
             var typeClass = t.Type == Core.TransactionType.Income ? "table-success" : "";
             <tr id="trRow_@t.Id" class="@typeClass">
-                <td style="width:18%"><input id="date_@t.Id" type="text" asp-for="@Model[i].Date" class="form-control" /></td>
-                <td style="width:7%"><input id="amount_@t.Id" asp-for="@Model[i].Amount" class="form-control" /></td>
-                <td style="width:45%"><textarea id="details_@t.Id" asp-for="@Model[i].Details" rows="3" class="form-control"></textarea></td>
-                <td style="width:15%"><input id="category_@t.Id" asp-for="@Model[i].Category" class="form-control" placeholder="name:key(opt)" /></td>
-                <td style="width:15%">
+                <td><input id="date_@t.Id" type="date" asp-for="@Model[i].Date" class="form-control" style="width: 162px!important;" /></td>
+                <td style="width:5%"><input id="amount_@t.Id" asp-for="@Model[i].Amount" class="form-control auto-select" style="min-width:80px"/></td>
+                <td style="width:75%"><textarea id="details_@t.Id" asp-for="@Model[i].Details" rows="3" class="form-control"></textarea></td>
+                <td style="width:10%">
+                    <input id="category_@t.Id" asp-for="@Model[i].Category" 
+                           class="form-control auto-select" placeholder="name:key(opt)" style="min-width: 125px;"/>
+                </td>
+                <td style="width:5%">
                     <input type="hidden" asp-for="@Model[i].Id" />
-                    <button class="updateBtn" type="button" asp-page-handler="update" asp-page="Index"
-                            onclick="onTransactionUpdate(this, @t.Id)"> update </button>
-                    <button type="button" asp-page-handler="delete" asp-route-id="@t.Id" asp-page="Index"
+                    <button class="updateBtn mb-1" style="width:70px" type="button" asp-page-handler="update" asp-page="Index"
+                            onclick="onTransactionUpdate(this, @t.Id)"> update </button><br />
+                    <button style="width:70px" type="button" asp-page-handler="delete" asp-route-id="@t.Id" asp-page="Index"
                             onclick="onDelete(this, @t.Id)"> 
                         delete 
                     </button>
