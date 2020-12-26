@@ -26,5 +26,10 @@ namespace ExpenseTracker.Tests.Int
         {
             return this.MockedMessages[i];
         }
+
+        public void MarkRead(int msgIdx)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -21,13 +21,14 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.transactionsService = transactions;
             this.categories = categories;
             this.Filters = new FiltersModel(initialMonthsBack);
+            this.TransactionsList = new TransactionsListModel();
         }
 
         public decimal Expenses { get; set; }
         public decimal Income { get; set; }
         public decimal Saved { get; set; }
         [BindProperty]
-        public IList<Transaction> Transactions { get; set; }
+        public TransactionsListModel TransactionsList { get; set; }
         [BindProperty]
         public FiltersModel Filters { get; set; }
 
@@ -51,10 +52,10 @@ namespace ExpenseTracker.Web.Pages.Transactions
                     break;
             }
 
-            this.Transactions = sorted.ToList();
-            this.Expenses = this.Transactions.Where(x => x.Type == TransactionType.Expense)
+            this.TransactionsList.Transactions = sorted.ToList();
+            this.Expenses = this.TransactionsList.Transactions.Where(x => x.Type == TransactionType.Expense)
                 .Sum(x => x.Amount);
-            this.Income = this.Transactions.Where(x => x.Type == TransactionType.Income)
+            this.Income = this.TransactionsList.Transactions.Where(x => x.Type == TransactionType.Income)
                 .Sum(x => x.Amount);
             this.Saved = this.Income - this.Expenses;
         }
@@ -97,9 +98,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public void OnPostClassifyCurrent()
         {
-            new TransactionsClassifier().Classify(this.Transactions, this.categories.GetAll());
+            new TransactionsClassifier().Classify(this.TransactionsList.Transactions, this.categories.GetAll());
             var all = new List<Transaction>();
-            foreach (var t in Transactions)
+            foreach (var t in TransactionsList.Transactions)
             {
                 var tdb = this.transactionsService.GetAll(x => x.Id == t.Id && string.IsNullOrEmpty(x.Category)).FirstOrDefault();
                 if (tdb == null)
@@ -115,7 +116,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public void OnPostDeleteFiltered()
         {
             var all = new List<Transaction>();
-            foreach (var t in Transactions)
+            foreach (var t in TransactionsList.Transactions)
             {
                 var tdb = this.transactionsService.GetAll(x => x.Id == t.Id).FirstOrDefault();
                 if (tdb == null)
@@ -131,7 +132,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             this.transactionsService.Remove(this.transactionsService.GetAll());
             this.ModelState.Clear();
-            this.Transactions.Clear();
+            this.TransactionsList.Transactions.Clear();
         }
     }
 

@@ -24,7 +24,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.allianz = allianz;
             this.rai = rai;
             this.importer = importer;
-            this.Transactions = new List<Transaction>();
+            this.TransactionsList = new TransactionsListModel();
         }
 
         [BindProperty]
@@ -40,7 +40,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public bool ShowMessage { get; set; }
 
         [BindProperty]
-        public List<Transaction> Transactions { get; set; }
+        public TransactionsListModel TransactionsList { get; set; }
 
         public void OnGet()
         {
@@ -117,7 +117,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private void AddJustAdded(IEnumerable<Transaction> ts)
         {
-            this.Transactions = ts.Concat(this.Transactions).ToList();
+            this.TransactionsList.Transactions = ts.Concat(this.TransactionsList.Transactions).ToList();
             this.ModelState.Clear();
         }
     }

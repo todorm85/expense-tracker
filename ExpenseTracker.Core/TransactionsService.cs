@@ -63,5 +63,46 @@ namespace ExpenseTracker.Core
                 t.GenerateTransactionId();
             return this.repo.GetAll(x => x.TransactionId == t.TransactionId);
         }
+
+        public List<List<Transaction>> GetDuplicates()
+        {
+            var orderedTransactions = this.repo.GetAll().OrderByDescending(x => x.Date)
+                .ThenByDescending(x => x.Amount)
+                .ThenByDescending(x => x.Details);
+            List<List<Transaction>> result = new List<List<Transaction>>();
+            Transaction lastTransaction = null;
+            var currentBatch = new List<Transaction>();
+            foreach (var t in orderedTransactions)
+            {
+                if (lastTransaction == null)
+                {
+                    lastTransaction = t;
+                    continue;
+                }
+
+                if (lastTransaction.Date.Year == t.Date.Year 
+                    && lastTransaction.Date.Month == t.Date.Month
+                    && lastTransaction.Date.Day == t.Date.Day
+                    && lastTransaction.Amount == t.Amount)
+                {
+                    currentBatch.Add(t);
+                }
+                else
+                {
+                    lastTransaction = t;
+                    if (currentBatch.Count > 1 && currentBatch.Any(x => !x.IsResolvedDuplicate))
+                    {
+                        currentBatch.ForEach(x => x.IsResolvedDuplicate = false);
+                        this.Update(currentBatch);
+                        result.Add(currentBatch);
+                    }
+
+                    currentBatch = new List<Transaction>();
+                    currentBatch.Add(t);
+                }
+            }
+
+            return result;
+        }
     }
 }

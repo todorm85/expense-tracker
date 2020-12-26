@@ -80,7 +80,7 @@
 
                             <div id="@("category__" + monthCategories.Month.ToString("MM_yy__") + currentCategoryKey)" style="display: @categoryDisplay" class="row gridExpandable">
                                 <div class="col border">
-                                    <partial name="_Transactions" for="CategoriesForMonths[mi][ci]" view-data='@(new ViewDataDictionary(ViewData) { { "HideHeader", true } } )' />
+                                    <partial name="_Transactions" for="CategoriesForMonths[mi][ci].TransactionsList" />
                                 </div>
                             </div>
                         }

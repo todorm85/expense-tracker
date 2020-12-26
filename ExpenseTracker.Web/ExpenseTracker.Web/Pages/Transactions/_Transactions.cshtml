@@ -1,45 +1,55 @@
-﻿@model IList<Core.Transaction>
+﻿@model TransactionsListModel
 
 <table class="table border rounded table-sm">
-    @if (!ViewData.ContainsKey("HideHeader") || !(bool)ViewData["HideHeader"])
+    @if (!Model.HideHeader)
     {
-    <thead>
-        <tr class="table-info">
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Details</th>
-            <th>Category</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
+        <thead>
+            <tr class="table-info">
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Details</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
     }
     <tbody>
-        @for (var i = 0; i < Model.Count; i++)
+        @for (var transx = 0; transx < Model.Transactions.Count; transx++)
         {
-            var t = Model[i];
+            var t = Model.Transactions[transx];
             var typeClass = t.Type == Core.TransactionType.Income ? "table-success" : "";
-        <tr id="trRow_@t.Id" class="@typeClass">
-            <td><input id="date_@t.Id" type="date" asp-for="@Model[i].Date" class="form-control" style="width: 162px!important;" /></td>
-            <td style="width:5%"><input id="amount_@t.Id" asp-for="@Model[i].Amount" class="form-control auto-select" style="min-width:80px" /></td>
-            <td style="width:75%">
-                <textarea id="details_@t.Id" asp-for="@Model[i].Details" rows="2" class="form-control" style="min-width:220px"></textarea>
-            </td>
-            <td style="width:10%">
-                <input id="category_@t.Id" asp-for="@Model[i].Category"
-                       class="form-control auto-select" placeholder="name:key(opt)" style="min-width: 100px;" />
-            </td>
-            <td style="width:5%">
-                <input type="hidden" asp-for="@Model[i].Id" />
-                <button class="updateBtn mb-1" style="width:70px" type="button" asp-page-handler="update" asp-page="Index"
-                        onclick="onTransactionUpdate(this, @t.Id)">
-                    update
-                </button><br />
-                <button style="width:70px" type="button" asp-page-handler="delete" asp-route-id="@t.Id" asp-page="Index"
-                        onclick="onDelete(this, @t.Id)">
-                    delete
-                </button>
-            </td>
-        </tr>
+            <tr id="trRow_@t.Id" class="@typeClass">
+                <td>
+                    @{
+                        var dateType = Model.ShowTime ? "datetime-local" : "date";
+                        var dateWidth = Model.ShowTime ? "255" : "162";
+                    }
+                    <input id="date_@t.Id" type="@dateType" asp-for="@Model.Transactions[transx].Date" class="form-control" style="width: @(dateWidth)px!important;" />
+                    @if (Model.ShowId)
+                    {
+                        <div>@t.TransactionId</div>
+                    }
+                </td>
+                <td style="width:5%"><input id="amount_@t.Id" asp-for="@Model.Transactions[transx].Amount" class="form-control auto-select" style="min-width:80px" /></td>
+                <td style="width:75%">
+                    <textarea id="details_@t.Id" asp-for="@Model.Transactions[transx].Details" rows="@Model.DetailsHeight" class="form-control" style="min-width:220px"></textarea>
+                </td>
+                <td style="width:10%">
+                    <input id="category_@t.Id" asp-for="@Model.Transactions[transx].Category"
+                           class="form-control auto-select" placeholder="name:key(opt)" style="min-width: 100px;" />
+                </td>
+                <td style="width:5%">
+                    <input type="hidden" asp-for="@Model.Transactions[transx].Id" />
+                    <button class="updateBtn mb-1" style="width:70px" type="button" asp-page-handler="update" asp-page="Index"
+                            onclick="onTransactionUpdate(this, @t.Id)">
+                        update
+                    </button><br />
+                    <button style="width:70px" type="button" asp-page-handler="delete" asp-route-id="@t.Id" asp-page="Index"
+                            onclick="onDelete(this, @t.Id)">
+                        delete
+                    </button>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
@@ -74,7 +84,8 @@
         postAjax(handler,
             sender => {
                 var rowToRemove = document.getElementById("trRow_" + id);
-                rowToRemove.parentNode.removeChild(rowToRemove);
+                //rowToRemove.parentNode.removeChild(rowToRemove);
+                rowToRemove.style.display = 'none';
             },
             sender => {
                 alert("error");

@@ -159,27 +159,28 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
     }
 
-    public class TransactionsForCategoryModel : IList<Transaction>
+    public class TransactionsForCategoryModel
     {
         private string categoryName;
-        private IList<Transaction> transactions = new List<Transaction>();
         private decimal? totalExpense;
         private decimal? totalIncome;
 
         public TransactionsForCategoryModel(string categoryName)
         {
             this.categoryName = categoryName;
+            this.TransactionsList = new TransactionsListModel() { HideHeader = true };
         }
 
-        public Transaction this[int index] { get => this.transactions[index]; set => this.transactions[index] = value; }
+        public Transaction this[int index] { get => this.TransactionsList.Transactions[index]; set => this.TransactionsList.Transactions[index] = value; }
 
+        public TransactionsListModel TransactionsList { get; set; }
         public bool IsExpanded { get; set; }
         public decimal TotalExpense
         {
             get
             {
                 if (!this.totalExpense.HasValue)
-                    this.totalExpense = this.transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount);
+                    this.totalExpense = this.TransactionsList.Transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount);
                 return this.totalExpense.Value;
             }
         }
@@ -189,7 +190,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             get
             {
                 if (!this.totalIncome.HasValue)
-                    this.totalIncome = this.transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);
+                    this.totalIncome = this.TransactionsList.Transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);
                 return this.totalIncome.Value;
             }
         }
@@ -198,61 +199,16 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public bool IsNegativeBalance => this.Balance < 0;
         public string CategoryName => categoryName;
-        public int Count => this.transactions.Count;
-
-        public bool IsReadOnly => this.transactions.IsReadOnly;
+        public int Count => this.TransactionsList.Transactions.Count;
 
         public void Add(Transaction item)
         {
-            this.transactions.Add(item);
-        }
-
-        public void Clear()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Contains(Transaction item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CopyTo(Transaction[] array, int arrayIndex)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerator<Transaction> GetEnumerator()
-        {
-            foreach (var item in this.transactions)
-            {
-                yield return item;
-            }
-        }
-
-        public int IndexOf(Transaction item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Insert(int index, Transaction item)
-        {
-            throw new NotImplementedException();
+            this.TransactionsList.Transactions.Add(item);
         }
 
         public bool Remove(Transaction item)
         {
-            return this.transactions.Remove(item);
-        }
-
-        public void RemoveAt(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
+            return this.TransactionsList.Transactions.Remove(item);
         }
     }
 }

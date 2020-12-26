@@ -69,7 +69,7 @@ namespace ExpenseTracker.Integrations.Tests
             Assert.AreEqual(2, msgList.Count);
             Assert.AreEqual("any1", msgList[0]);
             Assert.AreEqual("other1", msgList[1]);
-            importer.ImportTransactions(out IEnumerable<Transaction> ts);
+            importer.ImportTransactions(out IEnumerable<Transaction> ts2);
             Assert.AreEqual(2, transactionsList.Count);
             Assert.AreEqual("dummy1", transactionsList[0].Details);
             Assert.AreEqual("dummy2", transactionsList[1].Details);

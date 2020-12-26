@@ -1,0 +1,12 @@
+﻿@page
+@model ExpenseTracker.Web.Pages.Transactions.DuplicatesManagerModel
+
+<h2>Duplicates Manager</h2>
+<form method="post">
+@for (int i = 0; i < Model.DuplicatesModel.Count; i++)
+{
+    <input value="Mark Resolved" type="submit" asp-page-handler="MarkResolved" asp-route-index="@i"/>
+    <partial name="_Transactions" for="DuplicatesModel[i]" />
+    <hr />
+}
+</form>

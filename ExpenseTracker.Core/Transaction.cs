@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace ExpenseTracker.Core
 {
-    [DebuggerDisplay("{Date.Month}|{Category}|{Amount}")]
+    [DebuggerDisplay("{Id} |{Date.Month}|{Category}|{Amount}")]
     public class Transaction : IDataItem
     {
         public int Id { get; set; }
@@ -14,6 +14,7 @@ namespace ExpenseTracker.Core
         public TransactionType Type { get; set; }
         public bool Ignored { get; set; }
         public string TransactionId { get; set; }
+        public bool IsResolvedDuplicate { get; set; }
 
         public override bool Equals(object obj) => this.Id == ((Transaction)obj).Id;
         public override int GetHashCode() => this.Id;
