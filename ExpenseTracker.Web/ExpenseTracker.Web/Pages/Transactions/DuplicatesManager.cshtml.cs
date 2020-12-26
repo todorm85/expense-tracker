@@ -32,16 +32,17 @@ namespace ExpenseTracker.Web.Pages.Transactions
             }).ToList();
         }
 
-        public IActionResult OnPostMarkResolved(int index)
+        public IActionResult OnPostMarkResolved([FromBody]string ids)
         {
-            var targetIds = this.DuplicatesModel[index].Transactions.ToList();
-            foreach (var item in targetIds)
+            var targetIds = ids.Split(',').Select(x => int.Parse(x));
+            var targets = this.service.GetAll(x => targetIds.Contains(x.Id)).ToList();
+            foreach (var item in targets)
             {
                 item.IsResolvedDuplicate = true;
             }
 
-            this.service.Update(targetIds);
-            return RedirectToPage();
+            this.service.Update(targets);
+            return new OkResult();
         }
     }
 }

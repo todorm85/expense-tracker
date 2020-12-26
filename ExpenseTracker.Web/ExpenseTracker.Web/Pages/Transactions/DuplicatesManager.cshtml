@@ -1,12 +1,32 @@
 ﻿@page
 @model ExpenseTracker.Web.Pages.Transactions.DuplicatesManagerModel
 
-<h2>Duplicates Manager</h2>
 <form method="post">
-@for (int i = 0; i < Model.DuplicatesModel.Count; i++)
-{
-    <input value="Mark Resolved" type="submit" asp-page-handler="MarkResolved" asp-route-index="@i"/>
-    <partial name="_Transactions" for="DuplicatesModel[i]" />
-    <hr />
-}
+    <h2>Duplicates Manager</h2>
+    @for (int i = 0; i < Model.DuplicatesModel.Count; i++)
+    {
+        var ids = Model.DuplicatesModel[i].Transactions.Select(x => x.Id.ToString()).Aggregate((x, y) => $"{x},{y}");
+        <div id="group_@i">
+            <button type="button" asp-page-handler="MarkResolved" asp-route-index="@i" onclick="onMark(this, @i, '@ids')">
+                Mark Resolved
+            </button>
+            <partial name="_Transactions" for="DuplicatesModel[i]" />
+            <hr />
+        </div>
+    }
 </form>
+
+<script>
+    function onMark(sender, i, ids) {
+        postAjax(sender.formAction,
+            () => {
+                var target = document.getElementById("group_" + i);
+                target.style.display = 'none';
+            },
+            () => {
+                alert('error');
+            },
+            ids
+        );
+    }
+</script>
