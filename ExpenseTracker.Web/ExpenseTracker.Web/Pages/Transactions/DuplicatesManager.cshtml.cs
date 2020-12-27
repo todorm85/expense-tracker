@@ -17,7 +17,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.service = transactions;
         }
 
-        [BindProperty]
         public IList<TransactionsListModel> DuplicatesModel { get; set; }
 
         public void OnGet()
