@@ -23,18 +23,17 @@
             </div>
 
             <h3 class="row text-left border-top mt-3">
-                <span class="col-2 d-block">Total/Average</span>
-                <span class="col-2 text-right d-block">
+                <span class="d-inline-block mr-4">Total/Average</span>
+                <span class="text-right d-inline-block">
                     <span class="badge badge-secondary">@Model.TotalExpense.ToString("N0") / @Model.AverageExpense.ToString("N0")</span>
                 </span>
-                <span class="col-2 text-center d-block">
+                <span class="text-center d-inline-block">
                     <span class="badge">@Model.TotalIncome.ToString("N0") / @Model.AverageIncome.ToString("N0")</span>
                 </span>
                 @{ var avgBalClass = (Model.AverageBalance >= 0) ? "success" : "danger"; }
-                <span class="col-1 d-block">
+                <span class="d-inline-block">
                     <span class="badge badge-@avgBalClass">@Model.Balance.ToString("N0") / @Model.AverageBalance.ToString("N0")</span>
                 </span>
-                <span class="col d-block"></span>
             </h3>
 
 
@@ -42,13 +41,13 @@
             {
                 var monthCategories = Model.CategoriesForMonths[mi];
                 <div class="row border border-primary alert-primary">
-                    <div class="col-3 text-left">
+                    <div class="col text-left">
                         <button class="btn btn-link" type="button" onclick="onToggleElement('@("month__" + monthCategories.Month.ToString("MM_yy"))')">
                             <h4>@(monthCategories.Month.ToString("yyyy MMMM"))</h4>
                         </button>
-                    </div>
-                    <div class="col-4 text-right pt-2">
-                        <partial name="_Summary" model="new decimal[] { monthCategories.TotalExpenses,monthCategories.TotalIncome,monthCategories.Balance }" />
+                        <h5 class="d-inline-block">
+                            <partial name="_Summary" model="new decimal[] { monthCategories.TotalExpenses,monthCategories.TotalIncome,monthCategories.Balance }" />
+                        </h5>
                     </div>
                 </div>
 
