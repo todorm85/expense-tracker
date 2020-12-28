@@ -32,7 +32,11 @@ namespace ExpenseTracker.Tests
             this.imptExpns = new List<Transaction>();
 
             this.repo = new GenericRepo<Transaction>(new LiteDatabase("Filename=transactionsTests.db;utc=true;"), "Transactions");
-            this.repo.Remove(this.repo.GetAll());
+            foreach (var item in this.repo.GetAll())
+            {
+                this.repo.RemoveById(item.Id);
+            }
+
             this.uow = Mock.Create<IUnitOfWork>(Behavior.Strict);
             Mock.Arrange(() => this.uow.GetDataItemsRepo<Transaction>()).Returns(() => this.repo);
             this.sut = null;

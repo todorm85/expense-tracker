@@ -4,25 +4,18 @@ using System.Linq.Expressions;
 
 namespace ExpenseTracker.Core
 {
-    public abstract class BaseDataItemService<T> : IBaseDataItemService<T> where T : IDataItem
+    public abstract class BaseDataItemService<T> : IBaseDataItemService<T> where T : class
     {
-        private IUnitOfWork uow;
         protected IGenericRepository<T> repo;
 
         public BaseDataItemService(IUnitOfWork uow)
         {
-            this.uow = uow;
             this.repo = uow.GetDataItemsRepo<T>();
         }
 
         public virtual void Add(IEnumerable<T> items)
         {
             this.repo.Insert(items);
-        }
-
-        public virtual void Remove(IEnumerable<T> items)
-        {
-            this.repo.Remove(items);
         }
 
         public virtual void Update(IEnumerable<T> items)
@@ -40,9 +33,9 @@ namespace ExpenseTracker.Core
             return this.repo.GetAll(predicate);
         }
 
-        public void Remove(int id)
+        public void RemoveById(object id)
         {
-            this.repo.Remove(id);
+            this.repo.RemoveById(id);
         }
 
         public void Update(T item)
@@ -55,5 +48,9 @@ namespace ExpenseTracker.Core
             this.repo.Insert(item);
         }
 
+        public T GetById(object id)
+        {
+            return this.repo.GetById(id);
+        }
     }
 }

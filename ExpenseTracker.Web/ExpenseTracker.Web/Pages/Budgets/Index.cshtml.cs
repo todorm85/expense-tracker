@@ -27,7 +27,7 @@ namespace ExpenseTracker.Web.Pages.Budget
 
         public IActionResult OnPostDelete(int id)
         {
-            this.service.Remove(id);
+            this.service.RemoveById(id);
             return this.RedirectToPage();
         }
     }

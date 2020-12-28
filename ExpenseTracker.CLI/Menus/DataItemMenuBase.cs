@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace ExpenseTracker.Core.UI
 {
-    public abstract class DataItemMenuBase<T> : Menu where T : class, IDataItem
+    public abstract class DataItemMenuBase<T> : Menu where T : class
     {
         public abstract IBaseDataItemService<T> Service { get; set; }
 
@@ -24,7 +24,7 @@ namespace ExpenseTracker.Core.UI
                 return;
             }
 
-            var item = this.Service.GetAll(x => x.Id == id).FirstOrDefault();
+            var item = this.Service.GetById(id);
             if (item == null)
             {
                 return;
@@ -33,7 +33,7 @@ namespace ExpenseTracker.Core.UI
             var editor = new ItemEditorMenu(item);
             editor.Run();
             if (this.Confirm())
-                this.Service.Update(new T[] { item });
+                this.Service.Update(item);
         }
 
         [MenuAction("add", "Add", "DataItem actions")]
@@ -50,8 +50,7 @@ namespace ExpenseTracker.Core.UI
         public void Remove()
         {
             var id = int.Parse(this.PromptInput("Enter id to remove:"));
-            var item = this.Service.GetAll(x => x.Id == id).FirstOrDefault();
-            this.Service.Remove(new T[] { item });
+            this.Service.RemoveById(id);
         }
 
         [MenuAction("sf", "Filter all", "DataItem actions")]

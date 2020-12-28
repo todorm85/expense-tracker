@@ -101,7 +101,7 @@ namespace ExpenseTracker.App
                 return;
             }
 
-            transactionsService.Remove(transactionsService.GetAll());
+            transactionsService.RemoveById(transactionsService.GetAll());
         }
 
         public void BackupFile(string sourcePath)

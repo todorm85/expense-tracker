@@ -34,7 +34,11 @@ namespace ExpenseTracker.Tests.Int
         [TestCleanup]
         public override void CleanUp()
         {
-            this.expensesService.Remove(this.expensesService.GetAll());
+            foreach (var item in this.expensesService.GetAll())
+            {
+                this.expensesService.RemoveById(item.Id);
+            }
+
             base.CleanUp();
         }
 

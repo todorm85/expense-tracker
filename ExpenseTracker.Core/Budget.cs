@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ExpenseTracker.Core
 {
-    public class Budget : IDataItem
+    public class Budget
     {
         public Budget()
         {

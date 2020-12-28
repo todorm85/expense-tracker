@@ -1,6 +1,6 @@
 ﻿namespace ExpenseTracker.Core
 {
-    public class Category : IDataItem
+    public class Category
     {
         public string Name { get; set; }
 

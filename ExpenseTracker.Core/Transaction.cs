@@ -3,8 +3,8 @@ using System.Diagnostics;
 
 namespace ExpenseTracker.Core
 {
-    [DebuggerDisplay("{Id} |{Date.Month}|{Category}|{Amount}")]
-    public class Transaction : IDataItem
+    [DebuggerDisplay("{Id}|{Date.Month}|{Category}|{Amount}")]
+    public class Transaction
     {
         public int Id { get; set; }
         public decimal Amount { get; set; }

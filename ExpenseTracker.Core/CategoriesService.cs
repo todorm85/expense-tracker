@@ -17,7 +17,7 @@ namespace ExpenseTracker.Core
                 var existingCategory = this.repo.GetAll(c => c.KeyWord == item.KeyWord).FirstOrDefault();
                 if (existingCategory != null)
                 {
-                    this.Remove(new Category[] { existingCategory });
+                    this.RemoveById(new Category[] { existingCategory });
                 }
             }
 

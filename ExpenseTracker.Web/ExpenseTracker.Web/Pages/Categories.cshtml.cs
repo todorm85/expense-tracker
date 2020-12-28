@@ -34,7 +34,7 @@ namespace ExpenseTracker.Web.Pages
         public IActionResult OnPostRemove(int id)
         {
             var cat = this.service.GetAll(x => x.Id == id).First();
-            this.service.Remove(new Category[] { cat });
+            this.service.RemoveById(new Category[] { cat });
             return RedirectToPage();
         }
     }

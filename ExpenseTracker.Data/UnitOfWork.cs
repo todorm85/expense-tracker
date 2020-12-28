@@ -49,7 +49,7 @@ namespace ExpenseTracker.Data
             }
         }
 
-        public IGenericRepository<T> GetDataItemsRepo<T>() where T : IDataItem
+        public IGenericRepository<T> GetDataItemsRepo<T>() where T : class
         {
             if (this.repos.ContainsKey(typeof(T)))
             {
@@ -73,7 +73,7 @@ namespace ExpenseTracker.Data
             this.db.Dispose();
         }
 
-        private string GetSetName<T>() where T : IDataItem
+        private string GetSetName<T>() where T : class
         {
             // backward compatability
             if (typeof(T) == typeof(Category))

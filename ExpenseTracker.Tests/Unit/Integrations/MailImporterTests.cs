@@ -60,7 +60,8 @@ namespace ExpenseTracker.Integrations.Tests
 
             var dummyTransactionsService = Mock.Create<ITransactionsService>();
             var transactionsList = new List<Transaction>();
-            Mock.Arrange(() => dummyTransactionsService.Add(Arg.IsAny<IEnumerable<Transaction>>())).DoInstead<IEnumerable<Transaction>>(x => transactionsList.AddRange(x));
+            IEnumerable<Transaction> dummy = null;
+            Mock.Arrange(() => dummyTransactionsService.Add(Arg.IsAny<IEnumerable<Transaction>>(), out dummy)).DoInstead<IEnumerable<Transaction>>(x => transactionsList.AddRange(x));
             var importer = new MailImporter(new IExpenseMessageParser[] { dummyParser1, dummyParser2 }, dummyTransactionsService, mailClient);
             importer.ImportTransactions(out IEnumerable<Transaction> ts);
             Assert.AreEqual(2, transactionsList.Count);

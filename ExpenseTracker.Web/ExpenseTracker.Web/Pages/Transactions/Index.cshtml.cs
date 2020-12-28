@@ -92,7 +92,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPostDelete(int id)
         {
-            this.transactionsService.Remove(this.transactionsService.GetAll(x => x.Id == id));
+            this.transactionsService.RemoveById(this.transactionsService.GetAll(x => x.Id == id));
             return new OkResult();
         }
 
@@ -124,13 +124,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 all.Add(tdb);
             }
 
-            this.transactionsService.Remove(all);
+            this.transactionsService.RemoveById(all);
             this.OnGet();
         }
 
         public void OnPostDeleteAll()
         {
-            this.transactionsService.Remove(this.transactionsService.GetAll());
+            this.transactionsService.RemoveById(this.transactionsService.GetAll());
             this.ModelState.Clear();
             this.TransactionsList.Transactions.Clear();
         }
