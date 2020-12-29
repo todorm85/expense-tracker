@@ -7,7 +7,7 @@ namespace ExpenseTracker.Core
     {
         Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>> GetExpensesByCategoriesByMonths(DateTime fromDate, DateTime toDate);
         IEnumerable<Transaction> GetDuplicates(Transaction t);
-        List<List<Transaction>> GetDuplicates();
+        List<List<Transaction>> GetPotentialDuplicates();
         void Add(IEnumerable<Transaction> expenses, out IEnumerable<Transaction> added);
     }
 }

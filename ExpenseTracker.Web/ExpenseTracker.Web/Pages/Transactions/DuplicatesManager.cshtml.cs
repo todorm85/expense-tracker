@@ -21,7 +21,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public void OnGet()
         {
-            var duplicates = this.service.GetDuplicates();
+            var duplicates = this.service.GetPotentialDuplicates();
             this.DuplicatesModel = duplicates.Select(x => new TransactionsListModel()
             {
                 ShowId = true,

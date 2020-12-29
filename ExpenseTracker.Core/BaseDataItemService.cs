@@ -33,22 +33,22 @@ namespace ExpenseTracker.Core
             return this.repo.GetAll(predicate);
         }
 
-        public void RemoveById(object id)
+        public virtual void RemoveById(object id)
         {
             this.repo.RemoveById(id);
         }
 
-        public void Update(T item)
+        public virtual void Update(T item)
         {
             this.repo.Update(item);
         }
 
-        public void Add(T item)
+        public virtual void Add(T item)
         {
             this.repo.Insert(item);
         }
 
-        public T GetById(object id)
+        public virtual T GetById(object id)
         {
             return this.repo.GetById(id);
         }

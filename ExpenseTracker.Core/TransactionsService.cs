@@ -31,6 +31,18 @@ namespace ExpenseTracker.Core
             this.Add(expenses, out IEnumerable<Transaction> ts);
         }
 
+        public override void Add(Transaction item)
+        {
+            this.Add(new Transaction[] { item });
+        }
+
+        public IEnumerable<Transaction> GetDuplicates(Transaction t)
+        {
+            if (string.IsNullOrWhiteSpace(t.TransactionId))
+                t.GenerateTransactionId();
+            return this.repo.GetAll(x => x.TransactionId == t.TransactionId);
+        }
+
         public Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>> GetExpensesByCategoriesByMonths(DateTime fromDate, DateTime toDate)
         {
             var expenses = this.repo.GetAll(x => x.Date >= fromDate && x.Date <= toDate && x.Type == TransactionType.Expense && !x.Ignored);
@@ -52,19 +64,7 @@ namespace ExpenseTracker.Core
             return byCategoryByMonths;
         }
 
-        private bool IsDuplicate(Transaction t)
-        {
-            return this.GetDuplicates(t).Count() != 0;
-        }
-
-        public IEnumerable<Transaction> GetDuplicates(Transaction t)
-        {
-            if (string.IsNullOrWhiteSpace(t.TransactionId))
-                t.GenerateTransactionId();
-            return this.repo.GetAll(x => x.TransactionId == t.TransactionId);
-        }
-
-        public List<List<Transaction>> GetDuplicates()
+        public List<List<Transaction>> GetPotentialDuplicates()
         {
             var orderedTransactions = this.repo.GetAll().OrderByDescending(x => x.Date)
                 .ThenByDescending(x => x.Amount)
@@ -80,7 +80,7 @@ namespace ExpenseTracker.Core
                     continue;
                 }
 
-                if (lastTransaction.Date.Year == t.Date.Year 
+                if (lastTransaction.Date.Year == t.Date.Year
                     && lastTransaction.Date.Month == t.Date.Month
                     && lastTransaction.Date.Day == t.Date.Day
                     && lastTransaction.Amount == t.Amount)
@@ -103,6 +103,11 @@ namespace ExpenseTracker.Core
             }
 
             return result;
+        }
+
+        private bool IsDuplicate(Transaction t)
+        {
+            return this.GetDuplicates(t).Count() != 0;
         }
     }
 }
