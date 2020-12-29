@@ -166,7 +166,7 @@ namespace ExpenseTracker.Tests.Unit.Integrations.RaiffeizenParser
         [TestInitialize]
         public void Init()
         {
-            this.parser = new RaiffeizenTxtFileParser(new TransactionImporter(Mock.Create<IBaseDataItemService<Category>>()));
+            this.parser = new RaiffeizenTxtFileParser(new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IBaseDataItemService<Category>>()));
         }
 
         [TestMethod]

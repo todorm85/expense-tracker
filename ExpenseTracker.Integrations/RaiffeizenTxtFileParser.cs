@@ -8,11 +8,11 @@ namespace ExpenseTracker.Allianz
 {
     public class RaiffeizenTxtFileParser
     {
-        private readonly ITransactionImporter builder;
+        private readonly ITransactionsService service;
 
-        public RaiffeizenTxtFileParser(ITransactionImporter builder)
+        public RaiffeizenTxtFileParser(ITransactionsService service)
         {
-            this.builder = builder;
+            this.service = service;
         }
 
         public List<Transaction> Parse(XmlDocument document)
@@ -28,26 +28,23 @@ namespace ExpenseTracker.Allianz
 
             foreach (XmlNode entry in entries)
             {
-                Transaction t = null;
                 var movementDetails = entry.SelectSingleNode("d3p1:AccountCardMovementDetails", m);
                 var typeRaw = entry.SelectSingleNode("d3p1:MovementType", m).InnerText;
                 var type = typeRaw == "Debit" ? TransactionType.Expense : TransactionType.Income;
-                var amount = Decimal.Parse(entry.SelectSingleNode("d3p1:Amount", m).InnerText);
+                var amount = decimal.Parse(entry.SelectSingleNode("d3p1:Amount", m).InnerText);
+                var t = new Transaction() { Amount = amount, Type = type };
                 if (movementDetails.InnerXml != string.Empty)
                 {
-                    var details = movementDetails.SelectSingleNode("d3p1:Description", m).InnerText;
-                    var transactionId = movementDetails.SelectSingleNode("d3p1:DRN", m).InnerText;
                     var rawDate = movementDetails.SelectSingleNode("d3p1:PostDate", m).InnerText;
-                    var parsedDate = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
-                    t = this.builder.Import(amount, details, type, parsedDate);
-                    t.TransactionId = transactionId;
+                    t.Details = movementDetails.SelectSingleNode("d3p1:Description", m).InnerText;
+                    t.TransactionId = movementDetails.SelectSingleNode("d3p1:DRN", m).InnerText;
+                    t.Date = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
                 }
                 else
                 {
-                    var details = entry.SelectSingleNode("d3p1:Narrative", m).InnerText;
                     var rawDate = entry.SelectSingleNode("d3p1:PaymentDate", m).InnerText;
-                    var parsedDate = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
-                    t = this.builder.Import(amount, details, type, parsedDate);
+                    t.Details = entry.SelectSingleNode("d3p1:Narrative", m).InnerText;
+                    t.Date = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
                 }
 
                 if (IsValid(t))

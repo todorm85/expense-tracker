@@ -2,6 +2,7 @@
 using ExpenseTracker.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Unity;
@@ -37,7 +38,7 @@ namespace ExpenseTracker.Tests.Int
         {
             var testData = GetTestData(SalaryEntry, InternalTransaction1, InternalTransaction2, TaxEntry);
             var expenses = this.fileParser.Parse(testData);
-            this.expensesService.Add(expenses);
+            this.expensesService.TryAdd(expenses, out IEnumerable<TransactionInsertResult> res);
 
             Assert.AreEqual(2, this.expensesService.GetAll().Count());
         }
@@ -47,8 +48,8 @@ namespace ExpenseTracker.Tests.Int
         {
             var testData = GetTestData(YouTubeExpenseEntry);
             var expenses = this.fileParser.Parse(testData);
-            this.expensesService.Add(expenses);
-            this.expensesService.Add(expenses);
+            this.expensesService.TryAdd(expenses, out IEnumerable<TransactionInsertResult> res);
+            this.expensesService.TryAdd(expenses, out IEnumerable<TransactionInsertResult> res2);
 
             Assert.AreEqual(1, this.expensesService.GetAll().Count());
         }
@@ -76,11 +77,11 @@ namespace ExpenseTracker.Tests.Int
         {
             var testData = GetTestData(TaxEntry);
             var expenses = this.fileParser.Parse(testData);
-            this.expensesService.Add(expenses);
+            this.expensesService.TryAdd(expenses, out IEnumerable<TransactionInsertResult> res);
 
             testData = GetTestData(YouTubeExpenseEntry, TaxEntry, EpayEntry);
             expenses = this.fileParser.Parse(testData);
-            this.expensesService.Add(expenses);
+            this.expensesService.TryAdd(expenses, out IEnumerable<TransactionInsertResult> res1);
 
             Assert.AreEqual(3, this.expensesService.GetAll().Count());
         }

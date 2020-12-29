@@ -9,17 +9,11 @@ namespace ExpenseTracker.Allianz
 {
     public class AllianzTxtFileParser
     {
-        private readonly ITransactionImporter builder;
+        private readonly ITransactionsService service;
 
-        public AllianzTxtFileParser(ITransactionImporter builder)
+        public AllianzTxtFileParser(ITransactionsService builder)
         {
-            this.builder = builder;
-        }
-
-        public IEnumerable<Transaction> GetTransactions(string filePath)
-        {
-            var ts = this.ParseFromFile(filePath);
-            return ts;
+            this.service = builder;
         }
 
         public List<Transaction> Parse(string data)
@@ -33,33 +27,19 @@ namespace ExpenseTracker.Allianz
                 while (!string.IsNullOrWhiteSpace(line))
                 {
                     var fgs = line.Split('|');
-                    var amount = Decimal.Parse(fgs[2]);
+                    var amount = decimal.Parse(fgs[2]);
                     var type = fgs[3] == "D" ? TransactionType.Expense : TransactionType.Income;
                     var details = $"{fgs[4]} {fgs[5]} {fgs[6]} {fgs[7]} {fgs[8]}".RemoveRepeatingSpaces();
-                    var parsedDate = ParseDateFromDetails(details);
-                    if (parsedDate == default(DateTime))
+                    var parsedDate = ParseDate(details, fgs[0]);
+                    var t = new Transaction()
                     {
-                        // fallback to date when transaction has settled in bank
-                        parsedDate = DateTime.ParseExact(fgs[0], "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-                    }
-
-                    parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
-                    var rawDate = parsedDate;
-                    if (parsedDate.TimeOfDay != default)
-                    {
-                        var bgTz = TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time");
-                        var offset = bgTz.GetUtcOffset(parsedDate);
-                        parsedDate = parsedDate.Add(-offset);
-                        parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
-                    }
-
-                    var t = this.builder.Import(amount, details, type, parsedDate);
-                    if (this.IsValid(t))
-                    {
-                        t.GenerateTransactionId(rawDate); // backwards comaptibility, old date ids have been used before
+                        Amount = amount,
+                        Date = parsedDate,
+                        Details = details,
+                        Type = type
+                    };
+                    if (!t.Details.Contains("собствени сметки"))
                         trans.Add(t);
-                    }
-
                     line = sr.ReadLine();
                 }
             }
@@ -72,32 +52,37 @@ namespace ExpenseTracker.Allianz
             return this.Parse(File.ReadAllText(filePath));
         }
 
-        private bool IsValid(Transaction t)
-        {
-            return !t.Details.Contains("собствени сметки");
-        }
-
-        private DateTime ParseDateFromDetails(string source)
+        private DateTime ParseDate(string details, string bankRecordDate)
         {
             var regex = new Regex(@"\d *\d *\. *\d *\d *\. *\d *\d *\d *\d");
-            var date = regex.Match(source).Value.Replace(" ", "");
+            var date = regex.Match(details).Value.Replace(" ", "");
             regex = new Regex(@"\d *\d *: *\d *\d *: *\d *\d");
-            var time = regex.Match(source).Value.Replace(" ", "");
-            if (string.IsNullOrEmpty(date))
+            var time = regex.Match(details).Value.Replace(" ", "");
+            var parsedDate = default(DateTime);
+            if (!string.IsNullOrEmpty(date))
             {
-                return default(DateTime);
-            }
-
-            var parsedDate = DateTime.ParseExact(date, "dd.MM.yyyy", CultureInfo.InvariantCulture);
-            if (!string.IsNullOrEmpty(time))
-            {
-                var parsedTime = TimeSpan.ParseExact(time, @"hh\:mm\:ss", CultureInfo.InvariantCulture);
-                return new DateTime(parsedDate.Year, parsedDate.Month, parsedDate.Day, parsedTime.Hours, parsedTime.Minutes, parsedTime.Seconds);
+                parsedDate = DateTime.ParseExact(date, "dd.MM.yyyy", CultureInfo.InvariantCulture);
+                if (!string.IsNullOrEmpty(time))
+                {
+                    var parsedTime = TimeSpan.ParseExact(time, @"hh\:mm\:ss", CultureInfo.InvariantCulture);
+                    parsedDate = new DateTime(parsedDate.Year, parsedDate.Month, parsedDate.Day, parsedTime.Hours, parsedTime.Minutes, parsedTime.Seconds);
+                }
             }
             else
             {
-                return parsedDate;
+                parsedDate = DateTime.ParseExact(bankRecordDate, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
             }
+
+            parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
+            if (parsedDate.TimeOfDay != default)
+            {
+                var bgTz = TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time");
+                var offset = bgTz.GetUtcOffset(parsedDate);
+                parsedDate = parsedDate.Add(-offset);
+                parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
+            }
+
+            return parsedDate;
         }
     }
 }

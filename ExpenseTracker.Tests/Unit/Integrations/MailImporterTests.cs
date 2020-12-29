@@ -60,17 +60,17 @@ namespace ExpenseTracker.Integrations.Tests
 
             var dummyTransactionsService = Mock.Create<ITransactionsService>();
             var transactionsList = new List<Transaction>();
-            IEnumerable<Transaction> dummy = null;
-            Mock.Arrange(() => dummyTransactionsService.Add(Arg.IsAny<IEnumerable<Transaction>>(), out dummy)).DoInstead<IEnumerable<Transaction>>(x => transactionsList.AddRange(x));
+            IEnumerable<TransactionInsertResult> skippedDummy = new TransactionInsertResult[0];
+            Mock.Arrange(() => dummyTransactionsService.TryAdd(Arg.IsAny<IEnumerable<Transaction>>(), out skippedDummy)).DoInstead<IEnumerable<Transaction>>(x => transactionsList.AddRange(x));
             var importer = new MailImporter(new IExpenseMessageParser[] { dummyParser1, dummyParser2 }, dummyTransactionsService, mailClient);
-            importer.ImportTransactions(out IEnumerable<Transaction> ts);
+            importer.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skipped);
             Assert.AreEqual(2, transactionsList.Count);
             Assert.AreEqual("dummy1", transactionsList[0].Details);
             Assert.AreEqual("dummy2", transactionsList[1].Details);
             Assert.AreEqual(2, msgList.Count);
             Assert.AreEqual("any1", msgList[0]);
             Assert.AreEqual("other1", msgList[1]);
-            importer.ImportTransactions(out IEnumerable<Transaction> ts2);
+            importer.ImportTransactions(out IEnumerable<Transaction> ts2, out IEnumerable<TransactionInsertResult> skipped2);
             Assert.AreEqual(2, transactionsList.Count);
             Assert.AreEqual("dummy1", transactionsList[0].Details);
             Assert.AreEqual("dummy2", transactionsList[1].Details);

@@ -104,7 +104,7 @@ namespace ExpenseTracker.Data
                     var tId = (string)doc["TransactionId"];
                     if (tId != null && tId.Contains('/') && tId.Contains(':') && tId.Contains('_'))
                     {
-                        doc["_id"] = TransactionExtensions.GenerateTransactionId(doc["Date"], doc["Amount"], doc["Details"]);
+                        doc["_id"] = TransactionsService.GenerateTransactionId(doc["Date"], doc["Amount"], doc["Details"]);
                     }
                     else if (tId != null)
                     {

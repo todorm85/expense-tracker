@@ -1,6 +1,7 @@
 ﻿using ExpenseTracker.Core;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ExpenseTracker.Allianz.Gmail
 {
@@ -22,9 +23,10 @@ namespace ExpenseTracker.Allianz.Gmail
             this.mailClient.Dispose();
         }
 
-        public void ImportTransactions(out IEnumerable<Transaction> added)
+        public void ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<TransactionInsertResult> skipped)
         {
-            added = new List<Transaction>();
+            added = Enumerable.Empty<Transaction>();
+            skipped = Enumerable.Empty<TransactionInsertResult>();
             var transactions = new List<Transaction>();
             int msgIdx = 0;
             int totalMsgsCount = this.mailClient.Count;
@@ -55,7 +57,9 @@ namespace ExpenseTracker.Allianz.Gmail
 
             if (transactions.Count > 0)
             {
-                this.transactionsService.Add(transactions, out added);
+                this.transactionsService.TryAdd(transactions, out IEnumerable<TransactionInsertResult> skippedFromTry);
+                skipped = skippedFromTry;
+                added = transactions.Except(skippedFromTry.Select(x => x.Transaction));
             }
         }
     }

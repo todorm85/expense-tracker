@@ -8,22 +8,18 @@ namespace ExpenseTracker.Allianz
 {
     public class AllianzExpenseMessageParser : IExpenseMessageParser
     {
-        private readonly ITransactionImporter builder;
+        private readonly ITransactionsService service;
 
-        public AllianzExpenseMessageParser(ITransactionImporter builder)
+        public AllianzExpenseMessageParser(ITransactionsService service)
         {
-            this.builder = builder;
+            this.service = service;
         }
 
         public Transaction Parse(ExpenseMessage message)
         {
             if (!IsValidExpenseMessage(message))
-            {
                 return null;
-            }
-
             Transaction result = new Transaction();
-
             var title = string.Empty;
             using (var html = new StringReader(message.Body))
             {
@@ -46,8 +42,7 @@ namespace ExpenseTracker.Allianz
             result.Type = IsIncome(message) ? TransactionType.Income : TransactionType.Expense;
             if (string.IsNullOrEmpty(result.Details))
                 result.Details = title;
-
-            return this.builder.Import(result.Amount, result.Details, result.Type, result.Date);
+            return result;
         }
 
         private static string ExtractInnerText(string line)

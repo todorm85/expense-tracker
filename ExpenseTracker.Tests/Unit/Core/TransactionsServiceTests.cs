@@ -26,7 +26,7 @@ namespace ExpenseTracker.Tests
             {
                 if (this.sut == null)
                 {
-                    this.sut = new TransactionsService(this.uow);
+                    this.sut = new TransactionsService(this.uow, Mock.Create<IBaseDataItemService<Category>>());
                 }
 
                 return this.sut;
@@ -34,13 +34,13 @@ namespace ExpenseTracker.Tests
         }
 
         [TestMethod]
-        public void Add_TransactionsWhenSameTransactionIdExists_DoesNothing()
+        [ExpectedException(typeof(LiteDB.LiteException))]
+        public void Add_TransactionsWhenSameTransactionIdExists_Throws()
         {
             var expense = TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), "dummyCategory");
             expense.TransactionId = Guid.NewGuid().ToString();
             this.repo.Insert(new Transaction[] { expense });
 
-            expense.TransactionId = "0";
             this.Sut.Add(new Transaction[] { expense });
             var results = this.Sut.GetAll();
             Assert.AreEqual(1, results.Count());

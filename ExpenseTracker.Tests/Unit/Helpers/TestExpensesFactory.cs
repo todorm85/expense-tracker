@@ -15,7 +15,8 @@ namespace ExpenseTracker.Tests
                 Amount = (decimal)(random.NextDouble() * 100),
                 Date = newDate,
                 Details = Guid.NewGuid().ToString(),
-                Category = category ?? Guid.NewGuid().ToString()
+                Category = category ?? Guid.NewGuid().ToString(),
+                TransactionId = Guid.NewGuid().ToString()
             };
         }
 

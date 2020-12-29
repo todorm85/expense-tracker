@@ -12,7 +12,7 @@ namespace ExpenseTracker.Integrations.Tests
         [TestMethod]
         public void ValidMessageIsParsedCorrectly()
         {
-            var importer = new TransactionImporter(Mock.Create<IBaseDataItemService<Category>>());
+            var importer = new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IBaseDataItemService<Category>>());
             var parser = new RaiffeisenMessageParser(importer);
             var result = parser.Parse(new ExpenseMessage()
             {
