@@ -15,6 +15,7 @@ namespace ExpenseTracker.Data
         public UnitOfWork(string dbPath)
         {
             this.db = new LiteDatabase(dbPath);
+            MapDbModels();
             this.HandleMigration();
         }
 
@@ -40,6 +41,12 @@ namespace ExpenseTracker.Data
             }
 
             return this.repos.GetOrAdd(typeof(T), repoInstance) as IGenericRepository<T>;
+        }
+
+        private static void MapDbModels()
+        {
+            BsonMapper.Global.Entity<Transaction>()
+                            .Id(x => x.TransactionId, false);
         }
 
         private string GetSetName<T>() where T : class
@@ -86,6 +93,34 @@ namespace ExpenseTracker.Data
                 }
 
                 this.db.Engine.UserVersion = 1;
+            }
+
+            if (this.db.Engine.UserVersion == 1)
+            {
+                var col = this.db.GetCollection(this.GetSetName<Transaction>());
+                foreach (var doc in col.FindAll())
+                {
+                    var originalId = doc["_id"];
+                    var tId = (string)doc["TransactionId"];
+                    if (tId != null && tId.Contains('/') && tId.Contains(':') && tId.Contains('_'))
+                    {
+                        doc["_id"] = TransactionExtensions.GenerateTransactionId(doc["Date"], doc["Amount"], doc["Details"]);
+                    }
+                    else if (tId != null)
+                    {
+                        doc["_id"] = tId;
+                    }
+                    else
+                    {
+                        doc["_id"] = originalId.ToString();
+                    }
+
+                    doc.Remove("TransactionId");
+                    col.Insert(doc);
+                    col.Delete(originalId);
+                }
+
+                this.db.Engine.UserVersion = 2;
             }
         }
     }

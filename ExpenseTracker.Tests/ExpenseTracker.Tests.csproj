@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ExpenseTracker.App\ExpenseTracker.App.csproj" />
-    <ProjectReference Include="..\ExpenseTracker.CLI\ExpenseTracker.CLI.csproj" />
     <ProjectReference Include="..\ExpenseTracker.Core\ExpenseTracker.Core.csproj" />
     <ProjectReference Include="..\ExpenseTracker.Data\ExpenseTracker.Data.csproj" />
     <ProjectReference Include="..\ExpenseTracker.Integrations\ExpenseTracker.Integrations.csproj" />

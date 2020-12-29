@@ -81,7 +81,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             var all = new List<Transaction>();
             foreach (var t in TransactionsList.Transactions)
             {
-                var tdb = this.transactionsService.GetAll(x => x.Id == t.Id && string.IsNullOrEmpty(x.Category)).FirstOrDefault();
+                var tdb = this.transactionsService.GetAll(x => x.TransactionId == t.TransactionId && string.IsNullOrEmpty(x.Category)).FirstOrDefault();
                 if (tdb == null)
                     continue;
                 tdb.Category = t.Category;
@@ -92,9 +92,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.OnGet();
         }
 
-        public IActionResult OnPostDelete(int id)
+        public IActionResult OnPostDelete(string id)
         {
-            this.transactionsService.RemoveById(this.transactionsService.GetAll(x => x.Id == id));
+            this.transactionsService.RemoveById(this.transactionsService.GetAll(x => x.TransactionId == id));
             return new OkResult();
         }
 
@@ -110,7 +110,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             var all = new List<Transaction>();
             foreach (var t in TransactionsList.Transactions)
             {
-                var tdb = this.transactionsService.GetAll(x => x.Id == t.Id).FirstOrDefault();
+                var tdb = this.transactionsService.GetAll(x => x.TransactionId == t.TransactionId).FirstOrDefault();
                 if (tdb == null)
                     continue;
                 all.Add(tdb);
@@ -125,7 +125,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             if (viewModel == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error parsing the request parameters.");
 
-            var dbModel = this.transactionsService.GetAll(x => x.Id == viewModel.Id).First();
+            var dbModel = this.transactionsService.GetAll(x => x.TransactionId == viewModel.TransactionId).First();
             if (viewModel.Category != dbModel.Category && viewModel.Category?.Contains(":") == true)
             {
                 var parts = viewModel.Category.Split(":");

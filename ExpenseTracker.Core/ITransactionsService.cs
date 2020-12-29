@@ -9,8 +9,6 @@ namespace ExpenseTracker.Core
 
         IEnumerable<Transaction> GetDuplicates(Transaction t);
 
-        Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>> GetExpensesByCategoriesByMonths(DateTime fromDate, DateTime toDate);
-
         List<List<Transaction>> GetPotentialDuplicates();
     }
 }

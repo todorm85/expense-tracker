@@ -32,8 +32,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPostMarkResolved([FromBody] string ids)
         {
-            var targetIds = ids.Split(',').Select(x => int.Parse(x));
-            var targets = this.service.GetAll(x => targetIds.Contains(x.Id)).ToList();
+            var targetIds = ids.Split(',');
+            var targets = this.service.GetAll(x => targetIds.Contains(x.TransactionId)).ToList();
             foreach (var item in targets)
             {
                 item.IsResolvedDuplicate = true;

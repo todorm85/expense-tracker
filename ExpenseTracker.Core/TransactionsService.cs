@@ -43,27 +43,6 @@ namespace ExpenseTracker.Core
             return this.repo.GetAll(x => x.TransactionId == t.TransactionId);
         }
 
-        public Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>> GetExpensesByCategoriesByMonths(DateTime fromDate, DateTime toDate)
-        {
-            var expenses = this.repo.GetAll(x => x.Date >= fromDate && x.Date <= toDate && x.Type == TransactionType.Expense && !x.Ignored);
-            var byCategoryByMonths = new Dictionary<DateTime, Dictionary<string, IEnumerable<Transaction>>>();
-            foreach (var year in expenses.GroupBy(x => x.Date.Year))
-            {
-                foreach (var month in year.GroupBy(x => x.Date.Month))
-                {
-                    var categories = new Dictionary<string, IEnumerable<Transaction>>();
-                    foreach (var cat in month.GroupBy(x => x.Category))
-                    {
-                        categories.Add(cat.Key ?? "", cat.ToList());
-                    }
-
-                    byCategoryByMonths.Add(new DateTime(year.Key, month.Key, 1), categories);
-                }
-            }
-
-            return byCategoryByMonths;
-        }
-
         public List<List<Transaction>> GetPotentialDuplicates()
         {
             var orderedTransactions = this.repo.GetAll().OrderByDescending(x => x.Date)

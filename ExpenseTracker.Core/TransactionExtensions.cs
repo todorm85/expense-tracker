@@ -7,12 +7,18 @@ namespace ExpenseTracker.Core
     {
         public static void GenerateTransactionId(this Transaction t)
         {
-            t.TransactionId = $"{t.Date.ToString("dd/MM/yy_HH:mm:ss", CultureInfo.InvariantCulture)}_{t.Amount.ToString("F2")}_{t.Details}";
+            t.GenerateTransactionId(t.Date);
         }
 
         public static void GenerateTransactionId(this Transaction t, DateTime date)
         {
-            t.TransactionId = $"{date.ToString("dd/MM/yy_HH:mm:ss", CultureInfo.InvariantCulture)}_{t.Amount.ToString("F2")}_{t.Details}";
+            t.TransactionId = GenerateTransactionId(date, t.Amount, t.Details);
+        }        
+
+        public static string GenerateTransactionId(DateTime date, decimal amount, string details)
+        {
+            var detailsHash = Utils.ComputeCRC32Hash(details);
+            return $"{date.ToString("dd.MM.yy.HH.mm.ss", CultureInfo.InvariantCulture)}_{amount.ToString("F2")}_{detailsHash}";
         }
     }
 }

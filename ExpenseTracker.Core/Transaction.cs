@@ -3,21 +3,20 @@ using System.Diagnostics;
 
 namespace ExpenseTracker.Core
 {
-    [DebuggerDisplay("{Id}|{Date.Month}|{Category}|{Amount}")]
+    [DebuggerDisplay("{TransactionId}|{Date.Month}|{Category}|{Amount}")]
     public class Transaction
     {
         public decimal Amount { get; set; }
         public string Category { get; set; }
         public DateTime Date { get; set; }
         public string Details { get; set; }
-        public int Id { get; set; }
         public bool Ignored { get; set; }
         public bool IsResolvedDuplicate { get; set; }
         public string TransactionId { get; set; }
         public TransactionType Type { get; set; }
 
-        public override bool Equals(object obj) => this.Id == ((Transaction)obj).Id;
+        public override bool Equals(object obj) => string.IsNullOrEmpty(this.TransactionId) ? base.Equals(obj) : this.TransactionId == ((Transaction)obj).TransactionId;
 
-        public override int GetHashCode() => this.Id;
+        public override int GetHashCode() => string.IsNullOrEmpty(this.TransactionId) ? base.GetHashCode() : this.TransactionId.GetHashCode();
     }
 }

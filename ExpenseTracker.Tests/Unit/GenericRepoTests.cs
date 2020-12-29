@@ -39,9 +39,9 @@ namespace ExpenseTracker.Tests
             expenses.First().Details = details;
             var initialCount = sut.GetAll().Count();
             var newId = initialCount + 1;
-            expenses.First().Id = newId;
+            expenses.First().TransactionId = "newId";
             sut.Update(expenses);
-            var expense = sut.GetAll().FirstOrDefault(x => x.Id == newId);
+            var expense = sut.GetAll().FirstOrDefault(x => x.TransactionId == "newId");
             Assert.IsNull(expense);
             expense = sut.GetAll().FirstOrDefault(x => x.Details == details);
             Assert.IsNull(expense);

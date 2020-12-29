@@ -26,7 +26,7 @@ namespace ExpenseTracker.Tests.Int
         {
             foreach (var item in this.expensesService.GetAll())
             {
-                this.expensesService.RemoveById(item.Id);
+                this.expensesService.RemoveById(item.TransactionId);
             }
 
             base.CleanUp();
