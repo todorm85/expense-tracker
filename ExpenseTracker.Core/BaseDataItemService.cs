@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace ExpenseTracker.Core
 {
-    public abstract class BaseDataItemService<T> : IBaseDataItemService<T> where T : class
+    public class BaseDataItemService<T> : IBaseDataItemService<T> where T : class
     {
         protected IGenericRepository<T> repo;
 

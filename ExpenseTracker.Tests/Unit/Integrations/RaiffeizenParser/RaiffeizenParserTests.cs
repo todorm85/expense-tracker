@@ -1,5 +1,6 @@
 ﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Transactions.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Xml;
 using Telerik.JustMock;
@@ -166,7 +167,7 @@ namespace ExpenseTracker.Tests.Unit.Integrations.RaiffeizenParser
         [TestInitialize]
         public void Init()
         {
-            this.parser = new RaiffeizenTxtFileParser(new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IBaseDataItemService<Category>>()));
+            this.parser = new RaiffeizenTxtFileParser(new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IBaseDataItemService<Category>>(), Mock.Create<IBaseDataItemService<Rule>>()));
         }
 
         [TestMethod]

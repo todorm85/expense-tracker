@@ -13,5 +13,19 @@ namespace ExpenseTracker.Core
         {
             return new DateTime(date.Year, date.Month, 1);
         }
+
+        public static string RemoveRepeatingSpaces(this string s)
+        {
+            while (true)
+            {
+                s = s.Replace("  ", " ");
+                if (s.IndexOf("  ") < 0)
+                {
+                    break;
+                }
+            }
+
+            return s.Trim();
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Transactions.Rules;
 using ExpenseTracker.Tests.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace ExpenseTracker.Tests
         [TestInitialize]
         public void Init()
         {
-            this.parser = new AllianzExpenseMessageParser(new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IBaseDataItemService<Category>>()));
+            this.parser = new AllianzExpenseMessageParser(new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IBaseDataItemService<Category>>(), Mock.Create<IBaseDataItemService<Rule>>()));
         }
 
         [TestMethod]

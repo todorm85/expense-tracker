@@ -1,4 +1,5 @@
 ﻿using ExpenseTracker.Core;
+using ExpenseTracker.Core.Transactions.Rules;
 using ExpenseTracker.Data;
 using LiteDB;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,7 +27,7 @@ namespace ExpenseTracker.Tests
             {
                 if (this.sut == null)
                 {
-                    this.sut = new TransactionsService(this.uow, Mock.Create<IBaseDataItemService<Category>>());
+                    this.sut = new TransactionsService(this.uow, Mock.Create<IBaseDataItemService<Category>>(), Mock.Create<IBaseDataItemService<Rule>>());
                 }
 
                 return this.sut;

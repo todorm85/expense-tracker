@@ -1,6 +1,7 @@
 ﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Transactions.Rules;
 using ExpenseTracker.Data;
 using Unity;
 using Unity.Injection;
@@ -17,6 +18,7 @@ namespace ExpenseTracker.App
             container.RegisterType<ITransactionsService, TransactionsService>();
             container.RegisterType<IBudgetService, BudgetService>();
             container.RegisterType<IBaseDataItemService<Category>, CategoriesService>();
+            container.RegisterType<IBaseDataItemService<Rule>, BaseDataItemService<Rule>> ();
             container.RegisterType<IBudgetCalculator, BudgetCalculator>();
 
             // allianz dependencies

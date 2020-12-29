@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExpenseTracker.Core.Transactions.Rules;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -8,12 +9,16 @@ namespace ExpenseTracker.Core
 {
     public class TransactionsService : BaseDataItemService<Transaction>, ITransactionsService
     {
+        private readonly IUnitOfWork data;
         private readonly IBaseDataItemService<Category> categoriesRepo;
         private readonly TransactionsClassifier classifier = new TransactionsClassifier();
+        private IBaseDataItemService<Rule> rulesService;
 
-        public TransactionsService(IUnitOfWork data, IBaseDataItemService<Category> categoriesRepo) : base(data)
+        public TransactionsService(IUnitOfWork data, IBaseDataItemService<Category> categoriesRepo, IBaseDataItemService<Rule> rulesService) : base(data)
         {
+            this.data = data;
             this.categoriesRepo = categoriesRepo;
+            this.rulesService = rulesService;
         }
 
         public static string GenerateTransactionId(DateTime date, decimal amount, string details)
@@ -95,8 +100,25 @@ namespace ExpenseTracker.Core
             var toAdd = new List<Transaction>();
             var cats = this.categoriesRepo.GetAll();
             var skippedResult = new List<TransactionInsertResult>();
+            var rules = this.rulesService.GetAll();
             foreach (var t in expenses)
             {
+                var skip = false;
+                foreach (Rule rule in rules)
+                {
+                    if (!rule.Process(t))
+                    {
+                        skip = true;
+                        break;
+                    }
+                }
+
+                if (skip)
+                {
+                    skippedResult.Add(new TransactionInsertResult(t, TransactionInsertResult.Reason.Skipped));
+                    continue;
+                }
+
                 if (t.Date == default(DateTime))
                 {
                     skippedResult.Add(new TransactionInsertResult(t, TransactionInsertResult.Reason.InvalidDate));
@@ -121,11 +143,12 @@ namespace ExpenseTracker.Core
                 }
 
                 t.TransactionId = transactionId;
-                this.classifier.Classify(new Transaction[] { t }, cats);
+                this.classifier.Classify(new Transaction[] { t }, cats);                
+
                 toAdd.Add(t);
             }
 
-            this.Add(toAdd);
+            this.repo.Insert(toAdd);
             skipped = skippedResult;
             return skipped.Count() == 0;
         }
@@ -161,7 +184,8 @@ namespace ExpenseTracker.Core
             InvalidDate,
             InvalidAmount,
             DuplicateEntry,
-            InvalidType
+            InvalidType,
+            Skipped
         }
     }
 
