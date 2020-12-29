@@ -1,20 +1,36 @@
-﻿using System.Linq;
-using MailKit;
+﻿using MailKit;
 using MailKit.Net.Imap;
+using System.Linq;
 
 namespace ExpenseTracker.Allianz.Gmail
 {
     public class GmailClient : IMailClient
     {
-        private IMailFolder expenses;
-        private ImapClient client;
-        private readonly string user;
         private readonly string pass;
+        private readonly string user;
+        private ImapClient client;
+        private IMailFolder expenses;
 
         public GmailClient(string user, string pass)
         {
             this.user = user;
             this.pass = pass;
+        }
+
+        public ImapClient Client
+        {
+            get
+            {
+                if (this.client == null)
+                {
+                    this.client = new ImapClient();
+                    this.client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                    this.client.Connect("imap.gmail.com", 993, true);
+                    this.client.Authenticate(this.user, this.pass);
+                }
+
+                return this.client;
+            }
         }
 
         public int Count => this.Expenses.Count;
@@ -34,20 +50,14 @@ namespace ExpenseTracker.Allianz.Gmail
             }
         }
 
-        public ImapClient Client
+        public void Delete(int i)
         {
-            get
-            {
-                if (this.client == null)
-                {
-                    this.client = new ImapClient();
-                    this.client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-                    this.client.Connect("imap.gmail.com", 993, true);
-                    this.client.Authenticate(this.user, this.pass);
-                }
+            this.Expenses.MoveTo(i, this.Client.GetFolder(SpecialFolder.Trash));
+        }
 
-                return this.client;
-            }
+        public void Dispose()
+        {
+            this.client?.Dispose();
         }
 
         public ExpenseMessage GetMessage(int i)
@@ -61,19 +71,9 @@ namespace ExpenseTracker.Allianz.Gmail
             };
         }
 
-        public void Dispose()
-        {
-            this.client?.Dispose();
-        }
-
         public void MarkRead(int i)
         {
             this.Expenses.AddFlags(i, MessageFlags.Seen, true);
-        }
-
-        public void Delete(int i)
-        {
-            this.Expenses.MoveTo(i, this.Client.GetFolder(SpecialFolder.Trash));
         }
     }
 }

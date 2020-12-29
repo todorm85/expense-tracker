@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Xml;
-using ExpenseTracker.Allianz;
+﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Core;
-using ExpenseTracker.Tests.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Xml;
 using Telerik.JustMock;
 
 namespace ExpenseTracker.Tests.Unit.Integrations.RaiffeizenParser
@@ -13,21 +10,6 @@ namespace ExpenseTracker.Tests.Unit.Integrations.RaiffeizenParser
     public class RaiffeizenParserTests
     {
         private RaiffeizenTxtFileParser parser;
-
-        [TestInitialize]
-        public void Init()
-        {
-            this.parser = new RaiffeizenTxtFileParser(new TransactionImporter(Mock.Create<IBaseDataItemService<Category>>()));
-        }
-
-        [TestMethod]
-        public void Parse_InValidExpenseMessage_NotParsed()
-        {
-            var doc = new XmlDocument();
-            doc.LoadXml(xmlRaw);
-            var expense = this.parser.Parse(doc);
-            Assert.IsTrue(expense.Count == 2);
-        }
 
         private string xmlRaw = @"<d3p1:Items xmlns:d3p1=""http://schemas.datacontract.org/2004/07/DAIS.eBank.Client.WEB.UIFramework.Pages.Accounts.Models"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:d2p1=""http://schemas.datacontract.org/2004/07/DAIS.eBank.Client.WEB.Internals.Common.Models.Filters"">
   <d3p1:AccountMovement>
@@ -180,5 +162,20 @@ namespace ExpenseTracker.Tests.Unit.Integrations.RaiffeizenParser
   </d3p1:AccountMovement>
 </d3p1:Items>
 ";
+
+        [TestInitialize]
+        public void Init()
+        {
+            this.parser = new RaiffeizenTxtFileParser(new TransactionImporter(Mock.Create<IBaseDataItemService<Category>>()));
+        }
+
+        [TestMethod]
+        public void Parse_InValidExpenseMessage_NotParsed()
+        {
+            var doc = new XmlDocument();
+            doc.LoadXml(xmlRaw);
+            var expense = this.parser.Parse(doc);
+            Assert.IsTrue(expense.Count == 2);
+        }
     }
 }

@@ -1,25 +1,11 @@
-﻿using System;
+﻿using ExpenseTracker.Core;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExpenseTracker.Core;
 
 namespace ExpenseTracker.Tests
 {
     internal class TestExpensesFactory
     {
-        public static IEnumerable<Transaction> GetTestExpenses(int count)
-        {
-            var expenses = new List<Transaction>();
-            for (int i = 0; i < count; i++)
-            {
-                expenses.Add(GetTestExpense());
-            }
-
-            return expenses;
-        }
-
         public static Transaction GetTestExpense(DateTime? date = null, string category = null)
         {
             var random = new Random();
@@ -31,6 +17,17 @@ namespace ExpenseTracker.Tests
                 Details = Guid.NewGuid().ToString(),
                 Category = category ?? Guid.NewGuid().ToString()
             };
+        }
+
+        public static IEnumerable<Transaction> GetTestExpenses(int count)
+        {
+            var expenses = new List<Transaction>();
+            for (int i = 0; i < count; i++)
+            {
+                expenses.Add(GetTestExpense());
+            }
+
+            return expenses;
         }
     }
 }

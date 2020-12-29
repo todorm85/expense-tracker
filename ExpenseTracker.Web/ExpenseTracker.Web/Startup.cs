@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpenseTracker.App;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,36 +21,6 @@ namespace ExpenseTracker.Web
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            var mvcBuilder = services.AddRazorPages();
-            if (this.env.IsDevelopment())
-            {
-                mvcBuilder.AddRazorRuntimeCompilation();
-            }
-
-            mvcBuilder.AddRazorPagesOptions(o =>
-            {
-                o.Conventions.AddPageRoute("/Transactions/Index", "");
-            });
-
-            services.Configure<Microsoft.AspNetCore.Mvc.MvcOptions>(options => options.MaxModelBindingCollectionSize = 10000);
-            services.Configure<FormOptions>(options => options.ValueCountLimit = 100000);
-            services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
-        }
-
-        public void ConfigureContainer(IUnityContainer container)
-        {
-            var expenseTrackerConfig = Configuration.GetSection("ExpenseTracker");
-            var dbPath = expenseTrackerConfig.GetValue<string>("DatabasePath");
-            Application.RegisterDependencies(container, new Config() { 
-                DbPath = dbPath,
-                MailUser = Configuration["mailUser"],
-                MailPass = Configuration["mailPass"]
-            });
-        }
-
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -77,6 +43,37 @@ namespace ExpenseTracker.Web
             {
                 endpoints.MapRazorPages();
             });
+        }
+
+        public void ConfigureContainer(IUnityContainer container)
+        {
+            var expenseTrackerConfig = Configuration.GetSection("ExpenseTracker");
+            var dbPath = expenseTrackerConfig.GetValue<string>("DatabasePath");
+            Application.RegisterDependencies(container, new Config()
+            {
+                DbPath = dbPath,
+                MailUser = Configuration["mailUser"],
+                MailPass = Configuration["mailPass"]
+            });
+        }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            var mvcBuilder = services.AddRazorPages();
+            if (this.env.IsDevelopment())
+            {
+                mvcBuilder.AddRazorRuntimeCompilation();
+            }
+
+            mvcBuilder.AddRazorPagesOptions(o =>
+            {
+                o.Conventions.AddPageRoute("/Transactions/Index", "");
+            });
+
+            services.Configure<Microsoft.AspNetCore.Mvc.MvcOptions>(options => options.MaxModelBindingCollectionSize = 10000);
+            services.Configure<FormOptions>(options => options.ValueCountLimit = 100000);
+            services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
         }
     }
 }

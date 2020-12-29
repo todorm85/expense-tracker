@@ -1,5 +1,4 @@
 ﻿using ExpenseTracker.Core;
-using ExpenseTracker.Web.Pages.Transactions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -33,17 +32,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
             };
         }
 
+        public List<SelectListItem> Categories { get; set; }
+        public string CategoryFilter { get; set; }
         public DateTime DateFrom { get; set; }
 
         public DateTime DateTo { get; set; }
-
-        public string CategoryFilter { get; set; }
-
-        public SortOptions SortBy { get; set; }
-
         public string Search { get; set; }
-
-        public List<SelectListItem> Categories { get; set; }
+        public SortOptions SortBy { get; set; }
 
         public IEnumerable<Transaction> GetTransactionsFiltered(ITransactionsService transactionsService)
         {
@@ -62,16 +57,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
                     .Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
 
             return transactions;
-        }
-
-        private bool ApplySearchFilter(Transaction x)
-        {
-            if (!string.IsNullOrWhiteSpace(Search))
-            {
-                return x.Details.Contains(Search);
-            }
-
-            return true;
         }
 
         private bool ApplyCategoriesFilter(Transaction x)
@@ -94,6 +79,16 @@ namespace ExpenseTracker.Web.Pages.Transactions
         private bool ApplyDateFilter(Transaction x)
         {
             return x.Date >= DateFrom && x.Date <= DateTo.AddDays(1);
+        }
+
+        private bool ApplySearchFilter(Transaction x)
+        {
+            if (!string.IsNullOrWhiteSpace(Search))
+            {
+                return x.Details.Contains(Search);
+            }
+
+            return true;
         }
     }
 }

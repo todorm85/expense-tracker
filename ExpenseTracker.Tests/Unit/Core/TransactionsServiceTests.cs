@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using ExpenseTracker.Core;
+﻿using ExpenseTracker.Core;
 using ExpenseTracker.Data;
 using LiteDB;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Telerik.JustMock;
 
 namespace ExpenseTracker.Tests
@@ -13,6 +12,14 @@ namespace ExpenseTracker.Tests
     [TestClass]
     public class TransactionsServiceTests
     {
+        private List<Transaction> imptExpns = new List<Transaction>();
+
+        private IGenericRepository<Transaction> repo;
+
+        private TransactionsService sut;
+
+        private IUnitOfWork uow;
+
         public TransactionsService Sut
         {
             get
@@ -26,52 +33,33 @@ namespace ExpenseTracker.Tests
             }
         }
 
-        [TestInitialize]
-        public void Setup()
+        [TestMethod]
+        public void Add_TransactionsWhenSameTransactionIdExists_DoesNothing()
         {
-            this.imptExpns = new List<Transaction>();
+            var expense = TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), "dummyCategory");
+            expense.TransactionId = Guid.NewGuid().ToString();
+            this.repo.Insert(new Transaction[] { expense });
 
-            this.repo = new GenericRepo<Transaction>(new LiteDatabase("Filename=transactionsTests.db;utc=true;"), "Transactions");
-            foreach (var item in this.repo.GetAll())
-            {
-                this.repo.RemoveById(item.Id);
-            }
-
-            this.uow = Mock.Create<IUnitOfWork>(Behavior.Strict);
-            Mock.Arrange(() => this.uow.GetDataItemsRepo<Transaction>()).Returns(() => this.repo);
-            this.sut = null;
+            expense.Id = 0;
+            this.Sut.Add(new Transaction[] { expense });
+            var results = this.Sut.GetAll();
+            Assert.AreEqual(1, results.Count());
+            var result = results.First();
+            Assert.AreEqual(new DateTime(2018, 3, 9), result.Date);
         }
 
         [TestMethod]
-        public void GetExpensesByCategoriesByMonths_NoTransactionsInRange_ExportsNothing()
+        public void Add_TransactionsWithSameValuesButNoTransactionId_AddsBothEvenIfDuplicate()
         {
-            var expeneses = new List<Transaction>
-            {
-                TestExpensesFactory.GetTestExpense(new DateTime(2018, 6, 1))
-            };
+            var expense = TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), "dummyCategory");
+            this.repo.Insert(new Transaction[] { expense });
 
-            this.repo.Insert(expeneses);
-
-            var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
-
-            Assert.AreEqual(0, results.Keys.Count);
-        }
-
-        [TestMethod]
-        public void GetExpensesByCategoriesByMonths_SingleMonthExpensesInRange()
-        {
-            var expeneses = new List<Transaction>();
-            var cat = "cat";
-            expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 1), cat));
-            this.repo.Insert(expeneses);
-
-            var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
-
-            var expectedKey = new DateTime(2018, 3, 1);
-            Assert.AreEqual(1, results.Keys.Count);
-            Assert.IsTrue(results.ContainsKey(expectedKey));
-            Assert.IsTrue(results[expectedKey].Count() == 1);
-            Assert.IsTrue(results[expectedKey][cat].First().Category == cat);
+            expense.Id = 0;
+            this.Sut.Add(new Transaction[] { expense });
+            var results = this.Sut.GetAll();
+            Assert.AreEqual(2, results.Count());
+            var result = results.First();
+            Assert.AreEqual(new DateTime(2018, 3, 9), result.Date);
         }
 
         [TestMethod]
@@ -130,37 +118,51 @@ namespace ExpenseTracker.Tests
         }
 
         [TestMethod]
-        public void Add_TransactionsWhenSameTransactionIdExists_DoesNothing()
+        public void GetExpensesByCategoriesByMonths_NoTransactionsInRange_ExportsNothing()
         {
-            var expense = TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), "dummyCategory");
-            expense.TransactionId = Guid.NewGuid().ToString();
-            this.repo.Insert(new Transaction[] { expense });
+            var expeneses = new List<Transaction>
+            {
+                TestExpensesFactory.GetTestExpense(new DateTime(2018, 6, 1))
+            };
 
-            expense.Id = 0;
-            this.Sut.Add(new Transaction[] { expense });
-            var results = this.Sut.GetAll();
-            Assert.AreEqual(1, results.Count());
-            var result = results.First();
-            Assert.AreEqual(new DateTime(2018, 3, 9), result.Date);
+            this.repo.Insert(expeneses);
+
+            var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
+
+            Assert.AreEqual(0, results.Keys.Count);
         }
 
         [TestMethod]
-        public void Add_TransactionsWithSameValuesButNoTransactionId_AddsBothEvenIfDuplicate()
+        public void GetExpensesByCategoriesByMonths_SingleMonthExpensesInRange()
         {
-            var expense = TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), "dummyCategory");
-            this.repo.Insert(new Transaction[] { expense });
+            var expeneses = new List<Transaction>();
+            var cat = "cat";
+            expeneses.Add(TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 1), cat));
+            this.repo.Insert(expeneses);
 
-            expense.Id = 0;
-            this.Sut.Add(new Transaction[] { expense });
-            var results = this.Sut.GetAll();
-            Assert.AreEqual(2, results.Count());
-            var result = results.First();
-            Assert.AreEqual(new DateTime(2018, 3, 9), result.Date);
+            var results = this.Sut.GetExpensesByCategoriesByMonths(new DateTime(2018, 1, 1), new DateTime(2018, 5, 1));
+
+            var expectedKey = new DateTime(2018, 3, 1);
+            Assert.AreEqual(1, results.Keys.Count);
+            Assert.IsTrue(results.ContainsKey(expectedKey));
+            Assert.IsTrue(results[expectedKey].Count() == 1);
+            Assert.IsTrue(results[expectedKey][cat].First().Category == cat);
         }
 
-        private List<Transaction> imptExpns = new List<Transaction>();
-        private IGenericRepository<Transaction> repo;
-        private IUnitOfWork uow;
-        private TransactionsService sut;
+        [TestInitialize]
+        public void Setup()
+        {
+            this.imptExpns = new List<Transaction>();
+
+            this.repo = new GenericRepo<Transaction>(new LiteDatabase("Filename=transactionsTests.db;utc=true;"), "Transactions");
+            foreach (var item in this.repo.GetAll())
+            {
+                this.repo.RemoveById(item.Id);
+            }
+
+            this.uow = Mock.Create<IUnitOfWork>(Behavior.Strict);
+            Mock.Arrange(() => this.uow.GetDataItemsRepo<Transaction>()).Returns(() => this.repo);
+            this.sut = null;
+        }
     }
 }

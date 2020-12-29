@@ -1,12 +1,29 @@
-﻿using System;
-using ExpenseTracker.Core.UI;
+﻿using ExpenseTracker.Core.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace ExpenseTracker.Tests
 {
     [TestClass]
     public class ClassifierSettingsParserTests
     {
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Parse_DuplicateKeyphrases_Thorws()
+        {
+            string json = @"{
+  ""food"": [
+    ""FANTASTICO"",
+    ""BILLA""
+  ],
+  ""car"": [
+    ""BILLA"",
+    ""SHELL""
+  ]
+}";
+            var result = new CategoriesJsonParser().Parse(json);
+        }
+
         [TestMethod]
         public void Parse_TwoKeyPhrasesForOneCategoryAndOneKeyPhraseForOneCategory_ParsesCorrectly()
         {
@@ -27,23 +44,6 @@ namespace ExpenseTracker.Tests
             Assert.IsTrue(result["SHELL"] == "car");
             Assert.IsTrue(result["BILLA"] == "food");
             Assert.IsTrue(result["FANTASTICO"] == "food");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Parse_DuplicateKeyphrases_Thorws()
-        {
-            string json = @"{
-  ""food"": [
-    ""FANTASTICO"",
-    ""BILLA""
-  ],
-  ""car"": [
-    ""BILLA"",
-    ""SHELL""
-  ]
-}";
-            var result = new CategoriesJsonParser().Parse(json);
         }
     }
 }

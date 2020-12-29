@@ -1,21 +1,11 @@
-﻿using System;
-using ExpenseTracker.Allianz;
+﻿using ExpenseTracker.Allianz;
+using System;
 
 namespace ExpenseTracker.Tests.Common
 {
     public class RaiffeisenMsgFactory : MessageFactoryBase
     {
         private string ReasonText;
-
-        public override ExpenseMessage GetValidMessage()
-        {
-            return GetExpenseMessage("POKUPKA");
-        }
-
-        public override ExpenseMessage GetInValidMessage()
-        {
-            return GetExpenseMessage("neuspeshen opit za POKUPKA");
-        }
 
         public ExpenseMessage GetExpenseMessage(string reason)
         {
@@ -27,6 +17,16 @@ namespace ExpenseTracker.Tests.Common
                 Subject = "Notification from RBBBG",
                 EmailDate = DateTime.Now
             };
+        }
+
+        public override ExpenseMessage GetInValidMessage()
+        {
+            return GetExpenseMessage("neuspeshen opit za POKUPKA");
+        }
+
+        public override ExpenseMessage GetValidMessage()
+        {
+            return GetExpenseMessage("POKUPKA");
         }
 
         private string GetBody()

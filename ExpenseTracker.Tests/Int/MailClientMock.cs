@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using ExpenseTracker.Allianz;
+﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
+using System.Collections.Generic;
 
 namespace ExpenseTracker.Tests.Int
 {
@@ -11,16 +11,17 @@ namespace ExpenseTracker.Tests.Int
             this.MockedMessages = new List<ExpenseMessage>();
         }
 
-        public IList<ExpenseMessage> MockedMessages { get; set; }
-        
         public int Count => this.MockedMessages.Count;
+        public IList<ExpenseMessage> MockedMessages { get; set; }
 
         public void Delete(int msgIdx)
         {
             this.MockedMessages.RemoveAt(msgIdx);
         }
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
 
         public ExpenseMessage GetMessage(int i)
         {

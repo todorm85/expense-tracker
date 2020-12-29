@@ -1,17 +1,17 @@
-﻿using System;
+﻿using ExpenseTracker.Core;
+using LiteDB;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using ExpenseTracker.Core;
-using LiteDB;
 
 namespace ExpenseTracker.Data
 {
     public class GenericRepo<T> : IGenericRepository<T>
         where T : class
     {
-        private LiteDatabase db;
         private LiteCollection<T> context;
+        private LiteDatabase db;
 
         public GenericRepo(LiteDatabase db, string collection)
         {
@@ -39,16 +39,16 @@ namespace ExpenseTracker.Data
             return all.AsEnumerable();
         }
 
-        public virtual T GetById(object id)
-        {
-            var all = this.context.FindById(new BsonValue(id));
-            return all;
-        }
-
         public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate)
         {
             var all = this.context.Find(predicate);
             return all.AsEnumerable();
+        }
+
+        public virtual T GetById(object id)
+        {
+            var all = this.context.FindById(new BsonValue(id));
+            return all;
         }
 
         public virtual void Insert(IEnumerable<T> items)
@@ -56,9 +56,9 @@ namespace ExpenseTracker.Data
             this.context.Insert(items);
         }
 
-        public virtual void Update(IEnumerable<T> items)
+        public virtual void Insert(T item)
         {
-            this.context.Update(items);
+            this.context.Insert(item);
         }
 
         public virtual void RemoveById(object id)
@@ -66,14 +66,14 @@ namespace ExpenseTracker.Data
             this.context.Delete(new BsonValue(id));
         }
 
+        public virtual void Update(IEnumerable<T> items)
+        {
+            this.context.Update(items);
+        }
+
         public virtual void Update(T item)
         {
             this.context.Update(item);
-        }
-
-        public virtual void Insert(T item)
-        {
-            this.context.Insert(item);
         }
     }
 }

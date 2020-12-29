@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using ExpenseTracker.Allianz;
+﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core;
 using ExpenseTracker.Data;

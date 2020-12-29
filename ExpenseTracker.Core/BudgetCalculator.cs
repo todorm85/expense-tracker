@@ -5,28 +5,11 @@ namespace ExpenseTracker.Core
 {
     public class BudgetCalculator : IBudgetCalculator
     {
+        private readonly ITransactionsService transactionsService;
+
         public BudgetCalculator(ITransactionsService expensesService)
         {
             this.transactionsService = expensesService;
-        }
-
-        public decimal CalculateExpectedExpenses(Budget budget)
-        {
-            return budget.ExpectedTransactions
-                .Where(x => x.Type == TransactionType.Expense)
-                .Sum(x => x.Amount);
-        }
-
-        public decimal CalculateExpectedSavings(Budget budget)
-        {
-            return this.CalculateExpectedIncome(budget) - this.CalculateExpectedExpenses(budget);
-        }
-
-        public decimal CalculateExpectedIncome(Budget budget)
-        {
-            return budget.ExpectedTransactions
-                .Where(x => x.Type == TransactionType.Income)
-                .Sum(x => x.Amount); ;
         }
 
         public decimal CalculateActualExpenses(DateTime from, DateTime to)
@@ -55,6 +38,23 @@ namespace ExpenseTracker.Core
             return actualSaving;
         }
 
-        private readonly ITransactionsService transactionsService;
+        public decimal CalculateExpectedExpenses(Budget budget)
+        {
+            return budget.ExpectedTransactions
+                .Where(x => x.Type == TransactionType.Expense)
+                .Sum(x => x.Amount);
+        }
+
+        public decimal CalculateExpectedIncome(Budget budget)
+        {
+            return budget.ExpectedTransactions
+                .Where(x => x.Type == TransactionType.Income)
+                .Sum(x => x.Amount); ;
+        }
+
+        public decimal CalculateExpectedSavings(Budget budget)
+        {
+            return this.CalculateExpectedIncome(budget) - this.CalculateExpectedExpenses(budget);
+        }
     }
 }

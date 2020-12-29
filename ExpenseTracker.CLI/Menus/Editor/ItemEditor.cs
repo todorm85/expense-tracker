@@ -4,10 +4,19 @@ namespace ExpenseTracker.Core.UI
 {
     internal class ItemEditor
     {
+        private readonly object item;
+
+        private Serializer serializer;
+
         public ItemEditor(object item)
         {
             this.item = item;
             this.serializer = new Serializer();
+        }
+
+        public PropertyInfo[] GetProperties()
+        {
+            return this.item.GetType().GetProperties();
         }
 
         public string GetPropVal(PropertyInfo p)
@@ -20,13 +29,5 @@ namespace ExpenseTracker.Core.UI
             var propertyType = p.PropertyType;
             p.SetValue(this.item, this.serializer.Deserialize(propertyType, newValue));
         }
-
-        public PropertyInfo[] GetProperties()
-        {
-            return this.item.GetType().GetProperties();
-        }
-
-        private readonly object item;
-        private Serializer serializer;
     }
 }

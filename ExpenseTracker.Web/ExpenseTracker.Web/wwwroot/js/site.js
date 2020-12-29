@@ -12,7 +12,7 @@ function onToggleElement(elId) {
 }
 
 document.querySelectorAll(".auto-select").forEach(e => {
-    e.onfocus = ev => { ev.srcElement.select();}
+    e.onfocus = ev => { ev.srcElement.select(); }
 })
 
 function postAjax(address, onSuccess, onFail, data) {

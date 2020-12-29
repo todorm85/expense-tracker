@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpenseTracker.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Budgets
 {
@@ -20,13 +19,17 @@ namespace ExpenseTracker.Web.Pages.Budgets
             this.Projections = new List<MonthProjection>();
         }
 
+        public decimal AllMonthsExpenses { get; set; }
+
+        public decimal AllMonthsIncome { get; set; }
+
         [BindProperty]
         public DateTime FromMonth { get; set; }
+
+        public IList<MonthProjection> Projections { get; set; }
+
         [BindProperty]
         public DateTime ToMonth { get; set; }
-        public IList<MonthProjection> Projections { get; set; }
-        public decimal AllMonthsExpenses { get; set; }
-        public decimal AllMonthsIncome { get; set; }
 
         public void OnGet()
         {
@@ -42,7 +45,6 @@ namespace ExpenseTracker.Web.Pages.Budgets
                     if (expenses.Count() > 0)
                     {
                         totalExpenses = expenses.Select(x => x.Amount).Aggregate((x, y) => { return x + y; });
-
                     }
                     var income = budget.ExpectedTransactions
                     .Where(x => x.Type == Core.TransactionType.Income);
@@ -58,7 +60,6 @@ namespace ExpenseTracker.Web.Pages.Budgets
                         TotalExpense = totalExpenses,
                         TotalIncome = totalIncome,
                         ExpectedTransactions = budget.ExpectedTransactions
-                        
                     });
                 }
 
@@ -77,10 +78,10 @@ namespace ExpenseTracker.Web.Pages.Budgets
 
         public class MonthProjection
         {
-            public DateTime Month { get; set; }
-            public decimal TotalIncome { get; set; }
-            public decimal TotalExpense { get; set; }
             public IEnumerable<Transaction> ExpectedTransactions { get; set; }
+            public DateTime Month { get; set; }
+            public decimal TotalExpense { get; set; }
+            public decimal TotalIncome { get; set; }
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using System;
-using ExpenseTracker.UI;
+﻿using ExpenseTracker.UI;
+using System;
 using WindowsInput;
 
 namespace ExpenseTracker.ConsoleClient
@@ -7,6 +7,26 @@ namespace ExpenseTracker.ConsoleClient
     internal class IOProvider : IOutputProvider, IInputProvider
     {
         public Style Style { get; set; }
+
+        public void NewLine()
+        {
+            Console.WriteLine();
+        }
+
+        public string Read()
+        {
+            return Console.ReadLine();
+        }
+
+        public string Read(string preenteredValue)
+        {
+            if (!string.IsNullOrWhiteSpace(preenteredValue))
+            {
+                new InputSimulator().Keyboard.TextEntry(preenteredValue);
+            }
+
+            return Console.ReadLine();
+        }
 
         public void Write(string value)
         {
@@ -31,26 +51,6 @@ namespace ExpenseTracker.ConsoleClient
 
             Console.Write(value);
             Console.ResetColor();
-        }
-
-        public void NewLine()
-        {
-            Console.WriteLine();
-        }
-
-        public string Read()
-        {
-            return Console.ReadLine();
-        }
-
-        public string Read(string preenteredValue)
-        {
-            if (!string.IsNullOrWhiteSpace(preenteredValue))
-            {
-                new InputSimulator().Keyboard.TextEntry(preenteredValue);
-            }
-
-            return Console.ReadLine();
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ExpenseTracker.UI;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ExpenseTracker.UI;
 
 namespace ExpenseTracker.Core.UI
 {
@@ -14,20 +14,6 @@ namespace ExpenseTracker.Core.UI
         }
 
         public override IBaseDataItemService<Category> Service { get; set; }
-
-        [MenuAction("sg", "Show groups")]
-        public void ShowAllCategoryGroups()
-        {
-            var groupByCats = this.Service.GetAll().GroupBy(x => x.Name);
-            foreach (var gbc in groupByCats)
-            {
-                this.Output.WriteLine($"{gbc.Key}");
-                foreach (var cat in gbc)
-                {
-                    this.Output.WriteLine("".PadLeft(5) + $"({cat.Id}) " + cat.KeyWord);
-                }
-            }
-        }
 
         [MenuAction("ij", "Import from JSON")]
         public void Import()
@@ -74,6 +60,20 @@ namespace ExpenseTracker.Core.UI
                     KeyWord = parts[1]
                 }
             });
+        }
+
+        [MenuAction("sg", "Show groups")]
+        public void ShowAllCategoryGroups()
+        {
+            var groupByCats = this.Service.GetAll().GroupBy(x => x.Name);
+            foreach (var gbc in groupByCats)
+            {
+                this.Output.WriteLine($"{gbc.Key}");
+                foreach (var cat in gbc)
+                {
+                    this.Output.WriteLine("".PadLeft(5) + $"({cat.Id}) " + cat.KeyWord);
+                }
+            }
         }
     }
 }

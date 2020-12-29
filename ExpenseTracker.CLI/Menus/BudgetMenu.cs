@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ExpenseTracker.UI;
+using System;
 using System.Collections.Generic;
-using ExpenseTracker.UI;
 
 namespace ExpenseTracker.Core.UI
 {
@@ -8,10 +8,8 @@ namespace ExpenseTracker.Core.UI
     {
         private readonly IBudgetService budgetService;
 
-        private readonly ITransactionsService expensesService;
-
         private readonly IBudgetCalculator calculator;
-
+        private readonly ITransactionsService expensesService;
         private DateTime fromDate;
 
         private DateTime toDate;
@@ -28,11 +26,21 @@ namespace ExpenseTracker.Core.UI
 
         public override IBaseDataItemService<Budget> Service { get; set; }
 
-        [MenuAction("s", "Show budgets.")]
-        public void ShowRelevant()
+        [MenuAction("qa", "Quick add.")]
+        public void QuickAdd()
         {
-            var items = this.Service.GetAll(x => x.ToMonth.ToMonthEnd() >= DateTime.Now);
-            this.Show(items);
+            var budget = new Budget()
+            {
+                FromMonth = DateTime.Now,
+                ToMonth = DateTime.Now,
+            };
+
+            var res = this.PromptInput("Define budget (fromDate-toDate;;transactions(category:source:type:amount;)", this.SerializeBudget(budget));
+            var newBudget = this.Deserialize(res);
+            if (this.Confirm())
+            {
+                this.budgetService.Add(new Budget[] { newBudget });
+            }
         }
 
         [MenuAction("sc", "Show cumulative monthly budgets.")]
@@ -73,26 +81,11 @@ namespace ExpenseTracker.Core.UI
             this.Output.NewLine();
         }
 
-        [MenuAction("qa", "Quick add.")]
-        public void QuickAdd()
+        [MenuAction("s", "Show budgets.")]
+        public void ShowRelevant()
         {
-            var budget = new Budget()
-            {
-                FromMonth = DateTime.Now,
-                ToMonth = DateTime.Now,
-            };
-
-            var res = this.PromptInput("Define budget (fromDate-toDate;;transactions(category:source:type:amount;)", this.SerializeBudget(budget));
-            var newBudget = this.Deserialize(res);
-            if (this.Confirm())
-            {
-                this.budgetService.Add(new Budget[] { newBudget });
-            }
-        }
-
-        private void PromptDateFilter()
-        {
-            this.PromptDateFilter(ref fromDate, ref toDate);
+            var items = this.Service.GetAll(x => x.ToMonth.ToMonthEnd() >= DateTime.Now);
+            this.Show(items);
         }
 
         private Budget Deserialize(string res)
@@ -112,6 +105,11 @@ namespace ExpenseTracker.Core.UI
             };
 
             return budget;
+        }
+
+        private void PromptDateFilter()
+        {
+            this.PromptDateFilter(ref fromDate, ref toDate);
         }
 
         private string SerializeBudget(Budget budget)

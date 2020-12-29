@@ -1,5 +1,5 @@
-﻿using System;
-using ExpenseTracker.Core;
+﻿using ExpenseTracker.Core;
+using System;
 
 namespace ExpenseTracker.Allianz
 {

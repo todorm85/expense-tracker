@@ -1,10 +1,9 @@
-﻿using System;
+﻿using ExpenseTracker.Core;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
-using ExpenseTracker.Core;
 
 namespace ExpenseTracker.Allianz
 {
@@ -17,9 +16,10 @@ namespace ExpenseTracker.Allianz
             this.builder = builder;
         }
 
-        public IEnumerable<Transaction> ParseFromFile(string filePath)
+        public IEnumerable<Transaction> GetTransactions(string filePath)
         {
-            return this.Parse(File.ReadAllText(filePath));
+            var ts = this.ParseFromFile(filePath);
+            return ts;
         }
 
         public List<Transaction> Parse(string data)
@@ -67,6 +67,11 @@ namespace ExpenseTracker.Allianz
             return trans;
         }
 
+        public IEnumerable<Transaction> ParseFromFile(string filePath)
+        {
+            return this.Parse(File.ReadAllText(filePath));
+        }
+
         private bool IsValid(Transaction t)
         {
             return !t.Details.Contains("собствени сметки");
@@ -93,12 +98,6 @@ namespace ExpenseTracker.Allianz
             {
                 return parsedDate;
             }
-        }
-
-        public IEnumerable<Transaction> GetTransactions(string filePath)
-        {
-            var ts = this.ParseFromFile(filePath);
-            return ts;
         }
     }
 }

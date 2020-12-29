@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ExpenseTracker.ConsoleClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ExpenseTracker.ConsoleClient;
 
 namespace ExpenseTracker.UI
 {
@@ -10,11 +10,11 @@ namespace ExpenseTracker.UI
     {
         protected IList<MenuAction> menuActions = new List<MenuAction>();
         private const string ExitCommand = "e";
-        private readonly IOutputProvider output;
         private readonly IInputProvider input;
+        private readonly IOutputProvider output;
         private string exitCommandText = "Exit";
-        private string menuCommandName;
         private string menuCommandDescription;
+        private string menuCommandName;
 
         public Menu()
         {
@@ -25,18 +25,6 @@ namespace ExpenseTracker.UI
             this.exitCommandText = "Exit " + this.GetType().Name;
             this.ResolveActionMethods();
             this.menuActions = this.menuActions.Reverse().ToList();
-        }
-
-        public virtual string CommandKey
-        {
-            get
-            {
-                return this.menuCommandName ?? this.GetType().Name.Substring(0, 3).ToLower();
-            }
-            set
-            {
-                this.menuCommandName = value;
-            }
         }
 
         public virtual string CommandDescription
@@ -51,9 +39,20 @@ namespace ExpenseTracker.UI
             }
         }
 
-        public virtual IOutputProvider Output => output;
-        
+        public virtual string CommandKey
+        {
+            get
+            {
+                return this.menuCommandName ?? this.GetType().Name.Substring(0, 3).ToLower();
+            }
+            set
+            {
+                this.menuCommandName = value;
+            }
+        }
+
         public virtual IInputProvider Input => input;
+        public virtual IOutputProvider Output => output;
 
         public void AddAction(string command, Func<string> decsription, Action action, string group = "", int ordinal = 0)
         {
@@ -70,6 +69,11 @@ namespace ExpenseTracker.UI
                 Group = group,
                 Ordinal = ordinal
             });
+        }
+
+        public void AddChild(Menu menu)
+        {
+            this.AddAction(menu.CommandKey, () => menu.CommandDescription, () => menu.Run(), "Submenus");
         }
 
         public virtual void Run(bool showActions = false)
@@ -98,9 +102,16 @@ namespace ExpenseTracker.UI
             }
         }
 
-        public void AddChild(Menu menu)
+        protected virtual void ResolveActionMethods()
         {
-            this.AddAction(menu.CommandKey, () => menu.CommandDescription, () => menu.Run(), "Submenus");
+            var methods = this.GetType()
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
+                .Where(mi => mi.GetCustomAttributes().Any(at => at.GetType() == typeof(MenuActionAttribute)));
+            foreach (var m in methods)
+            {
+                var attribute = m.GetCustomAttribute(typeof(MenuActionAttribute)) as MenuActionAttribute;
+                this.AddAction(attribute.Command, () => attribute.Description, () => m.Invoke(this, null), attribute.Group);
+            }
         }
 
         private void PrintActions()
@@ -132,18 +143,6 @@ namespace ExpenseTracker.UI
         private void WriteDelimiter()
         {
             this.Output.WriteLine($"{new string('-', 35)}");
-        }
-
-        protected virtual void ResolveActionMethods()
-        {
-            var methods = this.GetType()
-                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
-                .Where(mi => mi.GetCustomAttributes().Any(at => at.GetType() == typeof(MenuActionAttribute)));
-            foreach (var m in methods)
-            {
-                var attribute = m.GetCustomAttribute(typeof(MenuActionAttribute)) as MenuActionAttribute;
-                this.AddAction(attribute.Command, () => attribute.Description, () => m.Invoke(this, null), attribute.Group);
-            }
         }
     }
 }

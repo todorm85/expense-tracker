@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExpenseTracker.Core;
+using System;
 using System.Globalization;
-using System.Text;
 using System.Text.RegularExpressions;
-using ExpenseTracker.Core;
 
 namespace ExpenseTracker.Allianz
 {

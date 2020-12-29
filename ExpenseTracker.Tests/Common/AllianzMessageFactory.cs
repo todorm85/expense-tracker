@@ -1,19 +1,13 @@
-﻿using System;
-using ExpenseTracker.Allianz;
+﻿using ExpenseTracker.Allianz;
+using System;
 
 namespace ExpenseTracker.Tests.Common
 {
     internal class AllianzMessageFactory : MessageFactoryBase
     {
-        private const string ValidExpenseMessageTitle = "Оторизирана картова транзакция";
         private const string InValidExpenseMessageTitle = "Неуспешна картова транзакция";
-
+        private const string ValidExpenseMessageTitle = "Оторизирана картова транзакция";
         public string Title { get; set; }
-
-        public override ExpenseMessage GetValidMessage()
-        {
-            return GetMessage(ValidExpenseMessageTitle);
-        }
 
         public override ExpenseMessage GetInValidMessage()
         {
@@ -30,6 +24,11 @@ namespace ExpenseTracker.Tests.Common
                 Subject = $"Движение по сметка: 24BUIN95611000591258",
                 EmailDate = DateTime.Now
             };
+        }
+
+        public override ExpenseMessage GetValidMessage()
+        {
+            return GetMessage(ValidExpenseMessageTitle);
         }
 
         private string GetTestMessageBody()

@@ -1,22 +1,22 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class UploadModel : PageModel
     {
-        private readonly ITransactionsService transactionsService;
         private readonly AllianzTxtFileParser allianz;
-        private readonly RaiffeizenTxtFileParser rai;
         private readonly MailImporter importer;
+        private readonly RaiffeizenTxtFileParser rai;
+        private readonly ITransactionsService transactionsService;
 
         public UploadModel(ITransactionsService transactionsService, AllianzTxtFileParser allianz, RaiffeizenTxtFileParser rai, MailImporter importer)
         {
@@ -28,16 +28,16 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
 
         [BindProperty]
-        public IList<IFormFile> Files { get; set; }
-
-        [BindProperty]
         public Transaction CreateTransaction { get; set; }
 
-        [BindProperty(SupportsGet = true)]
-        public bool Success { get; set; }
+        [BindProperty]
+        public IList<IFormFile> Files { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public bool ShowMessage { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public bool Success { get; set; }
 
         [BindProperty]
         public TransactionsListModel TransactionsList { get; set; }
@@ -66,6 +66,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
             Success = true;
             ShowMessage = true;
             return Page();
+        }
+
+        public void OnPostSyncMail()
+        {
+            this.importer.ImportTransactions(out IEnumerable<Transaction> ts);
+            AddJustAdded(ts);
         }
 
         public IActionResult OnPostUpload(List<IFormFile> files)
@@ -107,12 +113,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
             {
                 return Page();
             }
-        }
-
-        public void OnPostSyncMail()
-        {
-            this.importer.ImportTransactions(out IEnumerable<Transaction> ts);
-            AddJustAdded(ts);
         }
 
         private void AddJustAdded(IEnumerable<Transaction> ts)

@@ -8,7 +8,7 @@ namespace ExpenseTracker.Core
     {
         void Add(IEnumerable<T> items);
 
-        void Update(IEnumerable<T> items);
+        void Add(T item);
 
         IEnumerable<T> GetAll();
 
@@ -18,8 +18,8 @@ namespace ExpenseTracker.Core
 
         void RemoveById(object id);
 
-        void Update(T item);
+        void Update(IEnumerable<T> items);
 
-        void Add(T item);
+        void Update(T item);
     }
 }

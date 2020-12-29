@@ -18,9 +18,9 @@ namespace ExpenseTracker.Core
             this.repo.Insert(items);
         }
 
-        public virtual void Update(IEnumerable<T> items)
+        public virtual void Add(T item)
         {
-            this.repo.Update(items);
+            this.repo.Insert(item);
         }
 
         public virtual IEnumerable<T> GetAll()
@@ -33,24 +33,24 @@ namespace ExpenseTracker.Core
             return this.repo.GetAll(predicate);
         }
 
+        public virtual T GetById(object id)
+        {
+            return this.repo.GetById(id);
+        }
+
         public virtual void RemoveById(object id)
         {
             this.repo.RemoveById(id);
         }
 
+        public virtual void Update(IEnumerable<T> items)
+        {
+            this.repo.Update(items);
+        }
+
         public virtual void Update(T item)
         {
             this.repo.Update(item);
-        }
-
-        public virtual void Add(T item)
-        {
-            this.repo.Insert(item);
-        }
-
-        public virtual T GetById(object id)
-        {
-            return this.repo.GetById(id);
         }
     }
 }

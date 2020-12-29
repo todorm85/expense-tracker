@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ExpenseTracker.Allianz;
+﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Telerik.JustMock;
 
 namespace ExpenseTracker.Integrations.Tests
@@ -28,7 +26,7 @@ Sofia 1407,
             });
             Assert.AreEqual(6.30M, result.Amount);
             Assert.AreEqual("EDDYS na BAKE", result.Details);
-            Assert.AreEqual(new DateTime(2020,1,28), result.Date);
+            Assert.AreEqual(new DateTime(2020, 1, 28), result.Date);
         }
     }
 }

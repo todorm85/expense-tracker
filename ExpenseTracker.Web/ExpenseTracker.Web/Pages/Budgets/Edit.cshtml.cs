@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpenseTracker.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
+using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Budgets
 {
@@ -17,13 +15,13 @@ namespace ExpenseTracker.Web.Pages.Budgets
             this.service = service;
         }
 
-        public TransactionType TrType { get; set; }
-        
         [BindProperty]
         public Core.Budget Budget { get; set; }
 
         [BindProperty]
         public Transaction TransactionToAdd { get; set; }
+
+        public TransactionType TrType { get; set; }
 
         public void OnGet(int id)
         {

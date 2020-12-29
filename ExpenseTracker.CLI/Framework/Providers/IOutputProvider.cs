@@ -4,8 +4,8 @@
     {
         Style Style { get; set; }
 
-        void Write(string value);
-
         void NewLine();
+
+        void Write(string value);
     }
 }

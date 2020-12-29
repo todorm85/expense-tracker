@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using ExpenseTracker.Allianz;
+﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using Telerik.JustMock;
 
 namespace ExpenseTracker.Integrations.Tests

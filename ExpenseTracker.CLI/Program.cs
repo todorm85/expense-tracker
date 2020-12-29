@@ -1,22 +1,18 @@
-﻿using System;
+﻿using ExpenseTracker.App;
+using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
-using ExpenseTracker.App;
-using Microsoft.Extensions.Configuration;
 using Unity;
 
 namespace ExpenseTracker.CoreCLI
 {
-    class Program
+    internal class Program
     {
-        static void Main()
+        // https://stackoverflow.com/questions/58307558/how-can-i-get-my-net-core-3-single-file-app-to-find-the-appsettings-json-file
+        private static string GetBasePath()
         {
-            var container = new UnityContainer();
-            Application.RegisterDependencies(container, GetConfig());
-            var mainMenu = container.Resolve<MainMenu>();
-            mainMenu.Run();
-            container.Dispose();
+            using var processModule = Process.GetCurrentProcess().MainModule;
+            return Path.GetDirectoryName(processModule?.FileName);
         }
 
         private static Config GetConfig()
@@ -31,11 +27,13 @@ namespace ExpenseTracker.CoreCLI
             return appConfig ?? new Config();
         }
 
-        // https://stackoverflow.com/questions/58307558/how-can-i-get-my-net-core-3-single-file-app-to-find-the-appsettings-json-file
-        private static string GetBasePath()
+        private static void Main()
         {
-            using var processModule = Process.GetCurrentProcess().MainModule;
-            return Path.GetDirectoryName(processModule?.FileName);
+            var container = new UnityContainer();
+            Application.RegisterDependencies(container, GetConfig());
+            var mainMenu = container.Resolve<MainMenu>();
+            mainMenu.Run();
+            container.Dispose();
         }
     }
 }

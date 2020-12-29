@@ -1,20 +1,24 @@
-﻿using ExpenseTracker.Allianz.Gmail;
-using ExpenseTracker.Core;
+﻿using ExpenseTracker.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
+    public enum SortOptions
+    {
+        Date,
+        Category,
+        Amount
+    }
+
     public class IndexModel : PageModel
     {
-        private readonly ITransactionsService transactionsService;
         private readonly CategoriesService categories;
         private readonly int initialMonthsBack = 0;
+        private readonly ITransactionsService transactionsService;
 
         public IndexModel(ITransactionsService transactions, CategoriesService categories)
         {
@@ -25,12 +29,15 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
 
         public decimal Expenses { get; set; }
-        public decimal Income { get; set; }
-        public decimal Saved { get; set; }
-        [BindProperty]
-        public TransactionsListModel TransactionsList { get; set; }
+
         [BindProperty]
         public FiltersModel Filters { get; set; }
+
+        public decimal Income { get; set; }
+        public decimal Saved { get; set; }
+
+        [BindProperty]
+        public TransactionsListModel TransactionsList { get; set; }
 
         public void OnGet()
         {
@@ -42,12 +49,15 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 case SortOptions.Date:
                     sorted = transactions.OrderByDescending(x => x.Date);
                     break;
+
                 case SortOptions.Category:
                     sorted = transactions.OrderBy(x => x.Category);
                     break;
+
                 case SortOptions.Amount:
                     sorted = transactions.OrderByDescending(x => x.Amount);
                     break;
+
                 default:
                     break;
             }
@@ -65,7 +75,52 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.OnGet();
         }
 
-        public IActionResult OnPostUpdate([FromBody]Transaction viewModel)
+        public void OnPostClassifyCurrent()
+        {
+            new TransactionsClassifier().Classify(this.TransactionsList.Transactions, this.categories.GetAll());
+            var all = new List<Transaction>();
+            foreach (var t in TransactionsList.Transactions)
+            {
+                var tdb = this.transactionsService.GetAll(x => x.Id == t.Id && string.IsNullOrEmpty(x.Category)).FirstOrDefault();
+                if (tdb == null)
+                    continue;
+                tdb.Category = t.Category;
+                all.Add(tdb);
+            }
+
+            this.transactionsService.Update(all);
+            this.OnGet();
+        }
+
+        public IActionResult OnPostDelete(int id)
+        {
+            this.transactionsService.RemoveById(this.transactionsService.GetAll(x => x.Id == id));
+            return new OkResult();
+        }
+
+        public void OnPostDeleteAll()
+        {
+            this.transactionsService.RemoveById(this.transactionsService.GetAll());
+            this.ModelState.Clear();
+            this.TransactionsList.Transactions.Clear();
+        }
+
+        public void OnPostDeleteFiltered()
+        {
+            var all = new List<Transaction>();
+            foreach (var t in TransactionsList.Transactions)
+            {
+                var tdb = this.transactionsService.GetAll(x => x.Id == t.Id).FirstOrDefault();
+                if (tdb == null)
+                    continue;
+                all.Add(tdb);
+            }
+
+            this.transactionsService.RemoveById(all);
+            this.OnGet();
+        }
+
+        public IActionResult OnPostUpdate([FromBody] Transaction viewModel)
         {
             if (viewModel == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error parsing the request parameters.");
@@ -89,57 +144,5 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.transactionsService.Update(new Transaction[] { dbModel });
             return new OkResult();
         }
-
-        public IActionResult OnPostDelete(int id)
-        {
-            this.transactionsService.RemoveById(this.transactionsService.GetAll(x => x.Id == id));
-            return new OkResult();
-        }
-
-        public void OnPostClassifyCurrent()
-        {
-            new TransactionsClassifier().Classify(this.TransactionsList.Transactions, this.categories.GetAll());
-            var all = new List<Transaction>();
-            foreach (var t in TransactionsList.Transactions)
-            {
-                var tdb = this.transactionsService.GetAll(x => x.Id == t.Id && string.IsNullOrEmpty(x.Category)).FirstOrDefault();
-                if (tdb == null)
-                    continue;
-                tdb.Category = t.Category;
-                all.Add(tdb);
-            }
-
-            this.transactionsService.Update(all);
-            this.OnGet();
-        }
-
-        public void OnPostDeleteFiltered()
-        {
-            var all = new List<Transaction>();
-            foreach (var t in TransactionsList.Transactions)
-            {
-                var tdb = this.transactionsService.GetAll(x => x.Id == t.Id).FirstOrDefault();
-                if (tdb == null)
-                    continue;
-                all.Add(tdb);
-            }
-
-            this.transactionsService.RemoveById(all);
-            this.OnGet();
-        }
-
-        public void OnPostDeleteAll()
-        {
-            this.transactionsService.RemoveById(this.transactionsService.GetAll());
-            this.ModelState.Clear();
-            this.TransactionsList.Transactions.Clear();
-        }
-    }
-
-    public enum SortOptions
-    {
-        Date,
-        Category,
-        Amount
     }
 }

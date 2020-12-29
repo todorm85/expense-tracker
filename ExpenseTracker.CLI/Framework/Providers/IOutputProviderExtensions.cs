@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ExpenseTracker.UI
+﻿namespace ExpenseTracker.UI
 {
     public static class IOutputProviderExtensions
     {

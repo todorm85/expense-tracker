@@ -23,7 +23,7 @@
                         <input class="form-control" asp-for="Budget.ExpectedTransactions[i].Category" />
                     </div>
                     <div class="col-3">
-                        <select class="form-control" asp-for="Budget.ExpectedTransactions[i].Type" 
+                        <select class="form-control" asp-for="Budget.ExpectedTransactions[i].Type"
                                 asp-items="Html.GetEnumSelectList<ExpenseTracker.Core.TransactionType>()">
                         </select>
                     </div>

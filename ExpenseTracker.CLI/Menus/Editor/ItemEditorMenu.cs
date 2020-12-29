@@ -1,10 +1,12 @@
-﻿using System.Reflection;
-using ExpenseTracker.UI;
+﻿using ExpenseTracker.UI;
+using System.Reflection;
 
 namespace ExpenseTracker.Core.UI
 {
     public class ItemEditorMenu : Menu
     {
+        private ItemEditor editor;
+
         public ItemEditorMenu(object item)
         {
             this.CommandDescription = $"Editor for {item.GetType().Name}";
@@ -29,7 +31,5 @@ namespace ExpenseTracker.Core.UI
             var newValue = this.PromptInput($"Enter prop value{p.GetAdditionalInfo()}: ", propValues);
             this.editor.SetPropVal(p, newValue);
         }
-
-        private ItemEditor editor;
     }
 }

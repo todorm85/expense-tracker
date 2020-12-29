@@ -1,18 +1,25 @@
-﻿using System.IO;
-using ExpenseTracker.Allianz.Gmail;
+﻿using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.App;
 using ExpenseTracker.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 using Unity;
 
 namespace ExpenseTracker.Tests.Int
 {
     public class IntTestsBase
     {
-        private const string DirectoryPath = "c:\\temp";
-        private static readonly string DbPath = $"{DirectoryPath}\\test.db";
         protected UnityContainer container;
         protected MailClientMock mailClient;
+        private const string DirectoryPath = "c:\\temp";
+        private static readonly string DbPath = $"{DirectoryPath}\\test.db";
+
+        [TestCleanup]
+        public virtual void CleanUp()
+        {
+            this.container.Resolve<IUnitOfWork>().Dispose();
+            this.container.Dispose();
+        }
 
         [TestInitialize]
         public virtual void Initialize()
@@ -24,11 +31,14 @@ namespace ExpenseTracker.Tests.Int
             this.container.RegisterInstance<IMailClient>(this.mailClient);
         }
 
-        [TestCleanup]
-        public virtual void CleanUp()
+        private static Config GetConfig()
         {
-            this.container.Resolve<IUnitOfWork>().Dispose();
-            this.container.Dispose();
+            var config = new Config()
+            {
+                DbPath = DbPath,
+            };
+
+            return config;
         }
 
         private void InitializeDbFile()
@@ -42,16 +52,6 @@ namespace ExpenseTracker.Tests.Int
             {
                 File.Delete(DbPath);
             }
-        }
-
-        private static Config GetConfig()
-        {
-            var config = new Config()
-            {
-                DbPath = DbPath,
-            };
-
-            return config;
         }
     }
 }

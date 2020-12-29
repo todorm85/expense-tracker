@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Newtonsoft.Json;
 
 [assembly: InternalsVisibleTo("ExpenseTracker.Tests")]
 
@@ -10,19 +10,6 @@ namespace ExpenseTracker.Core.UI
 {
     internal class CategoriesJsonParser
     {
-        private string LoadJsonFromFile(string path)
-        {
-            using (StreamReader r = new StreamReader(path))
-            {
-                return r.ReadToEnd();
-            }
-        }
-
-        public Dictionary<string, string> ParseFile(string filePath)
-        {
-            return this.Parse(LoadJsonFromFile(filePath));
-        }
-
         public Dictionary<string, string> Parse(string json)
         {
             var categoriesKeyphrases = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(json);
@@ -41,6 +28,19 @@ namespace ExpenseTracker.Core.UI
             }
 
             return keyphrasesCategory;
+        }
+
+        public Dictionary<string, string> ParseFile(string filePath)
+        {
+            return this.Parse(LoadJsonFromFile(filePath));
+        }
+
+        private string LoadJsonFromFile(string path)
+        {
+            using (StreamReader r = new StreamReader(path))
+            {
+                return r.ReadToEnd();
+            }
         }
     }
 }

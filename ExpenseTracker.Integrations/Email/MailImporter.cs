@@ -1,14 +1,14 @@
-﻿using System;
+﻿using ExpenseTracker.Core;
+using System;
 using System.Collections.Generic;
-using ExpenseTracker.Core;
 
 namespace ExpenseTracker.Allianz.Gmail
 {
     public class MailImporter : IDisposable
     {
+        private readonly IMailClient mailClient;
         private readonly IEnumerable<IExpenseMessageParser> messageParsers;
         private readonly ITransactionsService transactionsService;
-        private readonly IMailClient mailClient;
 
         public MailImporter(IExpenseMessageParser[] parsers, ITransactionsService service, IMailClient mailClientFact)
         {

@@ -6,9 +6,10 @@ namespace ExpenseTracker.Allianz.Gmail
     {
         int Count { get; }
 
-        ExpenseMessage GetMessage(int i);
-        
         void Delete(int msgIdx);
+
+        ExpenseMessage GetMessage(int i);
+
         void MarkRead(int msgIdx);
     }
 }

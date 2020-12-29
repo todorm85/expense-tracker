@@ -1,18 +1,58 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Globalization;
-using ExpenseTracker.Core;
+﻿using ExpenseTracker.Core;
 using LiteDB;
+using System;
+using System.Collections.Concurrent;
+using System.Globalization;
 
 namespace ExpenseTracker.Data
 {
     public class UnitOfWork : IUnitOfWork
     {
+        private readonly LiteDatabase db;
+
+        private readonly ConcurrentDictionary<Type, object> repos = new ConcurrentDictionary<Type, object>();
+
         public UnitOfWork(string dbPath)
         {
             this.db = new LiteDatabase(dbPath);
             this.HandleMigration();
+        }
+
+        public void Dispose()
+        {
+            this.db.Dispose();
+        }
+
+        public IGenericRepository<T> GetDataItemsRepo<T>() where T : class
+        {
+            if (this.repos.ContainsKey(typeof(T)))
+            {
+                return this.repos[typeof(T)] as IGenericRepository<T>;
+            }
+
+            var type = typeof(GenericRepo<T>);
+
+            var ctor = type.GetConstructor(new Type[] { typeof(LiteDatabase), typeof(string) });
+            GenericRepo<T> repoInstance = default(GenericRepo<T>);
+            if (ctor != null)
+            {
+                repoInstance = ctor.Invoke(new object[] { this.db, this.GetSetName<T>() }) as GenericRepo<T>;
+            }
+
+            return this.repos.GetOrAdd(typeof(T), repoInstance) as IGenericRepository<T>;
+        }
+
+        private string GetSetName<T>() where T : class
+        {
+            // backward compatability
+            if (typeof(T) == typeof(Category))
+            {
+                return "categories";
+            }
+            else
+            {
+                return $"{typeof(T).Name.ToLower()}s";
+            }
         }
 
         private void HandleMigration()
@@ -48,45 +88,5 @@ namespace ExpenseTracker.Data
                 this.db.Engine.UserVersion = 1;
             }
         }
-
-        public IGenericRepository<T> GetDataItemsRepo<T>() where T : class
-        {
-            if (this.repos.ContainsKey(typeof(T)))
-            {
-                return this.repos[typeof(T)] as IGenericRepository<T>;
-            }
-
-            var type = typeof(GenericRepo<T>);
-
-            var ctor = type.GetConstructor(new Type[] { typeof(LiteDatabase), typeof(string) });
-            GenericRepo<T> repoInstance = default(GenericRepo<T>);
-            if (ctor != null)
-            {
-                repoInstance = ctor.Invoke(new object[] { this.db, this.GetSetName<T>() }) as GenericRepo<T>;
-            }
-
-            return this.repos.GetOrAdd(typeof(T), repoInstance) as IGenericRepository<T>;
-        }
-
-        public void Dispose()
-        {
-            this.db.Dispose();
-        }
-
-        private string GetSetName<T>() where T : class
-        {
-            // backward compatability
-            if (typeof(T) == typeof(Category))
-            {
-                return "categories";
-            }
-            else
-            {
-                return $"{typeof(T).Name.ToLower()}s";
-            }
-        }
-
-        private readonly LiteDatabase db;
-        private readonly ConcurrentDictionary<Type, object> repos = new ConcurrentDictionary<Type, object>();
     }
 }

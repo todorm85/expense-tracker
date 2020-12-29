@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExpenseTracker.Core;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
-using ExpenseTracker.Core;
 
 namespace ExpenseTracker.Allianz
 {
@@ -51,6 +50,19 @@ namespace ExpenseTracker.Allianz
             return this.builder.Import(result.Amount, result.Details, result.Type, result.Date);
         }
 
+        private static string ExtractInnerText(string line)
+        {
+            var rx = new Regex(@">(?<text>[^<>]+)<", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            var matches = rx.Matches(line);
+            return matches[0].Groups["text"].Value.Trim();
+        }
+
+        private static bool IsIncome(ExpenseMessage message)
+        {
+            return message.Body.Contains("Получен кредитен превод-IB") ||
+                message.Body.Contains("Вноска по сметка");
+        }
+
         private static bool IsValidExpenseMessage(ExpenseMessage message)
         {
             return message.Body.Contains("<title>Оторизирана картова транзакция</title>") ||
@@ -62,19 +74,6 @@ namespace ExpenseTracker.Allianz
                 message.Body.Contains("Вноска по сметка");
         }
 
-        private static bool IsIncome(ExpenseMessage message)
-        {
-            return message.Body.Contains("Получен кредитен превод-IB") ||
-                message.Body.Contains("Вноска по сметка");
-        }
-
-        private static string ExtractInnerText(string line)
-        {
-            var rx = new Regex(@">(?<text>[^<>]+)<", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            var matches = rx.Matches(line);
-            return matches[0].Groups["text"].Value.Trim();
-        }
-
         private static void SkipLines(StringReader reader, int count)
         {
             for (int i = 0; i < count; i++)
@@ -83,10 +82,11 @@ namespace ExpenseTracker.Allianz
             }
         }
 
-        private string GetSource(StringReader reader)
+        private decimal GetAmount(StringReader reader)
         {
-            SkipLines(reader, 7);
-            return reader.ReadLine().RemoveRepeatingSpaces();
+            SkipLines(reader, 2);
+            var amountText = ExtractInnerText(reader.ReadLine()).Split(' ')[0];
+            return (decimal)double.Parse(amountText.Replace(" ", ""));
         }
 
         private DateTime GetDate(StringReader reader)
@@ -104,11 +104,10 @@ namespace ExpenseTracker.Allianz
             }
         }
 
-        private decimal GetAmount(StringReader reader)
+        private string GetSource(StringReader reader)
         {
-            SkipLines(reader, 2);
-            var amountText = ExtractInnerText(reader.ReadLine()).Split(' ')[0];
-            return (decimal)double.Parse(amountText.Replace(" ", ""));
+            SkipLines(reader, 7);
+            return reader.ReadLine().RemoveRepeatingSpaces();
         }
     }
 }

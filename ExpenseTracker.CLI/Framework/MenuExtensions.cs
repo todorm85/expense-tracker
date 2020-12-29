@@ -5,6 +5,18 @@ namespace ExpenseTracker.UI
 {
     public static class MenuExtensions
     {
+        public static bool Confirm(this Menu menu, string msg = "Confirm y/n")
+        {
+            menu.Output.Write(msg);
+            string choice = string.Empty;
+            while (choice != "y" && choice != "n")
+            {
+                choice = menu.Input.Read();
+            }
+
+            return choice.ToLower() == "y";
+        }
+
         public static void PromptDateFilter(this Menu menu, ref DateTime fromDate, ref DateTime toDate)
         {
             const string Format = "M/yy";
@@ -45,18 +57,6 @@ namespace ExpenseTracker.UI
         {
             var style = amount >= 0 && positiveIsGood ? Style.Success : Style.Error;
             menu.Output.Write(amount.ToString(), style);
-        }
-
-        public static bool Confirm(this Menu menu, string msg = "Confirm y/n")
-        {
-            menu.Output.Write(msg);
-            string choice = string.Empty;
-            while (choice != "y" && choice != "n")
-            {
-                choice = menu.Input.Read();
-            }
-
-            return choice.ToLower() == "y";
         }
     }
 }

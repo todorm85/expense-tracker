@@ -1,14 +1,13 @@
-﻿using System;
-using System.Globalization;
+﻿using ExpenseTracker.Core;
+using System;
 using System.IO;
-using ExpenseTracker.Core;
 
 namespace ExpenseTracker.Allianz
 {
     public class TransactionImporter : ITransactionImporter
     {
-        private readonly TransactionsClassifier classifier = new TransactionsClassifier();
         private readonly IBaseDataItemService<Category> categoriesRepo;
+        private readonly TransactionsClassifier classifier = new TransactionsClassifier();
 
         public TransactionImporter(IBaseDataItemService<Category> categoriesRepo)
         {
@@ -31,7 +30,7 @@ namespace ExpenseTracker.Allianz
             };
 
             this.classifier.Classify(new Transaction[] { t }, this.categoriesRepo.GetAll());
-            
+
             return t;
         }
     }

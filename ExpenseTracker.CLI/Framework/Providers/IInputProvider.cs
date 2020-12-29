@@ -3,6 +3,7 @@
     public interface IInputProvider
     {
         string Read();
+
         string Read(string preenteredValue);
     }
 }

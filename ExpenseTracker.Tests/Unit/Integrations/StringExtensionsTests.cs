@@ -1,5 +1,5 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ExpenseTracker.Core;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ExpenseTracker.Allianz.Tests
 {
@@ -7,9 +7,9 @@ namespace ExpenseTracker.Allianz.Tests
     public class StringExtensionsTests
     {
         [TestMethod]
-        public void RemoveRepeatingSpaces_NoRepeatingSpaces_DoesNothing()
+        public void RemoveRepeatingSpaces_DoubleOrMoreRepeatingSpaces_LeavesOnlyOne()
         {
-            var s = "sdfsdf fdsfdfsdsf -dsffsd".RemoveRepeatingSpaces();
+            var s = "sdfsdf   fdsfdfsdsf    -dsffsd".RemoveRepeatingSpaces();
             Assert.AreEqual("sdfsdf fdsfdfsdsf -dsffsd", s);
         }
 
@@ -17,13 +17,6 @@ namespace ExpenseTracker.Allianz.Tests
         public void RemoveRepeatingSpaces_DoubleRepeatingSpaces_LeavesOnlyOne()
         {
             var s = "sdfsdf  fdsfdfsdsf -dsffsd".RemoveRepeatingSpaces();
-            Assert.AreEqual("sdfsdf fdsfdfsdsf -dsffsd", s);
-        }
-
-        [TestMethod]
-        public void RemoveRepeatingSpaces_DoubleOrMoreRepeatingSpaces_LeavesOnlyOne()
-        {
-            var s = "sdfsdf   fdsfdfsdsf    -dsffsd".RemoveRepeatingSpaces();
             Assert.AreEqual("sdfsdf fdsfdfsdsf -dsffsd", s);
         }
 
@@ -38,6 +31,13 @@ namespace ExpenseTracker.Allianz.Tests
         public void RemoveRepeatingSpaces_DoubleRepeatingSpacesInEnd_RemovesThem()
         {
             var s = "sdfsdf fdsfdfsdsf -dsffsd  ".RemoveRepeatingSpaces();
+            Assert.AreEqual("sdfsdf fdsfdfsdsf -dsffsd", s);
+        }
+
+        [TestMethod]
+        public void RemoveRepeatingSpaces_NoRepeatingSpaces_DoesNothing()
+        {
+            var s = "sdfsdf fdsfdfsdsf -dsffsd".RemoveRepeatingSpaces();
             Assert.AreEqual("sdfsdf fdsfdfsdsf -dsffsd", s);
         }
 

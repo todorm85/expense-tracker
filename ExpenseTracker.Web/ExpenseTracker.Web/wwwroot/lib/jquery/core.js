@@ -23,7 +23,6 @@ define( [
 ], function( arr, document, getProto, slice, concat, push, indexOf,
 	class2type, toString, hasOwn, fnToString, ObjectFunctionString,
 	support, isFunction, isWindow, DOMEval, toType ) {
-
 "use strict";
 
 var
@@ -31,7 +30,6 @@ var
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
-
 		// The jQuery object is actually just the init constructor 'enhanced'
 		// Need init if jQuery is called (just allow error to be thrown if not included)
 		return new jQuery.fn.init( selector, context );
@@ -42,7 +40,6 @@ var
 	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 
 jQuery.fn = jQuery.prototype = {
-
 	// The current version of jQuery being used
 	jquery: version,
 
@@ -58,7 +55,6 @@ jQuery.fn = jQuery.prototype = {
 	// Get the Nth element in the matched element set OR
 	// Get the whole matched element set as a clean array
 	get: function( num ) {
-
 		// Return all the elements in a clean array
 		if ( num == null ) {
 			return slice.call( this );
@@ -71,7 +67,6 @@ jQuery.fn = jQuery.prototype = {
 	// Take an array of elements and push it onto the stack
 	// (returning the new matched element set)
 	pushStack: function( elems ) {
-
 		// Build a new jQuery matched element set
 		var ret = jQuery.merge( this.constructor(), elems );
 
@@ -150,10 +145,8 @@ jQuery.extend = jQuery.fn.extend = function() {
 	}
 
 	for ( ; i < length; i++ ) {
-
 		// Only deal with non-null/undefined values
 		if ( ( options = arguments[ i ] ) != null ) {
-
 			// Extend the base object
 			for ( name in options ) {
 				copy = options[ name ];
@@ -195,7 +188,6 @@ jQuery.extend = jQuery.fn.extend = function() {
 };
 
 jQuery.extend( {
-
 	// Unique for each copy of jQuery on the page
 	expando: "jQuery" + ( version + Math.random() ).replace( /\D/g, "" ),
 
@@ -379,7 +371,6 @@ function( i, name ) {
 } );
 
 function isArrayLike( obj ) {
-
 	// Support: real iOS 8.2 only (not reproducible in simulator)
 	// `in` check used to prevent JIT error (gh-2145)
 	// hasOwn isn't used here due to false negatives

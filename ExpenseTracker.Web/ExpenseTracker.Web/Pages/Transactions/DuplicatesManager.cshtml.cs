@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ExpenseTracker.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
@@ -31,7 +30,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             }).ToList();
         }
 
-        public IActionResult OnPostMarkResolved([FromBody]string ids)
+        public IActionResult OnPostMarkResolved([FromBody] string ids)
         {
             var targetIds = ids.Split(',').Select(x => int.Parse(x));
             var targets = this.service.GetAll(x => targetIds.Contains(x.Id)).ToList();

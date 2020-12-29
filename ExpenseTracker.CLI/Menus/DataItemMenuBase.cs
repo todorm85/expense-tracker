@@ -3,23 +3,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
 
 namespace ExpenseTracker.Core.UI
 {
     public abstract class DataItemMenuBase<T> : Menu where T : class
     {
-        public abstract IBaseDataItemService<T> Service { get; set; }
-
         public DataItemMenuBase()
         {
             this.AddAction("Item type", () => $"{typeof(T).Name}", null, "DataItem actions", -1);
         }
 
+        public abstract IBaseDataItemService<T> Service { get; set; }
+
+        [MenuAction("add", "Add", "DataItem actions")]
+        public void Add()
+        {
+            T item = Activator.CreateInstance<T>();
+            var editor = new ItemEditorMenu(item);
+            editor.Run();
+            if (this.Confirm())
+                this.Service.Add(new T[] { item });
+        }
+
         [MenuAction("ed", "Edit by id", "DataItem actions")]
         public void Edit()
         {
-            if(!int.TryParse(this.PromptInput("Enter id to edit:"), out int id))
+            if (!int.TryParse(this.PromptInput("Enter id to edit:"), out int id))
             {
                 return;
             }
@@ -36,16 +45,6 @@ namespace ExpenseTracker.Core.UI
                 this.Service.Update(item);
         }
 
-        [MenuAction("add", "Add", "DataItem actions")]
-        public void Add()
-        {
-            T item = Activator.CreateInstance<T>();
-            var editor = new ItemEditorMenu(item);
-            editor.Run();
-            if (this.Confirm())
-                this.Service.Add(new T[] { item });
-        }
-
         [MenuAction("rem", "Remove", "DataItem actions")]
         public void Remove()
         {
@@ -53,18 +52,18 @@ namespace ExpenseTracker.Core.UI
             this.Service.RemoveById(id);
         }
 
+        [MenuAction("sa", "Show all", "DataItem actions")]
+        public virtual void ShowAll()
+        {
+            var items = this.Service.GetAll();
+            Show(items);
+        }
+
         [MenuAction("sf", "Filter all", "DataItem actions")]
         public virtual void ShowFiltered()
         {
             var input = this.PromptInput("Enter filter (Id >= 1 and ToDate <= DateTime.Now):");
             var items = this.Service.GetAll().AsQueryable().Where(input);
-            Show(items);
-        }
-
-        [MenuAction("sa", "Show all", "DataItem actions")]
-        public virtual void ShowAll()
-        {
-            var items = this.Service.GetAll();
             Show(items);
         }
 
