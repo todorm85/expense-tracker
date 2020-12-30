@@ -1,4 +1,6 @@
 ﻿using ExpenseTracker.Core;
+using ExpenseTracker.Core.Categories;
+using ExpenseTracker.Core.Transactions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

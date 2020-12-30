@@ -1,4 +1,4 @@
-﻿namespace ExpenseTracker.Core
+﻿namespace ExpenseTracker.Core.Transactions
 {
     public enum TransactionType
     {

@@ -1,4 +1,6 @@
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Budget;
+using ExpenseTracker.Core.Transactions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -40,14 +42,14 @@ namespace ExpenseTracker.Web.Pages.Budgets
                 if (budget != null)
                 {
                     var expenses = budget.ExpectedTransactions
-                            .Where(x => x.Type == Core.TransactionType.Expense);
+                            .Where(x => x.Type == TransactionType.Expense);
                     var totalExpenses = 0m;
                     if (expenses.Count() > 0)
                     {
                         totalExpenses = expenses.Select(x => x.Amount).Aggregate((x, y) => { return x + y; });
                     }
                     var income = budget.ExpectedTransactions
-                    .Where(x => x.Type == Core.TransactionType.Income);
+                    .Where(x => x.Type == TransactionType.Income);
                     var totalIncome = 0m;
                     if (income.Count() > 0)
                     {

@@ -1,4 +1,6 @@
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Budget;
+using ExpenseTracker.Core.Transactions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -16,7 +18,7 @@ namespace ExpenseTracker.Web.Pages.Budgets
         }
 
         [BindProperty]
-        public Core.Budget Budget { get; set; }
+        public Core.Budget.Budget Budget { get; set; }
 
         [BindProperty]
         public Transaction TransactionToAdd { get; set; }
@@ -31,7 +33,7 @@ namespace ExpenseTracker.Web.Pages.Budgets
             }
             else
             {
-                this.Budget = new Core.Budget()
+                this.Budget = new Core.Budget.Budget()
                 {
                     FromMonth = DateTime.Now.ToMonthStart(),
                     ToMonth = DateTime.Now.AddMonths(1).ToMonthEnd()

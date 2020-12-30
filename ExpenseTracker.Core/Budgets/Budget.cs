@@ -1,7 +1,8 @@
-﻿using System;
+﻿using ExpenseTracker.Core.Transactions;
+using System;
 using System.Collections.Generic;
 
-namespace ExpenseTracker.Core
+namespace ExpenseTracker.Core.Budget
 {
     public class Budget
     {

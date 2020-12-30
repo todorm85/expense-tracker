@@ -1,4 +1,6 @@
 ﻿using ExpenseTracker.Core;
+using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Core.Transactions.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ExpenseTracker.Core
+namespace ExpenseTracker.Core.Budget
 {
     public interface IBudgetCalculator
     {

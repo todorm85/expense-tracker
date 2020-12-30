@@ -1,4 +1,7 @@
 ﻿using ExpenseTracker.Core;
+using ExpenseTracker.Core.Categories;
+using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Transactions;
 using LiteDB;
 using System;
 using System.Collections.Concurrent;

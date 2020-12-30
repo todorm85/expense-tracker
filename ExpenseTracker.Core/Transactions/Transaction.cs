@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace ExpenseTracker.Core
+namespace ExpenseTracker.Core.Transactions
 {
     [DebuggerDisplay("{TransactionId}|{Date.Month}|{Category}|{Amount}")]
     public class Transaction

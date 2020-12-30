@@ -1,6 +1,10 @@
 ﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Budget;
+using ExpenseTracker.Core.Categories;
+using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Core.Transactions.Rules;
 using ExpenseTracker.Data;
 using Unity;

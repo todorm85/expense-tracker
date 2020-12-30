@@ -1,6 +1,7 @@
-﻿using System;
+﻿using ExpenseTracker.Core.Data;
+using System;
 
-namespace ExpenseTracker.Core
+namespace ExpenseTracker.Core.Budget
 {
     public interface IBudgetService : IBaseDataItemService<Budget>
     {

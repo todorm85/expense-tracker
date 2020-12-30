@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Force.Crc32;
+using System;
+using System.Text;
 
 namespace ExpenseTracker.Core
 {
@@ -26,6 +28,11 @@ namespace ExpenseTracker.Core
             }
 
             return s.Trim();
+        }
+
+        internal static string ComputeCRC32Hash(this string rawData)
+        {
+            return Crc32Algorithm.Compute(Encoding.UTF8.GetBytes(rawData)).ToString();
         }
     }
 }

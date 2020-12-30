@@ -1,8 +1,10 @@
-﻿using System;
+﻿using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Transactions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ExpenseTracker.Core
+namespace ExpenseTracker.Core.Budget
 {
     public class BudgetService : BaseDataItemService<Budget>, IBudgetService
     {

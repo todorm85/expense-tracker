@@ -17,7 +17,7 @@
         @for (var transx = 0; transx < Model.Transactions.Count; transx++)
         {
             var t = Model.Transactions[transx];
-            var typeClass = t.Type == Core.TransactionType.Income ? "table-success" : "";
+            var typeClass = t.Type == Core.Transactions.TransactionType.Income ? "table-success" : "";
             <tr id="trRow_@t.TransactionId" class="@typeClass">
                 <td>
                     @{

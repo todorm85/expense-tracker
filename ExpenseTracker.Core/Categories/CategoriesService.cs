@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using ExpenseTracker.Core.Data;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace ExpenseTracker.Core
+namespace ExpenseTracker.Core.Categories
 {
     public class CategoriesService : BaseDataItemService<Category>, IBaseDataItemService<Category>
     {

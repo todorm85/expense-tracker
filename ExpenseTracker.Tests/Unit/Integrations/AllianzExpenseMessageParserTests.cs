@@ -1,5 +1,8 @@
 ﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Categories;
+using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Core.Transactions.Rules;
 using ExpenseTracker.Tests.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

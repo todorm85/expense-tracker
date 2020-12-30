@@ -1,13 +1,14 @@
-﻿using System;
+﻿using ExpenseTracker.Core.Data;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 
-namespace ExpenseTracker.Core
+namespace ExpenseTracker.Core.Transactions
 {
     public interface ITransactionsService : IBaseDataItemService<Transaction>
     {
-        bool TryAdd(IEnumerable<Transaction> expenses, out IEnumerable<TransactionInsertResult> skipped);
-        bool TryAdd(Transaction t, out IEnumerable<TransactionInsertResult> skipped);
         List<List<Transaction>> GetPotentialDuplicates();
+
+        bool TryAdd(IEnumerable<Transaction> expenses, out IEnumerable<TransactionInsertResult> skipped);
+
+        bool TryAdd(Transaction t, out IEnumerable<TransactionInsertResult> skipped);
     }
 }

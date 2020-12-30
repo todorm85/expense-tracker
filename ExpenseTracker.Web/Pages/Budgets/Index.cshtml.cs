@@ -1,4 +1,5 @@
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Budget;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -16,7 +17,7 @@ namespace ExpenseTracker.Web.Pages.Budget
             this.service = service;
         }
 
-        public IEnumerable<Core.Budget> Budgets { get; private set; }
+        public IEnumerable<Core.Budget.Budget> Budgets { get; private set; }
 
         public void OnGet()
         {

@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using ExpenseTracker.Core.Categories;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace ExpenseTracker.Core
+namespace ExpenseTracker.Core.Transactions
 {
     public class TransactionsClassifier
     {

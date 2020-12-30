@@ -1,4 +1,4 @@
-﻿using ExpenseTracker.Core;
+﻿using ExpenseTracker.Core.Transactions;
 
 namespace ExpenseTracker.Allianz
 {

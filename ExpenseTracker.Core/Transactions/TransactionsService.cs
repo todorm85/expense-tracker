@@ -1,11 +1,13 @@
-﻿using ExpenseTracker.Core.Transactions.Rules;
+﻿using ExpenseTracker.Core.Categories;
+using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Transactions.Rules;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace ExpenseTracker.Core
+namespace ExpenseTracker.Core.Transactions
 {
     public class TransactionsService : BaseDataItemService<Transaction>, ITransactionsService
     {
@@ -23,7 +25,7 @@ namespace ExpenseTracker.Core
 
         public static string GenerateTransactionId(DateTime date, decimal amount, string details)
         {
-            var detailsHash = Utils.ComputeCRC32Hash(details);
+            var detailsHash = details.ComputeCRC32Hash();
             return $"{date.ToString("dd.MM.yy.HH.mm.ss", CultureInfo.InvariantCulture)}_{amount.ToString("F2")}_{detailsHash}";
         }
 

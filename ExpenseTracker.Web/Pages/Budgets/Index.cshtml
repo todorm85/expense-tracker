@@ -25,7 +25,7 @@
                             <table class="table table-borderless table-sm">
                                 @foreach (var t in budget.ExpectedTransactions)
                                 {
-                                    var typeClass = t.Type == Core.TransactionType.Expense ? "danger" : "success";
+                                    var typeClass = t.Type == Core.Transactions.TransactionType.Expense ? "danger" : "success";
                                     <tr>
                                         <td class="text-@typeClass">@t.Amount.ToString("N0")</td>
                                         <td>@t.Category</td>

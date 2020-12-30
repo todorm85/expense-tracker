@@ -1,6 +1,7 @@
 ﻿using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.App;
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Unity;

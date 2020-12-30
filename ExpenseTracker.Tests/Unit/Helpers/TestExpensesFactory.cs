@@ -1,4 +1,5 @@
 ﻿using ExpenseTracker.Core;
+using ExpenseTracker.Core.Transactions;
 using System;
 using System.Collections.Generic;
 
@@ -16,7 +17,8 @@ namespace ExpenseTracker.Tests
                 Date = newDate,
                 Details = Guid.NewGuid().ToString(),
                 Category = category ?? Guid.NewGuid().ToString(),
-                TransactionId = Guid.NewGuid().ToString()
+                TransactionId = Guid.NewGuid().ToString(),
+                Type = TransactionType.Expense
             };
         }
 

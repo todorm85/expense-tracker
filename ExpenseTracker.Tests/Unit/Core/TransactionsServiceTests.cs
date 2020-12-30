@@ -1,4 +1,7 @@
 ﻿using ExpenseTracker.Core;
+using ExpenseTracker.Core.Categories;
+using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Core.Transactions.Rules;
 using ExpenseTracker.Data;
 using LiteDB;
@@ -40,9 +43,10 @@ namespace ExpenseTracker.Tests
         {
             var expense = TestExpensesFactory.GetTestExpense(new DateTime(2018, 3, 9), "dummyCategory");
             expense.TransactionId = Guid.NewGuid().ToString();
+            expense.Type = TransactionType.Expense;
             this.repo.Insert(new Transaction[] { expense });
 
-            this.Sut.Add(new Transaction[] { expense });
+            this.repo.Insert(new Transaction[] { expense });
             var results = this.Sut.GetAll();
             Assert.AreEqual(1, results.Count());
             var result = results.First();

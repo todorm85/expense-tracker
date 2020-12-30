@@ -1,4 +1,5 @@
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Categories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace ExpenseTracker.Core
+namespace ExpenseTracker.Core.Data
 {
     public interface IGenericRepository<T>
         where T : class

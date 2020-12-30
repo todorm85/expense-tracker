@@ -42,7 +42,7 @@
                             @budget.TotalExpense | @budget.TotalIncome | @(budget.TotalIncome - budget.TotalExpense)
                         </td>
                     </tr>
-                    @foreach (Core.Transaction t in budget.ExpectedTransactions)
+                    @foreach (Core.Transactions.Transaction t in budget.ExpectedTransactions)
                     {
                         <tr>
                             <td></td>
