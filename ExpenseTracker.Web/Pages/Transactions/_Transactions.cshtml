@@ -18,7 +18,7 @@
         {
             var t = Model.Transactions[transx];
             var typeClass = t.Type == Core.Transactions.TransactionType.Income ? "table-success" : "";
-            <tr id="trRow_@t.TransactionId" class="@typeClass">
+            <tr id="@("trRow_" + t.TransactionId)" class="@typeClass">
                 <td>
                     @{
                         var dateType = Model.ShowTime ? "datetime-local" : "date";
@@ -40,12 +40,12 @@
                 </td>
                 <td style="width:5%">
                     <input type="hidden" asp-for="@Model.Transactions[transx].TransactionId" />
-                    <button class="updateBtn mb-1" style="width:70px" type="button" asp-page-handler="update" asp-page="Index"
+                    <button class="updateBtn mb-1" style="width:70px" type="button" asp-page-handler="update" asp-page="_Transactions"
                             onclick="onTransactionUpdate(this, @t.TransactionId)">
                         update
                     </button><br />
-                    <button style="width:70px" type="button" asp-page-handler="delete" asp-route-id="@t.TransactionId" asp-page="Index"
-                            onclick="onDelete(this, @t.TransactionId)">
+                    <button style="width:70px" type="button" asp-page-handler="delete" asp-route-id="@t.TransactionId" asp-page="_Transactions"
+                            onclick="onDelete(this, '@t.TransactionId')">
                         delete
                     </button>
                 </td>
