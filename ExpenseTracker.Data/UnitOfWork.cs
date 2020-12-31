@@ -125,6 +125,19 @@ namespace ExpenseTracker.Data
 
                 this.db.Engine.UserVersion = 2;
             }
+            if (this.db.Engine.UserVersion == 2)
+            {
+                var col = this.db.GetCollection(this.GetSetName<Transaction>());
+                foreach (var doc in col.FindAll())
+                {
+                    var originalId = doc["_id"];
+                    doc["_id"] = ((string)doc["_id"]).Trim('"');
+                    col.Insert(doc);
+                    col.Delete(originalId);
+                }
+
+                this.db.Engine.UserVersion = 3;
+            }
         }
     }
 }
