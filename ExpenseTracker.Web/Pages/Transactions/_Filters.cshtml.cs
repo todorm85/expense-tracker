@@ -23,7 +23,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
             if (DateFrom == default)
             {
-                this.DateFrom = DateTime.Now.AddMonths(initialMonthsBack).ToMonthStart();
+                this.DateFrom = DateTime.Now.AddMonths(-initialMonthsBack).ToMonthStart();
             }
 
             this.Categories = new List<SelectListItem>()

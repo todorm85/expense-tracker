@@ -79,7 +79,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
     public class TransactionsByMonthByCategoryModel : PageModel
     {
-        private const int initialMonthsBack = -1;
+        private const int initialMonthsBack = 1;
         private const string UnspecifiedCategoryKeyName = "unspecified";
         private readonly ITransactionsService transactionsService;
 

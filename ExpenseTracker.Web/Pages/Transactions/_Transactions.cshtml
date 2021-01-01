@@ -40,11 +40,11 @@
                 </td>
                 <td style="width:5%">
                     <input type="hidden" asp-for="@Model.Transactions[transx].TransactionId" />
-                    <button class="updateBtn mb-1" style="width:70px" type="button" asp-page-handler="update" asp-page="_Transactions"
-                            onclick="onTransactionUpdate(this, @t.TransactionId)">
+                    <button class="updateBtn mb-1" style="width:70px" type="button" formAction="/Transactions/Api/?handler=Update"
+                            onclick="onTransactionUpdate(this, '@t.TransactionId')">
                         update
                     </button><br />
-                    <button style="width:70px" type="button" asp-page-handler="delete" asp-route-id="@t.TransactionId" asp-page="_Transactions"
+                    <button style="width:70px" type="button" formAction="/Transactions/Api/?handler=Delete&id=@t.TransactionId"
                             onclick="onDelete(this, '@t.TransactionId')">
                         delete
                     </button>
@@ -74,7 +74,7 @@
                 Details: details,
                 Amount: +amount,
                 Category: category,
-                Id: id,
+                TransactionId: id,
             }
         );
     }

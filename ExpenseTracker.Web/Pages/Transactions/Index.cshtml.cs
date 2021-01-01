@@ -17,7 +17,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
     public class IndexModel : PageModel
     {
         private readonly CategoriesService categories;
-        private readonly int initialMonthsBack = 0;
+        private readonly int initialMonthsBack = 1;
         private readonly ITransactionsService transactionsService;
 
         public IndexModel(ITransactionsService transactions, CategoriesService categories)
