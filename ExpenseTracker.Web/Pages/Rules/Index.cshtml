@@ -1,0 +1,57 @@
+﻿@page
+@model ExpenseTracker.Web.Pages.Rules.IndexModel
+
+<form method="post">
+    <button type="button" data-toggle="modal" data-target="#createRuleModal">Create</button>
+    <modal id="createRuleModal">
+        <partial name="_Edit" model="@(new Core.Transactions.Rules.Rule() { Property = "Details" })"
+                 view-data='new ViewDataDictionary(ViewData) { { "onDone", "onDone(\"createRuleModal\")" } }' />
+    </modal>
+    @foreach (var rule in Model.Rules)
+    {
+        <div id="@(rule.Id)_display" class="row">
+            <div class="col">
+                If <span class="font-italic">@rule.Property</span>
+                <span>@rule.Condition</span>
+                <span>@rule.Value</span>
+                @if (rule.Action == Core.Transactions.Rules.RuleAction.Skip)
+                {
+                    <text>then skip transaction.</text>
+                }
+                else
+                {
+                    <text>then set </text>
+                    <span>@rule.PropertyToSet</span>
+                    <text> to </text>
+                    <span>@rule.ValueToSet</span>
+                }
+            </div>
+            @{ var modalId = $"editRuleModal_{rule.Id}"; }
+            <div class="col">
+                <button type="button" onclick="onRemove(@rule.Id)">X</button><br />
+                <button type="button" data-toggle="modal" data-target="#@(modalId)">Edit</button>
+            </div>
+        </div>
+        <modal id="@modalId">
+            <partial name="_Edit" for="@rule" view-data='new ViewDataDictionary(ViewData) { { "onDone", $"onDone(\"{modalId}\")" } }' />
+        </modal>
+    }
+</form>
+
+<script>
+    function onDone(id) {
+        $("#" + id).modal("hide");
+    }
+
+    function onRemove(id) {
+        postAjax("/Rules/Api?handler=delete&id=" + id,
+            sender => {
+                document.getElementById(id + '_display').style.display = 'none';
+            },
+            sender => {
+                alert("error");
+                console.log(sender);
+            }
+        );
+    }
+</script>

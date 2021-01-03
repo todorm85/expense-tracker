@@ -14,7 +14,7 @@
         {
             var p = tr.GetType().GetProperty(Property);
             var v = p.GetValue(tr).ToString();
-            if (Condition == RuleCondition.Contains && v.Contains(Value))
+            if (Condition == RuleCondition.Contains && !string.IsNullOrWhiteSpace(Value) && v.Contains(Value))
             {
                 if (Action == RuleAction.Skip)
                     return false;

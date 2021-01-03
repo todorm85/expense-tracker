@@ -23,6 +23,11 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return NotFound();
         }
 
+        public IActionResult OnPost()
+        {
+            return NotFound();
+        }
+
         public IActionResult OnPostDelete(string id)
         {
             this.transactionsService.RemoveById(id);

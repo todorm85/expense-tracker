@@ -1,0 +1,65 @@
+﻿@model Core.Transactions.Rules.Rule
+Property:
+<input id="property_@(Model.Id)" asp-for="@Model.Property" />
+<br />
+Condition:
+<select id="condition_@(Model.Id)" asp-for="@Model.Condition"
+        asp-items="Html.GetEnumSelectList<Core.Transactions.Rules.RuleCondition>()"></select>
+<br />
+Value:
+<input id="value_@(Model.Id)" asp-for="@Model.Value" />
+<br />
+then
+<br />
+Action:
+<select id="action_@(Model.Id)"
+        asp-for="@Model.Action" asp-items="Html.GetEnumSelectList<Core.Transactions.Rules.RuleAction>()"
+        onchange="onRuleActionChange(this, @Model.Id)"></select>
+<br />
+@{ var ruleSetPropertyEditGroupDisplayValue = Model.Action == Core.Transactions.Rules.RuleAction.SetProperty ? "block" : "none";}
+<div id="@(Model.Id)_setPropertyEditGroup" style="display:@(ruleSetPropertyEditGroupDisplayValue)">
+Property: <input id="propertyToSet_@(Model.Id)" asp-for="@Model.PropertyToSet" /><br />
+Value: <input id="valueToSet_@(Model.Id)" asp-for="@Model.ValueToSet" /><br />
+</div>
+<button type="button" onclick="onSaveClick@(@Model.Id)(this, @Model.Id)" formaction="Rules\Api?handler=Save">Save</button>
+<button type="button" onclick='@Html.Raw(ViewData["onDone"])'>Cancel</button>
+
+
+<script>
+    function onRuleActionChange(sender, id) {
+        var setPropertyEditGroup = document.getElementById(id + '_setPropertyEditGroup')
+        if (sender.value === '0') {
+            setPropertyEditGroup.style.display = 'none';
+        } else {
+            setPropertyEditGroup.style.display = 'block';
+        }
+    }
+
+    function onSaveClick@(Model.Id)(btn, id) {
+        var Property = document.getElementById("property_" + id).value;
+        var condition = document.getElementById("condition_" + id).value;
+        var Value = document.getElementById("value_" + id).value;
+        var action = document.getElementById("action_" + id).value;
+        var PropertyToSet = document.getElementById("propertyToSet_" + id).value;
+        var ValueToSet = document.getElementById("valueToSet_" + id).value;
+
+        var handler = btn.formAction;
+        postAjax(handler,
+            sender => {
+                @Html.Raw(ViewData["onDone"]);
+            },
+            sender => {
+                alert("error");
+            },
+            {
+                Id: id,
+                Property,
+                Condition: +condition,
+                Value,
+                Action: +action,
+                PropertyToSet,
+                ValueToSet
+            }
+        );
+    }
+</script>
