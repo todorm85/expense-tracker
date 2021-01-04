@@ -2,56 +2,48 @@
 @model ExpenseTracker.Web.Pages.Rules.IndexModel
 
 <form method="post">
-    <button type="button" data-toggle="modal" data-target="#createRuleModal">Create</button>
-    <modal id="createRuleModal">
-        <partial name="_Edit" model="@(new Core.Transactions.Rules.Rule() { Property = "Details" })"
-                 view-data='new ViewDataDictionary(ViewData) { { "onDone", "onDone(\"createRuleModal\")" } }' />
+    <h1>Rules for adding transactions</h1>
+    <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#createRuleModal">Create</button>
+    <modal id="createRuleModal" title="Create rule">
+        <partial name="_Edit" for="CreateRuleModel" />
     </modal>
-    @foreach (var rule in Model.Rules)
+    @for (int i = 0; i < Model.Rules.Count; i++)
     {
-        <div id="@(rule.Id)_display" class="row">
-            <div class="col">
-                If <span class="font-italic">@rule.Property</span>
-                <span>@rule.Condition</span>
-                <span>@rule.Value</span>
-                @if (rule.Action == Core.Transactions.Rules.RuleAction.Skip)
-                {
-                    <text>then skip transaction.</text>
-                }
-                else
-                {
-                    <text>then set </text>
-                    <span>@rule.PropertyToSet</span>
-                    <text> to </text>
-                    <span>@rule.ValueToSet</span>
-                }
+        var rule = Model.Rules[i];
+        <div class="row my-2">
+            <div class="col-9">
+                <div class="row align-items-start">
+                    <div class="d-inline-block">
+                        If <span class="font-weight-bold text-lowercase">@rule.Property</span>
+                        <span class="text-lowercase mr-4">@rule.Condition</span>
+                    </div>
+                    <div class="d-inline-block">
+                        <span class="d-inline-block font-italic font-weight-bold" style="width:20em">"@rule.ConditionValue"</span>
+                    </div>
+                    <div class="d-inline-block">
+                        then
+                        @if (rule.Action == Core.Transactions.Rules.RuleAction.Skip)
+                        {
+                            <span class="font-weight-bold"> skip.</span>
+                        }
+                        else
+                        {
+                            <text>set </text>
+                            <span class="font-weight-bold text-lowercase">@rule.PropertyToSet</span>
+                            <text> to </text>
+                            <span class="font-weight-bold text-lowercase">@rule.ValueToSet</span>
+                        }
+                    </div>
+                </div>
             </div>
             @{ var modalId = $"editRuleModal_{rule.Id}"; }
-            <div class="col">
-                <button type="button" onclick="onRemove(@rule.Id)">X</button><br />
-                <button type="button" data-toggle="modal" data-target="#@(modalId)">Edit</button>
+            <div class="col btn-group-sm">
+                <button class="btn btn-secondary" type="button" data-toggle="modal" data-target="#@(modalId)">Edit</button>
+                <button btn-del type="submit" asp-page-handler="delete" asp-route-id="@rule.Id" />
             </div>
         </div>
-        <modal id="@modalId">
-            <partial name="_Edit" for="@rule" view-data='new ViewDataDictionary(ViewData) { { "onDone", $"onDone(\"{modalId}\")" } }' />
+        <modal id="@modalId" title="Edit rule">
+            <partial name="_Edit" for="Rules[i]" />
         </modal>
     }
 </form>
-
-<script>
-    function onDone(id) {
-        $("#" + id).modal("hide");
-    }
-
-    function onRemove(id) {
-        postAjax("/Rules/Api?handler=delete&id=" + id,
-            sender => {
-                document.getElementById(id + '_display').style.display = 'none';
-            },
-            sender => {
-                alert("error");
-                console.log(sender);
-            }
-        );
-    }
-</script>

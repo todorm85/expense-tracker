@@ -1,0 +1,8 @@
+﻿@page
+@model ExpenseTracker.Web.Pages.MigrateModel
+@{
+}
+<form method="post">
+    <button type="submit" asp-page-handler="MigrateCategories">Migrate categories to rules</button>
+    <button type="submit" asp-page-handler="DeleteAllRules">Delete rules</button>
+</form>

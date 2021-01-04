@@ -50,10 +50,6 @@
         <div class="col-lg-6">
             <div class="row">
                 <h3 class="mr-2 my-3">Just Added</h3>
-                @if (Model.ShowMessage)
-                {
-                    <partial name="_Message" model='new Shared.MessageModel { Message = "Done", Success = Model.Success }' />
-                }
                 <partial name="_Transactions" for="TransactionsList" />
             </div>
         </div>
@@ -62,6 +58,10 @@
 
 @section Scripts {
     <script>
+        @if (Model.ShowMessage)
+        {
+            <text>alert('success');</text>
+        }
         window.onload = function () {
             document.getElementById("amount").focus();
         }

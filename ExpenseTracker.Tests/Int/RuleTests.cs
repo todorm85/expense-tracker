@@ -40,7 +40,7 @@ namespace ExpenseTracker.Tests.Int
                 Action = RuleAction.Skip,
                 Condition = RuleCondition.Contains,
                 Property = "Details",
-                Value = " text."
+                ConditionValue = " text."
             });
 
             this.expenses.TryAdd(t, out IEnumerable<TransactionInsertResult> skipped);
@@ -76,7 +76,7 @@ namespace ExpenseTracker.Tests.Int
                 Action = RuleAction.SetProperty,
                 Condition = RuleCondition.Contains,
                 Property = "Details",
-                Value = " text.",
+                ConditionValue = " text.",
                 PropertyToSet = "Type",
                 ValueToSet = TransactionType.Income.ToString()
             });

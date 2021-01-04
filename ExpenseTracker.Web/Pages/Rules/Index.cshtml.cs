@@ -9,19 +9,53 @@ namespace ExpenseTracker.Web.Pages.Rules
 {
     public class IndexModel : PageModel
     {
-        private readonly IBaseDataItemService<Rule> rules;
+        private readonly IBaseDataItemService<Rule> rulesService;
 
         public IndexModel(IBaseDataItemService<Rule> rules)
         {
-            this.rules = rules;
-            this.Rules = Enumerable.Empty<Rule>();
+            this.rulesService = rules;
+            this.Rules = new List<Rule>();
+            InitializeCreateRuleModel();
         }
 
-        public IEnumerable<Rule> Rules { get; set; }
+        [BindProperty]
+        public Rule CreateRuleModel { get; set; }
+
+        [BindProperty]
+        public IList<Rule> Rules { get; set; }
 
         public void OnGet()
         {
-            this.Rules = this.rules.GetAll();
+            this.Rules = this.rulesService.GetAll().ToList();
+        }
+
+        public void OnPostDelete(int id)
+        {
+            this.rulesService.RemoveById(id);
+            this.Rules.Remove(this.Rules.First(x => x.Id == id));
+            this.ModelState.Clear();
+        }
+
+        public void OnPostSave(int id)
+        {
+            if (id == default)
+            {
+                this.rulesService.Add(CreateRuleModel);
+                this.Rules.Add(CreateRuleModel);
+                InitializeCreateRuleModel();
+            }
+            else
+            {
+                var model = this.Rules.First(x => x.Id == id);
+                this.rulesService.Update(model);
+            }
+
+            this.ModelState.Clear();
+        }
+
+        private void InitializeCreateRuleModel()
+        {
+            this.CreateRuleModel = new Rule() { Property = "Details" };
         }
     }
 }

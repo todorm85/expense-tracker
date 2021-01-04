@@ -7,14 +7,14 @@
         public RuleCondition Condition { get; set; }
         public string Property { get; set; }
         public string PropertyToSet { get; set; }
-        public string Value { get; set; }
+        public string ConditionValue { get; set; }
         public string ValueToSet { get; set; }
 
         public bool Process(Transaction tr)
         {
             var p = tr.GetType().GetProperty(Property);
             var v = p.GetValue(tr).ToString();
-            if (Condition == RuleCondition.Contains && !string.IsNullOrWhiteSpace(Value) && v.Contains(Value))
+            if (Condition == RuleCondition.Contains && !string.IsNullOrWhiteSpace(ConditionValue) && v.Contains(ConditionValue))
             {
                 if (Action == RuleAction.Skip)
                     return false;

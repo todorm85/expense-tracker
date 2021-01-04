@@ -5,6 +5,8 @@ namespace ExpenseTracker.Web.TagHelpers
 {
     public class ModalTagHelper : TagHelper
     {
+        public string Title { get; set; }
+
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
             var childContent = await output.GetChildContentAsync();
@@ -17,7 +19,7 @@ namespace ExpenseTracker.Web.TagHelpers
    $@"<div class=""modal-dialog"">
             <div class=""modal-content"">
                 <div class=""modal-header"">
-                    <h5 class=""modal-title"" id=""exampleModalLabel"">Modal title</h5>
+                    <h5 class=""modal-title"" id=""exampleModalLabel"">{Title}</h5>
                     <button type = ""button"" class=""close"" data-dismiss=""modal"" aria-label=""Close"">
                         <span aria-hidden=""true"">&times;</span>
                     </button>
