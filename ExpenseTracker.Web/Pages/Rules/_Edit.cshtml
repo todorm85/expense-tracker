@@ -1,5 +1,8 @@
 ﻿@model Core.Transactions.Rules.Rule
-@{ var id = Model.Id; }
+@{
+    var allRouteData = ViewData["RouteValues"] as Dictionary<string, string>;
+    var id = Model.Id;
+}
 <input type="hidden" asp-for="Id" />
 <div class="form-row">
     <fieldset class="col form-group">
@@ -36,7 +39,7 @@
     </div>
 </div>
 <div class="form-group">
-    <button class="btn btn-primary" type="submit" asp-page-handler="save" asp-route-id="@Model.Id">Save</button>
+    <button class="btn btn-primary" type="submit" asp-page-handler="save" asp-route-id="@id" asp-all-route-data="@allRouteData">Save</button>
     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
 </div>
 <script>

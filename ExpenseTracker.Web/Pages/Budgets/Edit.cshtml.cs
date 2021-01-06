@@ -61,7 +61,7 @@ namespace ExpenseTracker.Web.Pages.Budgets
             }
             else
             {
-                this.service.Add(this.Budget);
+                this.service.Insert(this.Budget);
             }
 
             return RedirectToPage("Index");

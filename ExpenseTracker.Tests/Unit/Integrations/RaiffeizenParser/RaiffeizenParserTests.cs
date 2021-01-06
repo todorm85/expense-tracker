@@ -1,6 +1,4 @@
 ﻿using ExpenseTracker.Allianz;
-using ExpenseTracker.Core;
-using ExpenseTracker.Core.Categories;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Core.Transactions.Rules;
@@ -170,7 +168,7 @@ namespace ExpenseTracker.Tests.Unit.Integrations.RaiffeizenParser
         [TestInitialize]
         public void Init()
         {
-            this.parser = new RaiffeizenTxtFileParser(new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IBaseDataItemService<Category>>(), Mock.Create<IBaseDataItemService<Rule>>()));
+            this.parser = new RaiffeizenTxtFileParser(new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IGenericRepository<Rule>>()));
         }
 
         [TestMethod]

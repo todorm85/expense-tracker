@@ -1,5 +1,4 @@
 ﻿using ExpenseTracker.Core;
-using ExpenseTracker.Core.Categories;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
 using LiteDB;
@@ -54,15 +53,7 @@ namespace ExpenseTracker.Data
 
         private string GetSetName<T>() where T : class
         {
-            // backward compatability
-            if (typeof(T) == typeof(Category))
-            {
-                return "categories";
-            }
-            else
-            {
-                return $"{typeof(T).Name.ToLower()}s";
-            }
+            return $"{typeof(T).Name.ToLower()}s";
         }
 
         private void HandleMigration()
@@ -87,7 +78,7 @@ namespace ExpenseTracker.Data
                     col.Update(doc);
                 }
 
-                col = this.db.GetCollection(this.GetSetName<Category>());
+                col = this.db.GetCollection("categories");
                 foreach (var doc in col.FindAll())
                 {
                     doc["KeyWord"] = doc["ExpenseSourcePhrase"];
@@ -131,9 +122,13 @@ namespace ExpenseTracker.Data
                 foreach (var doc in col.FindAll())
                 {
                     var originalId = doc["_id"];
-                    doc["_id"] = ((string)doc["_id"]).Trim('"');
-                    col.Insert(doc);
-                    col.Delete(originalId);
+                    var newId = ((string)doc["_id"]).Trim('"');
+                    if (originalId != newId)
+                    {
+                        doc["_id"] = newId;
+                        col.Insert(doc);
+                        col.Delete(originalId);
+                    }
                 }
 
                 this.db.Engine.UserVersion = 3;

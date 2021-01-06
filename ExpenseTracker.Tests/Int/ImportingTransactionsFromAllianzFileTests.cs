@@ -15,9 +15,6 @@ namespace ExpenseTracker.Tests.Int
     {
         private const string EpayEntry = @"02/09/2020 12:56:58|161ADVF202460007|13.09|D|КТ Плащ.н.Visa Electr-н.POS търг.|56100025  #TID#424982***3046#EVN BALGARIA |          EASY PAY      BGR - В 2|1:50:38 на 01.09.2020 Плащане ПОС Easypay AD Ivan VazovSofia КОД : 000483 PAN*3046|BG09BUIN95611900260611";
         private const string FileHeader = "datetime|reference|amount|dtkt|trname|contragent|rem_i|rem_ii|rem_iii";
-        private const string InternalTransaction1 = "05/08/2020 22:10:04|161PBWU202180001|400.00|D|Нар.кред.превод,e-BANK - БИСЕРА|Тодор Бориславов Мицковски|превод м/ъ собствени сметки||BG42RZBB91551011710480";
-        private const string InternalTransaction2 = "10/08/2020 11:28:14|161FTWW202231002|400.00|D|Нареден кредитен превод-IB|ТОДОР БОРИСЛАВОВ МИЦКОВСКИ|превод между собствени сметки||BG24BUIN95611000591258";
-        private const string SalaryEntry = @"31/08/2020 09:06:41|144FTBM202440255|4,322.81|K|Получен кр.превод-IB масово плащане|ПРОГРЕС СОФТУЕР  ЕАД|ЗАПЛАТА август 2020||BG97BUIN95611000360054";
         private const string TaxEntry = @"02/09/2020 00:00:00|161CHMRBGNL00001|2.20|D|Такса за поддръжка на сметка||||";
         private const string YouTubeExpenseEntry = @"01/09/2020 12:55:37|161ADV8202450006|10.99|D|Плащане чрез ПОС чужбина |424982***3046#GOOGLE *YouTubePremium   g.c|o/helppay#GB - g.co/helppay#GOOGL|E *YouTubePremium PAN*3046|BG459115043";
         private TransactionsService expensesService;
@@ -32,16 +29,6 @@ namespace ExpenseTracker.Tests.Int
             }
 
             base.CleanUp();
-        }
-
-        [TestMethod]
-        public void DoesNotImportInternalTransaction()
-        {
-            var testData = GetTestData(SalaryEntry, InternalTransaction1, InternalTransaction2, TaxEntry);
-            var expenses = this.fileParser.Parse(testData);
-            this.expensesService.TryAdd(expenses, out IEnumerable<TransactionInsertResult> res);
-
-            Assert.AreEqual(2, this.expensesService.GetAll().Count());
         }
 
         [TestMethod]
@@ -85,15 +72,6 @@ namespace ExpenseTracker.Tests.Int
             this.expensesService.TryAdd(expenses, out IEnumerable<TransactionInsertResult> res1);
 
             Assert.AreEqual(3, this.expensesService.GetAll().Count());
-        }
-
-        [TestMethod]
-        public void ImportsSalaryCorrectly()
-        {
-            var testData = GetTestData(SalaryEntry);
-            var expenses = this.fileParser.Parse(testData);
-
-            Assert.AreEqual(TransactionType.Income, expenses[0].Type);
         }
 
         [TestInitialize]

@@ -1,12 +1,10 @@
 ﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Core;
-using ExpenseTracker.Core.Categories;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Core.Transactions.Rules;
 using ExpenseTracker.Tests.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using Telerik.JustMock;
 
 namespace ExpenseTracker.Tests
@@ -14,14 +12,13 @@ namespace ExpenseTracker.Tests
     [TestClass]
     public class AllianzExpenseMessageParserTests
     {
-        private IEnumerable<Category> categories;
         private AllianzMessageFactory msgFactory = new AllianzMessageFactory();
         private AllianzExpenseMessageParser parser;
 
         [TestInitialize]
         public void Init()
         {
-            this.parser = new AllianzExpenseMessageParser(new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IBaseDataItemService<Category>>(), Mock.Create<IBaseDataItemService<Rule>>()));
+            this.parser = new AllianzExpenseMessageParser(new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IGenericRepository<Rule>>()));
         }
 
         [TestMethod]
@@ -34,7 +31,6 @@ namespace ExpenseTracker.Tests
         [TestMethod]
         public void Parse_ValidExpenseMessage_IsParsed()
         {
-            this.categories = new Category[] { new Category() { Name = "cat1", KeyWord = "test" } };
             this.msgFactory.Location += " test";
             var expense = this.parser.Parse(this.msgFactory.GetRandomValidMessage());
             Assert.AreEqual(decimal.Parse(this.msgFactory.Amount), expense.Amount);

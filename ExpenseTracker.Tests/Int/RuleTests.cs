@@ -13,14 +13,14 @@ namespace ExpenseTracker.Tests.Int
     [TestClass]
     public class RuleTests : IntTestsBase
     {
-        private IBaseDataItemService<Rule> rules;
+        private IGenericRepository<Rule> rules;
         private TransactionsService expenses;
 
         [TestInitialize]
         public override void Initialize()
         {
             base.Initialize();
-            this.rules = container.Resolve<IBaseDataItemService<Rule>>();
+            this.rules = container.Resolve<IGenericRepository<Rule>>();
             this.expenses = container.Resolve<TransactionsService>();
         }
 
@@ -35,7 +35,7 @@ namespace ExpenseTracker.Tests.Int
                 TransactionId = "id1"
             };
 
-            this.rules.Add(new Rule()
+            this.rules.Insert(new Rule()
             {
                 Action = RuleAction.Skip,
                 Condition = RuleCondition.Contains,
@@ -71,7 +71,7 @@ namespace ExpenseTracker.Tests.Int
                 TransactionId = "id1"
             };
 
-            this.rules.Add(new Rule()
+            this.rules.Insert(new Rule()
             {
                 Action = RuleAction.SetProperty,
                 Condition = RuleCondition.Contains,

@@ -1,5 +1,7 @@
-using ExpenseTracker.Core.Categories;
+using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Core.Transactions.Rules;
+using ExpenseTracker.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,13 +11,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class ApiModel : PageModel
     {
-        private readonly CategoriesService categories;
         private readonly ITransactionsService transactionsService;
+        private readonly IGenericRepository<Rule> rules;
 
-        public ApiModel(ITransactionsService transactions, CategoriesService categories)
+        public ApiModel(ITransactionsService transactions, IGenericRepository<Rule> rules)
         {
             this.transactionsService = transactions;
-            this.categories = categories;
+            this.rules = rules;
         }
 
         public IActionResult OnGet()
@@ -44,11 +46,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             {
                 var parts = viewModel.Category.Split(":");
                 viewModel.Category = parts[0];
-                var key = parts[1];
-                this.categories.Add(new Category[] { new Category() { Name = parts[0], KeyWord = parts[1] } });
-                var all = this.transactionsService.GetAll().ToList();
-                new TransactionsClassifier().Classify(all, this.categories.GetAll());
-                this.transactionsService.Update(all);
+                this.rules.Insert(new Rule() { ValueToSet = parts[0], ConditionValue = parts[1], Condition = RuleCondition.Contains, Action = RuleAction.SetProperty, Property = "Details", PropertyToSet = "Category" });
             }
 
             dbModel.Details = viewModel.Details;

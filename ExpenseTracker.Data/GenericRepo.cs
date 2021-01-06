@@ -1,5 +1,4 @@
 ﻿using ExpenseTracker.Core;
-using ExpenseTracker.Core.Categories;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
 using LiteDB;
@@ -27,25 +26,27 @@ namespace ExpenseTracker.Data
                 transactionsContext.EnsureIndex(x => x.Amount);
                 transactionsContext.EnsureIndex(x => x.TransactionId);
             }
+        }
 
-            if (typeof(T) == typeof(Category))
+        public virtual int Count(Expression<Func<T, bool>> predicate = null)
+        {
+            if (predicate != null)
+                return this.context.Count(predicate);
+            else
+                return this.context.Count();
+        }
+
+        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate = null, int skip = 0, int take = int.MaxValue)
+        {
+            if (predicate == null)
             {
-                var transactionsContext = this.context as LiteCollection<Category>;
-                transactionsContext.EnsureIndex(x => x.KeyWord);
-                transactionsContext.EnsureIndex(x => x.Name);
+                if (skip == 0 && take == int.MaxValue)
+                    return this.context.FindAll();
+                else
+                    predicate = x => true;
             }
-        }
-
-        public virtual IEnumerable<T> GetAll()
-        {
-            var all = this.context.FindAll();
-            return all.AsEnumerable();
-        }
-
-        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate)
-        {
-            var all = this.context.Find(predicate);
-            return all.AsEnumerable();
+         
+            return this.context.Find(predicate, skip, take).AsEnumerable();
         }
 
         public virtual T GetById(object id)

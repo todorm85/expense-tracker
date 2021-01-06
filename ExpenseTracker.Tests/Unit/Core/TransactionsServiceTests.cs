@@ -1,5 +1,4 @@
 ﻿using ExpenseTracker.Core;
-using ExpenseTracker.Core.Categories;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Core.Transactions.Rules;
@@ -30,7 +29,7 @@ namespace ExpenseTracker.Tests
             {
                 if (this.sut == null)
                 {
-                    this.sut = new TransactionsService(this.uow, Mock.Create<IBaseDataItemService<Category>>(), Mock.Create<IBaseDataItemService<Rule>>());
+                    this.sut = new TransactionsService(this.uow, Mock.Create<IGenericRepository<Rule>>());
                 }
 
                 return this.sut;
@@ -60,7 +59,7 @@ namespace ExpenseTracker.Tests
             this.repo.Insert(new Transaction[] { expense });
 
             expense.TransactionId = "0";
-            this.Sut.Add(new Transaction[] { expense });
+            this.Sut.Insert(new Transaction[] { expense });
             var results = this.Sut.GetAll();
             Assert.AreEqual(2, results.Count());
             var result = results.First();

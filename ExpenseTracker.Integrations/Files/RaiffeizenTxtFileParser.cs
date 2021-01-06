@@ -1,5 +1,4 @@
-﻿using ExpenseTracker.Core;
-using ExpenseTracker.Core.Transactions;
+﻿using ExpenseTracker.Core.Transactions;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,13 +8,6 @@ namespace ExpenseTracker.Allianz
 {
     public class RaiffeizenTxtFileParser
     {
-        private readonly ITransactionsService service;
-
-        public RaiffeizenTxtFileParser(ITransactionsService service)
-        {
-            this.service = service;
-        }
-
         public List<Transaction> Parse(XmlDocument document)
         {
             XmlNamespaceManager m = new XmlNamespaceManager(document.NameTable);
@@ -48,8 +40,8 @@ namespace ExpenseTracker.Allianz
                     t.Date = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
                 }
 
-                if (IsValid(t))
-                    trans.Add(t);
+                t.Details = "rei file " + t.Details;
+                trans.Add(t);
             }
 
             return trans;
@@ -61,11 +53,6 @@ namespace ExpenseTracker.Allianz
             document.Load(filePath);
 
             return this.Parse(document);
-        }
-
-        private bool IsValid(Transaction t)
-        {
-            return t.Type == TransactionType.Expense;
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using ExpenseTracker.Core;
-using ExpenseTracker.Core.Categories;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Core.Transactions.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Telerik.JustMock;
 
 namespace ExpenseTracker.Allianz.Tests
@@ -13,16 +13,12 @@ namespace ExpenseTracker.Allianz.Tests
     [TestClass]
     public class TxtFileParserTests
     {
-        private IEnumerable<Category> categories;
         private AllianzTxtFileParser sut;
 
         [TestInitialize]
         public void Init()
         {
-            var categoriesService = Mock.Create<IBaseDataItemService<Category>>();
-            this.categories = new Category[0];
-            Mock.Arrange(() => categoriesService.GetAll()).Returns(() => this.categories);
-            this.sut = new AllianzTxtFileParser(new TransactionsService(Mock.Create<IUnitOfWork>(), categoriesService, Mock.Create<IBaseDataItemService<Rule>>()));
+            this.sut = new AllianzTxtFileParser(new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IGenericRepository<Rule>>()));
         }
 
         [TestMethod]
@@ -41,7 +37,6 @@ namespace ExpenseTracker.Allianz.Tests
         {
             var data = @"datetime|reference|amount|dtkt|trname|contragent|rem_i|rem_ii|rem_iii
 01/11/2019 09:12:29|161ADV4193050016|800.00|D|Теглене на АТМ в страната|424982***3480#RFB ATM 054203     test      SOF|IA        BG - В 09:17:00 на 31.1|0.2019 Теглене АТМ-в мрежата на БОРИКА Райфайзенбанкжк Младост, бл. 30 София КОД : 001678 PAN*3480|BG459115031";
-            this.categories = new Category[] { new Category() { Name = "cat1", KeyWord = "test" } };
             var res = this.sut.Parse(data);
             Assert.IsTrue(res.Count == 1, "Expected one transaction parsed");
             var t = res[0];

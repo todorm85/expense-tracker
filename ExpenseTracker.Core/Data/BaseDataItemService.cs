@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace ExpenseTracker.Core.Data
 {
-    public class BaseDataItemService<T> : IBaseDataItemService<T> where T : class
+    public class BaseDataItemService<T> : IGenericRepository<T> where T : class
     {
         protected IGenericRepository<T> repo;
 
@@ -13,29 +13,29 @@ namespace ExpenseTracker.Core.Data
             this.repo = uow.GetDataItemsRepo<T>();
         }
 
-        public virtual void Add(IEnumerable<T> items)
+        public int Count(Expression<Func<T, bool>> expression = null)
         {
-            this.repo.Insert(items);
+            return this.repo.Count(expression);
         }
 
-        public virtual void Add(T item)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate = null, int skip = 0, int take = int.MaxValue)
         {
-            this.repo.Insert(item);
-        }
-
-        public virtual IEnumerable<T> GetAll()
-        {
-            return this.repo.GetAll();
-        }
-
-        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate)
-        {
-            return this.repo.GetAll(predicate);
+            return this.repo.GetAll(predicate, skip, take);
         }
 
         public virtual T GetById(object id)
         {
             return this.repo.GetById(id);
+        }
+
+        public virtual void Insert(IEnumerable<T> items)
+        {
+            this.repo.Insert(items);
+        }
+
+        public virtual void Insert(T item)
+        {
+            this.repo.Insert(item);
         }
 
         public virtual void RemoveById(object id)

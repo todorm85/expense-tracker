@@ -10,13 +10,6 @@ namespace ExpenseTracker.Allianz
 {
     public class AllianzTxtFileParser
     {
-        private readonly ITransactionsService service;
-
-        public AllianzTxtFileParser(ITransactionsService builder)
-        {
-            this.service = builder;
-        }
-
         public List<Transaction> Parse(string data)
         {
             var trans = new List<Transaction>();
@@ -30,7 +23,7 @@ namespace ExpenseTracker.Allianz
                     var fgs = line.Split('|');
                     var amount = decimal.Parse(fgs[2]);
                     var type = fgs[3] == "D" ? TransactionType.Expense : TransactionType.Income;
-                    var details = $"{fgs[4]} {fgs[5]} {fgs[6]} {fgs[7]} {fgs[8]}".RemoveRepeatingSpaces();
+                    var details = $"allianz file {fgs[4]} {fgs[5]} {fgs[6]} {fgs[7]} {fgs[8]}".RemoveRepeatingSpaces();
                     var parsedDate = ParseDate(details, fgs[0]);
                     var t = new Transaction()
                     {
@@ -39,8 +32,8 @@ namespace ExpenseTracker.Allianz
                         Details = details,
                         Type = type
                     };
-                    if (!t.Details.Contains("собствени сметки"))
-                        trans.Add(t);
+
+                    trans.Add(t);
                     line = sr.ReadLine();
                 }
             }

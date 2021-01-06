@@ -1,6 +1,4 @@
 ﻿using ExpenseTracker.Allianz;
-using ExpenseTracker.Core;
-using ExpenseTracker.Core.Categories;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Core.Transactions.Rules;
@@ -16,7 +14,7 @@ namespace ExpenseTracker.Integrations.Tests
         [TestMethod]
         public void ValidMessageIsParsedCorrectly()
         {
-            var importer = new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IBaseDataItemService<Category>>(), Mock.Create<IBaseDataItemService<Rule>>());
+            var importer = new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IGenericRepository<Rule>>());
             var parser = new RaiffeisenMessageParser(importer);
             var result = parser.Parse(new ExpenseMessage()
             {

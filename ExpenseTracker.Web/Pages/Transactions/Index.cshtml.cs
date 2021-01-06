@@ -1,5 +1,4 @@
-﻿using ExpenseTracker.Core.Categories;
-using ExpenseTracker.Core.Transactions;
+﻿using ExpenseTracker.Core.Transactions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
@@ -16,14 +15,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
     public class IndexModel : PageModel
     {
-        private readonly CategoriesService categories;
         private readonly int initialMonthsBack = 1;
         private readonly ITransactionsService transactionsService;
 
-        public IndexModel(ITransactionsService transactions, CategoriesService categories)
+        public IndexModel(ITransactionsService transactions)
         {
             this.transactionsService = transactions;
-            this.categories = categories;
             this.Filters = new FiltersModel(initialMonthsBack);
             this.TransactionsList = new TransactionsListModel();
         }
@@ -72,23 +69,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public void OnPost()
         {
-            this.OnGet();
-        }
-
-        public void OnPostClassifyCurrent()
-        {
-            new TransactionsClassifier().Classify(this.TransactionsList.Transactions, this.categories.GetAll());
-            var all = new List<Transaction>();
-            foreach (var t in TransactionsList.Transactions)
-            {
-                var tdb = this.transactionsService.GetAll(x => x.TransactionId == t.TransactionId && string.IsNullOrEmpty(x.Category)).FirstOrDefault();
-                if (tdb == null)
-                    continue;
-                tdb.Category = t.Category;
-                all.Add(tdb);
-            }
-
-            this.transactionsService.Update(all);
             this.OnGet();
         }
 

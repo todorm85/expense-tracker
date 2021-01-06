@@ -1,5 +1,4 @@
-﻿using ExpenseTracker.Core;
-using ExpenseTracker.Core.Transactions;
+﻿using ExpenseTracker.Core.Transactions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

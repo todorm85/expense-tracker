@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="expenses - Copy.db" />
     <None Remove="expenses.db" />
   </ItemGroup>
 

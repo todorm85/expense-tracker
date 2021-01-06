@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ExpenseTracker.Core.Transactions
 {
-    public interface ITransactionsService : IBaseDataItemService<Transaction>
+    public interface ITransactionsService : IGenericRepository<Transaction>
     {
         List<List<Transaction>> GetPotentialDuplicates();
 
