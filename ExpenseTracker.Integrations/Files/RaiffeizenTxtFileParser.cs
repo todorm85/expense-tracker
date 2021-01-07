@@ -40,7 +40,7 @@ namespace ExpenseTracker.Allianz
                     t.Date = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
                 }
 
-                t.Details = "rei file " + t.Details;
+                t.Source = "reifeizen_file";
                 trans.Add(t);
             }
 

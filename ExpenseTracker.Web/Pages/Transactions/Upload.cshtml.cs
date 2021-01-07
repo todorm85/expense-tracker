@@ -25,6 +25,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.rai = rai;
             this.importer = importer;
             this.TransactionsList = new TransactionsListModel();
+            this.SkippedTransactionsList = new TransactionsListModel() { ShowSource = true, ShowTime = true };
         }
 
         [BindProperty]
@@ -36,10 +37,11 @@ namespace ExpenseTracker.Web.Pages.Transactions
         [BindProperty(SupportsGet = true)]
         public bool ShowMessage { get; set; }
 
+        public TransactionsListModel SkippedTransactionsList { get; set; }
+
         [BindProperty(SupportsGet = true)]
         public bool Success { get; set; }
 
-        [BindProperty]
         public TransactionsListModel TransactionsList { get; set; }
 
         public void OnGet()
@@ -56,12 +58,14 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 Category = CreateTransaction.Category,
                 Date = CreateTransaction.Date,
                 Details = CreateTransaction.Details,
-                Type = CreateTransaction.Type
+                Type = CreateTransaction.Type,
+                Source = "manual_entry"
             };
 
             this.transactionsService.TryAdd(dbModel, out IEnumerable<TransactionInsertResult> skipped);
 
             AddJustAdded(new Transaction[] { dbModel });
+            AddSkipped(skipped);
             this.CreateTransaction = new Transaction() { Date = DateTime.Now };
             Success = true;
             ShowMessage = true;
@@ -72,6 +76,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             this.importer.ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<TransactionInsertResult> skipped);
             AddJustAdded(added);
+            AddSkipped(skipped);
         }
 
         public IActionResult OnPostUpload(List<IFormFile> files)
@@ -105,6 +110,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 }
 
                 AddJustAdded(expenses.Except(skipped.Select(x => x.Transaction)));
+                AddSkipped(skipped);
                 Success = true;
                 ShowMessage = true;
                 return Page();
@@ -117,7 +123,15 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private void AddJustAdded(IEnumerable<Transaction> ts)
         {
-            this.TransactionsList.Transactions = ts.Concat(this.TransactionsList.Transactions).ToList();
+            var all = ts.Select(t => new TransactionModel(t)).Concat(TransactionsList.Transactions).ToList();
+            this.TransactionsList.Transactions = all;
+            this.ModelState.Clear();
+        }
+
+        private void AddSkipped(IEnumerable<TransactionInsertResult> skipped)
+        {
+            var all = skipped.Select(t => new TransactionModel(t.Transaction) { Reason = t.ReasonResult, TransactionId = Guid.NewGuid().ToString() }).Concat(this.SkippedTransactionsList.Transactions).ToList();
+            this.SkippedTransactionsList.Transactions = all;
             this.ModelState.Clear();
         }
     }

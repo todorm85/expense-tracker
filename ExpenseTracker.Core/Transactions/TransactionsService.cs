@@ -17,11 +17,13 @@ namespace ExpenseTracker.Core.Transactions
 
         public enum Reason
         {
+            None,
             InvalidDate,
             InvalidAmount,
             DuplicateEntry,
             InvalidType,
-            Skipped
+            Skipped,
+            InvalidSource
         }
 
         public Reason ReasonResult { get; set; }
@@ -131,7 +133,7 @@ namespace ExpenseTracker.Core.Transactions
                     skippedResult.Add(new TransactionInsertResult(t, TransactionInsertResult.Reason.InvalidDate));
                     continue;
                 }
-                if (t.Amount < 0)
+                if (t.Amount <= 0)
                 {
                     skippedResult.Add(new TransactionInsertResult(t, TransactionInsertResult.Reason.InvalidAmount));
                     continue;
@@ -139,6 +141,11 @@ namespace ExpenseTracker.Core.Transactions
                 if (t.Type == TransactionType.Unspecified)
                 {
                     skippedResult.Add(new TransactionInsertResult(t, TransactionInsertResult.Reason.InvalidType));
+                    continue;
+                }
+                if (string.IsNullOrEmpty(t.Source))
+                {
+                    skippedResult.Add(new TransactionInsertResult(t, TransactionInsertResult.Reason.InvalidSource));
                     continue;
                 }
 

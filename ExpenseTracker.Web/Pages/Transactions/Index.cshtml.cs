@@ -59,7 +59,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                     break;
             }
 
-            this.TransactionsList.Transactions = sorted.ToList();
+            this.TransactionsList.Transactions = sorted.Select(t => new TransactionModel(t)).ToList();
             this.Expenses = this.TransactionsList.Transactions.Where(x => x.Type == TransactionType.Expense)
                 .Sum(x => x.Amount);
             this.Income = this.TransactionsList.Transactions.Where(x => x.Type == TransactionType.Income)

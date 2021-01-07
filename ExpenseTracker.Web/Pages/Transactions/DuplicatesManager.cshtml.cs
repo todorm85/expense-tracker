@@ -24,10 +24,10 @@ namespace ExpenseTracker.Web.Pages.Transactions
             var duplicates = this.service.GetPotentialDuplicates();
             this.DuplicatesModel = duplicates.Select(x => new TransactionsListModel()
             {
-                ShowId = true,
                 DetailsHeight = 6,
                 ShowTime = true,
-                Transactions = x
+                ShowSource = true,
+                Transactions = x.Select(t => new TransactionModel(t)).ToList()
             }).ToList();
         }
 

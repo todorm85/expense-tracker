@@ -5,6 +5,7 @@ using ExpenseTracker.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
 using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
@@ -54,6 +55,15 @@ namespace ExpenseTracker.Web.Pages.Transactions
             dbModel.Date = viewModel.Date;
             dbModel.Category = viewModel.Category ?? "";
             this.transactionsService.Update(new Transaction[] { dbModel });
+            return new OkResult();
+        }
+
+        public IActionResult OnPostCreate([FromBody] Transaction viewModel)
+        {
+            if (viewModel == null)
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error parsing the request parameters.");
+
+            this.transactionsService.Insert(viewModel);
             return new OkResult();
         }
     }

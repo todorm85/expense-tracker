@@ -43,6 +43,7 @@ namespace ExpenseTracker.Allianz
             result.Type = IsIncome(message) ? TransactionType.Income : TransactionType.Expense;
             if (string.IsNullOrEmpty(result.Details))
                 result.Details = title;
+            result.Source = "allianz_mail";
             return result;
         }
 

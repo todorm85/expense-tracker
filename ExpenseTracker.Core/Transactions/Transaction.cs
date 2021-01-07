@@ -14,6 +14,7 @@ namespace ExpenseTracker.Core.Transactions
         public bool IsResolvedDuplicate { get; set; }
         public string TransactionId { get; set; }
         public TransactionType Type { get; set; }
+        public string Source { get; set; }
 
         public override bool Equals(object obj) => string.IsNullOrEmpty(this.TransactionId) ? base.Equals(obj) : this.TransactionId == ((Transaction)obj).TransactionId;
 

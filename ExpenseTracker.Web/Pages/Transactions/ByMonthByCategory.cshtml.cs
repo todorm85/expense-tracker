@@ -198,16 +198,16 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
 
         public TransactionsListModel TransactionsList { get; set; }
-        public Transaction this[int index] { get => this.TransactionsList.Transactions[index]; set => this.TransactionsList.Transactions[index] = value; }
+        public Transaction this[int index] { get => this.TransactionsList.Transactions[index]; set => this.TransactionsList.Transactions[index] = new TransactionModel(value); }
 
         public void Add(Transaction item)
         {
-            this.TransactionsList.Transactions.Add(item);
+            this.TransactionsList.Transactions.Add(new TransactionModel(item));
         }
 
         public bool Remove(Transaction item)
         {
-            return this.TransactionsList.Transactions.Remove(item);
+            return this.TransactionsList.Transactions.Remove(new TransactionModel(item));
         }
     }
 }

@@ -1,14 +1,25 @@
 ﻿@model TransactionsListModel
-
 <table class="table border rounded table-sm">
     @if (!Model.HideHeader)
     {
         <thead>
             <tr class="table-info">
+                @if (Model.ShowId)
+                {
+                    <th>Id</th>
+                }
                 <th>Date</th>
                 <th>Amount</th>
                 <th>Details</th>
                 <th>Category</th>
+                @if (Model.ShowSource)
+                {
+                    <th>Source</th>
+                }
+                @if (Model.HasFailed)
+                {
+                    <th>Reason</th>
+                }
                 <th>Actions</th>
             </tr>
         </thead>
@@ -19,16 +30,21 @@
             var t = Model.Transactions[transx];
             var typeClass = t.Type == Core.Transactions.TransactionType.Income ? "table-success" : "";
             <tr id="@("trRow_" + t.TransactionId)" class="@typeClass">
+                @if (Model.ShowId)
+                {
+                    <td>
+                        @t.TransactionId
+                    </td>
+                }
                 <td>
+                    <input type="hidden" asp-for="@Model.Transactions[transx].TransactionId" />
+                    <input id="type_@t.TransactionId" type="hidden" value="@((int)Model.Transactions[transx].Type)" />
+                    <input id="source_@t.TransactionId" type="hidden" value="@(Model.Transactions[transx].Source)" />
                     @{
                         var dateType = Model.ShowTime ? "datetime-local" : "date";
                         var dateWidth = Model.ShowTime ? "255px" : "162px";
                     }
                     <input id="date_@t.TransactionId" type="@dateType" asp-for="@Model.Transactions[transx].Date" class="form-control" style="width: @(dateWidth)!important;" />
-                    @if (Model.ShowId)
-                    {
-                        <div>@t.TransactionId</div>
-                    }
                 </td>
                 <td style="width:5%"><input id="amount_@t.TransactionId" asp-for="@Model.Transactions[transx].Amount" class="form-control auto-select" style="min-width:80px" /></td>
                 <td style="width:75%">
@@ -38,16 +54,42 @@
                     <input id="category_@t.TransactionId" asp-for="@Model.Transactions[transx].Category"
                            class="form-control auto-select" placeholder="name:key(opt)" style="min-width: 100px;" />
                 </td>
-                <td style="width:5%">
-                    <input type="hidden" asp-for="@Model.Transactions[transx].TransactionId" />
-                    <button class="updateBtn mb-1" style="width:70px" type="button" formAction="/Transactions/Api/?handler=Update"
-                            onclick="onTransactionUpdate(this, '@t.TransactionId')">
-                        update
-                    </button><br />
-                    <button style="width:70px" type="button" formAction="/Transactions/Api/?handler=Delete&id=@t.TransactionId"
-                            onclick="onDelete(this, '@t.TransactionId')">
-                        delete
-                    </button>
+                @if (Model.ShowSource)
+                {
+                    <td style="min-width: 9em;">
+                        @t.Source
+                    </td>
+                }
+                @{
+                    var failedDisplay = Model.HasFailed ? "revert" : "none";
+                    var addedDisplay = !Model.HasFailed ? "revert" : "none";
+                }
+                @if (Model.HasFailed)
+                {
+                    <td style="min-width: 9em;">
+                        <div style="display: @failedDisplay" class="failed_@t.TransactionId">
+                            <input id="category_@t.TransactionId" asp-for="@Model.Transactions[transx].Reason"
+                                   class="form-control" placeholder="name:key(opt)" disabled style="min-width: 100px;" />
+                        </div>
+                    </td>
+                }
+                <td style="width:5%;">
+                    <div style="display: @failedDisplay" class="failed_@t.TransactionId">
+                        <button class="updateBtn mb-1" style="width:70px" type="button" formAction="/Transactions/Api/?handler=Create"
+                                onclick="onTransactionUpdate(this, '@t.TransactionId', true)">
+                            create
+                        </button>
+                    </div>
+                    <div style="display: @addedDisplay" class="added_@t.TransactionId">
+                        <button class="updateBtn mb-1" style="width:70px" type="button" formAction="/Transactions/Api/?handler=Update"
+                                onclick="onTransactionUpdate(this, '@t.TransactionId')">
+                            update
+                        </button><br />
+                        <button style="width:70px" type="button" formAction="/Transactions/Api/?handler=Delete&id=@t.TransactionId"
+                                onclick="onDelete(this, '@t.TransactionId')">
+                            delete
+                        </button>
+                    </div>
                 </td>
             </tr>
         }
@@ -55,16 +97,24 @@
 </table>
 
 <script>
-    function onTransactionUpdate(button, id) {
+    function onTransactionUpdate(button, id, isForceCreate) {
         var date = document.getElementById("date_" + id).value;
         var details = document.getElementById("details_" + id).value;
         var amount = document.getElementById("amount_" + id).value;
         var category = document.getElementById("category_" + id).value;
+        var type = document.getElementById("type_" + id).value;
+        var source = document.getElementById("source_" + id).value;
 
         var handler = button.formAction;
         postAjax(handler,
             sender => {
                 alert("succes");
+                if (isForceCreate) {
+                    var rowsToRemove = document.querySelectorAll(".failed_" + id);
+                    rowsToRemove.forEach(x => x.style.display = 'none');
+                    var rowsToShow = document.querySelectorAll(".added_" + id);
+                    rowsToShow.forEach(x => x.style.display = 'revert');
+                }
             },
             sender => {
                 alert("error");
@@ -75,6 +125,8 @@
                 Amount: +amount,
                 Category: category,
                 TransactionId: id,
+                Type: +type,
+                Source: source,
             }
         );
     }
