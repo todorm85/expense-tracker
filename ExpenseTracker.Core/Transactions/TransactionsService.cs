@@ -150,7 +150,7 @@ namespace ExpenseTracker.Core.Transactions
                 }
 
                 var transactionId = string.IsNullOrEmpty(t.TransactionId) ? GenerateTransactionId(t.Date, t.Amount, t.Details) : t.TransactionId;
-                if (this.GetById(transactionId) != null)
+                if (this.GetById(transactionId) != null || toAdd.FirstOrDefault(x => x.TransactionId == transactionId) != null)
                 {
                     skippedResult.Add(new TransactionInsertResult(t, TransactionInsertResult.Reason.DuplicateEntry));
                     continue;
