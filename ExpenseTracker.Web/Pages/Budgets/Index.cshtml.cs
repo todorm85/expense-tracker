@@ -17,7 +17,7 @@ namespace ExpenseTracker.Web.Pages.Budget
             this.service = service;
         }
 
-        public IEnumerable<Core.Budget.Budget> Budgets { get; private set; }
+        public IEnumerable<Core.Budget.Budget> Budgets { get; set; }
 
         public void OnGet()
         {

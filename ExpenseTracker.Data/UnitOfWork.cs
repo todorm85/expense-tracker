@@ -1,4 +1,5 @@
 ﻿using ExpenseTracker.Core;
+using ExpenseTracker.Core.Budget;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
 using LiteDB;
@@ -132,6 +133,17 @@ namespace ExpenseTracker.Data
                 }
 
                 this.db.Engine.UserVersion = 3;
+            }
+            if (this.db.Engine.UserVersion == 3)
+            {
+                var col = this.db.GetCollection(this.GetSetName<Budget>());
+                foreach (var doc in col.FindAll())
+                {
+                    var originalId = doc["_id"];
+                    col.Delete(originalId);
+                }
+
+                this.db.Engine.UserVersion = 4;
             }
         }
     }
