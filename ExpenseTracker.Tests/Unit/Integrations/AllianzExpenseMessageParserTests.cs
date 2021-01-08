@@ -18,7 +18,7 @@ namespace ExpenseTracker.Tests
         [TestInitialize]
         public void Init()
         {
-            this.parser = new AllianzExpenseMessageParser(new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IGenericRepository<Rule>>()));
+            this.parser = new AllianzExpenseMessageParser();
         }
 
         [TestMethod]

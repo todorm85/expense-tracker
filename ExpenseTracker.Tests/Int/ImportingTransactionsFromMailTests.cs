@@ -25,7 +25,7 @@ namespace ExpenseTracker.Tests.Int
         }
 
         [TestMethod]
-        public void ImportsCorrectlyWhenOnlyInValid()
+        public void ImportsCorrectlyWhenAllInValid()
         {
             this.mailClient.MockedMessages.Add(this.allianz.GetInValidMessage("25.06.2006", "55.35", "InvalidTest"));
             this.mailClient.MockedMessages.Add(this.rai.GetInValidMessage("25.06.2006", "55.35", "InvalidTest2"));

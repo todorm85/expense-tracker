@@ -44,7 +44,8 @@ namespace ExpenseTracker.Allianz.Tests
             Assert.IsTrue(t.Date.Kind == DateTimeKind.Utc);
             Assert.IsTrue(t.Amount == 800);
             Assert.IsTrue(t.Type == TransactionType.Expense);
-            Assert.IsTrue(t.Details == "allianz file Теглене на АТМ в страната 424982***3480#RFB ATM 054203 test SOF IA BG - В 09:17:00 на 31.1 0.2019 Теглене АТМ-в мрежата на БОРИКА Райфайзенбанкжк Младост, бл. 30 София КОД : 001678 PAN*3480 BG459115031");
+            Assert.IsTrue(t.Details == "Теглене на АТМ в страната 424982***3480#RFB ATM 054203 test SOF IA BG - В 09:17:00 на 31.1 0.2019 Теглене АТМ-в мрежата на БОРИКА Райфайзенбанкжк Младост, бл. 30 София КОД : 001678 PAN*3480 BG459115031");
+            Assert.IsTrue(t.Source == "allianz_file");
         }
 
         [TestMethod]
@@ -85,13 +86,15 @@ namespace ExpenseTracker.Allianz.Tests
             Assert.IsTrue(t1.Date == new DateTime(2019, 10, 31, 7, 17, 0));
             Assert.IsTrue(t1.Amount == 800);
             Assert.IsTrue(t1.Type == TransactionType.Expense);
-            Assert.IsTrue(t1.Details == "allianz file Теглене на АТМ в страната 424982***3480#RFB ATM 054203 SOF IA BG - В 09:17:00 на 31.1 0.2019 Теглене АТМ-в мрежата на БОРИКА Райфайзенбанкжк Младост, бл. 30 София КОД : 001678 PAN*3480 BG459115031");
+            Assert.IsTrue(t1.Details == "Теглене на АТМ в страната 424982***3480#RFB ATM 054203 SOF IA BG - В 09:17:00 на 31.1 0.2019 Теглене АТМ-в мрежата на БОРИКА Райфайзенбанкжк Младост, бл. 30 София КОД : 001678 PAN*3480 BG459115031");
+            Assert.IsTrue(t1.Source == "allianz_file");
 
             var t2 = res[1];
             Assert.IsTrue(t2.Date == new DateTime(2019, 11, 1, 17, 12, 29));
             Assert.IsTrue(t2.Amount == (decimal)1.06);
             Assert.IsTrue(t2.Type == TransactionType.Income);
-            Assert.IsTrue(t2.Details == "allianz file Такса теглене на АТМ в страната");
+            Assert.IsTrue(t2.Details == "Такса теглене на АТМ в страната");
+            Assert.IsTrue(t2.Source == "allianz_file");
         }
     }
 }

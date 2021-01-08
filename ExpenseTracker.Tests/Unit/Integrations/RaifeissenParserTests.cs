@@ -14,10 +14,10 @@ namespace ExpenseTracker.Integrations.Tests
         [TestMethod]
         public void ValidMessageIsParsedCorrectly()
         {
-            var importer = new TransactionsService(Mock.Create<IUnitOfWork>(), Mock.Create<IGenericRepository<Rule>>());
-            var parser = new RaiffeisenMessageParser(importer);
+            var parser = new RaiffeisenMessageParser();
             var result = parser.Parse(new ExpenseMessage()
             {
+                Subject = "Notification from RBBBG",
                 Body = @"Uvazhaemi g-ne/g-zho,
 Bihme iskali da Vi uvedomim za POKUPKA za 6.30 BGN s Vashata null * ***3680 v BGR pri EDDYS na BAKE na 28.01.2020 09:34:34.Razpolagaema nalichnost po kartata 379.59 BGN.
 S uvazhenie,

@@ -18,7 +18,8 @@ namespace ExpenseTracker.Tests
                 Details = Guid.NewGuid().ToString(),
                 Category = category ?? Guid.NewGuid().ToString(),
                 TransactionId = Guid.NewGuid().ToString(),
-                Type = TransactionType.Expense
+                Type = TransactionType.Expense,
+                Source = "tests"
             };
         }
 

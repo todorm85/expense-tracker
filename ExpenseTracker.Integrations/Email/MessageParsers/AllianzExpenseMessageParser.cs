@@ -9,21 +9,18 @@ namespace ExpenseTracker.Allianz
 {
     public class AllianzExpenseMessageParser : IExpenseMessageParser
     {
-        private readonly ITransactionsService service;
-
-        public AllianzExpenseMessageParser(ITransactionsService service)
-        {
-            this.service = service;
-        }
-
         public Transaction Parse(ExpenseMessage message)
         {
-            if (!IsValidExpenseMessage(message))
+            if (!IsAllianzMessage(message))
+                return null;
+            if (!IsSuccessOperationMessage(message))
                 return null;
             Transaction result = new Transaction();
             var title = string.Empty;
             using (var html = new StringReader(message.Body))
             {
+                string reason = string.Empty;
+                string actor = string.Empty;
                 var line = html.ReadLine();
                 while (line != null)
                 {
@@ -31,13 +28,18 @@ namespace ExpenseTracker.Allianz
                         title = ExtractInnerText(line);
                     if (line.Contains(">Дата<"))
                         result.Date = this.GetDate(html);
+                    if (line.Contains(">Основание<"))
+                        reason = this.GetReason(html);
                     if (line.Contains(">Контрагент<"))
-                        result.Details = this.GetSource(html);
+                        actor = this.GetSource(html);
                     if (line.Contains(">Сума<"))
                         result.Amount = this.GetAmount(html);
 
                     line = html.ReadLine();
                 }
+
+                reason = string.IsNullOrWhiteSpace(reason) ? string.Empty : $"_{reason}";
+                result.Details = actor + reason;
             }
 
             result.Type = IsIncome(message) ? TransactionType.Income : TransactionType.Expense;
@@ -47,36 +49,19 @@ namespace ExpenseTracker.Allianz
             return result;
         }
 
-        private static string ExtractInnerText(string line)
+        private bool IsSuccessOperationMessage(ExpenseMessage message)
+        {
+            return !message.Body.Contains("Неуспешна картова транзакция");
+        }
+
+        private string ExtractInnerText(string line)
         {
             var rx = new Regex(@">(?<text>[^<>]+)<", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             var matches = rx.Matches(line);
-            return matches[0].Groups["text"].Value.Trim();
-        }
-
-        private static bool IsIncome(ExpenseMessage message)
-        {
-            return message.Body.Contains("Получен кредитен превод-IB") ||
-                message.Body.Contains("Вноска по сметка");
-        }
-
-        private static bool IsValidExpenseMessage(ExpenseMessage message)
-        {
-            return message.Body.Contains("<title>Оторизирана картова транзакция</title>") ||
-                message.Body.Contains("<title>Такса за поддръжка на сметка</title>") ||
-                message.Body.Contains("Такса издаване на  карта") ||
-                message.Body.Contains("<title>Такса-проверка баланс,промяна ПИН</title>") ||
-                message.Body.Contains("Такса  Нар.превод,IB - БИСЕРА: превод м/ъ собствени сметки") ||
-                (message.Body.Contains("Получен кредитен превод-IB") && !message.Body.Contains("/94BUIN95611000529567")) ||
-                message.Body.Contains("Вноска по сметка");
-        }
-
-        private static void SkipLines(StringReader reader, int count)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                reader.ReadLine();
-            }
+            if (matches.Count > 0)
+                return matches[0].Groups["text"].Value.Trim();
+            else
+                return string.Empty;
         }
 
         private decimal GetAmount(StringReader reader)
@@ -101,10 +86,35 @@ namespace ExpenseTracker.Allianz
             }
         }
 
+        private string GetReason(StringReader html)
+        {
+            return ExtractInnerText(html.ReadLine()).RemoveRepeatingSpaces().Trim();
+        }
+
         private string GetSource(StringReader reader)
         {
             SkipLines(reader, 7);
             return reader.ReadLine().RemoveRepeatingSpaces();
+        }
+
+        private bool IsAllianzMessage(ExpenseMessage message)
+        {
+            return message.Subject.Contains("Движение по сметка: ");
+        }
+
+        private bool IsIncome(ExpenseMessage message)
+        {
+            return message.Body.Contains("Получен кредитен превод-IB") ||
+                message.Body.Contains("Вноска по сметка") ||
+                message.Body.Contains("Възстановени средства");
+        }
+
+        private void SkipLines(StringReader reader, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                reader.ReadLine();
+            }
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using ExpenseTracker.Core;
-using ExpenseTracker.Core.Transactions;
+﻿using ExpenseTracker.Core.Transactions;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -8,18 +7,13 @@ namespace ExpenseTracker.Allianz
 {
     public class RaiffeisenMessageParser : IExpenseMessageParser
     {
-        private readonly ITransactionsService service;
-
-        public RaiffeisenMessageParser(ITransactionsService service)
-        {
-            this.service = service;
-        }
-
         public Transaction Parse(ExpenseMessage expenseMessages)
         {
+            if (!IsReiffeisenMessage(expenseMessages))
+                return null;
             var lines = expenseMessages.Body;
             Transaction t = null;
-            if (lines.Contains("Bihme iskali da Vi uvedomim za POKUPKA"))
+            if (IsPurchaseMessage(expenseMessages))
             {
                 t = new Transaction();
                 var rx = new Regex(@"Bihme iskali da Vi uvedomim za POKUPKA za (?<amount>[\d\.]+) BGN.+? pri (?<details>.+?) na (?<date>[\d\.]+?) .*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -30,8 +24,18 @@ namespace ExpenseTracker.Allianz
                 t.Type = TransactionType.Expense;
                 t.Source = "reifeizen_mail";
             }
-         
+
             return t;
+        }
+
+        private bool IsPurchaseMessage(ExpenseMessage expenseMessages)
+        {
+            return expenseMessages.Body.Contains("Bihme iskali da Vi uvedomim za POKUPKA");
+        }
+
+        private bool IsReiffeisenMessage(ExpenseMessage expenseMessages)
+        {
+            return expenseMessages.Subject.Contains("Notification from RBBBG");
         }
     }
 }

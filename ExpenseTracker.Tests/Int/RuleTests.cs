@@ -32,7 +32,9 @@ namespace ExpenseTracker.Tests.Int
                 Details = "Some test text.",
                 Type = TransactionType.Expense,
                 Date = DateTime.Now,
-                TransactionId = "id1"
+                TransactionId = "id1",
+                Source = "tests",
+                Amount = 1
             };
 
             this.rules.Insert(new Rule()
@@ -65,10 +67,12 @@ namespace ExpenseTracker.Tests.Int
         public void SetPropertyWorksCorrectly()
         {
             var t = new Transaction()
-            {
+            {                
                 Details = "Some test text.",
                 Date = DateTime.Now,
-                TransactionId = "id1"
+                TransactionId = "id1",
+                Source = "tests",
+                Amount = 1
             };
 
             this.rules.Insert(new Rule()
