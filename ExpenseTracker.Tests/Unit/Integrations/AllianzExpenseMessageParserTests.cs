@@ -35,7 +35,7 @@ namespace ExpenseTracker.Tests
             var expense = this.parser.Parse(this.msgFactory.GetRandomValidMessage());
             Assert.AreEqual(decimal.Parse(this.msgFactory.Amount), expense.Amount);
             Assert.AreEqual(this.msgFactory.Date, expense.Date.ToString("dd.MM.yyyy"));
-            Assert.AreEqual(this.msgFactory.Location.RemoveRepeatingSpaces(), expense.Details);
+            Assert.AreEqual(this.msgFactory.Location.RemoveRepeatingSpaces() + "_SDFSGDG8488TRSDRREE", expense.Details);
         }
     }
 }

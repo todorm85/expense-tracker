@@ -64,7 +64,7 @@ namespace ExpenseTracker.Tests.Int
             var expense1 = expenses.First();
             Assert.AreEqual(55.35M, expense1.Amount);
             Assert.AreEqual("25.06.2006", expense1.Date.ToString("dd.MM.yyyy"));
-            Assert.AreEqual("Bar", expense1.Details);
+            Assert.AreEqual("Bar_SDFSGDG8488TRSDRREE", expense1.Details);
             Assert.AreEqual(this.mailClient.MockedMessages.Count, 0);
         }
 
@@ -74,7 +74,7 @@ namespace ExpenseTracker.Tests.Int
             this.mailClient.MockedMessages.Add(this.allianz.GetValidMessage("25.06.2006", "55.35", "Bar"));
             this.mailClient.MockedMessages.Add(this.rai.GetValidMessage("26.06.2007", "65.35", "Bar2"));
             this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skip);
-            var expenses = this.expensesService.GetAll();
+            var expenses = this.expensesService.GetAll().OrderBy(x => x.Amount);
             Assert.AreEqual(2, expenses.Count());
             var expense1 = expenses.First();
             var expense2 = expenses.Skip(1).Take(1).First();
@@ -82,7 +82,7 @@ namespace ExpenseTracker.Tests.Int
             Assert.AreEqual(65.35M, expense2.Amount);
             Assert.AreEqual("25.06.2006", expense1.Date.ToString("dd.MM.yyyy"));
             Assert.AreEqual("26.06.2007", expense2.Date.ToString("dd.MM.yyyy"));
-            Assert.AreEqual("Bar", expense1.Details);
+            Assert.AreEqual("Bar_SDFSGDG8488TRSDRREE", expense1.Details);
             Assert.AreEqual("Bar2", expense2.Details);
             Assert.AreEqual(this.mailClient.MockedMessages.Count, 0);
         }
@@ -99,7 +99,7 @@ namespace ExpenseTracker.Tests.Int
             var expense1 = expenses.First();
             Assert.AreEqual(55.35M, expense1.Amount);
             Assert.AreEqual("25.06.2006", expense1.Date.ToString("dd.MM.yyyy"));
-            Assert.AreEqual("Bar", expense1.Details);
+            Assert.AreEqual("Bar_SDFSGDG8488TRSDRREE", expense1.Details);
             Assert.AreEqual(this.mailClient.MockedMessages.Count, 2);
             foreach (var msg in this.mailClient.MockedMessages)
             {
@@ -118,7 +118,7 @@ namespace ExpenseTracker.Tests.Int
             var expense1 = expenses.First();
             Assert.AreEqual(55.35M, expense1.Amount);
             Assert.AreEqual("25.06.2006", expense1.Date.ToString("dd.MM.yyyy"));
-            Assert.AreEqual("Bar", expense1.Details);
+            Assert.AreEqual("Bar_SDFSGDG8488TRSDRREE", expense1.Details);
             Assert.AreEqual(this.mailClient.MockedMessages.Count, 1);
             foreach (var msg in this.mailClient.MockedMessages)
             {
@@ -137,7 +137,7 @@ namespace ExpenseTracker.Tests.Int
             this.mailClient.MockedMessages.Add(this.allianz.GetValidMessage("26.06.2008", "165.35", "Bar3"));
             this.mailClient.MockedMessages.Add(this.rai.GetValidMessage("26.06.2009", "265.35", "Bar4"));
             this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skip);
-            var expenses = this.expensesService.GetAll();
+            var expenses = this.expensesService.GetAll().OrderBy(x => x.Amount);
             Assert.AreEqual(4, expenses.Count());
             var expense1 = expenses.First();
             var expense2 = expenses.Skip(1).Take(1).First();
@@ -151,9 +151,9 @@ namespace ExpenseTracker.Tests.Int
             Assert.AreEqual("26.06.2007", expense2.Date.ToString("dd.MM.yyyy"));
             Assert.AreEqual("26.06.2008", expense3.Date.ToString("dd.MM.yyyy"));
             Assert.AreEqual("26.06.2009", expense4.Date.ToString("dd.MM.yyyy"));
-            Assert.AreEqual("Bar", expense1.Details);
+            Assert.AreEqual("Bar_SDFSGDG8488TRSDRREE", expense1.Details);
             Assert.AreEqual("Bar2", expense2.Details);
-            Assert.AreEqual("Bar3", expense3.Details);
+            Assert.AreEqual("Bar3_SDFSGDG8488TRSDRREE", expense3.Details);
             Assert.AreEqual("Bar4", expense4.Details);
             Assert.AreEqual(this.mailClient.MockedMessages.Count, 3);
             foreach (var msg in this.mailClient.MockedMessages)

@@ -16,16 +16,21 @@ namespace ExpenseTracker.Allianz
             if (!IsSuccessOperationMessage(message))
                 return null;
             Transaction result = new Transaction();
+            var tId = message.Subject.Split('#')[1].TrimEnd(')');
+            result.TransactionId = tId;
             var title = string.Empty;
+            var accountNumber = string.Empty;
+            string reason = string.Empty;
+            string actor = string.Empty;
             using (var html = new StringReader(message.Body))
             {
-                string reason = string.Empty;
-                string actor = string.Empty;
                 var line = html.ReadLine();
                 while (line != null)
                 {
                     if (line.Contains("<title>"))
                         title = ExtractInnerText(line);
+                    if (line.Contains(">Сметка<"))
+                        accountNumber = ExtractInnerText(html.ReadLine());
                     if (line.Contains(">Дата<"))
                         result.Date = this.GetDate(html);
                     if (line.Contains(">Основание<"))
@@ -34,19 +39,23 @@ namespace ExpenseTracker.Allianz
                         actor = this.GetSource(html);
                     if (line.Contains(">Сума<"))
                         result.Amount = this.GetAmount(html);
-
                     line = html.ReadLine();
                 }
-
-                reason = string.IsNullOrWhiteSpace(reason) ? string.Empty : $"_{reason}";
-                result.Details = actor + reason;
             }
 
             result.Type = IsIncome(message) ? TransactionType.Income : TransactionType.Expense;
-            if (string.IsNullOrEmpty(result.Details))
-                result.Details = title;
+            SetDetails(result, title, accountNumber, reason, actor);
             result.Source = "allianz_mail";
             return result;
+        }
+
+        private void SetDetails(Transaction result, string title, string accountNumber, string reason, string actor)
+        {
+            reason = string.IsNullOrWhiteSpace(reason) ? string.Empty : $"_{reason}";
+            result.Details = actor + reason;
+            if (string.IsNullOrEmpty(result.Details))
+                result.Details = title;
+            result.Details = result.Details + $"_{accountNumber}";
         }
 
         private bool IsSuccessOperationMessage(ExpenseMessage message)

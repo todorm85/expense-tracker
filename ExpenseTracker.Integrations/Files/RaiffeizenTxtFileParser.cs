@@ -21,21 +21,29 @@ namespace ExpenseTracker.Allianz
 
             foreach (XmlNode entry in entries)
             {
-                var movementDetails = entry.SelectSingleNode("d3p1:AccountCardMovementDetails", m);
                 var typeRaw = entry.SelectSingleNode("d3p1:MovementType", m).InnerText;
                 var type = typeRaw == "Debit" ? TransactionType.Expense : TransactionType.Income;
                 var amount = decimal.Parse(entry.SelectSingleNode("d3p1:Amount", m).InnerText);
                 var t = new Transaction() { Amount = amount, Type = type };
-                if (movementDetails.InnerXml != string.Empty)
+                var cardMovementDetails = entry.SelectSingleNode("d3p1:AccountCardMovementDetails", m);
+                var documentMovementDetails = entry.SelectSingleNode("d3p1:MovementDocument", m);
+                if (cardMovementDetails.InnerXml != string.Empty)
                 {
-                    var rawDate = movementDetails.SelectSingleNode("d3p1:PostDate", m).InnerText;
-                    t.Details = movementDetails.SelectSingleNode("d3p1:Description", m).InnerText;
-                    t.TransactionId = movementDetails.SelectSingleNode("d3p1:DRN", m).InnerText;
+                    var rawDate = cardMovementDetails.SelectSingleNode("d3p1:PostDate", m).InnerText;
+                    t.Details = cardMovementDetails.SelectSingleNode("d3p1:Description", m).InnerText;
+                    t.TransactionId = cardMovementDetails.SelectSingleNode("d3p1:DRN", m).InnerText;
+                    t.Date = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
+                }
+                else if (documentMovementDetails.InnerXml != string.Empty)
+                {
+                    var rawDate = documentMovementDetails.SelectSingleNode("d3p1:PaymentDate", m).InnerText;
+                    t.Details = documentMovementDetails.SelectSingleNode("d3p1:Description", m).InnerText;
+                    t.TransactionId = documentMovementDetails.SelectSingleNode("d3p1:DocumentReference", m).InnerText;
                     t.Date = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
                 }
                 else
                 {
-                    var rawDate = entry.SelectSingleNode("d3p1:PaymentDate", m).InnerText;
+                    var rawDate = entry.SelectSingleNode("d3p1:ValueDate", m).InnerText;
                     t.Details = entry.SelectSingleNode("d3p1:Narrative", m).InnerText;
                     t.Date = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
                 }

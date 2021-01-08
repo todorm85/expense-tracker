@@ -21,7 +21,7 @@ namespace ExpenseTracker.Tests.Common
             return new ExpenseMessage()
             {
                 Body = this.GetTestMessageBody(),
-                Subject = "Движение по сметка: 24BUIN95611000591258",
+                Subject = $"Движение по сметка: 24BUIN95611000591258 (#{Guid.NewGuid().ToString().Substring(0, 10)})",
                 EmailDate = DateTime.Now
             };
         }

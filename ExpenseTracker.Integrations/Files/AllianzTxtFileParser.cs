@@ -21,12 +21,14 @@ namespace ExpenseTracker.Allianz
                 while (!string.IsNullOrWhiteSpace(line))
                 {
                     var fgs = line.Split('|');
+                    var reference = fgs[1];
                     var amount = decimal.Parse(fgs[2]);
                     var type = fgs[3] == "D" ? TransactionType.Expense : TransactionType.Income;
                     var details = $"{fgs[4]} {fgs[5]} {fgs[6]} {fgs[7]} {fgs[8]}".RemoveRepeatingSpaces();
                     var parsedDate = ParseDate(details, fgs[0]);
                     var t = new Transaction()
                     {
+                        TransactionId = reference + "_" + amount,
                         Amount = amount,
                         Date = parsedDate,
                         Details = details,
