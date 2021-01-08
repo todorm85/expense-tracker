@@ -28,7 +28,7 @@ namespace ExpenseTracker.Allianz
                     var parsedDate = ParseDate(details, fgs[0]);
                     var t = new Transaction()
                     {
-                        TransactionId = reference + "_" + amount,
+                        TransactionId = reference + "_" + amount.ToString("F2"),
                         Amount = amount,
                         Date = parsedDate,
                         Details = details,
