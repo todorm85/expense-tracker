@@ -135,6 +135,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 x.OrderCategories();
                 foreach (var category in x)
                 {
+                    category.OrderTransactions();
                     var categoryKey = GetCategoryKey(category.CategoryName);
                     if (!this.AverageAndTotalsForCategory.ContainsKey(categoryKey))
                         this.AverageAndTotalsForCategory.Add(categoryKey, new decimal[] { 0, 0 });
@@ -208,6 +209,11 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public bool Remove(Transaction item)
         {
             return this.TransactionsList.Transactions.Remove(new TransactionModel(item));
+        }
+
+        internal void OrderTransactions()
+        {
+            this.TransactionsList.Transactions = this.TransactionsList.Transactions.OrderByDescending(x => x.Amount).ToList();
         }
     }
 }
