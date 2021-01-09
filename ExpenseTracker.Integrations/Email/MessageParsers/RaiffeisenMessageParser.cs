@@ -16,10 +16,11 @@ namespace ExpenseTracker.Allianz
             if (IsPurchaseMessage(expenseMessages))
             {
                 t = new Transaction();
-                var rx = new Regex(@"Bihme iskali da Vi uvedomim za POKUPKA za (?<amount>[\d\.]+) BGN.+? pri (?<details>.+?) na (?<date>[\d\.]+?) .*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                var rx = new Regex(@"Bihme iskali da Vi uvedomim za (?<operation>(POKUPKA|TEGLENE NA ATM)) za (?<amount>[\d\.]+) BGN.+? pri (?<details>.+?) na (?<date>[\d\.]+?) .*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
                 var matches = rx.Matches(lines);
+                var op = matches[0].Groups["operation"].Value.Trim();
                 t.Amount = decimal.Parse(matches[0].Groups["amount"].Value.Trim());
-                t.Details = matches[0].Groups["details"].Value.Trim();
+                t.Details = op + " " + matches[0].Groups["details"].Value.Trim();
                 t.Date = DateTime.ParseExact(matches[0].Groups["date"].Value.Trim(), "dd.MM.yyyy", CultureInfo.InvariantCulture);
                 t.Type = TransactionType.Expense;
                 t.Source = "reifeizen_mail";

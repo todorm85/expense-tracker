@@ -83,7 +83,7 @@ namespace ExpenseTracker.Tests.Int
             Assert.AreEqual("25.06.2006", expense1.Date.ToString("dd.MM.yyyy"));
             Assert.AreEqual("26.06.2007", expense2.Date.ToString("dd.MM.yyyy"));
             Assert.AreEqual("Bar_SDFSGDG8488TRSDRREE", expense1.Details);
-            Assert.AreEqual("Bar2", expense2.Details);
+            Assert.AreEqual("POKUPKA Bar2", expense2.Details);
             Assert.AreEqual(this.mailClient.MockedMessages.Count, 0);
         }
 
@@ -152,9 +152,9 @@ namespace ExpenseTracker.Tests.Int
             Assert.AreEqual("26.06.2008", expense3.Date.ToString("dd.MM.yyyy"));
             Assert.AreEqual("26.06.2009", expense4.Date.ToString("dd.MM.yyyy"));
             Assert.AreEqual("Bar_SDFSGDG8488TRSDRREE", expense1.Details);
-            Assert.AreEqual("Bar2", expense2.Details);
+            Assert.AreEqual("POKUPKA Bar2", expense2.Details);
             Assert.AreEqual("Bar3_SDFSGDG8488TRSDRREE", expense3.Details);
-            Assert.AreEqual("Bar4", expense4.Details);
+            Assert.AreEqual("POKUPKA Bar4", expense4.Details);
             Assert.AreEqual(this.mailClient.MockedMessages.Count, 3);
             foreach (var msg in this.mailClient.MockedMessages)
             {

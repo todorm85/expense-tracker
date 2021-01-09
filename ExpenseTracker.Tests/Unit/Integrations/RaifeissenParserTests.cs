@@ -27,7 +27,7 @@ Sofia 1407,
 070010000(VIVACOM)  1721(A1 i Telenor)"
             });
             Assert.AreEqual(6.30M, result.Amount);
-            Assert.AreEqual("EDDYS na BAKE", result.Details);
+            Assert.AreEqual("POKUPKA EDDYS na BAKE", result.Details);
             Assert.AreEqual(new DateTime(2020, 1, 28), result.Date);
         }
     }
