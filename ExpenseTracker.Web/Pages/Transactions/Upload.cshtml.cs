@@ -34,19 +34,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
         [BindProperty]
         public IList<IFormFile> Files { get; set; }
 
-        [BindProperty(SupportsGet = true)]
-        public bool ShowMessage { get; set; }
-
         public TransactionsListModel SkippedTransactionsList { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public bool Success { get; set; }
 
         public TransactionsListModel TransactionsList { get; set; }
 
         public void OnGet()
         {
-            this.CreateTransaction = new Transaction() { Date = DateTime.Now };
+            this.CreateTransaction = new Transaction() { Date = DateTime.Now, Type = TransactionType.Expense };
         }
 
         public IActionResult OnPostCreate()
@@ -66,9 +60,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
             AddJustAdded(new Transaction[] { dbModel });
             AddSkipped(skipped);
-            this.CreateTransaction = new Transaction() { Date = DateTime.Now };
-            Success = true;
-            ShowMessage = true;
+            this.CreateTransaction = new Transaction() { Date = DateTime.Now, Type = TransactionType.Expense };
             return Page();
         }
 
@@ -111,8 +103,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
                 AddJustAdded(expenses.Except(skipped.Select(x => x.Transaction)));
                 AddSkipped(skipped);
-                Success = true;
-                ShowMessage = true;
                 return Page();
             }
             catch (Exception)
