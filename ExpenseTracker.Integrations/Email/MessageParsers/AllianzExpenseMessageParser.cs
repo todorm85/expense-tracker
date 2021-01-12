@@ -115,7 +115,8 @@ namespace ExpenseTracker.Allianz
         {
             return message.Body.Contains("Получен кредитен превод-IB") ||
                 message.Body.Contains("Вноска по сметка") ||
-                message.Body.Contains("Възстановени средства");
+                message.Body.Contains("Възстановени средства") ||
+                message.Body.Contains("Получен превод");
         }
 
         private void SkipLines(StringReader reader, int count)
