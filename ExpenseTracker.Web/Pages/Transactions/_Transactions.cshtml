@@ -20,6 +20,7 @@
                 {
                     <th>Reason</th>
                 }
+                <th>Type</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -38,7 +39,6 @@
                 }
                 <td>
                     <input type="hidden" asp-for="@Model.Transactions[transx].TransactionId" />
-                    <input id="type_@t.TransactionId" type="hidden" value="@((int)Model.Transactions[transx].Type)" />
                     <input id="source_@t.TransactionId" type="hidden" value="@(Model.Transactions[transx].Source)" />
                     @{
                         var dateType = Model.ShowTime ? "datetime-local" : "date";
@@ -73,6 +73,9 @@
                         </div>
                     </td>
                 }
+                <td>
+                    <select id="type_@t.TransactionId" asp-for="Transactions[transx].Type" asp-items="Html.GetEnumSelectList<Core.Transactions.TransactionType>()"></select>
+                </td>
                 <td style="width:5%;">
                     <div style="display: @failedDisplay" class="failed_@t.TransactionId">
                         <button class="updateBtn mb-1" style="width:70px" type="button" formAction="/Transactions/Api/?handler=Create"

@@ -13,8 +13,8 @@
         public bool Process(Transaction tr)
         {
             var p = tr.GetType().GetProperty(Property);
-            var v = p.GetValue(tr).ToString();
-            if (Condition == RuleCondition.Contains && !string.IsNullOrWhiteSpace(ConditionValue) && v.Contains(ConditionValue))
+            var v = p.GetValue(tr)?.ToString();
+            if (v != null && Condition == RuleCondition.Contains && !string.IsNullOrWhiteSpace(ConditionValue) && v.Contains(ConditionValue))
             {
                 if (Action == RuleAction.Skip)
                     return false;

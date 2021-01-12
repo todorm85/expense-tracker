@@ -54,6 +54,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             dbModel.Amount = viewModel.Amount;
             dbModel.Date = viewModel.Date;
             dbModel.Category = viewModel.Category ?? "";
+            dbModel.Type = viewModel.Type;
             this.transactionsService.Update(new Transaction[] { dbModel });
             return new OkResult();
         }
