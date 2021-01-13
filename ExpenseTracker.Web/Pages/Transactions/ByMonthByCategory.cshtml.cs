@@ -89,7 +89,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.AverageAndTotalsForCategory = new Dictionary<string, decimal[]>();
             this.CategoriesForMonths = new List<CategoriesForMonthModel>();
             this.transactionsService = transactionsService;
-            this.Filters = new FiltersModel(initialMonthsBack);
+            this.Filters = new FiltersModel(initialMonthsBack) { HideSorting = true };
         }
 
         public IDictionary<string, decimal[]> AverageAndTotalsForCategory { get; set; }

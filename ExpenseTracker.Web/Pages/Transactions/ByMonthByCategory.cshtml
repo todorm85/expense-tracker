@@ -1,48 +1,56 @@
 ﻿@page
-@using ExpenseTracker.Core
 @model ExpenseTracker.Web.Pages.Transactions.TransactionsByMonthByCategoryModel
-@{
-    ViewData["Title"] = "Expenses by months by categories";
-}
 
 <div class="text-center">
-    <h1 class="display-4 mb-4">@ViewData["Title"]</h1>
     <form method="post">
+        <h5 class="row justify-content-center mt-1">
+            <span class="text-center d-inline-block">
+                <span class="d-inline-block w-100">Expense</span>
+                <span class="badge">@Model.TotalExpense.ToString("N0") / @Model.AverageExpense.ToString("N0")</span>
+            </span>
+            <span class="text-center d-inline-block">
+                <span class="d-inline-block w-100">Income</span>
+                <span class="badge">@Model.TotalIncome.ToString("N0") / @Model.AverageIncome.ToString("N0")</span>
+            </span>
+            @{ var avgBalClass = (Model.AverageBalance >= 0) ? "success" : "danger"; }
+            <span class="d-inline-block text-center">
+                <span class="d-inline-block w-100">Balance</span>
+                <span class="badge badge-@avgBalClass">@Model.Balance.ToString("N0") / @Model.AverageBalance.ToString("N0")</span>
+            </span>
+            <span class="d-inline-block text-center">
+                <span class="d-inline-block w-100"></span>
+                <span>(total / month avg)</span>
+            </span>
+        </h5>
         <partial name="_Filters" for="Filters" />
         @if (Model.CategoriesForMonths.Count > 0)
         {
             <div class="row">
+                <div class="d-inline-block p-2 m-1 bg-light border rounded">
+                    <span class="badge badge-secondary font-italic mr-1">category</span>
+                    <span class="font-italic">total</span> |
+                    <span class="text-secondary font-italic">month avg</span>
+                </div>
                 @foreach (var catAvg in Model.AverageAndTotalsForCategory.OrderByDescending(x => x.Value[1]))
                 {
+                    var catBalClass = (catAvg.Value[1] > 0) ? "success" : "danger";
+                    var catBalAvgClass = (catAvg.Value[0] > 0) ? "success" : "danger";
+
                     <div class="d-inline-block p-2 m-1 bg-light border rounded">
-                        <span class="badge badge-primary">@(string.IsNullOrEmpty(catAvg.Key) ? "Unspecified" : catAvg.Key) </span>
-                        <span class="badge badge-secondary"> @catAvg.Value[1].ToString("N0") </span> |
-                        <span class="text-secondary"> @catAvg.Value[0].ToString("N0") </span>
+                        <span class="badge badge-secondary mr-1">@(string.IsNullOrEmpty(catAvg.Key) ? "Unspecified" : catAvg.Key)</span>
+                        <span>@catAvg.Value[1].ToString("N0")</span> |
+                        <span class="text-secondary">@catAvg.Value[0].ToString("N0")</span>
                     </div>
                 }
             </div>
-
-            <h3 class="row text-left border-top mt-3">
-                <span class="d-inline-block mr-4">Total/Average</span>
-                <span class="text-right d-inline-block">
-                    <span class="badge badge-secondary">@Model.TotalExpense.ToString("N0") / @Model.AverageExpense.ToString("N0")</span>
-                </span>
-                <span class="text-center d-inline-block">
-                    <span class="badge">@Model.TotalIncome.ToString("N0") / @Model.AverageIncome.ToString("N0")</span>
-                </span>
-                @{ var avgBalClass = (Model.AverageBalance >= 0) ? "success" : "danger"; }
-                <span class="d-inline-block">
-                    <span class="badge badge-@avgBalClass">@Model.Balance.ToString("N0") / @Model.AverageBalance.ToString("N0")</span>
-                </span>
-            </h3>
 
             @for (int mi = 0; mi < Model.CategoriesForMonths.Count; mi++)
             {
                 var monthCategories = Model.CategoriesForMonths[mi];
                 <div class="row border border-primary alert-primary">
                     <div class="col text-left">
-                        <button class="btn btn-link" type="button" onclick="onToggleElement('@("month__" + monthCategories.Month.ToString("MM_yy"))')">
-                            <h4>@(monthCategories.Month.ToString("yyyy MMMM"))</h4>
+                        <button class="btn btn-link text-left" type="button" onclick="onToggleElement('@("month__" + monthCategories.Month.ToString("MM_yy"))')">
+                            <h4 style="min-width:10em">@(monthCategories.Month.ToString("yyyy MMMM"))</h4>
                         </button>
                         <h5 class="d-inline-block">
                             <partial name="_Summary" model="new decimal[] { monthCategories.TotalExpenses,monthCategories.TotalIncome,monthCategories.Balance }" />
@@ -59,15 +67,11 @@
                             var categoryTransactions = monthCategories[ci];
                             var currentCategoryKey = this.Model.GetCategoryKey(categoryTransactions.CategoryName);
                             var rowClass = categoryTransactions.IsNegativeBalance ? "" : "alert-success";
-                            <div class="row @rowClass">
-                                <div class="col-3">
-                                    <button class="btn btn-link text-dark" type="button" onclick="onToggleElement('@("category__" + monthCategories.Month.ToString("MM_yy__") + currentCategoryKey)')">
-                                        <h5>@(currentCategoryKey)</h5>
-                                    </button>
-                                </div>
-                                <div class="col-4 mt-1">
+                            <div class="row @rowClass ml-1">
+                                <a class="text-dark btn btn-link text-left" onclick="onToggleElement('@("category__" + monthCategories.Month.ToString("MM_yy__") + currentCategoryKey)')" style="font-size:large">
+                                    <span class="d-inline-block" style="min-width:5em">@currentCategoryKey</span>
                                     <partial name="_Summary" model="new decimal[] { categoryTransactions.TotalExpense,categoryTransactions.TotalIncome,categoryTransactions.Balance }" />
-                                </div>
+                                </a>
                             </div>
 
                             var categoryDisplay = "none";

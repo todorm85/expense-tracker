@@ -40,6 +40,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public DateTime DateTo { get; set; }
         public string Search { get; set; }
         public SortOptions SortBy { get; set; }
+        public bool HideSorting { get; set; }
 
         public IEnumerable<Transaction> GetTransactionsFiltered(ITransactionsService transactionsService)
         {

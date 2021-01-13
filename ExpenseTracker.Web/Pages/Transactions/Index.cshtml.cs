@@ -84,13 +84,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
             var all = new List<Transaction>();
             foreach (var t in TransactionsList.Transactions)
             {
-                var tdb = this.transactionsService.GetAll(x => x.TransactionId == t.TransactionId).FirstOrDefault();
-                if (tdb == null)
-                    continue;
-                all.Add(tdb);
+                this.transactionsService.RemoveById(t.TransactionId);
             }
 
-            this.transactionsService.RemoveById(all);
             this.OnGet();
         }
     }

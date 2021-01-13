@@ -39,7 +39,7 @@ namespace ExpenseTracker.Allianz
                     var rawDate = documentMovementDetails.SelectSingleNode("d3p1:PaymentDate", m).InnerText;
                     t.Details = documentMovementDetails.SelectSingleNode("d3p1:Description", m).InnerText;
                     t.TransactionId = documentMovementDetails.SelectSingleNode("d3p1:DocumentReference", m).InnerText;
-                    t.Date = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
+                    t.Date = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss.fff", CultureInfo.InvariantCulture);
                 }
                 else
                 {
