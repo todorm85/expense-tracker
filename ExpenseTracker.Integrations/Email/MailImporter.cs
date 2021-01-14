@@ -62,5 +62,10 @@ namespace ExpenseTracker.Allianz.Gmail
                 added = transactions.Except(skippedFromTry.Select(x => x.Transaction));
             }
         }
+
+        public bool TestConnection()
+        {
+            return this.mailClient.TestConnection();
+        }
     }
 }

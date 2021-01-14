@@ -1,5 +1,6 @@
 using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
+using ExpenseTracker.App;
 using ExpenseTracker.Core.Transactions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,14 +19,20 @@ namespace ExpenseTracker.Web.Pages.Transactions
         private readonly RaiffeizenTxtFileParser rai;
         private readonly ITransactionsService transactionsService;
 
-        public UploadModel(ITransactionsService transactionsService, AllianzTxtFileParser allianz, RaiffeizenTxtFileParser rai, MailImporter importer)
+        public UploadModel(
+            ITransactionsService transactionsService,
+            AllianzTxtFileParser allianz,
+            RaiffeizenTxtFileParser rai,
+            MailImporter importer,
+            Config config)
         {
             this.transactionsService = transactionsService;
             this.allianz = allianz;
             this.rai = rai;
             this.importer = importer;
-            this.TransactionsList = new TransactionsListModel();
+            this.TransactionsList = new TransactionsListModel() { ShowSource = true };
             this.SkippedTransactionsList = new TransactionsListModel() { ShowSource = true, ShowTime = true };
+            this.HasMail = importer.TestConnection();
         }
 
         [BindProperty]
@@ -35,7 +42,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IList<IFormFile> Files { get; set; }
 
         public TransactionsListModel SkippedTransactionsList { get; set; }
-
+        public bool HasMail { get; private set; }
         public TransactionsListModel TransactionsList { get; set; }
 
         public void OnGet()

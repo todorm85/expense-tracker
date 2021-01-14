@@ -11,5 +11,7 @@ namespace ExpenseTracker.Allianz.Gmail
         ExpenseMessage GetMessage(int i);
 
         void MarkRead(int msgIdx);
+
+        bool TestConnection();
     }
 }

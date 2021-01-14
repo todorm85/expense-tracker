@@ -10,17 +10,16 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Transactions</h1>
-    <div class="mb-4">
-        <span class="badge">Spent: @Model.Expenses.ToString("N0")</span> |
-        <span class="badge">Income: @Model.Income.ToString("N0")</span> |
+    <div class="mb-4" style="font-size:2em">
+        <span class="badge">Spent: @Model.Expenses.ToString("N0")</span>
+        <span class="badge">Income: @Model.Income.ToString("N0")</span>
         <span class="badge badge-@savingsClassValue">Balance: @Model.Saved.ToString("N0")</span>
     </div>
     <form method="post" onkeydown="return event.key != 'Enter';">
-        <div class="mb-4">
-            <button type="submit" asp-page-handler="DeleteFiltered">Delete Filtered</button>
-        </div>
         <partial name="_Filters" for="Filters" />
         <partial name="_Transactions" for="TransactionsList" />
+        <div class="text-right mb-2">
+            <button type="submit" asp-page-handler="DeleteFiltered">Delete Filtered</button>
+        </div>
     </form>
 </div>

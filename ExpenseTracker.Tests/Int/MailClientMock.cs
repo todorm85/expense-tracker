@@ -32,5 +32,10 @@ namespace ExpenseTracker.Tests.Int
         {
             throw new System.NotImplementedException();
         }
+
+        public bool TestConnection()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
