@@ -79,8 +79,8 @@
                 <td style="width:5%;">
                     <div style="display: @failedDisplay" class="failed_@t.TransactionId">
                         <button class="updateBtn mb-1" style="width:70px" type="button" formAction="/Transactions/Api/?handler=Create"
-                                onclick="onTransactionUpdate(this, '@t.TransactionId', true)">
-                            create
+                                onclick="onTransactionUpdate(this, '@Guid.NewGuid().ToString()', true)">
+                            force create
                         </button>
                     </div>
                     <div style="display: @addedDisplay" class="added_@t.TransactionId">
