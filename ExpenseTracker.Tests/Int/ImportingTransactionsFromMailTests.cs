@@ -91,6 +91,7 @@ namespace ExpenseTracker.Tests.Int
         public void ImportsCorrectlyWhenValidInMiddle()
         {
             this.mailClient.MockedMessages.Add(this.rai.GetInValidMessage("25.06.2006", "55.35", "InvalidTest"));
+            this.mailClient.MockedMessages.Add(this.rai.GetUnparsableMessage());
             this.mailClient.MockedMessages.Add(this.allianz.GetValidMessage("25.06.2006", "55.35", "Bar"));
             this.mailClient.MockedMessages.Add(this.rai.GetInValidMessage("25.06.2006", "55.35", "InvalidTest2"));
             this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skip);
@@ -100,7 +101,7 @@ namespace ExpenseTracker.Tests.Int
             Assert.AreEqual(55.35M, expense1.Amount);
             Assert.AreEqual("25.06.2006", expense1.Date.ToString("dd.MM.yyyy"));
             Assert.AreEqual("Bar_SDFSGDG8488TRSDRREE", expense1.Details);
-            Assert.AreEqual(this.mailClient.MockedMessages.Count, 2);
+            Assert.AreEqual(this.mailClient.MockedMessages.Count, 3);
             foreach (var msg in this.mailClient.MockedMessages)
             {
                 Assert.IsTrue(msg.Body.Contains("InvalidTest"));

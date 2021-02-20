@@ -27,7 +27,32 @@ namespace ExpenseTracker.Allianz.Gmail
         {
             added = Enumerable.Empty<Transaction>();
             skipped = Enumerable.Empty<TransactionInsertResult>();
-            var transactions = new List<Transaction>();
+            var transactions = TryParseMails();
+            if (transactions.Count > 0)
+            {
+                this.transactionsService.TryAdd(transactions, out IEnumerable<TransactionInsertResult> skippedFromTry);
+                skipped = skippedFromTry;
+                added = transactions.Except(skippedFromTry.Select(x => x.Transaction));
+            }
+        }
+
+        private List<Transaction> TryParseMails()
+        {
+            List<Transaction> transactions = new List<Transaction>();
+            try
+            {
+                ParseMails(transactions);
+            }
+            catch (Exception)
+            {
+                // TODO: perhaps display a message that error has occured or log somewhere
+            }
+
+            return transactions;
+        }
+
+        private void ParseMails(List<Transaction> transactions)
+        {
             int msgIdx = 0;
             int totalMsgsCount = this.mailClient.Count;
             while (msgIdx < totalMsgsCount)
@@ -36,7 +61,15 @@ namespace ExpenseTracker.Allianz.Gmail
                 Transaction t = null;
                 foreach (var p in this.messageParsers)
                 {
-                    t = p.Parse(expenseMessage);
+                    try
+                    {
+                        t = p.Parse(expenseMessage);
+                    }
+                    catch (Exception)
+                    {
+                        t = null;
+                    }
+
                     if (t != null)
                     {
                         break;
@@ -53,13 +86,6 @@ namespace ExpenseTracker.Allianz.Gmail
                 {
                     msgIdx++;
                 }
-            }
-
-            if (transactions.Count > 0)
-            {
-                this.transactionsService.TryAdd(transactions, out IEnumerable<TransactionInsertResult> skippedFromTry);
-                skipped = skippedFromTry;
-                added = transactions.Except(skippedFromTry.Select(x => x.Transaction));
             }
         }
 

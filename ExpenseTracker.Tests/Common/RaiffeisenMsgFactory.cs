@@ -24,6 +24,13 @@ namespace ExpenseTracker.Tests.Common
             return GetExpenseMessage("neuspeshen opit za POKUPKA");
         }
 
+        public virtual ExpenseMessage GetUnparsableMessage()
+        {
+            var message = GetExpenseMessage("POKUPKA");
+            message.Body = message.Body.Replace(" BGN ", " UEF ");
+            return message;
+        }
+
         public override ExpenseMessage GetValidMessage()
         {
             return GetExpenseMessage("POKUPKA");

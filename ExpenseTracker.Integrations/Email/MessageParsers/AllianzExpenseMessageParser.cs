@@ -46,6 +46,8 @@ namespace ExpenseTracker.Allianz
             result.Type = IsIncome(message) ? TransactionType.Income : TransactionType.Expense;
             SetDetails(result, title, accountNumber, reason, actor);
             result.Source = "allianz_mail";
+            if (message.Body.RemoveRepeatingSpaces().Contains("Такса Нар.превод"))
+                result.Details = "Такса Нар.превод";
             return result;
         }
 
@@ -55,6 +57,7 @@ namespace ExpenseTracker.Allianz
             result.Details = actor + reason;
             if (string.IsNullOrEmpty(result.Details))
                 result.Details = title;
+
             result.Details = result.Details + $"_{accountNumber}";
         }
 

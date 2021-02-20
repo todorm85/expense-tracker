@@ -5,6 +5,10 @@
     <UserSecretsId>6522e4b8-76ed-48c5-8cd5-555be5f03a0e</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="expenses - Copy.db" />
     <None Remove="expenses.db" />
