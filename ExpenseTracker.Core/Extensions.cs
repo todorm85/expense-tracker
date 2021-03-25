@@ -16,6 +16,11 @@ namespace ExpenseTracker.Core
             return new DateTime(date.Year, date.Month, 1);
         }
 
+        public static DateTime ToDayStart(this DateTime date)
+        {
+            return new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, 0);
+        }
+
         public static string RemoveRepeatingSpaces(this string s)
         {
             while (true)

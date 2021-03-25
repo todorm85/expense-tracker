@@ -15,7 +15,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public FiltersModel(int initialMonthsBack)
         {
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
             if (DateTo == default)
             {
                 this.DateTo = new DateTime(now.Year, now.Month, now.Day);
@@ -23,18 +23,19 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
             if (DateFrom == default)
             {
-                this.DateFrom = DateTime.Now.AddMonths(-initialMonthsBack).ToMonthStart();
+                this.DateFrom = DateTime.UtcNow.AddMonths(-initialMonthsBack).ToMonthStart();
             }
 
             this.Categories = new List<SelectListItem>()
             {
-                new SelectListItem("Select Category", ""),
                 new SelectListItem("Uncategorised", "-")
             };
+
+            this.SelectedCategories = new List<string>();
         }
 
         public List<SelectListItem> Categories { get; set; }
-        public string CategoryFilter { get; set; }
+        public List<string> SelectedCategories { get; set; }
         public DateTime DateFrom { get; set; }
 
         public DateTime DateTo { get; set; }
@@ -51,8 +52,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                                 !x.Ignored);
 
             this.Categories = this.Categories.Union(
-                transactions
-                    .Where(x => !string.IsNullOrEmpty(x.Category))
+                transactionsService.GetAll(x => !string.IsNullOrEmpty(x.Category))
                     .Select(x => x.Category)
                     .OrderBy(x => x)
                     .Distinct()
@@ -63,24 +63,26 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private bool ApplyCategoriesFilter(Transaction x)
         {
-            if (!string.IsNullOrWhiteSpace(CategoryFilter))
+            if (SelectedCategories.Count > 0)
             {
-                if (CategoryFilter == "-")
+                foreach (var cat in SelectedCategories)
                 {
-                    return string.IsNullOrWhiteSpace(x.Category);
+                    if (cat == "-" && string.IsNullOrWhiteSpace(x.Category) ||
+                        x.Category == cat)
+                        return true;
                 }
-                else
-                {
-                    return x.Category == CategoryFilter;
-                }
-            }
 
-            return true;
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         private bool ApplyDateFilter(Transaction x)
         {
-            return x.Date >= DateFrom && x.Date <= DateTo.AddDays(1);
+            return x.Date >= DateFrom.ToDayStart() && x.Date < DateTo.AddDays(1).ToDayStart();
         }
 
         private bool ApplySearchFilter(Transaction x)

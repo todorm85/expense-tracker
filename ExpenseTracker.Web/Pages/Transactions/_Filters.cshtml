@@ -1,14 +1,40 @@
 ﻿@model ExpenseTracker.Web.Pages.Transactions.FiltersModel
+    <style>
+        select[multiple] {
+            overflow: auto;
+            padding: 0;
+            padding-left: 1px;
+            border: none;
+            width: auto;
+            white-space: normal;
+            margin-top: 10px;
+        }
+
+            select[multiple] option {
+                margin: 5px;
+                border: 1px solid #000;
+                background-color: white;
+                margin-left: -1px;
+                display: inline-block;
+                border-radius: 5px;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+    </style>
 <div class="border mb-3 rounded">
     <div class="mb-3 mt-3">
-        From <input type="date" asp-for="DateFrom" class="rounded" />
-        To <input type="date" asp-for="DateTo" class="rounded" />
-        @if (!Model.HideSorting)
-        {
-            <span class="ml-2">Sort </span><select asp-for="SortBy" asp-items="Html.GetEnumSelectList<ExpenseTracker.Web.Pages.Transactions.SortOptions>()" class="rounded"></select>
-        }
-        <input type="text" asp-for="Search" class="rounded ml-2" placeholder="Search" />
-        <select asp-for="CategoryFilter" class="rounded ml-2" asp-items="Model.Categories"></select>
-        <button type="submit" class="ml-4"> Apply </button>
+        <div>
+            From <input type="date" asp-for="DateFrom" class="rounded" />
+            To <input type="date" asp-for="DateTo" class="rounded" />
+            @if (!Model.HideSorting)
+            {
+                <span class="ml-2">Sort </span><select asp-for="SortBy" asp-items="Html.GetEnumSelectList<ExpenseTracker.Web.Pages.Transactions.SortOptions>()" class="rounded"></select>
+            }
+            <input type="text" asp-for="Search" class="rounded ml-2" placeholder="Search" />
+            <button type="submit" class="ml-4"> Apply </button>
+        </div>
+        <div>
+            <select multiple="multiple" asp-for="SelectedCategories" class="rounded ml-2" asp-items="Model.Categories"></select>
+        </div>
     </div>
 </div>
