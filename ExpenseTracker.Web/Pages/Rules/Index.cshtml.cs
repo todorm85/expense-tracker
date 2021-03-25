@@ -39,6 +39,11 @@ namespace ExpenseTracker.Web.Pages.Rules
             this.Filter = this.Filter ?? string.Empty;
         }
 
+        public IActionResult OnPost()
+        {
+            return RedirectToPage(new { CurrentPage, Filter });
+        }
+
         public IActionResult OnPostDelete(int id)
         {
             this.rulesService.RemoveById(id);

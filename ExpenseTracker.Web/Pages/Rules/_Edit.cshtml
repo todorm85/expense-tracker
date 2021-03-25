@@ -1,6 +1,13 @@
 ﻿@model Core.Transactions.Rules.Rule
 @{
-    var allRouteData = ViewData["RouteValues"] as Dictionary<string, string>;
+    var allRouteDataOriginal = ViewData["RouteValues"] as Dictionary<string, string>;
+    var allRouteData = new Dictionary<string, string>();
+    foreach (var kv in allRouteDataOriginal)
+    {
+        allRouteData.Add(kv.Key, kv.Value);
+    }
+
+    allRouteData.Add("id", Model.Id.ToString());
     var id = Model.Id;
 }
 <input type="hidden" asp-for="Id" />
@@ -39,7 +46,7 @@
     </div>
 </div>
 <div class="form-group">
-    <button class="btn btn-primary" type="submit" asp-page-handler="save" asp-route-id="@id" asp-all-route-data="@allRouteData">Save</button>
+    <button class="btn btn-primary" type="submit" asp-page-handler="save" asp-all-route-data="@allRouteData">Save</button>
     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
 </div>
 <script>
