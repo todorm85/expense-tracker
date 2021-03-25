@@ -89,7 +89,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.AverageAndTotalsForCategory = new Dictionary<string, decimal[]>();
             this.CategoriesForMonths = new List<CategoriesForMonthModel>();
             this.transactionsService = transactionsService;
-            this.Filters = new FiltersModel(initialMonthsBack) { HideSorting = true };
+            this.Filters = new FiltersModel(initialMonthsBack, transactionsService) { HideSorting = true };
         }
 
         public IDictionary<string, decimal[]> AverageAndTotalsForCategory { get; set; }
@@ -114,7 +114,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public void OnGet()
         {
             this.ModelState.Clear();
-            var all = this.Filters.GetTransactionsFiltered(this.transactionsService);
+            var all = this.Filters.GetTransactionsFiltered(transactionsService);
             if (all.Count() == 0)
                 return;
 

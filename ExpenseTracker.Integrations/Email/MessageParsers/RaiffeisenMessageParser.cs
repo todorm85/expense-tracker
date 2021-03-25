@@ -16,7 +16,7 @@ namespace ExpenseTracker.Allianz
             if (IsPurchaseMessage(expenseMessages))
             {
                 t = new Transaction();
-                var rx = new Regex(@"Bihme iskali da Vi uvedomim za (?<operation>(POKUPKA|TEGLENE NA ATM)) za (?<amount>[\d\.]+) BGN.+? pri (?<details>.+?) na (?<date>[\d\.]+?) .*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                var rx = new Regex(@"Bihme iskali da Vi uvedomim za (?<operation>(POKUPKA|TEGLENE NA ATM)) (za){0,1} (?<amount>[\d\.]+) BGN.+? pri (?<details>.+?) na (?<date>[\d\.]+?) .*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
                 var matches = rx.Matches(lines);
                 var op = matches[0].Groups["operation"].Value.Trim();
                 t.Amount = decimal.Parse(matches[0].Groups["amount"].Value.Trim());

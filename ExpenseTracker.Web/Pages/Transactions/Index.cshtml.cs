@@ -21,7 +21,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IndexModel(ITransactionsService transactions)
         {
             this.transactionsService = transactions;
-            this.Filters = new FiltersModel(initialMonthsBack);
+            this.Filters = new FiltersModel(initialMonthsBack, transactionsService);
             this.TransactionsList = new TransactionsListModel();
         }
 
@@ -39,7 +39,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public void OnGet()
         {
             this.ModelState.Clear();
-            IEnumerable<Transaction> transactions = this.Filters.GetTransactionsFiltered(this.transactionsService);
+            IEnumerable<Transaction> transactions = this.Filters.GetTransactionsFiltered(transactionsService);
             IEnumerable<Transaction> sorted = new List<Transaction>();
             switch (this.Filters.SortBy)
             {

@@ -9,11 +9,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class FiltersModel
     {
-        public FiltersModel() : this(0)
-        {
-        }
+        private const string UncategorisedOptionValue = "-";
 
-        public FiltersModel(int initialMonthsBack)
+        // for ModelBinding
+        public FiltersModel() : this(0, null)
+        { }
+
+        public FiltersModel(int initialMonthsBack, ITransactionsService transactionsService)
         {
             var now = DateTime.UtcNow;
             if (DateTo == default)
@@ -28,10 +30,21 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
             this.Categories = new List<SelectListItem>()
             {
-                new SelectListItem("Uncategorised", "-")
+                new SelectListItem("uncategorised", UncategorisedOptionValue)
             };
 
-            this.SelectedCategories = new List<string>();
+            if (transactionsService != null)
+            {
+                // if not called by model binding preselect
+                var allCats = GetAllCategories(transactionsService);
+                this.SelectedCategories = allCats.Where(x => x != "exclude").ToList();
+                this.SelectedCategories.Add(UncategorisedOptionValue);
+            }
+            else
+            {
+                // called by model binding
+                this.SelectedCategories = new List<string>();
+            }
         }
 
         public List<SelectListItem> Categories { get; set; }
@@ -50,15 +63,18 @@ namespace ExpenseTracker.Web.Pages.Transactions
                                 ApplyCategoriesFilter(x) &&
                                 ApplySearchFilter(x) &&
                                 !x.Ignored);
+            var allCats = GetAllCategories(transactionsService);
 
-            this.Categories = this.Categories.Union(
-                transactionsService.GetAll(x => !string.IsNullOrEmpty(x.Category))
-                    .Select(x => x.Category)
-                    .OrderBy(x => x)
-                    .Distinct()
-                    .Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
-
+            this.Categories = this.Categories.Union(allCats.Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
             return transactions;
+        }
+
+        private IEnumerable<string> GetAllCategories(ITransactionsService transactionsService)
+        {
+            return transactionsService.GetAll(x => !string.IsNullOrEmpty(x.Category))
+                               .Select(x => x.Category)
+                               .OrderBy(x => x)
+                               .Distinct();
         }
 
         private bool ApplyCategoriesFilter(Transaction x)
