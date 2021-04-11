@@ -57,7 +57,7 @@ Sofia 1407,
             var parser = new RaiffeisenMessageParser();
             var result = parser.Parse(new ExpenseMessage()
             {
-                Subject = "Notification from RBBBG",
+                Subject = "Notification CC RBB",
                 Body = @"Uvazhaemi g-ne/g-zho,
 Bihme iskali da Vi uvedomim za POKUPKA  96.73 BGN s Vashata  ****5806 v BGR pri SHELL PODUENE na 10.04.2021 13:55:32. Razpolagaema nalichnost po kartata 1113.36 BGN.
 S uvazhenie,
