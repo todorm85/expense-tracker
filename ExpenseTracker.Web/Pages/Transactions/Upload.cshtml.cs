@@ -2,6 +2,7 @@ using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.App;
 using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Integrations.Files;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -17,12 +18,14 @@ namespace ExpenseTracker.Web.Pages.Transactions
         private readonly AllianzTxtFileParser allianz;
         private readonly MailImporter importer;
         private readonly RaiffeizenTxtFileParser rai;
+        private readonly RevolutExcelParser revolut;
         private readonly ITransactionsService transactionsService;
 
         public UploadModel(
             ITransactionsService transactionsService,
             AllianzTxtFileParser allianz,
             RaiffeizenTxtFileParser rai,
+            RevolutExcelParser revolut,
             MailImporter importer,
             Config config)
         {
@@ -30,6 +33,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.allianz = allianz;
             this.rai = rai;
             this.importer = importer;
+            this.revolut = revolut;
             this.TransactionsList = new TransactionsListModel() { ShowSource = true };
             this.SkippedTransactionsList = new TransactionsListModel() { ShowSource = true, ShowTime = true };
             this.HasMail = importer.TestConnection();
@@ -103,6 +107,11 @@ namespace ExpenseTracker.Web.Pages.Transactions
                         else if (formFile.FileName.EndsWith("txt"))
                         {
                             expenses = this.allianz.ParseFromFile(filePath);
+                            this.transactionsService.TryAdd(expenses, out skipped);
+                        }
+                        else if (formFile.FileName.EndsWith("csv"))
+                        {
+                            expenses = this.revolut.ParseFromFile(filePath);
                             this.transactionsService.TryAdd(expenses, out skipped);
                         }
                     }
