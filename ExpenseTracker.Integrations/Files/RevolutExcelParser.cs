@@ -64,7 +64,9 @@ namespace ExpenseTracker.Integrations.Files
 
         private DateTime ParseDate(string date)
         {
-            var parsedDate = DateTime.ParseExact(date, "M/d/yyyy H:mm", CultureInfo.InvariantCulture);
+            if (!DateTime.TryParseExact(date, "M/d/yyyy H:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+                if (!DateTime.TryParseExact(date, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                    throw new Exception("Invalid date format.");
             parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
             var bgTz = TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time");
             var offset = bgTz.GetUtcOffset(parsedDate);
