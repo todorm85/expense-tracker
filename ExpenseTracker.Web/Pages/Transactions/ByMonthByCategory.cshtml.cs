@@ -79,7 +79,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
     public class TransactionsByMonthByCategoryModel : PageModel
     {
-        private const int initialMonthsBack = 1;
         private const string UnspecifiedCategoryKeyName = "unspecified";
         private readonly ITransactionsService transactionsService;
 
@@ -89,7 +88,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.AverageAndTotalsForCategory = new Dictionary<string, decimal[]>();
             this.CategoriesForMonths = new List<CategoriesForMonthModel>();
             this.transactionsService = transactionsService;
-            this.Filters = new FiltersModel(initialMonthsBack, transactionsService) { HideSorting = true };
+            this.Filters = new FiltersModel(transactionsService) { HideSorting = true };
         }
 
         public IDictionary<string, decimal[]> AverageAndTotalsForCategory { get; set; }

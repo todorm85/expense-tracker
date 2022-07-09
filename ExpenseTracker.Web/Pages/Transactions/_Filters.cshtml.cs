@@ -12,20 +12,19 @@ namespace ExpenseTracker.Web.Pages.Transactions
         private const string UncategorisedOptionValue = "-";
 
         // for ModelBinding
-        public FiltersModel() : this(0, null)
+        public FiltersModel() : this(null)
         { }
 
-        public FiltersModel(int initialMonthsBack, ITransactionsService transactionsService)
+        public FiltersModel(ITransactionsService transactionsService)
         {
-            var now = DateTime.UtcNow;
             if (DateTo == default)
             {
-                this.DateTo = new DateTime(now.Year, now.Month, now.Day);
+                this.DateTo = DateTime.UtcNow;
             }
 
             if (DateFrom == default)
             {
-                this.DateFrom = DateTime.UtcNow.AddMonths(-initialMonthsBack).ToMonthStart();
+                this.DateFrom = DateTime.UtcNow.ToMonthStart();
             }
 
             this.Categories = new List<SelectListItem>()
@@ -103,9 +102,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private bool ApplySearchFilter(Transaction x)
         {
-            if (!string.IsNullOrWhiteSpace(Search))
+            if (!string.IsNullOrWhiteSpace(Search) && x !=null && x.Details != null)
             {
-                return x.Details.Contains(Search);
+                return x.Details.ToLowerInvariant().Contains(Search.ToLowerInvariant());
             }
 
             return true;

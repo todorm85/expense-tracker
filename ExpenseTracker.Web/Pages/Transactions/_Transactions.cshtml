@@ -79,7 +79,7 @@
                 <td style="width:5%;">
                     <div style="display: @failedDisplay" class="failed_@t.TransactionId">
                         <button class="updateBtn mb-1" style="width:70px" type="button" formAction="/Transactions/Api/?handler=Create"
-                                onclick="onTransactionUpdate(this, '@Guid.NewGuid().ToString()', true)">
+                                onclick="onTransactionUpdate(this, '@t.TransactionId', true)">
                             force create
                         </button>
                     </div>
@@ -109,9 +109,17 @@
         var source = document.getElementById("source_" + id).value;
 
         var handler = button.formAction;
+        var coverElement = document.createElement('div')
+        coverElement.style = "background-color: lightgrey; width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 50%;"
+        var parent = button.parentElement.parentElement.parentElement;
+        parent.style.position = "relative";
+        parent.appendChild(coverElement);
         postAjax(handler,
             sender => {
-                alert("succes");
+                coverElement.style.backgroundColor = 'lightgreen'
+                setTimeout(() => {
+                    parent.removeChild(coverElement);
+                }, 700)
                 if (isForceCreate) {
                     var rowsToRemove = document.querySelectorAll(".failed_" + id);
                     rowsToRemove.forEach(x => x.style.display = 'none');
@@ -120,7 +128,10 @@
                 }
             },
             sender => {
-                alert("error");
+                coverElement.style.backgroundColor = 'red'
+                setTimeout(() => {
+                    parent.removeChild(coverElement);
+                }, 700)
             },
             {
                 Date: new Date(date),

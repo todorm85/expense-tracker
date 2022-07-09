@@ -45,8 +45,10 @@ namespace ExpenseTracker.Web.Pages.Transactions
         [BindProperty]
         public IList<IFormFile> Files { get; set; }
 
+        [BindProperty]
         public TransactionsListModel SkippedTransactionsList { get; set; }
         public bool HasMail { get; private set; }
+        [BindProperty]
         public TransactionsListModel TransactionsList { get; set; }
 
         public void OnGet()
@@ -121,8 +123,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 AddSkipped(skipped);
                 return Page();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                this.ViewData["errorMessage"] = e.Message + (e.InnerException != null ? e.InnerException.Message : "");
                 return Page();
             }
         }

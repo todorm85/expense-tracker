@@ -2,17 +2,20 @@
 @model ExpenseTracker.Web.Pages.Transactions.UploadModel
 
 <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';">
+    @if (@Model.ViewData["errorMessage"] != null)
+    {
+        <div class="alert-danger alert">Error. @Model.ViewData["errorMessage"]</div>
+    }
     <div class="row">
         <div class="col-lg-6 col-12">
             @{ var secondTitle = "Enter manually"; }
             @if (Model.HasMail)
             {
                 secondTitle = "or " + secondTitle;
-                <div class="pb-2 mb-4">
-                    <button class="btn btn-primary" type="submit" asp-page-handler="SyncMail">Sync Mail</button>
-                </div>
-            <hr />
-            }
+    <div class="pb-2 mb-4">
+        <button class="btn btn-primary" type="submit" asp-page-handler="SyncMail">Sync Mail</button>
+    </div>
+                    <hr />            }
             <h4>@secondTitle</h4>
             <div class="form-row">
                 <div class="form-group col">

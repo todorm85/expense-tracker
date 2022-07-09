@@ -15,13 +15,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
     public class IndexModel : PageModel
     {
-        private readonly int initialMonthsBack = 1;
         private readonly ITransactionsService transactionsService;
 
         public IndexModel(ITransactionsService transactions)
         {
             this.transactionsService = transactions;
-            this.Filters = new FiltersModel(initialMonthsBack, transactionsService);
+            this.Filters = new FiltersModel(transactionsService);
             this.TransactionsList = new TransactionsListModel();
         }
 
