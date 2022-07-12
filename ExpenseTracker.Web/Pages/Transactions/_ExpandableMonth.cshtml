@@ -1,4 +1,4 @@
-﻿@model CategoriesForMonthModel
+﻿@model ExpandableMonthModel
 
 <div class="row border border-primary alert-primary">
     <div class="col text-left">
@@ -15,10 +15,10 @@
     <div class="col text-left">
         @for (int ci = 0; ci < Model.Count; ci++)
         {
-            var currentCategoryKey = CategoriesForMonthModel.GetCategoryKey(Model[ci].CategoryName);
+            var currentCategoryKey = ExpandableMonthModel.GetCategoryKey(Model[ci].CategoryName);
             Model[ci].Id = "category__" + Model.Month.ToString("MM_yy__") + currentCategoryKey;
 
-            <partial name="_TransactionsForCategory" for="@Model[ci]" />
+            <partial name="_ExpandableCategory" for="@Model[ci]" />
         }
     </div>
 </div>

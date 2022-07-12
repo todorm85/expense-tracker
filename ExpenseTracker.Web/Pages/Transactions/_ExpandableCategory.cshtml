@@ -1,7 +1,7 @@
-﻿@model TransactionsForCategoryModel
+﻿@model ExpandableCategoryModel
 
 @{
-    var currentCategoryKey = CategoriesForMonthModel.GetCategoryKey(Model.CategoryName);
+    var currentCategoryKey = ExpandableMonthModel.GetCategoryKey(Model.CategoryName);
     var rowClass = Model.IsNegativeBalance ? "" : "alert-success";
 }
 
@@ -14,6 +14,15 @@
 
 <div id="@Model.Id" style="display: none" class="row">
     <div class="col border">
-        <partial name="_Transactions" for="@Model.TransactionsList" />
+        @if (Model.TransactionsList.Transactions.Count > 0)
+        {
+            <partial name="_Transactions" for="@Model.TransactionsList" />
+        }
+
+        @for (int ci = 0; ci < Model.Categories.Count(); ci++)
+        {
+            <partial name="_ExpandableCategory" for="@Model.Categories[ci]" />
+
+        }
     </div>
 </div>

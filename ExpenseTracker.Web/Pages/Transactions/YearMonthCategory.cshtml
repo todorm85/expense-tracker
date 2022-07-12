@@ -1,5 +1,5 @@
 ﻿@page
-@model ExpenseTracker.Web.Pages.Transactions.TransactionsByMonthByCategoryModel
+@model ExpenseTracker.Web.Pages.Transactions.YearMonthCategoryModel
 
 <div class="text-center">
     <form method="post">
@@ -23,7 +23,7 @@
             </span>
         </h5>
         <partial name="_Filters" for="Filters" />
-        @if (Model.CategoriesForMonths.Count > 0)
+        @if (Model.ExpandableMonths.Count > 0)
         {
             <div class="row">
                 <div class="d-inline-block p-2 m-1 bg-light border rounded">
@@ -44,9 +44,9 @@
                 }
             </div>
 
-            @for (int mi = 0; mi < Model.CategoriesForMonths.Count; mi++)
+            @for (int mi = 0; mi < Model.ExpandableMonths.Count; mi++)
             {
-                <partial name="_CategoriesForMonth" model="@Model.CategoriesForMonths[mi]" />
+                <partial name="_ExpandableMonth" model="@Model.ExpandableMonths[mi]" />
             }
         }
         else

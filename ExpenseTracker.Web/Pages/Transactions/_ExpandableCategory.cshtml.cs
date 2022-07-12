@@ -1,18 +1,20 @@
 ﻿using ExpenseTracker.Core.Transactions;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
-    public class TransactionsForCategoryModel
+    public class ExpandableCategoryModel
     {
         private string categoryName;
         private decimal? totalExpense;
         private decimal? totalIncome;
 
-        public TransactionsForCategoryModel(string categoryName)
+        public ExpandableCategoryModel(string categoryName)
         {
             this.categoryName = categoryName;
             this.TransactionsList = new TransactionsListModel() { HideHeader = true };
+            this.Categories = new List<ExpandableCategoryModel>();
         }
 
         public decimal Balance => this.TotalIncome - this.TotalExpense;
@@ -42,6 +44,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
 
         public TransactionsListModel TransactionsList { get; set; }
+
+        public IList<ExpandableCategoryModel> Categories { get; set; }
+
         public Transaction this[int index] { get => this.TransactionsList.Transactions[index]; set => this.TransactionsList.Transactions[index] = new TransactionModel(value); }
 
         public void Add(Transaction item)

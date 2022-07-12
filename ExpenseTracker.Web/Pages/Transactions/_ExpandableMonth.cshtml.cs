@@ -5,14 +5,14 @@ using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
-    public class CategoriesForMonthModel : IEnumerable<TransactionsForCategoryModel>
+    public class ExpandableMonthModel : IEnumerable<ExpandableCategoryModel>
     {
         private const string UnspecifiedCategoryKeyName = "unspecified";
         private decimal? totalExpenses;
         private decimal? totalIncome;
-        private IList<TransactionsForCategoryModel> transactionsByCateories = new List<TransactionsForCategoryModel>();
+        private IList<ExpandableCategoryModel> transactionsByCateories = new List<ExpandableCategoryModel>();
 
-        public CategoriesForMonthModel(DateTime month)
+        public ExpandableMonthModel(DateTime month)
         {
             this.Month = month;
         }
@@ -41,9 +41,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
             }
         }
 
-        public TransactionsForCategoryModel this[int index] { get => this.transactionsByCateories[index]; set => this.transactionsByCateories[index] = value; }
+        public ExpandableCategoryModel this[int index] { get => this.transactionsByCateories[index]; set => this.transactionsByCateories[index] = value; }
 
-        public IEnumerator<TransactionsForCategoryModel> GetEnumerator()
+        public IEnumerator<ExpandableCategoryModel> GetEnumerator()
         {
             foreach (var item in this.transactionsByCateories)
             {
@@ -72,7 +72,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             var transactionsForCategory = this.transactionsByCateories.FirstOrDefault(x => x.CategoryName == t.Category);
             if (transactionsForCategory == null)
             {
-                transactionsForCategory = new TransactionsForCategoryModel(t.Category);
+                transactionsForCategory = new ExpandableCategoryModel(t.Category);
                 this.transactionsByCateories.Add(transactionsForCategory);
             }
 
