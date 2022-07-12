@@ -1,14 +1,19 @@
-﻿@*@model TransactionsListModel
-    @{
-        var categoryDisplay = "none";
-        if (Model.IsExpanded)
-        {
-            categoryDisplay = "revert";
-        }
-    }
+﻿@model TransactionsForCategoryModel
 
-    <div id="@("category__" + Model.Month.ToString("MM_yy__") + currentCategoryKey)" style="display: @categoryDisplay" class="row gridExpandable">
-        <div class="col border">
-            <partial name="_Transactions" for="@Model.TransactionsList" />
-        </div>
-    </div>*@
+@{
+    var currentCategoryKey = ExpandableMonthModel.GetCategoryKey(Model.CategoryName);
+    var rowClass = Model.IsNegativeBalance ? "" : "alert-success";
+}
+
+<div class="row @rowClass ml-1">
+    <a class="text-dark btn btn-link text-left" onclick="onToggleElement('@Model.Id')" style="font-size:large">
+        <span class="d-inline-block" style="min-width:9em">@currentCategoryKey</span>
+        <partial name="_Summary" model="new decimal[] { Model.TotalExpense, Model.TotalIncome, Model.Balance }" />
+    </a>
+</div>
+
+<div id="@Model.Id" style="display: none" class="row">
+    <div class="col border">
+        <partial name="_Transactions" for="@Model.TransactionsList" />
+    </div>
+</div>

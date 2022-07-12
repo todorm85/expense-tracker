@@ -8,21 +8,20 @@ using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
-    public class CategoriesForMonthModel : IEnumerable<TransactionsForCategoryModel>
+    public class ExpandableMonthModel : IEnumerable<TransactionsForCategoryModel>
     {
         private const string UnspecifiedCategoryKeyName = "unspecified";
         private decimal? totalExpenses;
         private decimal? totalIncome;
         private IList<TransactionsForCategoryModel> transactionsByCateories = new List<TransactionsForCategoryModel>();
 
-        public CategoriesForMonthModel(DateTime month)
+        public ExpandableMonthModel(DateTime month)
         {
             this.Month = month;
         }
 
         public decimal Balance => this.TotalIncome - this.TotalExpenses;
         public int Count => this.transactionsByCateories.Count;
-        public bool IsExpanded { get; set; }
         public DateTime Month { get; private set; }
 
         public decimal TotalExpenses
@@ -92,7 +91,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             ITransactionsService transactionsService)
         {
             this.AverageAndTotalsForCategory = new Dictionary<string, decimal[]>();
-            this.CategoriesForMonths = new List<CategoriesForMonthModel>();
+            this.CategoriesForMonths = new List<ExpandableMonthModel>();
             this.transactionsService = transactionsService;
             this.Filters = new FiltersModel(transactionsService) { HideSorting = true };
         }
@@ -102,7 +101,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal AverageExpense { get; private set; }
         public decimal AverageIncome { get; private set; }
         public decimal Balance => this.TotalIncome - this.TotalExpense;
-        public List<CategoriesForMonthModel> CategoriesForMonths { get; set; }
+        public List<ExpandableMonthModel> CategoriesForMonths { get; set; }
 
         [BindProperty]
         public FiltersModel Filters { get; set; }
@@ -123,7 +122,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 var categoriesForMonth = this.CategoriesForMonths.FirstOrDefault(x => x.Month == t.Date.ToMonthStart());
                 if (categoriesForMonth == null)
                 {
-                    categoriesForMonth = new CategoriesForMonthModel(t.Date.ToMonthStart());
+                    categoriesForMonth = new ExpandableMonthModel(t.Date.ToMonthStart());
                     this.CategoriesForMonths.Add(categoriesForMonth);
                 }
 
@@ -136,7 +135,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 foreach (var category in x)
                 {
                     category.OrderTransactions();
-                    var categoryKey = CategoriesForMonthModel.GetCategoryKey(category.CategoryName);
+                    var categoryKey = ExpandableMonthModel.GetCategoryKey(category.CategoryName);
                     if (!this.AverageAndTotalsForCategory.ContainsKey(categoryKey))
                         this.AverageAndTotalsForCategory.Add(categoryKey, new decimal[] { 0, 0 });
                     this.AverageAndTotalsForCategory[categoryKey][1] = this.AverageAndTotalsForCategory[categoryKey][1] + category.Balance;
@@ -175,8 +174,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal Balance => this.TotalIncome - this.TotalExpense;
         public string CategoryName => categoryName;
         public int Count => this.TransactionsList.Transactions.Count;
-        public bool IsExpanded { get; set; }
         public bool IsNegativeBalance => this.Balance < 0;
+        public string Id { get; set; }
 
         public decimal TotalExpense
         {

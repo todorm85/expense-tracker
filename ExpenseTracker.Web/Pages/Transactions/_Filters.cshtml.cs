@@ -65,7 +65,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                                 ApplyCategoriesFilter(x) &&
                                 ApplySearchFilter(x) &&
                                 !x.Ignored);
-            var allCats = this.service.GetAllCategories();
+            var allCats = transactionsService.GetAllCategories();
 
             this.Categories = this.Categories.Union(allCats.Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
             return transactions;
