@@ -1,7 +1,7 @@
 ﻿@model TransactionsForCategoryModel
 
 @{
-    var currentCategoryKey = ExpandableMonthModel.GetCategoryKey(Model.CategoryName);
+    var currentCategoryKey = CategoriesForMonthModel.GetCategoryKey(Model.CategoryName);
     var rowClass = Model.IsNegativeBalance ? "" : "alert-success";
 }
 

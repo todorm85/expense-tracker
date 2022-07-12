@@ -7,82 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
-{
-    public class ExpandableMonthModel : IEnumerable<TransactionsForCategoryModel>
-    {
-        private const string UnspecifiedCategoryKeyName = "unspecified";
-        private decimal? totalExpenses;
-        private decimal? totalIncome;
-        private IList<TransactionsForCategoryModel> transactionsByCateories = new List<TransactionsForCategoryModel>();
-
-        public ExpandableMonthModel(DateTime month)
-        {
-            this.Month = month;
-        }
-
-        public decimal Balance => this.TotalIncome - this.TotalExpenses;
-        public int Count => this.transactionsByCateories.Count;
-        public DateTime Month { get; private set; }
-
-        public decimal TotalExpenses
-        {
-            get
-            {
-                if (!this.totalExpenses.HasValue)
-                    this.totalExpenses = this.transactionsByCateories.Sum(x => x.TotalExpense);
-                return this.totalExpenses.Value;
-            }
-        }
-
-        public decimal TotalIncome
-        {
-            get
-            {
-                if (!this.totalIncome.HasValue)
-                    this.totalIncome = this.transactionsByCateories.Sum(x => x.TotalIncome);
-                return this.totalIncome.Value;
-            }
-        }
-
-        public TransactionsForCategoryModel this[int index] { get => this.transactionsByCateories[index]; set => this.transactionsByCateories[index] = value; }
-
-        public IEnumerator<TransactionsForCategoryModel> GetEnumerator()
-        {
-            foreach (var item in this.transactionsByCateories)
-            {
-                yield return item;
-            }
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
-
-        public void OrderCategories()
-        {
-            this.transactionsByCateories = this.transactionsByCateories.OrderByDescending(x => x.TotalExpense).ToList();
-        }
-
-        public static string GetCategoryKey(string currentCategory)
-        {
-            currentCategory = string.IsNullOrEmpty(currentCategory) ? UnspecifiedCategoryKeyName : currentCategory;
-            return currentCategory;
-        }
-
-        internal void AddTransaction(Transaction t)
-        {
-            var transactionsForCategory = this.transactionsByCateories.FirstOrDefault(x => x.CategoryName == t.Category);
-            if (transactionsForCategory == null)
-            {
-                transactionsForCategory = new TransactionsForCategoryModel(t.Category);
-                this.transactionsByCateories.Add(transactionsForCategory);
-            }
-
-            transactionsForCategory.Add(t);
-        }
-    }
-
+{   
     public class TransactionsByMonthByCategoryModel : PageModel
     {
         private readonly ITransactionsService transactionsService;
@@ -91,7 +16,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             ITransactionsService transactionsService)
         {
             this.AverageAndTotalsForCategory = new Dictionary<string, decimal[]>();
-            this.CategoriesForMonths = new List<ExpandableMonthModel>();
+            this.CategoriesForMonths = new List<CategoriesForMonthModel>();
             this.transactionsService = transactionsService;
             this.Filters = new FiltersModel(transactionsService) { HideSorting = true };
         }
@@ -101,7 +26,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal AverageExpense { get; private set; }
         public decimal AverageIncome { get; private set; }
         public decimal Balance => this.TotalIncome - this.TotalExpense;
-        public List<ExpandableMonthModel> CategoriesForMonths { get; set; }
+        public List<CategoriesForMonthModel> CategoriesForMonths { get; set; }
 
         [BindProperty]
         public FiltersModel Filters { get; set; }
@@ -122,7 +47,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 var categoriesForMonth = this.CategoriesForMonths.FirstOrDefault(x => x.Month == t.Date.ToMonthStart());
                 if (categoriesForMonth == null)
                 {
-                    categoriesForMonth = new ExpandableMonthModel(t.Date.ToMonthStart());
+                    categoriesForMonth = new CategoriesForMonthModel(t.Date.ToMonthStart());
                     this.CategoriesForMonths.Add(categoriesForMonth);
                 }
 
@@ -135,7 +60,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 foreach (var category in x)
                 {
                     category.OrderTransactions();
-                    var categoryKey = ExpandableMonthModel.GetCategoryKey(category.CategoryName);
+                    var categoryKey = CategoriesForMonthModel.GetCategoryKey(category.CategoryName);
                     if (!this.AverageAndTotalsForCategory.ContainsKey(categoryKey))
                         this.AverageAndTotalsForCategory.Add(categoryKey, new decimal[] { 0, 0 });
                     this.AverageAndTotalsForCategory[categoryKey][1] = this.AverageAndTotalsForCategory[categoryKey][1] + category.Balance;
@@ -156,63 +81,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public void OnPost()
         {
             OnGet();
-        }
-    }
-
-    public class TransactionsForCategoryModel
-    {
-        private string categoryName;
-        private decimal? totalExpense;
-        private decimal? totalIncome;
-
-        public TransactionsForCategoryModel(string categoryName)
-        {
-            this.categoryName = categoryName;
-            this.TransactionsList = new TransactionsListModel() { HideHeader = true };
-        }
-
-        public decimal Balance => this.TotalIncome - this.TotalExpense;
-        public string CategoryName => categoryName;
-        public int Count => this.TransactionsList.Transactions.Count;
-        public bool IsNegativeBalance => this.Balance < 0;
-        public string Id { get; set; }
-
-        public decimal TotalExpense
-        {
-            get
-            {
-                if (!this.totalExpense.HasValue)
-                    this.totalExpense = this.TransactionsList.Transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount);
-                return this.totalExpense.Value;
-            }
-        }
-
-        public decimal TotalIncome
-        {
-            get
-            {
-                if (!this.totalIncome.HasValue)
-                    this.totalIncome = this.TransactionsList.Transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);
-                return this.totalIncome.Value;
-            }
-        }
-
-        public TransactionsListModel TransactionsList { get; set; }
-        public Transaction this[int index] { get => this.TransactionsList.Transactions[index]; set => this.TransactionsList.Transactions[index] = new TransactionModel(value); }
-
-        public void Add(Transaction item)
-        {
-            this.TransactionsList.Transactions.Add(new TransactionModel(item));
-        }
-
-        public bool Remove(Transaction item)
-        {
-            return this.TransactionsList.Transactions.Remove(new TransactionModel(item));
-        }
-
-        internal void OrderTransactions()
-        {
-            this.TransactionsList.Transactions = this.TransactionsList.Transactions.OrderByDescending(x => x.Amount).ToList();
         }
     }
 }
