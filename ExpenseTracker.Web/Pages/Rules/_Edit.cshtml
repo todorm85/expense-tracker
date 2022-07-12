@@ -41,7 +41,8 @@
         </fieldset>
         <fieldset class="col form-group">
             <label for="valueToSet_@id">Value To Set</label>
-            <input id="valueToSet_@id" class="form-control" asp-for="ValueToSet" />
+            <input id="valueToSet_@id" class="form-control" asp-for="ValueToSet" list="cats" autocomplete="off" />
+            <vc:categories-data-list id="cats"></vc:categories-data-list>
         </fieldset>
     </div>
 </div>

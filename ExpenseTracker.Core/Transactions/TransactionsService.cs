@@ -158,7 +158,7 @@ namespace ExpenseTracker.Core.Transactions
                 }
 
                 t.TransactionId = transactionId;
-                if (!categoriesCache.ContainsKey(t.Category))
+                if (t.Category != null && !categoriesCache.ContainsKey(t.Category))
                 {
                     categoriesCache.TryAdd(t.Category, null);
                 }
@@ -180,6 +180,14 @@ namespace ExpenseTracker.Core.Transactions
             }
 
             this.Update(items);
+
+            var rules = this.rulesService.GetAll(x => x.ValueToSet == oldName).ToList();
+            foreach (var rule in rules)
+            {
+                rule.ValueToSet = newName;
+            }
+
+            this.rulesService.Update(rules);
         }
 
         public IEnumerable<string> GetAllCategories()

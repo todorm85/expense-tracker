@@ -37,7 +37,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             {
                 // if not called by model binding preselect
                 var allCats = transactionsService.GetAllCategories();
-                this.SelectedCategories = allCats.Where(x => x != "exclude").ToList();
+                this.SelectedCategories = allCats.Where(x => x != "ignored").ToList();
                 this.SelectedCategories.Add(UncategorisedOptionValue);
             }
             else

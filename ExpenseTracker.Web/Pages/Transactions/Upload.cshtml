@@ -58,6 +58,11 @@
         <div class="col-lg-6">
             <div class="row">
                 <h3 class="mr-2 my-3">Just Added</h3>
+                @{ 
+                    var heigth = 3;
+                    Model.TransactionsList.DetailsHeight = heigth;
+                    Model.SkippedTransactionsList.DetailsHeight = heigth;
+                }
                 <partial name="_Transactions" for="TransactionsList" />
             </div>
             <div class="row">
