@@ -10,5 +10,9 @@ namespace ExpenseTracker.Core.Transactions
         bool TryAdd(IEnumerable<Transaction> expenses, out IEnumerable<TransactionInsertResult> skipped);
 
         bool TryAdd(Transaction t, out IEnumerable<TransactionInsertResult> skipped);
+        
+        void RenameCategory(string oldName, string newName);
+        
+        IEnumerable<string> GetAllCategories();
     }
 }

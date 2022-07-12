@@ -52,7 +52,7 @@
                 </td>
                 <td style="width:10%">
                     <input id="category_@t.TransactionId" asp-for="@Model.Transactions[transx].Category"
-                           class="form-control auto-select" placeholder="name:key(opt)" style="min-width: 100px;" />
+                           class="form-control auto-select" placeholder="name:key(opt)" style="min-width: 100px;" list="cats" autocomplete="off"/>
                 </td>
                 @if (Model.ShowSource)
                 {
@@ -98,6 +98,8 @@
         }
     </tbody>
 </table>
+
+<vc:categories-data-list id="cats"></vc:categories-data-list>
 
 <script>
     function onTransactionUpdate(button, id, isForceCreate) {

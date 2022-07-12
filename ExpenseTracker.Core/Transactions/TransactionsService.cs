@@ -1,6 +1,7 @@
 ﻿using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions.Rules;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -157,6 +158,11 @@ namespace ExpenseTracker.Core.Transactions
                 }
 
                 t.TransactionId = transactionId;
+                if (!categoriesCache.ContainsKey(t.Category))
+                {
+                    categoriesCache.TryAdd(t.Category, null);
+                }
+
                 toAdd.Add(t);
             }
 
@@ -164,5 +170,66 @@ namespace ExpenseTracker.Core.Transactions
             skipped = skippedResult;
             return skipped.Count() == 0;
         }
+
+        public void RenameCategory(string oldName, string newName)
+        {
+            var items = this.GetAll(x => x.Category == oldName).ToList();
+            foreach (var item in items)
+            {
+                item.Category = newName;
+            }
+
+            this.Update(items);
+        }
+
+        public IEnumerable<string> GetAllCategories()
+        {
+            if (categoriesCache == null)
+            {
+                categoriesCache = new ConcurrentDictionary<string, string>();
+                foreach (string c in this.GetAll(x => !string.IsNullOrEmpty(x.Category))
+                                   .Select(x => x.Category)
+                                   .OrderBy(x => x)
+                                   .Distinct())
+                {
+                    categoriesCache.Add(c, null);
+                }
+            }
+
+            return categoriesCache.Keys;
+        }
+
+        public override void Update(IEnumerable<Transaction> items)
+        {
+            foreach (var c in items)
+            {
+                OnTransactionCategoryUpdated(c);
+            }
+
+            base.Update(items);
+        }
+
+        public override void Update(Transaction item)
+        {
+            OnTransactionCategoryUpdated(item);
+            base.Update(item);
+        }
+
+        public override void RemoveById(object id)
+        {
+            categoriesCache = null;
+            base.RemoveById(id);
+        }
+
+        private void OnTransactionCategoryUpdated(Transaction t)
+        {
+            var oldValue = this.GetById(t.TransactionId);
+            if (categoriesCache != null && t.Category != oldValue.Category)
+            {
+                categoriesCache = null;
+            }
+        }
+
+        private static IDictionary<string, string> categoriesCache;
     }
 }

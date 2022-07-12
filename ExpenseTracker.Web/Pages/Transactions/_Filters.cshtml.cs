@@ -10,6 +10,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
     public class FiltersModel
     {
         private const string UncategorisedOptionValue = "-";
+        private readonly ITransactionsService service;
 
         // for ModelBinding
         public FiltersModel() : this(null)
@@ -35,7 +36,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             if (transactionsService != null)
             {
                 // if not called by model binding preselect
-                var allCats = GetAllCategories(transactionsService);
+                var allCats = transactionsService.GetAllCategories();
                 this.SelectedCategories = allCats.Where(x => x != "exclude").ToList();
                 this.SelectedCategories.Add(UncategorisedOptionValue);
             }
@@ -44,6 +45,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 // called by model binding
                 this.SelectedCategories = new List<string>();
             }
+
+            this.service = transactionsService;
         }
 
         public List<SelectListItem> Categories { get; set; }
@@ -62,18 +65,10 @@ namespace ExpenseTracker.Web.Pages.Transactions
                                 ApplyCategoriesFilter(x) &&
                                 ApplySearchFilter(x) &&
                                 !x.Ignored);
-            var allCats = GetAllCategories(transactionsService);
+            var allCats = this.service.GetAllCategories();
 
             this.Categories = this.Categories.Union(allCats.Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
             return transactions;
-        }
-
-        private IEnumerable<string> GetAllCategories(ITransactionsService transactionsService)
-        {
-            return transactionsService.GetAll(x => !string.IsNullOrEmpty(x.Category))
-                               .Select(x => x.Category)
-                               .OrderBy(x => x)
-                               .Distinct();
         }
 
         private bool ApplyCategoriesFilter(Transaction x)

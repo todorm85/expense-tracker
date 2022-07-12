@@ -1,0 +1,16 @@
+﻿@page
+@model ExpenseTracker.Web.Pages.Categories.IndexModel
+@{
+}
+<form method="post">
+    <fieldset>
+        <label asp-for="CategoryName">Name</label>
+        <input asp-for="CategoryName" list="cats" autocomplete="off" />
+        <vc:categories-data-list id="cats"></vc:categories-data-list>
+    </fieldset>
+    <fieldset>
+        <label asp-for="NewCategoryName">New name</label>
+        <input asp-for="NewCategoryName" />
+    </fieldset>
+    <input type="submit" value="Rename" asp-page-handler="Rename" />
+</form>
