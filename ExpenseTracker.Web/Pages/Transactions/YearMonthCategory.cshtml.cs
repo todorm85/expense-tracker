@@ -55,10 +55,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
             this.ExpandableMonths.ForEach(x =>
             {
-                x.OrderCategories();
+                x.OrderMonthCategories();
                 foreach (var category in x)
                 {
-                    category.OrderTransactions();
                     var categoryKey = ExpandableMonthModel.GetCategoryKey(category.CategoryName);
                     if (!this.AverageAndTotalsForCategory.ContainsKey(categoryKey))
                         this.AverageAndTotalsForCategory.Add(categoryKey, new decimal[] { 0, 0 });

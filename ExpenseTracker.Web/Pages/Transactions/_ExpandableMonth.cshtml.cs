@@ -10,7 +10,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         private const string UnspecifiedCategoryKeyName = "unspecified";
         private decimal? totalExpenses;
         private decimal? totalIncome;
-        private IList<ExpandableCategoryModel> transactionsByCateories = new List<ExpandableCategoryModel>();
+        private IList<ExpandableCategoryModel> categories = new List<ExpandableCategoryModel>();
 
         public ExpandableMonthModel(DateTime month)
         {
@@ -18,7 +18,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
 
         public decimal Balance => this.TotalIncome - this.TotalExpenses;
-        public int Count => this.transactionsByCateories.Count;
+        public int Count => this.categories.Count;
         public DateTime Month { get; private set; }
 
         public decimal TotalExpenses
@@ -26,7 +26,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             get
             {
                 if (!this.totalExpenses.HasValue)
-                    this.totalExpenses = this.transactionsByCateories.Sum(x => x.TotalExpense);
+                    this.totalExpenses = this.categories.Sum(x => x.TotalExpense);
                 return this.totalExpenses.Value;
             }
         }
@@ -36,16 +36,16 @@ namespace ExpenseTracker.Web.Pages.Transactions
             get
             {
                 if (!this.totalIncome.HasValue)
-                    this.totalIncome = this.transactionsByCateories.Sum(x => x.TotalIncome);
+                    this.totalIncome = this.categories.Sum(x => x.TotalIncome);
                 return this.totalIncome.Value;
             }
         }
 
-        public ExpandableCategoryModel this[int index] { get => this.transactionsByCateories[index]; set => this.transactionsByCateories[index] = value; }
+        public ExpandableCategoryModel this[int index] { get => this.categories[index]; set => this.categories[index] = value; }
 
         public IEnumerator<ExpandableCategoryModel> GetEnumerator()
         {
-            foreach (var item in this.transactionsByCateories)
+            foreach (var item in this.categories)
             {
                 yield return item;
             }
@@ -56,9 +56,24 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return this.GetEnumerator();
         }
 
-        public void OrderCategories()
+        public void OrderMonthCategories()
         {
-            this.transactionsByCateories = this.transactionsByCateories.OrderByDescending(x => x.TotalExpense).ToList();
+            foreach (var ca in this.categories)
+            {
+                OrderCategory(ca);
+            }
+
+            this.categories = this.categories.OrderByDescending(x => x.TotalExpense).ToList();
+        }
+
+        private void OrderCategory(ExpandableCategoryModel category)
+        {
+            category.Categories = category.Categories.OrderByDescending(x => x.TotalExpense).ToList();
+            category.OrderTransactions();
+            foreach (var childCategory in category.Categories)
+            {
+                OrderCategory(childCategory);
+            }
         }
 
         public static string GetCategoryKey(string currentCategory)
@@ -69,14 +84,41 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         internal void AddTransaction(Transaction t)
         {
-            var transactionsForCategory = this.transactionsByCateories.FirstOrDefault(x => x.CategoryName == t.Category);
-            if (transactionsForCategory == null)
+            var categoryParts = t.Category?.Split("/") ?? new string[1] { null };
+            var currentCategoriesGroup = this.categories;
+            ExpandableCategoryModel parentCategory = null;
+            var currentCategoryName = string.Empty;
+            for (int i = 0; i < categoryParts.Length; i++)
             {
-                transactionsForCategory = new ExpandableCategoryModel(t.Category);
-                this.transactionsByCateories.Add(transactionsForCategory);
-            }
+                currentCategoryName = (currentCategoryName + "/" + categoryParts[i]).Trim('/');
+                var category = currentCategoriesGroup.FirstOrDefault(x => x.CategoryName == currentCategoryName);
+                if (category == null)
+                {
+                    category = new ExpandableCategoryModel(currentCategoryName);
+                    currentCategoriesGroup.Add(category);
+                }
 
-            transactionsForCategory.Add(t);
+                if (t.Type == TransactionType.Expense)
+                {
+                    category.TotalExpense += t.Amount;
+                }
+                else if (t.Type == TransactionType.Income)
+                {
+                    category.TotalIncome += t.Amount;
+                }
+
+                if (i == categoryParts.Length - 1)
+                {
+                    category.Add(t);
+                }
+                else if (parentCategory != null)
+                {
+                    parentCategory.Categories.Add(category);
+                }
+
+                parentCategory = category;
+                currentCategoriesGroup = category.Categories;
+            }
         }
     }
 }

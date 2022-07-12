@@ -26,7 +26,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public TransactionsListModel(IList<TransactionModel> transactions)
         {
             this.Transactions = transactions;
-            this.DetailsHeight = 2;
+            this.DetailsHeight = 1;
         }
 
         public TransactionsListModel() : this(new List<TransactionModel>())

@@ -1,5 +1,5 @@
 ﻿@model TransactionsListModel
-<table class="table border rounded table-sm">
+<table class="table rounded table-sm table-borderless">
     @if (!Model.HideHeader)
     {
         <thead>
@@ -47,12 +47,12 @@
                     <input id="date_@t.TransactionId" type="@dateType" asp-for="@Model.Transactions[transx].Date" class="form-control" style="width: @(dateWidth)!important;" />
                 </td>
                 <td style="width:5%"><input id="amount_@t.TransactionId" asp-for="@Model.Transactions[transx].Amount" class="form-control auto-select" style="min-width:80px" /></td>
-                <td style="width:75%">
-                    <textarea id="details_@t.TransactionId" asp-for="@Model.Transactions[transx].Details" rows="@Model.DetailsHeight" class="form-control" style="min-width:220px"></textarea>
+                <td style="width:60%">
+                    <textarea id="details_@t.TransactionId" asp-for="@Model.Transactions[transx].Details" rows="@Model.DetailsHeight" class="form-control" style="min-width:150px;"></textarea>
                 </td>
-                <td style="width:10%">
+                <td style="width:20%">
                     <input id="category_@t.TransactionId" asp-for="@Model.Transactions[transx].Category"
-                           class="form-control auto-select" placeholder="name:key(opt)" style="min-width: 100px;" list="cats" autocomplete="off"/>
+                           class="form-control auto-select" placeholder="name:key(opt)" style="min-width: 150px;" list="cats" autocomplete="off"/>
                 </td>
                 @if (Model.ShowSource)
                 {
@@ -74,23 +74,22 @@
                     </td>
                 }
                 <td>
-                    <select id="type_@t.TransactionId" asp-for="Transactions[transx].Type" asp-items="Html.GetEnumSelectList<Core.Transactions.TransactionType>()"></select>
+                    <select id="type_@t.TransactionId" asp-for="Transactions[transx].Type" asp-items="Html.GetEnumSelectList<Core.Transactions.TransactionType>()" style="height: 35px; border: 1px solid lightgray; border-radius: 3px"></select>
                 </td>
-                <td style="width:5%;">
+                <td style="width:15%; min-width: 90px;">
                     <div style="display: @failedDisplay" class="failed_@t.TransactionId">
-                        <button class="updateBtn mb-1" style="width:70px" type="button" formAction="/Transactions/Api/?handler=Create"
+                        <button class="btn" style="width: 30px; height:30px" type="button" formAction="/Transactions/Api/?handler=Create"
                                 onclick="onTransactionUpdate(this, '@t.TransactionId', true)">
                             force create
                         </button>
                     </div>
                     <div style="display: @addedDisplay" class="added_@t.TransactionId">
-                        <button class="updateBtn mb-1" style="width:70px" type="button" formAction="/Transactions/Api/?handler=Update"
+                        <button class="btn" style="width: 30px; height:30px; padding:3px; margin-right: 15px; font-size: 20px;" type="button" formAction="/Transactions/Api/?handler=Update"
                                 onclick="onTransactionUpdate(this, '@t.TransactionId')">
-                            update
-                        </button><br />
-                        <button style="width:70px" type="button" formAction="/Transactions/Api/?handler=Delete&id=@t.TransactionId"
-                                onclick="onDelete(this, '@t.TransactionId')">
-                            delete
+                            &#10004;
+                        </button>
+                        <button type="button" formAction="/Transactions/Api/?handler=Delete&id=@t.TransactionId"
+                                onclick="onDelete(this, '@t.TransactionId')" btn-del>
                         </button>
                     </div>
                 </td>
@@ -149,6 +148,10 @@
 
     function onDelete(btn, id) {
         var handler = btn.formAction;
+        var response = confirm("Delete?")
+        if (!response) {
+            return;
+        }
         postAjax(handler,
             sender => {
                 var rowToRemove = document.getElementById("trRow_" + id);

@@ -1,4 +1,5 @@
 ﻿using ExpenseTracker.Core.Transactions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,45 +8,62 @@ namespace ExpenseTracker.Web.Pages.Transactions
     public class ExpandableCategoryModel
     {
         private string categoryName;
-        private decimal? totalExpense;
-        private decimal? totalIncome;
+        private string backgroundColor;
 
         public ExpandableCategoryModel(string categoryName)
         {
             this.categoryName = categoryName;
             this.TransactionsList = new TransactionsListModel() { HideHeader = true };
             this.Categories = new List<ExpandableCategoryModel>();
+            this.BackgroundLightness = 80;
         }
 
         public decimal Balance => this.TotalIncome - this.TotalExpense;
         public string CategoryName => categoryName;
         public int Count => this.TransactionsList.Transactions.Count;
         public bool IsNegativeBalance => this.Balance < 0;
-        public string Id { get; set; }
-
-        public decimal TotalExpense
+        public string ClientId
         {
             get
             {
-                if (!this.totalExpense.HasValue)
-                    this.totalExpense = this.TransactionsList.Transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount);
-                return this.totalExpense.Value;
+                var result = ExpandableMonthModel.GetCategoryKey(this.CategoryName);
+                if (this.ClientIdPrefix != null)
+                {
+                    result = this.ClientIdPrefix + "__" + result;
+                }
+
+                return result;
             }
         }
 
-        public decimal TotalIncome
-        {
-            get
-            {
-                if (!this.totalIncome.HasValue)
-                    this.totalIncome = this.TransactionsList.Transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);
-                return this.totalIncome.Value;
-            }
-        }
+        public string ClientIdPrefix { get; set; }
+
+        public decimal TotalExpense { get; set; }
+
+        public decimal TotalIncome { get; set; }
 
         public TransactionsListModel TransactionsList { get; set; }
 
         public IList<ExpandableCategoryModel> Categories { get; set; }
+
+        public string BackgroundColor
+        {
+            get
+            {
+                if (this.backgroundColor == null)
+                {
+                    this.backgroundColor = $"hsl({45}deg, {0}%, {this.BackgroundLightness}%)";
+                }
+
+                return this.backgroundColor;
+            }
+            set
+            {
+                this.backgroundColor = value;
+            }
+        }
+
+        public int BackgroundLightness { get; set; }
 
         public Transaction this[int index] { get => this.TransactionsList.Transactions[index]; set => this.TransactionsList.Transactions[index] = new TransactionModel(value); }
 

@@ -11,12 +11,12 @@
     </div>
 </div>
 
-<div class="row border border-secondary alert-secondary" id="@("month__" + Model.Month.ToString("MM_yy"))" style="display: none">
+<div class="row border border-secondary" id="@("month__" + Model.Month.ToString("MM_yy"))" style="display: none; background-color: hsl(0 0% 95%)">
     <div class="col text-left">
         @for (int ci = 0; ci < Model.Count; ci++)
         {
             var currentCategoryKey = ExpandableMonthModel.GetCategoryKey(Model[ci].CategoryName);
-            Model[ci].Id = "category__" + Model.Month.ToString("MM_yy__") + currentCategoryKey;
+            Model[ci].ClientIdPrefix = "category__" + Model.Month.ToString("MM_yy__");
 
             <partial name="_ExpandableCategory" for="@Model[ci]" />
         }
