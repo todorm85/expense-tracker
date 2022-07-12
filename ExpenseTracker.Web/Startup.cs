@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using Unity;
 
 namespace ExpenseTracker.Web
@@ -49,6 +50,11 @@ namespace ExpenseTracker.Web
         {
             var expenseTrackerConfig = Configuration.GetSection("ExpenseTracker");
             var dbPath = expenseTrackerConfig.GetValue<string>("DatabasePath");
+            if (dbPath.Contains("%"))
+            {
+                dbPath = Environment.ExpandEnvironmentVariables(dbPath);
+            }
+
             Application.RegisterDependencies(container, new Config()
             {
                 DbPath = dbPath,

@@ -1,0 +1,14 @@
+﻿@*@model TransactionsListModel
+    @{
+        var categoryDisplay = "none";
+        if (Model.IsExpanded)
+        {
+            categoryDisplay = "revert";
+        }
+    }
+
+    <div id="@("category__" + Model.Month.ToString("MM_yy__") + currentCategoryKey)" style="display: @categoryDisplay" class="row gridExpandable">
+        <div class="col border">
+            <partial name="_Transactions" for="@Model.TransactionsList" />
+        </div>
+    </div>*@
