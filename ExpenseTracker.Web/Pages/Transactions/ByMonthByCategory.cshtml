@@ -69,7 +69,7 @@
                             var rowClass = categoryTransactions.IsNegativeBalance ? "" : "alert-success";
                             <div class="row @rowClass ml-1">
                                 <a class="text-dark btn btn-link text-left" onclick="onToggleElement('@("category__" + monthCategories.Month.ToString("MM_yy__") + currentCategoryKey)')" style="font-size:large">
-                                    <span class="d-inline-block" style="min-width:5em">@currentCategoryKey</span>
+                                    <span class="d-inline-block" style="min-width:9em">@currentCategoryKey</span>
                                     <partial name="_Summary" model="new decimal[] { categoryTransactions.TotalExpense,categoryTransactions.TotalIncome,categoryTransactions.Balance }" />
                                 </a>
                             </div>
