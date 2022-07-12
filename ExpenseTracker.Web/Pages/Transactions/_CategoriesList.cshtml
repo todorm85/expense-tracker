@@ -1,0 +1,40 @@
+﻿@model CategoriesForMonthModel
+
+    <div class="row border border-primary alert-primary">
+        <div class="col text-left">
+            <button class="btn btn-link text-left" type="button" onclick="onToggleElement('@("month__" + Model.Month.ToString("MM_yy"))')">
+                <h4 style="min-width:10em">@(Model.Month.ToString("yyyy MMMM"))</h4>
+            </button>
+            <h5 class="d-inline-block">
+                <partial name="_Summary" model="new decimal[] { Model.TotalExpenses,Model.TotalIncome,Model.Balance }" />
+            </h5>
+        </div>
+    </div>
+
+    @{var monthDisplay = Model.IsExpanded ? "revert" : "none";}
+
+    <div class="row border border-secondary alert-secondary gridExpandable" id="@("month__" + Model.Month.ToString("MM_yy"))" style="display: @monthDisplay">
+        <div class="col text-left">
+            @for (int ci = 0; ci < Model.Count; ci++)
+            {
+                var categoryTransactions = Model[ci];
+                var currentCategoryKey = CategoriesForMonthModel.GetCategoryKey(categoryTransactions.CategoryName);
+                var rowClass = categoryTransactions.IsNegativeBalance ? "" : "alert-success";
+                <div class="row @rowClass ml-1">
+                    <a class="text-dark btn btn-link text-left" onclick="onToggleElement('@("category__" + Model.Month.ToString("MM_yy__") + currentCategoryKey)')" style="font-size:large">
+                        <span class="d-inline-block" style="min-width:9em">@currentCategoryKey</span>
+                        <partial name="_Summary" model="new decimal[] { categoryTransactions.TotalExpense,categoryTransactions.TotalIncome,categoryTransactions.Balance }" />
+                    </a>
+                </div> var categoryDisplay = "none";
+                if (categoryTransactions.IsExpanded || Model.Count == 1)
+                {
+                    categoryDisplay = "revert";
+                }
+
+                <div id="@("category__" + Model.Month.ToString("MM_yy__") + currentCategoryKey)" style="display: @categoryDisplay" class="row gridExpandable">
+                    <div class="col border">
+                        <partial name="_Transactions" for="@Model[ci].TransactionsList" />
+                    </div>
+                </div>}
+        </div>
+    </div>''

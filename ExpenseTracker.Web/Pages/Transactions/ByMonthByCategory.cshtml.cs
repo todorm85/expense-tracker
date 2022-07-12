@@ -10,6 +10,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class CategoriesForMonthModel : IEnumerable<TransactionsForCategoryModel>
     {
+        private const string UnspecifiedCategoryKeyName = "unspecified";
         private decimal? totalExpenses;
         private decimal? totalIncome;
         private IList<TransactionsForCategoryModel> transactionsByCateories = new List<TransactionsForCategoryModel>();
@@ -64,6 +65,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.transactionsByCateories = this.transactionsByCateories.OrderByDescending(x => x.TotalExpense).ToList();
         }
 
+        public static string GetCategoryKey(string currentCategory)
+        {
+            currentCategory = string.IsNullOrEmpty(currentCategory) ? UnspecifiedCategoryKeyName : currentCategory;
+            return currentCategory;
+        }
+
         internal void AddTransaction(Transaction t)
         {
             var transactionsForCategory = this.transactionsByCateories.FirstOrDefault(x => x.CategoryName == t.Category);
@@ -79,7 +86,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
     public class TransactionsByMonthByCategoryModel : PageModel
     {
-        private const string UnspecifiedCategoryKeyName = "unspecified";
         private readonly ITransactionsService transactionsService;
 
         public TransactionsByMonthByCategoryModel(
@@ -102,13 +108,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public FiltersModel Filters { get; set; }
 
         public decimal TotalExpense { get; private set; }
-        public decimal TotalIncome { get; private set; }
 
-        public string GetCategoryKey(string currentCategory)
-        {
-            currentCategory = string.IsNullOrEmpty(currentCategory) ? UnspecifiedCategoryKeyName : currentCategory;
-            return currentCategory;
-        }
+        public decimal TotalIncome { get; private set; }
 
         public void OnGet()
         {
@@ -135,7 +136,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 foreach (var category in x)
                 {
                     category.OrderTransactions();
-                    var categoryKey = GetCategoryKey(category.CategoryName);
+                    var categoryKey = CategoriesForMonthModel.GetCategoryKey(category.CategoryName);
                     if (!this.AverageAndTotalsForCategory.ContainsKey(categoryKey))
                         this.AverageAndTotalsForCategory.Add(categoryKey, new decimal[] { 0, 0 });
                     this.AverageAndTotalsForCategory[categoryKey][1] = this.AverageAndTotalsForCategory[categoryKey][1] + category.Balance;

@@ -46,48 +46,7 @@
 
             @for (int mi = 0; mi < Model.CategoriesForMonths.Count; mi++)
             {
-                var monthCategories = Model.CategoriesForMonths[mi];
-                <div class="row border border-primary alert-primary">
-                    <div class="col text-left">
-                        <button class="btn btn-link text-left" type="button" onclick="onToggleElement('@("month__" + monthCategories.Month.ToString("MM_yy"))')">
-                            <h4 style="min-width:10em">@(monthCategories.Month.ToString("yyyy MMMM"))</h4>
-                        </button>
-                        <h5 class="d-inline-block">
-                            <partial name="_Summary" model="new decimal[] { monthCategories.TotalExpenses,monthCategories.TotalIncome,monthCategories.Balance }" />
-                        </h5>
-                    </div>
-                </div>
-
-                var monthDisplay = monthCategories.IsExpanded ? "revert" : "none";
-
-                <div class="row border border-secondary alert-secondary gridExpandable" id="@("month__" + monthCategories.Month.ToString("MM_yy"))" style="display: @monthDisplay">
-                    <div class="col text-left">
-                        @for (int ci = 0; ci < monthCategories.Count; ci++)
-                        {
-                            var categoryTransactions = monthCategories[ci];
-                            var currentCategoryKey = this.Model.GetCategoryKey(categoryTransactions.CategoryName);
-                            var rowClass = categoryTransactions.IsNegativeBalance ? "" : "alert-success";
-                            <div class="row @rowClass ml-1">
-                                <a class="text-dark btn btn-link text-left" onclick="onToggleElement('@("category__" + monthCategories.Month.ToString("MM_yy__") + currentCategoryKey)')" style="font-size:large">
-                                    <span class="d-inline-block" style="min-width:9em">@currentCategoryKey</span>
-                                    <partial name="_Summary" model="new decimal[] { categoryTransactions.TotalExpense,categoryTransactions.TotalIncome,categoryTransactions.Balance }" />
-                                </a>
-                            </div>
-
-                            var categoryDisplay = "none";
-                            if (categoryTransactions.IsExpanded || monthCategories.Count == 1)
-                            {
-                                categoryDisplay = "revert";
-                            }
-
-                            <div id="@("category__" + monthCategories.Month.ToString("MM_yy__") + currentCategoryKey)" style="display: @categoryDisplay" class="row gridExpandable">
-                                <div class="col border">
-                                    <partial name="_Transactions" for="CategoriesForMonths[mi][ci].TransactionsList" />
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
+                <partial name="_CategoriesList" model="@Model.CategoriesForMonths[mi]" />
             }
         }
         else
