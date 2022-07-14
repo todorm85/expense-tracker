@@ -111,12 +111,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 {
                     category.Add(t);
                 }
-                else if (parentCategory != null)
-                {
-                    parentCategory.Categories.Add(category);
-                }
 
-                parentCategory = category;
                 currentCategoriesGroup = category.Categories;
             }
         }
