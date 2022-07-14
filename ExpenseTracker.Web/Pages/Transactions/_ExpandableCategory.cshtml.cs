@@ -15,7 +15,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.categoryName = categoryName;
             this.TransactionsList = new TransactionsListModel() { HideHeader = true };
             this.Categories = new List<ExpandableCategoryModel>();
-            this.BackgroundLightness = 80;
+            this.BackgroundLightness = 60;
+            this.BackgroundHue = 0;
         }
 
         public decimal Balance => this.TotalIncome - this.TotalExpense;
@@ -50,20 +51,15 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             get
             {
-                if (this.backgroundColor == null)
-                {
-                    this.backgroundColor = $"hsl({45}deg, {0}%, {this.BackgroundLightness}%)";
-                }
-
-                return this.backgroundColor;
-            }
-            set
-            {
-                this.backgroundColor = value;
+                return this.backgroundColor = $"hsl({this.BackgroundHue}deg, {BackgroundSaturation}%, {this.BackgroundLightness}%)";
             }
         }
 
         public int BackgroundLightness { get; set; }
+
+        public int BackgroundHue { get; set; }
+
+        public int BackgroundSaturation { get; set; }
 
         public Transaction this[int index] { get => this.TransactionsList.Transactions[index]; set => this.TransactionsList.Transactions[index] = new TransactionModel(value); }
 

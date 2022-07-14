@@ -3,33 +3,38 @@
 @{
     var currentCategoryKey = ExpandableMonthModel.GetCategoryKey(Model.CategoryName);
     var rowClass = Model.IsNegativeBalance ? "" : "alert-success";
-    var textColor = "black";
-    if (Model.BackgroundLightness < 50)
-    {
-        textColor = "white";
-    }
 }
 
-<div class="row @rowClass" style="background-color: @Model.BackgroundColor; color: @textColor">
+<div class="@rowClass" style="background-color: @Model.BackgroundColor;">
     <a class="btn btn-link text-left" onclick="onToggleElement('@Model.ClientId')" style="font-size:large">
         <span class="d-inline-block" style="min-width:9em">@currentCategoryKey.Split("/").Last()</span>
         <partial name="_Summary" model="new decimal[] { Model.TotalExpense, Model.TotalIncome, Model.Balance }" />
     </a>
 </div>
 
-<div id="@Model.ClientId" style="display: none" class="row">
-    <div class="col border">
-        @if (Model.TransactionsList.Transactions.Count > 0)
-        {
-            <partial name="_Transactions" for="@Model.TransactionsList" />
+<div id="@Model.ClientId" style="display: none">
+    <div class="">
+
+        @{
+            var light = Model.BackgroundLightness + 5;
         }
 
         @for (int ci = 0; ci < Model.Categories.Count(); ci++)
         {
             Model.Categories[ci].ClientIdPrefix = Model.ClientIdPrefix;
-            Model.Categories[ci].BackgroundLightness = Model.BackgroundLightness + 5;
+            Model.Categories[ci].BackgroundLightness = light;
+            Model.Categories[ci].BackgroundHue = Model.BackgroundHue;
+            Model.Categories[ci].BackgroundSaturation = Model.BackgroundSaturation;
             <partial name="_ExpandableCategory" for="@Model.Categories[ci]" />
-
         }
+
+        @if (Model.TransactionsList.Transactions.Count > 0)
+        {
+            Model.BackgroundLightness = light;
+            <div style="background-color: @Model.BackgroundColor;" class="pt-2 pb-2">
+                <partial name="_Transactions" for="@Model.TransactionsList" />
+            </div>
+        }
+
     </div>
 </div>
