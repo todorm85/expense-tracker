@@ -46,7 +46,7 @@
 
             @for (int mi = 0; mi < Model.ExpandableMonths.Count; mi++)
             {
-                <partial name="_ExpandableMonth" model="@Model.ExpandableMonths[mi]" />
+                <partial name="_ExpandableMonth" for="@Model.ExpandableMonths[mi]" />
             }
         }
         else
