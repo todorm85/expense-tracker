@@ -14,13 +14,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public YearMonthCategoryModel(
             ITransactionsService transactionsService)
         {
-            this.AverageAndTotalsForCategory = new Dictionary<string, decimal[]>();
+            this.CategorySummaries = new List<CategorySummary>();
             this.ExpandableMonths = new List<ExpandableMonthModel>();
             this.transactionsService = transactionsService;
             this.Filters = new FiltersModel(transactionsService) { HideSorting = true };
         }
 
-        public IDictionary<string, decimal[]> AverageAndTotalsForCategory { get; set; }
+        public IList<CategorySummary> CategorySummaries { get; set; }
         public decimal AverageBalance => this.AverageIncome - this.AverageExpense;
         public decimal AverageExpense { get; private set; }
         public decimal AverageIncome { get; private set; }
@@ -53,22 +53,20 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 categoriesForMonth.AddTransaction(t);
             }
 
-            this.ExpandableMonths.ForEach(x =>
+            var allCategorySummaries = new List<CategorySummary>();
+            this.ExpandableMonths.ForEach(expandableMonth =>
             {
-                x.OrderMonthCategories();
-                foreach (var category in x)
-                {
-                    var categoryKey = ExpandableMonthModel.GetCategoryKey(category.CategoryName);
-                    if (!this.AverageAndTotalsForCategory.ContainsKey(categoryKey))
-                        this.AverageAndTotalsForCategory.Add(categoryKey, new decimal[] { 0, 0 });
-                    this.AverageAndTotalsForCategory[categoryKey][1] = this.AverageAndTotalsForCategory[categoryKey][1] + category.Balance;
-                }
+                var categories = expandableMonth as IEnumerable<ExpandableCategoryModel>;
+                expandableMonth.OrderMonthCategories();
+                GetAllCategorySummaries(allCategorySummaries, categories);
             });
 
-            foreach (var item in this.AverageAndTotalsForCategory)
+            foreach (var item in allCategorySummaries)
             {
-                item.Value[0] = item.Value[1] / this.ExpandableMonths.Count;
+                item.Average = item.Totals / this.ExpandableMonths.Count;
             }
+
+            this.CategorySummaries = allCategorySummaries;
 
             this.AverageExpense = all.Where(x => x.Type == TransactionType.Expense).Sum(x => x.Amount) / this.ExpandableMonths.Count;
             this.TotalExpense = all.Where(x => x.Type == TransactionType.Expense).Sum(x => x.Amount);
@@ -76,9 +74,34 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.TotalIncome = all.Where(x => x.Type == TransactionType.Income).Sum(x => x.Amount);
         }
 
+        private static void GetAllCategorySummaries(List<CategorySummary> allCategorySummaries, IEnumerable<ExpandableCategoryModel> categories)
+        {
+            foreach (var expandableCategory in categories)
+            {
+
+            }
+            var categoryKey = ExpandableMonthModel.GetCategoryKey(currentCatSum.CategoryName);
+            var cs = allCategorySummaries.FirstOrDefault(cs => cs.Name == categoryKey);
+            if (cs == null)
+            {
+                cs = new CategorySummary() { Name = currentCatSum.CategoryName };
+                allCategorySummaries.Add(cs);
+            }
+
+            cs.Totals += currentCatSum.Balance;
+        }
+
         public void OnPost()
         {
             OnGet();
         }
+    }
+
+    public class CategorySummary
+    {
+        public string Name { get; set; }
+        public decimal Average { get; set; }
+        public decimal Totals { get; set; }
+        public IList<CategorySummary> Children { get; set; }
     }
 }
