@@ -24,7 +24,8 @@ namespace ExpenseTracker.Core.Transactions
             DuplicateEntry,
             InvalidType,
             Skipped,
-            InvalidSource
+            InvalidSource,
+            InvalidId
         }
 
         public Reason ReasonResult { get; set; }
@@ -126,6 +127,12 @@ namespace ExpenseTracker.Core.Transactions
                 if (skip)
                 {
                     skippedResult.Add(new TransactionInsertResult(t, TransactionInsertResult.Reason.Skipped));
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(t.TransactionId))
+                {
+                    skippedResult.Add(new TransactionInsertResult(t, TransactionInsertResult.Reason.InvalidId));
                     continue;
                 }
 

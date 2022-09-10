@@ -19,6 +19,11 @@ namespace ExpenseTracker.Integrations.Files
                 while (!string.IsNullOrWhiteSpace(line))
                 {
                     var fgs = line.Split(',');
+                    if (fgs.Length == 1)
+                    {
+                        fgs = line.Split(';');
+                    }
+
                     if (fgs.Length != 10)
                     {
                         throw new Exception($"Unexpected count of columns for entry. {line}");
@@ -66,7 +71,8 @@ namespace ExpenseTracker.Integrations.Files
         {
             if (!DateTime.TryParseExact(date, "M/d/yyyy H:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
                 if (!DateTime.TryParseExact(date, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
-                    throw new Exception("Invalid date format.");
+                    if (!DateTime.TryParseExact(date, "d.M.yyyy H:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                        throw new Exception("Invalid date format.");
             parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
             var bgTz = TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time");
             var offset = bgTz.GetUtcOffset(parsedDate);

@@ -27,14 +27,7 @@
             <div class="text-left border rounded mb-3">
                 @foreach (var catAvg in Model.CategorySummaries)
                 {
-                    var catBalClass = (catAvg.Totals > 0) ? "success" : "danger";
-                    var catBalAvgClass = (catAvg.Average > 0) ? "success" : "danger";
-
-                    <div class="d-inline-block p-2 m-1 bg-light border rounded">
-                        <span class="badge badge-secondary mr-1">@(string.IsNullOrEmpty(catAvg.Name) ? "Unspecified" : catAvg.Name)</span>
-                        <span>@catAvg.Totals.ToString("N0")</span> |
-                        <span class="text-secondary">@catAvg.Average.ToString("N0")</span>
-                    </div>
+                    <partial name="_CategorySummary" for="@catAvg" />
                 }
             </div>
 

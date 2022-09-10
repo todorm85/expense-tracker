@@ -74,21 +74,36 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.TotalIncome = all.Where(x => x.Type == TransactionType.Income).Sum(x => x.Amount);
         }
 
-        private static void GetAllCategorySummaries(List<CategorySummary> allCategorySummaries, IEnumerable<ExpandableCategoryModel> categories)
+        private static void GetAllCategorySummaries(List<CategorySummary> catSums, IEnumerable<ExpandableCategoryModel> categories)
         {
-            foreach (var expandableCategory in categories)
+            while (categories.Count() > 0)
             {
+                var nextBatch = new List<ExpandableCategoryModel>();
+                foreach (var expandableCategory in categories)
+                {
+                    IList<CategorySummary> currentLevelCategorySummaries = catSums;
+                    var path = ExpandableMonthModel.GetCategoryKey(expandableCategory.CategoryName).Split('/');
+                    for (int i = 0; i < path.Length; i++)
+                    {
+                        var cs = currentLevelCategorySummaries.FirstOrDefault(x => x.Name == path[i]);
+                        if (cs == null)
+                        {
+                            cs = new CategorySummary() { Name = path[i] };
+                            currentLevelCategorySummaries.Add(cs);
+                        }
 
-            }
-            var categoryKey = ExpandableMonthModel.GetCategoryKey(currentCatSum.CategoryName);
-            var cs = allCategorySummaries.FirstOrDefault(cs => cs.Name == categoryKey);
-            if (cs == null)
-            {
-                cs = new CategorySummary() { Name = currentCatSum.CategoryName };
-                allCategorySummaries.Add(cs);
-            }
+                        cs.Totals += expandableCategory.Balance;
+                        currentLevelCategorySummaries = cs.Children;
+                    }
 
-            cs.Totals += currentCatSum.Balance;
+                    if (expandableCategory.Categories.Count > 0)
+                    {
+                        nextBatch.AddRange(expandableCategory.Categories);
+                    }
+                }
+
+                categories = nextBatch;
+            }
         }
 
         public void OnPost()
@@ -99,9 +114,16 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
     public class CategorySummary
     {
+        public CategorySummary()
+        {
+            this.Children = new List<CategorySummary>();
+            this.Level = 1;
+        }
+
         public string Name { get; set; }
         public decimal Average { get; set; }
         public decimal Totals { get; set; }
         public IList<CategorySummary> Children { get; set; }
+        public int Level { get; set; }
     }
 }

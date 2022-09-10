@@ -24,6 +24,7 @@ namespace ExpenseTracker.Allianz
                 t.Date = DateTime.ParseExact(matches[0].Groups["date"].Value.Trim(), "dd.MM.yyyy", CultureInfo.InvariantCulture);
                 t.Type = TransactionType.Expense;
                 t.Source = "reifeizen_mail";
+                t.TransactionId = TransactionsService.GenerateTransactionId(t.Date, t.Amount, t.Details);
             }
 
             return t;

@@ -46,6 +46,7 @@ namespace ExpenseTracker.Allianz
                     var rawDate = entry.SelectSingleNode("d3p1:ValueDate", m).InnerText;
                     t.Details = entry.SelectSingleNode("d3p1:Narrative", m).InnerText;
                     t.Date = DateTime.ParseExact(rawDate, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
+                    t.TransactionId = TransactionsService.GenerateTransactionId(t.Date, t.Amount, t.Details);
                 }
 
                 t.Source = "reifeizen_file";

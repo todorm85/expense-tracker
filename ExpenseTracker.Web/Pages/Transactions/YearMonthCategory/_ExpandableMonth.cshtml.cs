@@ -86,7 +86,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             var categoryParts = t.Category?.Split("/") ?? new string[1] { null };
             var currentCategoriesGroup = this.categories;
-            ExpandableCategoryModel parentCategory = null;
             var currentCategoryName = string.Empty;
             for (int i = 0; i < categoryParts.Length; i++)
             {
