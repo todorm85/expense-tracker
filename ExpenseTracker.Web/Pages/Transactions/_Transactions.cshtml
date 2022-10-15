@@ -46,13 +46,13 @@
                     }
                     <input id="date_@t.TransactionId" type="@dateType" asp-for="@Model.Transactions[transx].Date" class="form-control" style="width: @(dateWidth)!important;" />
                 </td>
-                <td style="width:5%"><input id="amount_@t.TransactionId" asp-for="@Model.Transactions[transx].Amount" class="form-control auto-select" style="min-width:80px" /></td>
+                <td style="width:5%"><input id="amount_@t.TransactionId" asp-for="@Model.Transactions[transx].Amount" class="form-control auto-select" style="min-width:80px" onchange="onInputChanged(this, '@t.TransactionId')" /></td>
                 <td style="width:60%">
                     <textarea id="details_@t.TransactionId" asp-for="@Model.Transactions[transx].Details" rows="@Model.DetailsHeight" class="form-control" style="min-width:150px;"></textarea>
                 </td>
                 <td style="width:20%">
                     <input id="category_@t.TransactionId" asp-for="@Model.Transactions[transx].Category"
-                           class="form-control auto-select" placeholder="name:key(opt)" style="min-width: 150px;" list="cats" autocomplete="off"/>
+                       class="form-control auto-select" placeholder="name:key(opt)" style="min-width: 150px;" list="cats" autocomplete="off" />
                 </td>
                 @if (Model.ShowSource)
                 {
@@ -69,7 +69,7 @@
                     <td style="min-width: 9em;">
                         <div style="display: @failedDisplay" class="failed_@t.TransactionId">
                             <input id="category_@t.TransactionId" asp-for="@Model.Transactions[transx].Reason"
-                                   class="form-control" placeholder="name:key(opt)" disabled style="min-width: 100px;" />
+                           class="form-control" placeholder="name:key(opt)" disabled style="min-width: 100px;" />
                         </div>
                     </td>
                 }
@@ -79,17 +79,16 @@
                 <td style="width:15%; min-width: 90px;">
                     <div style="display: @failedDisplay" class="failed_@t.TransactionId">
                         <button class="btn" style="width: 30px; height:30px" type="button" formAction="/Transactions/Api/?handler=Create"
-                                onclick="onTransactionUpdate(this, '@t.TransactionId', true)">
+                            onclick="onTransactionUpdate(this, '@t.TransactionId', true)">
                             force create
                         </button>
                     </div>
                     <div style="display: @addedDisplay" class="added_@t.TransactionId">
-                        <button class="btn" style="width: 30px; height:30px; padding:3px; margin-right: 15px; font-size: 20px;" type="button" formAction="/Transactions/Api/?handler=Update"
-                                onclick="onTransactionUpdate(this, '@t.TransactionId')">
-                            &#10004;
+                        <button type="button" formAction="/Transactions/Api/?handler=Update"
+                            onclick="onTransactionUpdate(this, '@t.TransactionId')" btn-apply>
                         </button>
                         <button type="button" formAction="/Transactions/Api/?handler=Delete&id=@t.TransactionId"
-                                onclick="onDelete(this, '@t.TransactionId')" btn-del>
+                            onclick="onDelete(this, '@t.TransactionId')" btn-del>
                         </button>
                     </div>
                 </td>
@@ -101,66 +100,77 @@
 <vc:categories-data-list id="cats"></vc:categories-data-list>
 
 <script>
-    function onTransactionUpdate(button, id, isForceCreate) {
-        var date = document.getElementById("date_" + id).value;
-        var details = document.getElementById("details_" + id).value;
-        var amount = document.getElementById("amount_" + id).value;
-        var category = document.getElementById("category_" + id).value;
-        var type = document.getElementById("type_" + id).value;
-        var source = document.getElementById("source_" + id).value;
-
-        var handler = button.formAction;
-        var coverElement = document.createElement('div')
-        coverElement.style = "background-color: lightgrey; width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 50%;"
-        var parent = button.parentElement.parentElement.parentElement;
-        parent.style.position = "relative";
-        parent.appendChild(coverElement);
-        postAjax(handler,
-            sender => {
-                coverElement.style.backgroundColor = 'lightgreen'
-                setTimeout(() => {
-                    parent.removeChild(coverElement);
-                }, 700)
-                if (isForceCreate) {
-                    var rowsToRemove = document.querySelectorAll(".failed_" + id);
-                    rowsToRemove.forEach(x => x.style.display = 'none');
-                    var rowsToShow = document.querySelectorAll(".added_" + id);
-                    rowsToShow.forEach(x => x.style.display = 'revert');
-                }
-            },
-            sender => {
-                coverElement.style.backgroundColor = 'red'
-                setTimeout(() => {
-                    parent.removeChild(coverElement);
-                }, 700)
-            },
-            {
-                Date: new Date(date),
-                Details: details,
-                Amount: +amount,
-                Category: category,
-                TransactionId: id,
-                Type: +type,
-                Source: source,
-            }
-        );
-    }
-
-    function onDelete(btn, id) {
-        var handler = btn.formAction;
-        var response = confirm("Delete?")
-        if (!response) {
-            return;
+        function _getCoverElement() {
+            var coverElement = document.createElement('div')
+            coverElement.style = "background-color: lightgrey; width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 50%;"
+            return coverElement;
         }
-        postAjax(handler,
-            sender => {
-                var rowToRemove = document.getElementById("trRow_" + id);
-                //rowToRemove.parentNode.removeChild(rowToRemove);
-                rowToRemove.style.display = 'none';
-            },
-            sender => {
-                alert("error");
+
+        function onTransactionUpdate(button, id, isForceCreate) {
+            var date = document.getElementById("date_" + id).value;
+            var details = document.getElementById("details_" + id).value;
+            var amount = document.getElementById("amount_" + id).value;
+            var category = document.getElementById("category_" + id).value;
+            var type = document.getElementById("type_" + id).value;
+            var source = document.getElementById("source_" + id).value;
+
+            var handler = button.formAction;
+            var coverElement = _getCoverElement();
+            var parent = button.parentElement.parentElement.parentElement;
+            parent.style.position = "relative";
+            parent.appendChild(coverElement);
+            postAjax(handler,
+                sender => {
+                    coverElement.style.backgroundColor = 'lightgreen'
+                    setTimeout(() => {
+                        parent.removeChild(coverElement);
+                    }, 700)
+                    if (isForceCreate) {
+                        var rowsToRemove = document.querySelectorAll(".failed_" + id);
+                        rowsToRemove.forEach(x => x.style.display = 'none');
+                        var rowsToShow = document.querySelectorAll(".added_" + id);
+                        rowsToShow.forEach(x => x.style.display = 'revert');
+                    }
+                },
+                sender => {
+                    coverElement.style.backgroundColor = 'red'
+                    setTimeout(() => {
+                        parent.removeChild(coverElement);
+                    }, 700)
+                },
+                {
+                    Date: new Date(date),
+                    Details: details,
+                    Amount: +amount,
+                    Category: category,
+                    TransactionId: id,
+                    Type: +type,
+                    Source: source,
+                }
+            );
+        }
+
+        function onInputChanged(el, id) {
+            var parent = el.closest("tr");
+            parent.style.border = "1px solid red"
+            changed.push(id);
+        }
+
+        function onDelete(btn, id) {
+            var handler = btn.formAction;
+            var response = confirm("Delete?")
+            if (!response) {
+                return;
             }
-        );
-    }
+            postAjax(handler,
+                sender => {
+                    var rowToRemove = document.getElementById("trRow_" + id);
+                    //rowToRemove.parentNode.removeChild(rowToRemove);
+                    rowToRemove.style.display = 'none';
+                },
+                sender => {
+                    alert("error");
+                }
+            );
+        }
 </script>
