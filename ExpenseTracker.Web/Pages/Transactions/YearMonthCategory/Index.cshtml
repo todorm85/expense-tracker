@@ -20,7 +20,7 @@
             </span>
         </h5>
 
-        <partial name="_Filters" for="Filters" />
+        <partial name="_TransactionsFilter" for="Filters" />
 
         @if (Model.ExpandableMonths.Count > 0)
         {
@@ -40,5 +40,38 @@
         {
             <div class="alert-warning alert">No transactions found.</div>
         }
+
+        <input type="hidden" id="updated_date" asp-for="UpdatedTransaction.Date" />
+        <input type="hidden" id="updated_amount" asp-for="UpdatedTransaction.Amount" />
+        <input type="hidden" id="updated_details" asp-for="UpdatedTransaction.Details" />
+        <input type="hidden" id="updated_category" asp-for="UpdatedTransaction.Category" />
+        <input type="hidden" id="updated_type" asp-for="UpdatedTransaction.Type" />
+        <input type="hidden" id="updated_id" asp-for="UpdatedTransaction.TransactionId" />
+        <input type="hidden" id="updated_source" asp-for="UpdatedTransaction.Source" />
+
     </form>
 </div>
+
+
+
+@section Scripts
+    {
+    <script>
+        function onUpdate(ev, id) {
+            var date = document.getElementById('date_' + id);
+            var amount = document.getElementById('amount_' + id);
+            var details = document.getElementById('details_' + id);
+            var category = document.getElementById('category_' + id);
+            var type = document.getElementById('type_' + id);
+            var source = document.getElementById('source_' + id);
+
+            document.getElementById('updated_date').value = date.value;
+            document.getElementById('updated_amount').value = amount.value;
+            document.getElementById('updated_details').value = details.value;
+            document.getElementById('updated_category').value = category.value;
+            document.getElementById('updated_type').value = type.value;
+            document.getElementById('updated_id').value = id;
+            document.getElementById('updated_source').value = source.value;
+        }
+    </script>
+}

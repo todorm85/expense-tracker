@@ -84,7 +84,7 @@
                         </button>
                     </div>
                     <div style="display: @addedDisplay" class="added_@t.TransactionId">
-                        <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="updateTransaction" btn-apply></button>
+                        <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="updateTransaction" onclick="return onUpdate(event, '@t.TransactionId')" btn-apply></button>
                         <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="deleteTransaction" btn-del></button>
                     </div>
                 </td>

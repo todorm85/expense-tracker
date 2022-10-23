@@ -1,5 +1,7 @@
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Core.Transactions.Rules;
 using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,13 +13,15 @@ namespace ExpenseTracker.Web.Pages.Transactions
     public class YearMonthCategoryModel : PageModel
     {
         private readonly ITransactionsService transactionsService;
+        private readonly IGenericRepository<Rule> rules;
 
         public YearMonthCategoryModel(
-            ITransactionsService transactionsService)
+            ITransactionsService transactionsService, IGenericRepository<Rule> rules)
         {
             this.CategorySummaries = new List<CategorySummary>();
             this.ExpandableMonths = new List<ExpandableMonthModel>();
             this.transactionsService = transactionsService;
+            this.rules = rules;
             this.Filters = new TransactionsFilterViewModel() { HideSorting = true };
         }
 
@@ -31,13 +35,17 @@ namespace ExpenseTracker.Web.Pages.Transactions
         [BindProperty]
         public TransactionsFilterViewModel Filters { get; set; }
 
+        [BindProperty]
+        public TransactionModel UpdatedTransaction { get; set; }
+
         public decimal TotalExpense { get; private set; }
 
         public decimal TotalIncome { get; private set; }
 
-        public void OnGet()
+        public void OnGet(string filters)
         {
-            this.ModelState.Clear();
+            this.Filters = TransactionsFilterViewModel.FromString(filters, transactionsService);
+            this.Filters.HideSorting = true;
             var all = this.transactionsService.GetAll(this.Filters.GetFilterQuery());
             if (all.Count() == 0)
                 return;
@@ -75,6 +83,18 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.TotalIncome = all.Where(x => x.Type == TransactionType.Income).Sum(x => x.Amount);
         }
 
+        public IActionResult OnPostUpdateTransaction()
+        {
+            UpdatedTransaction.Update(transactionsService, rules);
+            return OnPost();
+        }
+
+        public IActionResult OnPostDeleteTransaction(string id)
+        {
+            transactionsService.RemoveById(id);
+            return OnPost();
+        }
+
         private static void GetAllCategorySummaries(List<CategorySummary> catSums, IEnumerable<ExpandableCategoryModel> categories)
         {
             while (categories.Count() > 0)
@@ -107,9 +127,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
             }
         }
 
-        public void OnPost()
+        public IActionResult OnPost()
         {
-            OnGet();
+            return RedirectToPage(new { Filters});
         }
     }
 
