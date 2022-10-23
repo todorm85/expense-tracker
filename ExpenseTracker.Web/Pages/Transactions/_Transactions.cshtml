@@ -84,12 +84,8 @@
                         </button>
                     </div>
                     <div style="display: @addedDisplay" class="added_@t.TransactionId">
-                        <button type="button" formAction="/Transactions/Api/?handler=Update"
-                            onclick="onTransactionUpdate(this, '@t.TransactionId')" btn-apply>
-                        </button>
-                        <button type="button" formAction="/Transactions/Api/?handler=Delete&id=@t.TransactionId"
-                            onclick="onDelete(this, '@t.TransactionId')" btn-del>
-                        </button>
+                        <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="updateTransaction" btn-apply></button>
+                        <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="deleteTransaction" btn-del></button>
                     </div>
                 </td>
             </tr>
@@ -98,79 +94,3 @@
 </table>
 
 <vc:categories-data-list id="cats"></vc:categories-data-list>
-
-<script>
-        function _getCoverElement() {
-            var coverElement = document.createElement('div')
-            coverElement.style = "background-color: lightgrey; width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 50%;"
-            return coverElement;
-        }
-
-        function onTransactionUpdate(button, id, isForceCreate) {
-            var date = document.getElementById("date_" + id).value;
-            var details = document.getElementById("details_" + id).value;
-            var amount = document.getElementById("amount_" + id).value;
-            var category = document.getElementById("category_" + id).value;
-            var type = document.getElementById("type_" + id).value;
-            var source = document.getElementById("source_" + id).value;
-
-            var handler = button.formAction;
-            var coverElement = _getCoverElement();
-            var parent = button.parentElement.parentElement.parentElement;
-            parent.style.position = "relative";
-            parent.appendChild(coverElement);
-            postAjax(handler,
-                sender => {
-                    coverElement.style.backgroundColor = 'lightgreen'
-                    setTimeout(() => {
-                        parent.removeChild(coverElement);
-                    }, 700)
-                    if (isForceCreate) {
-                        var rowsToRemove = document.querySelectorAll(".failed_" + id);
-                        rowsToRemove.forEach(x => x.style.display = 'none');
-                        var rowsToShow = document.querySelectorAll(".added_" + id);
-                        rowsToShow.forEach(x => x.style.display = 'revert');
-                    }
-                },
-                sender => {
-                    coverElement.style.backgroundColor = 'red'
-                    setTimeout(() => {
-                        parent.removeChild(coverElement);
-                    }, 700)
-                },
-                {
-                    Date: new Date(date),
-                    Details: details,
-                    Amount: +amount,
-                    Category: category,
-                    TransactionId: id,
-                    Type: +type,
-                    Source: source,
-                }
-            );
-        }
-
-        function onInputChanged(el, id) {
-            var parent = el.closest("tr");
-            parent.style.border = "1px solid red"
-            changed.push(id);
-        }
-
-        function onDelete(btn, id) {
-            var handler = btn.formAction;
-            var response = confirm("Delete?")
-            if (!response) {
-                return;
-            }
-            postAjax(handler,
-                sender => {
-                    var rowToRemove = document.getElementById("trRow_" + id);
-                    //rowToRemove.parentNode.removeChild(rowToRemove);
-                    rowToRemove.style.display = 'none';
-                },
-                sender => {
-                    alert("error");
-                }
-            );
-        }
-</script>

@@ -1,13 +1,17 @@
-﻿using ExpenseTracker.Core.Transactions;
+﻿using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Core.Transactions.Rules;
+using ExpenseTracker.Web.Pages.Shared;
+using ExpenseTracker.Web.Pages.Shared.Components.Filter;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
     public enum SortOptions
     {
+        None,
         Date,
         Category,
         Amount
@@ -19,73 +23,61 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IndexModel(ITransactionsService transactions)
         {
-            this.transactionsService = transactions;
-            this.Filters = new FiltersModel(transactionsService);
-            this.TransactionsList = new TransactionsListModel();
+            transactionsService = transactions;
+            TransactionsList = new TransactionsListModel();
         }
+
+        [BindProperty]
+        public FiltersViewModel Filter { get; set; }
+
+        public TransactionsListModel TransactionsList { get; set; }
+        
+        [BindProperty(SupportsGet = true)]
+        public PagerModel Pager { get; set; }
 
         public decimal Expenses { get; set; }
 
-        [BindProperty]
-        public FiltersModel Filters { get; set; }
-
         public decimal Income { get; set; }
+
         public decimal Saved { get; set; }
-
-        [BindProperty]
-        public TransactionsListModel TransactionsList { get; set; }
-
-        public void OnGet()
+        
+        public void OnGet(string filter)
         {
-            this.ModelState.Clear();
-            IEnumerable<Transaction> transactions = this.Filters.GetTransactionsFiltered(transactionsService);
-            IEnumerable<Transaction> sorted = new List<Transaction>();
-            switch (this.Filters.SortBy)
-            {
-                case SortOptions.Date:
-                    sorted = transactions.OrderByDescending(x => x.Date);
-                    break;
+            Filter = filter != null ? ModelSerialization.Deserialize<FiltersViewModel>(filter) : new FiltersViewModel();
+            var filterQuery = Filter.GetFilterQuery();
+            var sortBy = Filter.SortBy == SortOptions.None ? null : Filter.SortBy.ToString();
+            var transactions = new PaginatedList<Transaction>(transactionsService, filterQuery, Pager.CurrentPage, 10, sortBy);
+            TransactionsList.Transactions = transactions.Select(t => new TransactionModel(t)).ToList();
+            
+            Pager.PageCount = transactions.TotalPagesCount;
+            Pager.RouteParams.Add("filter", Filter.ToString());
 
-                case SortOptions.Category:
-                    sorted = transactions.OrderBy(x => x.Category);
-                    break;
-
-                case SortOptions.Amount:
-                    sorted = transactions.OrderByDescending(x => x.Amount);
-                    break;
-
-                default:
-                    break;
-            }
-
-            this.TransactionsList.Transactions = sorted.Select(t => new TransactionModel(t)).ToList();
-            this.Expenses = this.TransactionsList.Transactions.Where(x => x.Type == TransactionType.Expense)
+            Expenses = TransactionsList.Transactions.Where(x => x.Type == TransactionType.Expense)
                 .Sum(x => x.Amount);
-            this.Income = this.TransactionsList.Transactions.Where(x => x.Type == TransactionType.Income)
+            Income = TransactionsList.Transactions.Where(x => x.Type == TransactionType.Income)
                 .Sum(x => x.Amount);
-            this.Saved = this.Income - this.Expenses;
+            Saved = Income - Expenses;
         }
 
-        public void OnPost()
-        {
-            this.OnGet();
-        }
-
-        public void OnPostDeleteAll()
-        {
-            this.transactionsService.RemoveById(this.transactionsService.GetAll());
-            this.ModelState.Clear();
-            this.TransactionsList.Transactions.Clear();
-        }
-
-        public void OnPostDeleteFiltered()
+        public IActionResult OnPostDeleteFiltered()
         {
             foreach (var t in TransactionsList.Transactions)
             {
-                this.transactionsService.RemoveById(t.TransactionId);
+                transactionsService.RemoveById(t.TransactionId);
             }
 
-            this.OnGet();
+            return OnPost();
+        }
+
+        public IActionResult OnPostDeleteTransaction(string id)
+        {
+            transactionsService.RemoveById(id);
+            return OnPost();
+        }
+
+        public IActionResult OnPost()
+        {
+            return RedirectToPage(new { Filter });
         }
     }
 }

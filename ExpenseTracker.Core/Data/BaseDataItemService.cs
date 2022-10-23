@@ -18,9 +18,9 @@ namespace ExpenseTracker.Core.Data
             return this.repo.Count(expression);
         }
 
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate = null, int skip = 0, int take = int.MaxValue)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate = null)
         {
-            return this.repo.GetAll(predicate, skip, take);
+            return this.repo.GetAll(predicate);
         }
 
         public virtual T GetById(object id)

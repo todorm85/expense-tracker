@@ -8,7 +8,7 @@ namespace ExpenseTracker.Core.Data
     {
         int Count(Expression<Func<T, bool>> expression = null);
 
-        IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null, int skip = 0, int take = int.MaxValue);
+        IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null);
 
         T GetById(object id);
 

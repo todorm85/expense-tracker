@@ -1,5 +1,6 @@
 using ExpenseTracker.Core;
 using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Web.Pages.Shared.Components.Filter;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.CategorySummaries = new List<CategorySummary>();
             this.ExpandableMonths = new List<ExpandableMonthModel>();
             this.transactionsService = transactionsService;
-            this.Filters = new FiltersModel(transactionsService) { HideSorting = true };
+            this.Filters = new FiltersViewModel() { HideSorting = true };
         }
 
         public IList<CategorySummary> CategorySummaries { get; set; }
@@ -28,7 +29,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public List<ExpandableMonthModel> ExpandableMonths { get; set; }
 
         [BindProperty]
-        public FiltersModel Filters { get; set; }
+        public FiltersViewModel Filters { get; set; }
 
         public decimal TotalExpense { get; private set; }
 
@@ -37,7 +38,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public void OnGet()
         {
             this.ModelState.Clear();
-            var all = this.Filters.GetTransactionsFiltered(transactionsService);
+            var all = this.transactionsService.GetAll(this.Filters.GetFilterQuery());
             if (all.Count() == 0)
                 return;
 

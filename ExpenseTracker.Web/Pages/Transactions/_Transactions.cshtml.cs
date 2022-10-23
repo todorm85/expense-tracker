@@ -1,4 +1,7 @@
-﻿using ExpenseTracker.Core.Transactions;
+﻿using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Core.Transactions.Rules;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,6 +22,31 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
 
         public TransactionInsertResult.Reason Reason { get; set; }
+
+        internal Transaction ToDbModel()
+        {
+            Transaction dbModel = new Transaction();
+            dbModel.TransactionId = this.TransactionId;
+            dbModel.Details = this.Details;
+            dbModel.Amount = this.Amount;
+            dbModel.Date = this.Date;
+            dbModel.Category = this.Category ?? "";
+            dbModel.Type = this.Type;
+            return dbModel;
+        }
+
+        internal void Update(ITransactionsService transactionsService, IGenericRepository<Rule> rules)
+        {
+            var dbModel = transactionsService.GetAll(x => x.TransactionId == this.TransactionId).First();
+            if (this.Category != dbModel.Category && this.Category?.Contains(":") == true)
+            {
+                var parts = this.Category.Split(":");
+                this.Category = parts[0];
+                rules.Insert(new Rule() { ValueToSet = parts[0], ConditionValue = parts[1], Condition = RuleCondition.Contains, Action = RuleAction.SetProperty, Property = "Details", PropertyToSet = "Category" });
+            }
+
+            transactionsService.Update(new Transaction[] { this.ToDbModel() });
+        }
     }
 
     public class TransactionsListModel

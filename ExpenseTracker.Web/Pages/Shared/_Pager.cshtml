@@ -1,0 +1,10 @@
+﻿@model PagerModel
+<ul class="pagination">
+    @for (int i = 0; i < Model.PageCount; i++)
+    {
+        var disabledClass = Model.CurrentPage == i ? "disabled" : string.Empty;
+        Model.RouteParams["CurrentPage"] = i.ToString();
+
+        <li class="page-item @disabledClass"><a class="page-link" asp-all-route-data="Model.RouteParams">@(i + 1)</a></li>
+    }
+</ul>

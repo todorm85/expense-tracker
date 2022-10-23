@@ -36,17 +36,15 @@ namespace ExpenseTracker.Data
                 return this.context.Count();
         }
 
-        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate = null, int skip = 0, int take = int.MaxValue)
+        // The only thing needed to optimize for local db is filtering in order to protect against serialization of all db entries, everything else like ordering and skip and take should be done in memmory
+        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate = null)
         {
             if (predicate == null)
             {
-                if (skip == 0 && take == int.MaxValue)
-                    return this.context.FindAll();
-                else
                     predicate = x => true;
             }
-         
-            return this.context.Find(predicate, skip, take).AsEnumerable();
+
+            return this.context.Find(predicate);
         }
 
         public virtual T GetById(object id)
