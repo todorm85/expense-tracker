@@ -17,7 +17,6 @@
     </div>
     <form method="post" onkeydown="return event.key != 'Enter';">
         <partial name="_Filter" for="Filter" />
-
         <partial name="_Transactions" for="TransactionsList" />
         <div class="text-right mb-2">
             <button type="submit" asp-page-handler="DeleteFiltered">Delete Filtered</button>

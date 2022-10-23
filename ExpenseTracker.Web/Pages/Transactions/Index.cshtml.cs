@@ -41,7 +41,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public void OnGet(string filter)
         {
-            Filter = Filter != null ? ModelSerialization.Deserialize<FiltersViewModel>(filter) : new FiltersViewModel();
+            Filter = filter != null ? ModelSerialization.Deserialize<FiltersViewModel>(filter) : new FiltersViewModel();
             Filter.Init(this.transactionsService.GetAllCategories());
 
             var filterQuery = Filter.GetFilterQuery();
