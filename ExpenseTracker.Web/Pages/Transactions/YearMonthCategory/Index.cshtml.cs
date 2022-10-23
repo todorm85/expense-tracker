@@ -95,7 +95,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IActionResult OnPostDeleteTransaction(string id)
         {
             transactionsService.RemoveById(id);
-            return OnPost();
+            return OnPost(true);
         }
 
         private static void GetAllCategorySummaries(List<CategorySummary> catSums, IEnumerable<ExpandableCategoryModel> categories)
