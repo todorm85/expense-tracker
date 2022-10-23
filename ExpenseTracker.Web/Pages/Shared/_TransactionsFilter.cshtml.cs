@@ -65,8 +65,7 @@ namespace ExpenseTracker.Web.Pages.Shared
             }
             else
             {
-                SelectedCategories = SelectedCategories.Where(x => categories.Contains(x) && x != "ignored").ToList();
-                SelectedCategories.Add(UncategorisedOptionValue);
+                SelectedCategories = SelectedCategories.Where(x => categories.Contains(x) || x == UncategorisedOptionValue).ToList();
             }
 
             CategoriesDropDownModel = CategoriesDropDownModel.Union(categories.Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
