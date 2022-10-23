@@ -20,6 +20,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal Balance => this.TotalIncome - this.TotalExpenses;
         public int Count => this.categories.Count;
         public DateTime Month { get; private set; }
+        public string ClientId => "month__" + Month.ToString("MM_yy");
 
         public decimal TotalExpenses
         {

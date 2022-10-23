@@ -42,6 +42,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public decimal TotalIncome { get; private set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string ToggledElements { get; set; }
+
         public void OnGet(string filters)
         {
             this.Filters = TransactionsFilterViewModel.FromString(filters, transactionsService);
@@ -86,7 +89,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IActionResult OnPostUpdateTransaction()
         {
             UpdatedTransaction.Update(transactionsService, rules);
-            return OnPost();
+            return OnPost(ToggledElements);
         }
 
         public IActionResult OnPostDeleteTransaction(string id)

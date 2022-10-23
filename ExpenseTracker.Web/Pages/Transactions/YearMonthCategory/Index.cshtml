@@ -41,6 +41,8 @@
             <div class="alert-warning alert">No transactions found.</div>
         }
 
+        <input type="hidden" id="toggledElements" asp-for="ToggledElements" />
+
         <input type="hidden" id="updated_date" asp-for="UpdatedTransaction.Date" />
         <input type="hidden" id="updated_amount" asp-for="UpdatedTransaction.Amount" />
         <input type="hidden" id="updated_details" asp-for="UpdatedTransaction.Details" />
@@ -52,11 +54,25 @@
     </form>
 </div>
 
-
-
 @section Scripts
     {
     <script>
+        document.onload(() => {
+            var map = document.getElementById('toggledElements');
+            var ids = map.Split(' ');
+            fore
+        });
+
+        function onToggleElement(id) {
+            var result = toggleElement(id);
+            var map = document.getElementById('toggledElements');
+            if (result === 'none') {
+                map.value.replace(id, '');
+            } else {
+                map.value = map.value + ' ' + id;
+            }
+        }
+
         function onUpdate(ev, id) {
             var date = document.getElementById('date_' + id);
             var amount = document.getElementById('amount_' + id);
