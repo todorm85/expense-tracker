@@ -47,7 +47,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPostDeleteAll()
         {
-            foreach (var t in TransactionsList.Transactions)
+            foreach (var t in this.transactionsService.GetAll(Filter.GetFilterQuery()))
             {
                 transactionsService.RemoveById(t.TransactionId);
             }

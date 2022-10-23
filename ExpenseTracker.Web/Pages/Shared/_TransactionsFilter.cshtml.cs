@@ -30,8 +30,6 @@ namespace ExpenseTracker.Web.Pages.Shared
             {
                 new SelectListItem("uncategorised", UncategorisedOptionValue)
             };
-
-            SelectedCategories = new List<string>();
         }
 
         [JsonIgnore]
@@ -67,7 +65,8 @@ namespace ExpenseTracker.Web.Pages.Shared
             }
             else
             {
-                SelectedCategories = SelectedCategories.Where(x => categories.Contains(x)).ToList();
+                SelectedCategories = SelectedCategories.Where(x => categories.Contains(x) && x != "ignored").ToList();
+                SelectedCategories.Add(UncategorisedOptionValue);
             }
 
             CategoriesDropDownModel = CategoriesDropDownModel.Union(categories.Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
