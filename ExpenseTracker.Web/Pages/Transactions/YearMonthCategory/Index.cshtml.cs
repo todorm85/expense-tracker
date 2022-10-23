@@ -116,7 +116,16 @@ namespace ExpenseTracker.Web.Pages.Transactions
                             currentLevelCategorySummaries.Add(cs);
                         }
 
-                        cs.Totals += expandableCategory.Balance;
+                        cs.Totals += expandableCategory
+                            .TransactionsList
+                            .Transactions
+                            .Sum(x =>
+                            {
+                                if (x.Type == TransactionType.Expense)
+                                    return -x.Amount;
+                                else
+                                    return x.Amount;
+                            });
                         currentLevelCategorySummaries = cs.Children;
                     }
 
