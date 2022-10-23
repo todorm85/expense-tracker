@@ -1,4 +1,5 @@
 ﻿using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Web.Pages.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;

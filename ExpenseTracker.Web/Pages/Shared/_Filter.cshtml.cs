@@ -8,7 +8,7 @@ using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Web.Pages.Transactions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace ExpenseTracker.Web.Pages.Shared.Components.Filter
+namespace ExpenseTracker.Web.Pages.Shared
 {
     public class FiltersViewModel
     {
@@ -18,20 +18,20 @@ namespace ExpenseTracker.Web.Pages.Shared.Components.Filter
         {
             if (DateTo == default)
             {
-                this.DateTo = DateTime.UtcNow;
+                DateTo = DateTime.UtcNow;
             }
 
             if (DateFrom == default)
             {
-                this.DateFrom = DateTime.UtcNow.ToMonthStart();
+                DateFrom = DateTime.UtcNow.ToMonthStart();
             }
 
-            this.CategoriesDropDownModel = new List<SelectListItem>()
+            CategoriesDropDownModel = new List<SelectListItem>()
             {
                 new SelectListItem("uncategorised", UncategorisedOptionValue)
             };
 
-            this.SelectedCategories = new List<string>();
+            SelectedCategories = new List<string>();
         }
 
         [JsonIgnore]
@@ -47,9 +47,13 @@ namespace ExpenseTracker.Web.Pages.Shared.Components.Filter
 
         public void Init(IEnumerable<string> categories)
         {
-            this.SelectedCategories = categories?.Where(x => x != "ignored").ToList() ?? new List<string>();
-            this.SelectedCategories.Add(UncategorisedOptionValue);
-            this.CategoriesDropDownModel = this.CategoriesDropDownModel.Union(categories.Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
+            if (SelectedCategories == null)
+            {
+                SelectedCategories = categories?.Where(x => x != "ignored").ToList() ?? new List<string>();
+                SelectedCategories.Add(UncategorisedOptionValue);
+            }
+
+            CategoriesDropDownModel = CategoriesDropDownModel.Union(categories.Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
         }
 
         public Expression<Func<Transaction, bool>> GetFilterQuery()

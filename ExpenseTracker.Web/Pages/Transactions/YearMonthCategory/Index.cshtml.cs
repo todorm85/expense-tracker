@@ -1,6 +1,6 @@
 using ExpenseTracker.Core;
 using ExpenseTracker.Core.Transactions;
-using ExpenseTracker.Web.Pages.Shared.Components.Filter;
+using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;

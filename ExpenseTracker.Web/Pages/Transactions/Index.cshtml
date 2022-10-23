@@ -16,7 +16,8 @@
         <span class="badge badge-@savingsClassValue">Balance: @Model.Saved.ToString("N0")</span>
     </div>
     <form method="post" onkeydown="return event.key != 'Enter';">
-        <vc:filter model="@Model.Filter"></vc:filter>
+        <partial name="_Filter" for="Filter" />
+
         <partial name="_Transactions" for="TransactionsList" />
         <div class="text-right mb-2">
             <button type="submit" asp-page-handler="DeleteFiltered">Delete Filtered</button>

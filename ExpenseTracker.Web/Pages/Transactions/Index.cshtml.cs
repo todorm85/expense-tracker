@@ -2,10 +2,13 @@
 using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Core.Transactions.Rules;
 using ExpenseTracker.Web.Pages.Shared;
-using ExpenseTracker.Web.Pages.Shared.Components.Filter;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
+using System;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
@@ -26,7 +29,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         [BindProperty]
         public TransactionsListModel TransactionsList { get; set; }
-        
+
         [BindProperty(SupportsGet = true)]
         public PagerModel Pager { get; set; }
 
@@ -35,15 +38,17 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal Income { get; set; }
 
         public decimal Saved { get; set; }
-        
+
         public void OnGet(string filter)
         {
-            Filter = filter != null ? ModelSerialization.Deserialize<FiltersViewModel>(filter) : new FiltersViewModel();
+            Filter = Filter != null ? ModelSerialization.Deserialize<FiltersViewModel>(filter) : new FiltersViewModel();
+            Filter.Init(this.transactionsService.GetAllCategories());
+
             var filterQuery = Filter.GetFilterQuery();
             var sortBy = Filter.SortBy == SortOptions.None ? null : Filter.SortBy.ToString();
             var transactions = new PaginatedList<Transaction>(transactionsService, filterQuery, Pager.CurrentPage, Pager.PageSize, sortBy);
             TransactionsList.Transactions = transactions.Select(t => new TransactionModel(t)).ToList();
-            
+
             Pager.PageCount = transactions.TotalPagesCount;
             Pager.RouteParams.Add("filter", Filter.ToString());
 
@@ -79,7 +84,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPost()
         {
-            return RedirectToPage(new { Filter, Pager.CurrentPage });
+            return RedirectToPage(new { Filter, Pager.CurrentPage, Pager.PageSize });
         }
     }
 
