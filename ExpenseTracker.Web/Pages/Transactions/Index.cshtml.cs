@@ -9,14 +9,6 @@ using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
-    public enum SortOptions
-    {
-        None,
-        Date,
-        Category,
-        Amount
-    }
-
     public class IndexModel : PageModel
     {
         private readonly ITransactionsService transactionsService;
@@ -79,5 +71,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             return RedirectToPage(new { Filter });
         }
+    }
+
+    public enum SortOptions
+    {
+        None,
+        Date,
+        Category,
+        Amount
     }
 }

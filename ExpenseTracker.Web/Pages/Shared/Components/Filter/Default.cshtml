@@ -32,7 +32,7 @@
                 <span class="ml-2">Sort </span><select asp-for="SortBy" asp-items="Html.GetEnumSelectList<ExpenseTracker.Web.Pages.Transactions.SortOptions>()" class="rounded"></select>
             }
             <input type="text" asp-for="Search" class="rounded ml-2" placeholder="Search" />
-            <button type="submit" class="ml-4" asp-page-handler="Filter"> Apply </button>
+            <button type="submit" class="ml-4"> Apply </button>
         </div>
         <div>
             <select multiple="multiple" asp-for="SelectedCategories" class="rounded ml-2" asp-items="Model.CategoriesDropDownModel"></select>
