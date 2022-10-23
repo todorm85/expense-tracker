@@ -12,16 +12,19 @@ namespace ExpenseTracker.Web.Pages.Transactions
     public class IndexModel : PageModel
     {
         private readonly ITransactionsService transactionsService;
+        private readonly IGenericRepository<Rule> rules;
 
-        public IndexModel(ITransactionsService transactions)
+        public IndexModel(ITransactionsService transactions, IGenericRepository<Rule> rules)
         {
             transactionsService = transactions;
+            this.rules = rules;
             TransactionsList = new TransactionsListModel();
         }
 
         [BindProperty]
         public FiltersViewModel Filter { get; set; }
 
+        [BindProperty]
         public TransactionsListModel TransactionsList { get; set; }
         
         [BindProperty(SupportsGet = true)]
@@ -38,7 +41,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             Filter = filter != null ? ModelSerialization.Deserialize<FiltersViewModel>(filter) : new FiltersViewModel();
             var filterQuery = Filter.GetFilterQuery();
             var sortBy = Filter.SortBy == SortOptions.None ? null : Filter.SortBy.ToString();
-            var transactions = new PaginatedList<Transaction>(transactionsService, filterQuery, Pager.CurrentPage, 10, sortBy);
+            var transactions = new PaginatedList<Transaction>(transactionsService, filterQuery, Pager.CurrentPage, Pager.PageSize, sortBy);
             TransactionsList.Transactions = transactions.Select(t => new TransactionModel(t)).ToList();
             
             Pager.PageCount = transactions.TotalPagesCount;
@@ -51,7 +54,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             Saved = Income - Expenses;
         }
 
-        public IActionResult OnPostDeleteFiltered()
+        public IActionResult OnPostDeleteAll()
         {
             foreach (var t in TransactionsList.Transactions)
             {
@@ -67,9 +70,16 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return OnPost();
         }
 
+        public IActionResult OnPostUpdateTransaction(string id)
+        {
+            var updated = TransactionsList.Transactions.First(x => x.TransactionId == id);
+            updated.Update(transactionsService, rules);
+            return OnPost();
+        }
+
         public IActionResult OnPost()
         {
-            return RedirectToPage(new { Filter });
+            return RedirectToPage(new { Filter, Pager.CurrentPage });
         }
     }
 

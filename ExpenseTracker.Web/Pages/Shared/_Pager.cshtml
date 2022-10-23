@@ -1,10 +1,21 @@
 ﻿@model PagerModel
-<ul class="pagination">
-    @for (int i = 0; i < Model.PageCount; i++)
-    {
-        var disabledClass = Model.CurrentPage == i ? "disabled" : string.Empty;
-        Model.RouteParams["CurrentPage"] = i.ToString();
+@if (Model.PageCount > 1)
+{
+    <input type="hidden" asp-for="CurrentPage" />
+    <ul class="pagination">
+        @for (int i = 0; i < Model.PageCount; i++)
+        {
+            var disabledClass = Model.CurrentPage == i ? "disabled" : string.Empty;
+            Model.RouteParams["CurrentPage"] = i.ToString();
 
-        <li class="page-item @disabledClass"><a class="page-link" asp-all-route-data="Model.RouteParams">@(i + 1)</a></li>
-    }
-</ul>
+            <li class="page-item @disabledClass">
+                <a class="page-link" asp-all-route-data="Model.RouteParams">@(i + 1)</a>
+            </li>
+        }
+    </ul>
+    <fieldset class="form-group form-row">
+        <label asp-for="PageSize" class="col-form-label-sm">Page Size </label>
+        <input asp-for="PageSize" style="width: 5em" class="form-control-sm"/>
+        <input type="submit" value="OK" class="form-control-sm">
+    </fieldset>
+}
