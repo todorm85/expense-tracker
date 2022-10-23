@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ExpenseTracker.Web.Pages.Shared
 {
-    public class FiltersViewModel
+    public class TransactionsFilterViewModel
     {
         private const string UncategorisedOptionValue = "-";
 
-        public FiltersViewModel()
+        public TransactionsFilterViewModel()
         {
             if (DateTo == default)
             {
@@ -45,27 +45,41 @@ namespace ExpenseTracker.Web.Pages.Shared
         [JsonIgnore]
         public bool HideSorting { get; set; }
 
-        public void Init(IEnumerable<string> categories)
+        /// <summary>
+        /// Using business logic in model for partial as data binding is not working for view components!
+        /// </summary>
+        /// <param name="service"></param>
+        public void Init(ITransactionsService service)
         {
+            var allTransactions = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search));
+            IEnumerable<string> categories = allTransactions.Where(x => !string.IsNullOrEmpty(x.Category))
+                                   .Select(x => x.Category)
+                                   .OrderBy(x => x)
+                                   .Distinct();
+
             if (SelectedCategories == null)
             {
                 SelectedCategories = categories?.Where(x => x != "ignored").ToList() ?? new List<string>();
                 SelectedCategories.Add(UncategorisedOptionValue);
             }
+            else
+            {
+                SelectedCategories = SelectedCategories.Where(x => categories.Contains(x)).ToList();
+            }
 
             CategoriesDropDownModel = CategoriesDropDownModel.Union(categories.Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
         }
 
-        public Expression<Func<Transaction, bool>> GetFilterQuery()
+        public Expression<Func<Transaction, bool>> GetFilterQuery(FilterBy flags = FilterBy.Date | FilterBy.Category | FilterBy.Search)
         {
-            return x => ApplyDateFilter(x) &&
-                                ApplyCategoriesFilter(x) &&
-                                ApplySearchFilter(x) &&
-                                !x.Ignored;
+            return x => ApplyDateFilter(x, flags) &&
+                    ApplyCategoriesFilter(x, flags) &&
+                    ApplySearchFilter(x, flags);
         }
-
-        private bool ApplyCategoriesFilter(Transaction x)
+        private bool ApplyCategoriesFilter(Transaction x, FilterBy flags)
         {
+            if (!flags.HasFlag(FilterBy.Category))
+                return true;
             if (SelectedCategories.Count > 0)
             {
                 foreach (var cat in SelectedCategories)
@@ -83,13 +97,17 @@ namespace ExpenseTracker.Web.Pages.Shared
             }
         }
 
-        private bool ApplyDateFilter(Transaction x)
+        private bool ApplyDateFilter(Transaction x, FilterBy flags)
         {
+            if (!flags.HasFlag(FilterBy.Date))
+                return true;
             return x.Date >= DateFrom.ToDayStart() && x.Date < DateTo.AddDays(1).ToDayStart();
         }
 
-        private bool ApplySearchFilter(Transaction x)
+        private bool ApplySearchFilter(Transaction x, FilterBy flags)
         {
+            if (!flags.HasFlag(FilterBy.Search))
+                return true;
             if (!string.IsNullOrWhiteSpace(Search) && x != null && x.Details != null)
             {
                 return x.Details.ToLowerInvariant().Contains(Search.ToLowerInvariant());
@@ -102,5 +120,21 @@ namespace ExpenseTracker.Web.Pages.Shared
         {
             return ModelSerialization.Serialize(this);
         }
+
+        internal static TransactionsFilterViewModel FromString(string filter, ITransactionsService transactionsService)
+        {
+            var result = ModelSerialization.Deserialize<TransactionsFilterViewModel>(filter) ?? new TransactionsFilterViewModel();
+            result.Init(transactionsService);
+            return result;
+        }
+    }
+
+    [Flags]
+    public enum FilterBy
+    {
+        None = 1,
+        Date = 2,
+        Category = 4,
+        Search = 8,
     }
 }

@@ -25,7 +25,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
 
         [BindProperty]
-        public FiltersViewModel Filter { get; set; }
+        public TransactionsFilterViewModel Filter { get; set; }
 
         [BindProperty]
         public TransactionsListModel TransactionsList { get; set; }
@@ -41,22 +41,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public void OnGet(string filter)
         {
-            Filter = filter != null ? ModelSerialization.Deserialize<FiltersViewModel>(filter) : new FiltersViewModel();
-            Filter.Init(this.transactionsService.GetAllCategories());
-
-            var filterQuery = Filter.GetFilterQuery();
-            var sortBy = Filter.SortBy == SortOptions.None ? null : Filter.SortBy.ToString();
-            var transactions = new PaginatedList<Transaction>(transactionsService, filterQuery, Pager.CurrentPage, Pager.PageSize, sortBy);
-            TransactionsList.Transactions = transactions.Select(t => new TransactionModel(t)).ToList();
-
-            Pager.PageCount = transactions.TotalPagesCount;
-            Pager.RouteParams.Add("filter", Filter.ToString());
-
-            Expenses = TransactionsList.Transactions.Where(x => x.Type == TransactionType.Expense)
-                .Sum(x => x.Amount);
-            Income = TransactionsList.Transactions.Where(x => x.Type == TransactionType.Income)
-                .Sum(x => x.Amount);
-            Saved = Income - Expenses;
+            LoadFilter(filter);
+            LoadTransactions();
         }
 
         public IActionResult OnPostDeleteAll()
@@ -85,6 +71,21 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IActionResult OnPost()
         {
             return RedirectToPage(new { Filter, Pager.CurrentPage, Pager.PageSize });
+        }
+
+        private void LoadFilter(string filter)
+        {
+            Filter = TransactionsFilterViewModel.FromString(filter, transactionsService);
+            Pager.RouteParams.Add("filter", Filter.ToString());
+        }
+
+        private void LoadTransactions()
+        {
+            var filterQuery = Filter.GetFilterQuery();
+            var sortBy = Filter.SortBy == SortOptions.None ? null : Filter.SortBy.ToString();
+            var transactions = new PaginatedList<Transaction>(transactionsService, filterQuery, Pager.CurrentPage, Pager.PageSize, sortBy);
+            TransactionsList.Transactions = transactions.Select(t => new TransactionModel(t)).ToList();
+            Pager.PageCount = transactions.TotalPagesCount;
         }
     }
 

@@ -2,21 +2,12 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Expenses";
-    var savingsClassValue = "success";
-    if (Model.Saved < 0)
-    {
-        savingsClassValue = "danger";
-    }
 }
 
 <div class="text-center">
-    <div class="mb-4" style="font-size:2em">
-        <span class="badge">Spent: @Model.Expenses.ToString("N0")</span>
-        <span class="badge">Income: @Model.Income.ToString("N0")</span>
-        <span class="badge badge-@savingsClassValue">Balance: @Model.Saved.ToString("N0")</span>
-    </div>
+    <vc:transactions-summary filter-model="@Model.Filter"></vc:transactions-summary>
     <form method="post" onkeydown="return event.key != 'Enter';">
-        <partial name="_Filter" for="Filter" />
+        <partial name="_TransactionsFilter" for="Filter" />
         <partial name="_Transactions" for="TransactionsList" />
         <div class="text-right mb-2">
             <button type="submit" asp-page-handler="DeleteFiltered">Delete Filtered</button>

@@ -18,7 +18,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.CategorySummaries = new List<CategorySummary>();
             this.ExpandableMonths = new List<ExpandableMonthModel>();
             this.transactionsService = transactionsService;
-            this.Filters = new FiltersViewModel() { HideSorting = true };
+            this.Filters = new TransactionsFilterViewModel() { HideSorting = true };
         }
 
         public IList<CategorySummary> CategorySummaries { get; set; }
@@ -29,7 +29,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public List<ExpandableMonthModel> ExpandableMonths { get; set; }
 
         [BindProperty]
-        public FiltersViewModel Filters { get; set; }
+        public TransactionsFilterViewModel Filters { get; set; }
 
         public decimal TotalExpense { get; private set; }
 

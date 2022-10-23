@@ -1,0 +1,14 @@
+﻿@model TransactionsSummaryViewComponent
+@{
+    var savingsClassValue = "success";
+    if (Model.Saved < 0)
+    {
+        savingsClassValue = "danger";
+    }
+}
+
+<div class="mb-4" style="font-size:2em">
+    <span class="badge">Spent: @Model.Expenses.ToString("N0")</span>
+    <span class="badge">Income: @Model.Income.ToString("N0")</span>
+    <span class="badge badge-@savingsClassValue">Balance: @Model.Saved.ToString("N0")</span>
+</div>
