@@ -44,6 +44,9 @@ namespace ExpenseTracker.Web.Pages.Shared
         public SortOptions SortBy { get; set; }
         [JsonIgnore]
         public bool HideSorting { get; set; }
+        public string Source { get; set; } = UncategorisedOptionValue;
+        [JsonIgnore]
+        public List<SelectListItem> Sources { get; set; } = new List<SelectListItem>() { new SelectListItem("all", UncategorisedOptionValue) };
 
         /// <summary>
         /// Using business logic in model for partial as data binding is not working for view components!
@@ -51,7 +54,7 @@ namespace ExpenseTracker.Web.Pages.Shared
         /// <param name="service"></param>
         public void Init(ITransactionsService service)
         {
-            var allTransactions = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search));
+            var allTransactions = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search | FilterBy.Source));
             IEnumerable<string> categories = allTransactions.Where(x => !string.IsNullOrEmpty(x.Category))
                                    .Select(x => x.Category)
                                    .OrderBy(x => x)
@@ -68,14 +71,29 @@ namespace ExpenseTracker.Web.Pages.Shared
             }
 
             CategoriesDropDownModel = CategoriesDropDownModel.Union(categories.Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
+
+            var test = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search)).Select(x => x.Source);
+            var sources = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search)).Select(x => x.Source).OrderBy(x => x).Distinct();
+            Sources = Sources.Union(sources.Select(x => new SelectListItem() { Text = x ?? "null", Value = x })).ToList();
         }
 
-        public Expression<Func<Transaction, bool>> GetFilterQuery(FilterBy flags = FilterBy.Date | FilterBy.Category | FilterBy.Search)
+        public Expression<Func<Transaction, bool>> GetFilterQuery(FilterBy flags = FilterBy.Date | FilterBy.Category | FilterBy.Search | FilterBy.Source)
         {
             return x => ApplyDateFilter(x, flags) &&
                     ApplyCategoriesFilter(x, flags) &&
-                    ApplySearchFilter(x, flags);
+                    ApplySearchFilter(x, flags) &&
+                    ApplySourceFilter(x, flags) &&
+                    !x.Ignored;
         }
+
+        private bool ApplySourceFilter(Transaction x, FilterBy flags)
+        {
+            if (!flags.HasFlag(FilterBy.Source) || Source == UncategorisedOptionValue)
+                return true;
+
+            return x.Source == Source || (Source == "null" && string.IsNullOrEmpty(x.Source));
+        }
+
         private bool ApplyCategoriesFilter(Transaction x, FilterBy flags)
         {
             if (!flags.HasFlag(FilterBy.Category))
@@ -136,5 +154,6 @@ namespace ExpenseTracker.Web.Pages.Shared
         Date = 2,
         Category = 4,
         Search = 8,
+        Source = 16,
     }
 }

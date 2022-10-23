@@ -31,6 +31,8 @@
             {
                 <span class="ml-2">Sort </span><select asp-for="SortBy" asp-items="Html.GetEnumSelectList<ExpenseTracker.Web.Pages.Transactions.SortOptions>()" class="rounded"></select>
             }
+
+            <span class="ml-2">Source</span><select asp-for="Source" asp-items="Model.Sources" class="rounded"></select>
             <input type="text" asp-for="Search" class="rounded ml-2" placeholder="Search" />
             <button type="submit" class="ml-4"> Apply </button>
         </div>
