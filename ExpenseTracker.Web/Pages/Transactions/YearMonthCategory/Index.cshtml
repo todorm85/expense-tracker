@@ -57,10 +57,16 @@
 @section Scripts
     {
     <script>
-        document.onload(() => {
+        window.addEventListener('load', (event) => {
+            debugger;
             var map = document.getElementById('toggledElements');
-            var ids = map.Split(' ');
-            fore
+            var ids = map.value.split(' ');
+            ids.forEach(x => {
+                var el = document.getElementById(x);
+                if (el) {
+                    el.style.display = '';
+                }
+            })
         });
 
         function onToggleElement(id) {

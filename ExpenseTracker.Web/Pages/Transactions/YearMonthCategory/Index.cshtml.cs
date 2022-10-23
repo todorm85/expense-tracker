@@ -89,7 +89,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IActionResult OnPostUpdateTransaction()
         {
             UpdatedTransaction.Update(transactionsService, rules);
-            return OnPost(ToggledElements);
+            return OnPost(true);
         }
 
         public IActionResult OnPostDeleteTransaction(string id)
@@ -130,9 +130,16 @@ namespace ExpenseTracker.Web.Pages.Transactions
             }
         }
 
-        public IActionResult OnPost()
+        public IActionResult OnPost(bool keepToggledSections = false)
         {
-            return RedirectToPage(new { Filters});
+            if (keepToggledSections)
+            {
+                return RedirectToPage(new { Filters, ToggledElements });
+            }
+            else
+            {
+                return RedirectToPage(new { Filters });
+            }
         }
     }
 
