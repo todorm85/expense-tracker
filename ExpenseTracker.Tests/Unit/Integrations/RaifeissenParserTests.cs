@@ -28,7 +28,7 @@ Sofia 1407,
             });
             Assert.AreEqual(6.30M, result.Amount);
             Assert.AreEqual("POKUPKA EDDYS na BAKE", result.Details);
-            Assert.AreEqual(new DateTime(2020, 1, 28), result.Date);
+            Assert.AreEqual(new DateTime(2020, 1, 28,9, 34, 34), result.Date);
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ Sofia 1407,
             });
             Assert.AreEqual(6.30M, result.Amount);
             Assert.AreEqual("POKUPKA EDDYS na BAKE", result.Details);
-            Assert.AreEqual(new DateTime(2020, 1, 28), result.Date);
+            Assert.AreEqual(new DateTime(2020, 1, 28, 9, 34, 34), result.Date);
         }
 
         [TestMethod]
@@ -67,7 +67,23 @@ Sofia 1407, blvd Nikola I.Vaptzarov  55
             });
             Assert.AreEqual(96.73M, result.Amount);
             Assert.AreEqual("POKUPKA SHELL PODUENE", result.Details);
-            Assert.AreEqual(new DateTime(2021, 4, 10), result.Date);
+            Assert.AreEqual(new DateTime(2021, 4, 10, 13, 55, 32), result.Date);
+        }
+
+        [TestMethod]
+        public void ValidMessageV4IsParsedCorrectly()
+        {
+            var parser = new RaiffeisenMessageParser();
+            var result = parser.Parse(new ExpenseMessage()
+            {
+                Subject = "Notification CC RBB",
+                Body = @"Uvazhaemi g-ne/g-zho, Bihme iskali da Vi uvedomim za POKUPKA  3.99
+BGN s Vashata karta ****6793 v IRL pri GOOGLE *Google Storage na 12.10.2022 16:39:28.
+Razpolagaema nalichnost po kartata 1686.71 BGN.S uvazhenie, KBC Bank Bulgaria EAD Sofia 1407, blvd Nikola I.Vaptzarov  55 070010000 (VIVACOM)  1721 (A1 i Yettel)"
+            });
+            Assert.AreEqual(3.99M, result.Amount);
+            Assert.AreEqual("POKUPKA GOOGLE *Google Storage", result.Details);
+            Assert.AreEqual(new DateTime(2022, 10, 12, 16, 39, 28), result.Date);
         }
     }
 }
