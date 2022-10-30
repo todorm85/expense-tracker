@@ -10,6 +10,11 @@ namespace ExpenseTracker.Core.Transactions
 {
     public class TransactionInsertResult
     {
+        public TransactionInsertResult()
+        {
+
+        }
+
         public TransactionInsertResult(Transaction t, Reason r)
         {
             this.Transaction = t;

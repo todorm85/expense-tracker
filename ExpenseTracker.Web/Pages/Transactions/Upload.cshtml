@@ -8,40 +8,45 @@
     }
     <div class="row">
         <div class="col-lg-6 col-12">
-            @{ var secondTitle = "Enter manually"; }
+            @{
+                var secondTitle = "Enter manually";
+            }
             @if (Model.HasMail)
             {
                 secondTitle = "or " + secondTitle;
-    <div class="pb-2 mb-4">
-        <button class="btn btn-primary" type="submit" asp-page-handler="SyncMail">Sync Mail</button>
-    </div>
-                    <hr />            }
+                <div class="pb-2 mb-4">
+                    <button class="btn btn-primary" type="submit" asp-page-handler="SyncMail">Sync Mail</button>
+                </div>
+                <hr />
+            }
             <h4>@secondTitle</h4>
+            <input type="hidden" asp-for="NewTransaction.TransactionId" />
+            <input type="hidden" asp-for="NewTransaction.Source" />
             <div class="form-row">
                 <div class="form-group col">
                     <label for="date">Date</label>
-                    <input id="date" type="date" asp-for="CreateTransaction.Date" class="form-control" />
+                    <input id="date" type="date" asp-for="NewTransaction.Date" class="form-control" />
                 </div>
                 <div class="form-group col">
                     <label for="amount">Amount</label>
-                    <input id="amount" onmouseup="return false;" asp-for="CreateTransaction.Amount" class="form-control auto-select" />
+                    <input id="amount" onmouseup="return false;" asp-for="NewTransaction.Amount" class="form-control auto-select" />
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group col">
                     <label for="category">Category</label>
-                    <input id="category" asp-for="CreateTransaction.Category" class="form-control col" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" list="cats" autocomplete="off" />
+                    <input id="category" asp-for="NewTransaction.Category" class="form-control col" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" list="cats" autocomplete="off" />
                     <vc:categories-data-list id="cats"></vc:categories-data-list>
                 </div>
                 <div class="form-group col">
                     <label for="type">Type</label>
-                    <select id="type" class="form-control col" asp-for="CreateTransaction.Type" asp-items="Html.GetEnumSelectList<ExpenseTracker.Core.Transactions.TransactionType>()"></select>
+                    <select id="type" class="form-control col" asp-for="NewTransaction.Type" asp-items="Html.GetEnumSelectList<ExpenseTracker.Core.Transactions.TransactionType>()"></select>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group col">
                     <label for="details">Details</label>
-                    <textarea id="details" asp-for="CreateTransaction.Details" rows="4" class="form-control" onkeyup="onCreateEnter(event)"></textarea>
+                    <textarea id="details" asp-for="NewTransaction.Details" rows="4" class="form-control" onkeyup="onCreateEnter(event)"></textarea>
                     <button class="btn btn-primary d-inline-block mt-3" type="submit" id="submitBtn" asp-page-handler="create">Add</button>
                 </div>
             </div>
@@ -58,16 +63,22 @@
         <div class="col-lg-6">
             <div class="row">
                 <h3 class="mr-2 my-3">Just Added</h3>
-                @{ 
+                <input type="submit" asp-page-handler="ClearAdded" value="Clear" class="btn btn-sm btn-link"/>
+            </div>
+            <div class="row">
+                @{
                     var heigth = 3;
-                    Model.TransactionsList.DetailsHeight = heigth;
-                    Model.SkippedTransactionsList.DetailsHeight = heigth;
+                    Model.JustAddedTransactions.DetailsHeight = heigth;
+                    Model.SkippedTransactions.DetailsHeight = heigth;
                 }
-                <partial name="_Transactions" for="TransactionsList" />
+                <partial name="_Transactions" for="JustAddedTransactions" />
             </div>
             <div class="row">
                 <h3 class="mr-2 my-3">Skipped</h3>
-                <partial name="_Transactions" for="SkippedTransactionsList" />
+                <input type="submit" asp-page-handler="ClearSkipped" value="Clear" class="btn btn-sm btn-link" />
+            </div>
+            <div class="row">
+                <partial name="_Transactions" for="SkippedTransactions" />
             </div>
         </div>
     </div>

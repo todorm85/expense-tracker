@@ -39,7 +39,8 @@
                 }
                 <td>
                     <input type="hidden" asp-for="@Model.Transactions[transx].TransactionId" />
-                    <input id="source_@t.TransactionId" type="hidden" value="@(Model.Transactions[transx].Source)" />
+                    <input type="hidden" asp-for="@Model.Transactions[transx].Source" />
+                    <input type="hidden" asp-for="@Model.Transactions[transx].Reason" />
                     @{
                         var dateType = Model.ShowTime ? "datetime-local" : "date";
                         var dateWidth = Model.ShowTime ? "255px" : "162px";

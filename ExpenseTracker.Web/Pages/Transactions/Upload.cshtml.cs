@@ -1,7 +1,9 @@
 using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.App;
+using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Core.Transactions.Rules;
 using ExpenseTracker.Integrations.Files;
 using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ExpenseTracker.Web.Session;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
@@ -18,6 +21,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
     {
         private readonly AllianzTxtFileParser allianz;
         private readonly MailImporter importer;
+        private readonly IGenericRepository<Rule> rules;
         private readonly RaiffeizenTxtFileParser rai;
         private readonly RevolutExcelParser revolut;
         private readonly ITransactionsService transactionsService;
@@ -28,61 +32,64 @@ namespace ExpenseTracker.Web.Pages.Transactions
             RaiffeizenTxtFileParser rai,
             RevolutExcelParser revolut,
             MailImporter importer,
-            Config config)
+            IGenericRepository<Rule> rules)
         {
             this.transactionsService = transactionsService;
             this.allianz = allianz;
             this.rai = rai;
             this.importer = importer;
+            this.rules = rules;
             this.revolut = revolut;
-            this.TransactionsList = new TransactionsListModel() { ShowSource = true };
-            this.SkippedTransactionsList = new TransactionsListModel() { ShowSource = true, ShowTime = true };
             this.HasMail = importer.TestConnection();
         }
 
         [BindProperty]
-        public Transaction CreateTransaction { get; set; }
+        public Transaction NewTransaction { get; set; }
 
         [BindProperty]
         public IList<IFormFile> Files { get; set; }
 
         [BindProperty]
-        public TransactionsListModel SkippedTransactionsList { get; set; }
+        public TransactionsListModel SkippedTransactions { get; set; } = new TransactionsListModel() { ShowSource = true };
+
         public bool HasMail { get; private set; }
+
         [BindProperty]
-        public TransactionsListModel TransactionsList { get; set; }
+        public TransactionsListModel JustAddedTransactions { get; set; } = new TransactionsListModel() { ShowSource = true };
 
         public void OnGet()
         {
-            this.CreateTransaction = new Transaction() { Date = DateTime.Now, Type = TransactionType.Expense };
+            this.NewTransaction = new Transaction() 
+            { 
+                Date = DateTime.Now,
+                Type = TransactionType.Expense,
+                TransactionId = Guid.NewGuid().ToString(),
+                Source = "manual_entry"
+            };
+            var justAdded = GetJustAdded();
+            if (justAdded != null)
+                JustAddedTransactions.Transactions = justAdded;
+            var skipped = GetSkipped();
+            if (skipped != null)
+                SkippedTransactions.Transactions = skipped;
         }
 
         public IActionResult OnPostCreate()
         {
-            var dbModel = new Transaction()
-            {
-                TransactionId = Guid.NewGuid().ToString(),
-                Amount = CreateTransaction.Amount,
-                Category = CreateTransaction.Category,
-                Date = CreateTransaction.Date,
-                Details = CreateTransaction.Details,
-                Type = CreateTransaction.Type,
-                Source = "manual_entry"
-            };
+            if (this.transactionsService.TryAdd(NewTransaction, out IEnumerable<TransactionInsertResult> skipped))
+                SetJustAdded(JustAddedTransactions.Transactions.Concat(new List<Transaction>() { NewTransaction }).ToTransactionModel());
+            else
+                AppendSkipped(skipped.ToTransactionModel());
 
-            this.transactionsService.TryAdd(dbModel, out IEnumerable<TransactionInsertResult> skipped);
-
-            AddJustAdded(new Transaction[] { dbModel });
-            AddSkipped(skipped);
-            this.CreateTransaction = new Transaction() { Date = DateTime.Now, Type = TransactionType.Expense };
-            return Page();
+            return RedirectToPage();
         }
 
-        public void OnPostSyncMail()
+        public IActionResult OnPostSyncMail()
         {
             this.importer.ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<TransactionInsertResult> skipped);
-            AddJustAdded(added);
-            AddSkipped(skipped);
+            AppendJustAdded(added.ToTransactionModel());
+            AppendSkipped(skipped.ToTransactionModel());
+            return RedirectToPage();
         }
 
         public IActionResult OnPostUpload(List<IFormFile> files)
@@ -120,9 +127,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
                     }
                 }
 
-                AddJustAdded(expenses.Except(skipped.Select(x => x.Transaction)));
-                AddSkipped(skipped);
-                return Page();
+                SetJustAdded(expenses.Except(skipped.Select(x => x.Transaction)).ToTransactionModel());
+                SetSkipped(skipped.ToTransactionModel());
+                return RedirectToPage();
             }
             catch (Exception e)
             {
@@ -131,18 +138,74 @@ namespace ExpenseTracker.Web.Pages.Transactions
             }
         }
 
-        private void AddJustAdded(IEnumerable<Transaction> ts)
+        public IActionResult OnPostDeleteTransaction(string id)
         {
-            var all = ts.Select(t => new TransactionModel(t)).Concat(TransactionsList.Transactions).ToList();
-            this.TransactionsList.Transactions = all;
-            this.ModelState.Clear();
+            transactionsService.RemoveById(id);
+            SetJustAdded(JustAddedTransactions.Transactions.Where(x => x.TransactionId != id));
+            return RedirectToPage();
         }
 
-        private void AddSkipped(IEnumerable<TransactionInsertResult> skipped)
+        public IActionResult OnPostUpdateTransaction(string id)
         {
-            var all = skipped.Select(t => new TransactionModel(t.Transaction) { Reason = t.ReasonResult, TransactionId = Guid.NewGuid().ToString() }).Concat(this.SkippedTransactionsList.Transactions).ToList();
-            this.SkippedTransactionsList.Transactions = all;
-            this.ModelState.Clear();
+            var updated = JustAddedTransactions.Transactions.First(x => x.TransactionId == id);
+            updated.Update(transactionsService, rules);
+            SetJustAdded(JustAddedTransactions.Transactions);
+            return RedirectToPage();
+        }
+
+        public IActionResult OnPostClearAdded()
+        {
+            SetJustAdded(null);
+            return RedirectToPage();
+        }
+
+        public IActionResult OnPostClearSkipped()
+        {
+            SetSkipped(null);
+            return RedirectToPage();
+        }
+
+        private void SetJustAdded(IEnumerable<TransactionModel> ts)
+        {
+            HttpContext.Session.Set("justAdded", ts);
+        }
+
+        private IList<TransactionModel> GetJustAdded()
+        {
+            return HttpContext.Session.Get<IList<TransactionModel>>("justAdded");
+        }
+
+        private void AppendSkipped(IEnumerable<TransactionModel> skipped)
+        {
+            SetSkipped(SkippedTransactions.Transactions.Concat(skipped));
+        }
+
+        private void AppendJustAdded(IEnumerable<TransactionModel> added)
+        {
+            SetJustAdded(JustAddedTransactions.Transactions.Concat(added));
+        }
+
+        private void SetSkipped(IEnumerable<TransactionModel> skipped)
+        {
+            HttpContext.Session.Set("skipTrasnaction", skipped);
+        }
+
+        private IList<TransactionModel> GetSkipped()
+        {
+            return HttpContext.Session.Get<IList<TransactionModel>>("skipTrasnaction");
+        }
+    }
+
+    internal static class Extensions
+    {
+        public static IEnumerable<TransactionModel> ToTransactionModel(this IEnumerable<TransactionInsertResult> skipped)
+        {
+            return skipped.Select(x => new TransactionModel(x.Transaction) { Reason = x.ReasonResult, TransactionId = Guid.NewGuid().ToString() });
+        }
+
+        public static IEnumerable<TransactionModel> ToTransactionModel(this IEnumerable<Transaction> ts)
+        {
+            return ts.Select(x => new TransactionModel(x));
         }
     }
 }
