@@ -1,4 +1,6 @@
-﻿using ExpenseTracker.Core.Transactions;
+﻿using ExpenseTracker.Core.Services;
+using ExpenseTracker.Core.Services.Models;
+using ExpenseTracker.Core.Transactions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +11,9 @@ namespace ExpenseTracker.Allianz.Gmail
     {
         private readonly IMailClient mailClient;
         private readonly IEnumerable<IExpenseMessageParser> messageParsers;
-        private readonly ITransactionsService transactionsService;
+        private readonly IExpensesService transactionsService;
 
-        public MailImporter(IExpenseMessageParser[] parsers, ITransactionsService service, IMailClient mailClientFact)
+        public MailImporter(IExpenseMessageParser[] parsers, IExpensesService service, IMailClient mailClientFact)
         {
             this.messageParsers = parsers;
             this.transactionsService = service;
@@ -23,14 +25,14 @@ namespace ExpenseTracker.Allianz.Gmail
             this.mailClient.Dispose();
         }
 
-        public void ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<TransactionInsertResult> skipped)
+        public void ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<CreateTransactionResult> skipped)
         {
             added = Enumerable.Empty<Transaction>();
-            skipped = Enumerable.Empty<TransactionInsertResult>();
+            skipped = Enumerable.Empty<CreateTransactionResult>();
             var transactions = TryParseMails();
             if (transactions.Count > 0)
             {
-                this.transactionsService.TryAdd(transactions, out IEnumerable<TransactionInsertResult> skippedFromTry);
+                this.transactionsService.TryCreateTransactions(transactions, out IEnumerable<CreateTransactionResult> skippedFromTry);
                 skipped = skippedFromTry;
                 added = transactions.Except(skippedFromTry.Select(x => x.Transaction));
             }

@@ -4,6 +4,6 @@ namespace ExpenseTracker.Core.Data
 {
     public interface IUnitOfWork : IDisposable
     {
-        IGenericRepository<T> GetDataItemsRepo<T>() where T : class;
+        IRepository<T> GetDataItemsRepo<T>() where T : class;
     }
 }

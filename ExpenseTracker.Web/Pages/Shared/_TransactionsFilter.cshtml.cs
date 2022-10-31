@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json.Serialization;
 using ExpenseTracker.Core;
+using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Web.Pages.Transactions;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -50,7 +51,7 @@ namespace ExpenseTracker.Web.Pages.Shared
         /// Using business logic in model for partial as data binding is not working for view components!
         /// </summary>
         /// <param name="service"></param>
-        public void Init(ITransactionsService service)
+        public void Init(IExpensesService service)
         {
             var allTransactions = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search | FilterBy.Source));
             IEnumerable<string> categories = allTransactions.Where(x => !string.IsNullOrEmpty(x.Category))
@@ -60,7 +61,7 @@ namespace ExpenseTracker.Web.Pages.Shared
 
             if (SelectedCategories == null)
             {
-                SelectedCategories = categories?.Where(x => x != "ignored").ToList() ?? new List<string>();
+                SelectedCategories = categories?.Where(x => x != Constants.IgnoredCategory).ToList() ?? new List<string>();
                 SelectedCategories.Add(UncategorisedOptionValue);
             }
             else
@@ -137,7 +138,7 @@ namespace ExpenseTracker.Web.Pages.Shared
             return ModelSerialization.Serialize(this);
         }
 
-        internal static TransactionsFilterViewModel FromString(string filter, ITransactionsService transactionsService)
+        internal static TransactionsFilterViewModel FromString(string filter, IExpensesService transactionsService)
         {
             var result = ModelSerialization.Deserialize<TransactionsFilterViewModel>(filter) ?? new TransactionsFilterViewModel();
             result.Init(transactionsService);

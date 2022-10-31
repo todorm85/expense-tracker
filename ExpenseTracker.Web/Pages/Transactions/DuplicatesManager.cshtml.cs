@@ -1,5 +1,4 @@
-using ExpenseTracker.Core;
-using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Core.Services;
 using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,9 +10,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class DuplicatesManagerModel : PageModel
     {
-        private readonly ITransactionsService service;
+        private readonly IExpensesService service;
 
-        public DuplicatesManagerModel(ITransactionsService transactions)
+        public DuplicatesManagerModel(IExpensesService transactions)
         {
             this.service = transactions;
         }
@@ -41,7 +40,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 item.IsResolvedDuplicate = true;
             }
 
-            this.service.Update(targets);
+            this.service.UpdateTransactions(targets);
             return new OkResult();
         }
     }

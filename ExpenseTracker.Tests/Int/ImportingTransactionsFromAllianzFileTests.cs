@@ -1,5 +1,7 @@
 ﻿using ExpenseTracker.Allianz;
-using ExpenseTracker.Core;
+using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Services;
+using ExpenseTracker.Core.Services.Models;
 using ExpenseTracker.Core.Transactions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -17,15 +19,15 @@ namespace ExpenseTracker.Tests.Int
         private const string FileHeader = "datetime|reference|amount|dtkt|trname|contragent|rem_i|rem_ii|rem_iii";
         private const string TaxEntry = @"02/09/2020 00:00:00|161CHMRBGNL00001|2.20|D|Такса за поддръжка на сметка||||";
         private const string YouTubeExpenseEntry = @"01/09/2020 12:55:37|161ADV8202450006|10.99|D|Плащане чрез ПОС чужбина |424982***3046#GOOGLE *YouTubePremium   g.c|o/helppay#GB - g.co/helppay#GOOGL|E *YouTubePremium PAN*3046|BG459115043";
-        private TransactionsService expensesService;
+        private ExpensesService expensesService;
         private AllianzTxtFileParser fileParser;
 
         [TestCleanup]
         public override void CleanUp()
         {
-            foreach (var item in this.expensesService.GetAll())
+            foreach (var item in (this.expensesService as IReadRepository<Transaction>).GetAll())
             {
-                this.expensesService.RemoveById(item.TransactionId);
+                this.expensesService.RemoveTransaction(item.TransactionId);
             }
 
             base.CleanUp();
@@ -36,10 +38,10 @@ namespace ExpenseTracker.Tests.Int
         {
             var testData = GetTestData(YouTubeExpenseEntry);
             var expenses = this.fileParser.Parse(testData);
-            this.expensesService.TryAdd(expenses, out IEnumerable<TransactionInsertResult> res);
-            this.expensesService.TryAdd(expenses, out IEnumerable<TransactionInsertResult> res2);
+            this.expensesService.TryCreateTransactions(expenses, out IEnumerable<CreateTransactionResult> res);
+            this.expensesService.TryCreateTransactions(expenses, out IEnumerable<CreateTransactionResult> res2);
 
-            Assert.AreEqual(1, this.expensesService.GetAll().Count());
+            Assert.AreEqual(1, (this.expensesService as IReadRepository<Transaction>).GetAll().Count());
         }
 
         [TestMethod]
@@ -65,13 +67,13 @@ namespace ExpenseTracker.Tests.Int
         {
             var testData = GetTestData(TaxEntry);
             var expenses = this.fileParser.Parse(testData);
-            this.expensesService.TryAdd(expenses, out IEnumerable<TransactionInsertResult> res);
+            this.expensesService.TryCreateTransactions(expenses, out IEnumerable<CreateTransactionResult> res);
 
             testData = GetTestData(YouTubeExpenseEntry, TaxEntry, EpayEntry);
             expenses = this.fileParser.Parse(testData);
-            this.expensesService.TryAdd(expenses, out IEnumerable<TransactionInsertResult> res1);
+            this.expensesService.TryCreateTransactions(expenses, out IEnumerable<CreateTransactionResult> res1);
 
-            Assert.AreEqual(3, this.expensesService.GetAll().Count());
+            Assert.AreEqual(3, (this.expensesService as IReadRepository<Transaction>).GetAll().Count());
         }
 
         [TestInitialize]
@@ -79,7 +81,7 @@ namespace ExpenseTracker.Tests.Int
         {
             base.Initialize();
             this.fileParser = container.Resolve<AllianzTxtFileParser>();
-            this.expensesService = container.Resolve<TransactionsService>();
+            this.expensesService = container.Resolve<ExpensesService>();
         }
 
         private string GetTestData(params string[] entries)

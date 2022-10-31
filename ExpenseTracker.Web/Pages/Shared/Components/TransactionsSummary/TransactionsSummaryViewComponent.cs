@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Transactions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,9 +10,9 @@ namespace ExpenseTracker.Web.Pages.Shared.Components.TransactionsSummary
 {
     public class TransactionsSummaryViewComponent : ViewComponent
     {
-        private readonly ITransactionsService service;
+        private readonly IExpensesService service;
 
-        public TransactionsSummaryViewComponent(ITransactionsService service)
+        public TransactionsSummaryViewComponent(IExpensesService service)
         {
             this.service = service;
         }

@@ -4,12 +4,8 @@ using System.Linq.Expressions;
 
 namespace ExpenseTracker.Core.Data
 {
-    public interface IGenericRepository<T> where T : class
+    public interface IRepository<T> : IReadRepository<T> where T : class
     {
-        int Count(Expression<Func<T, bool>> expression = null);
-
-        IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null);
-
         T GetById(object id);
 
         void Insert(T item);

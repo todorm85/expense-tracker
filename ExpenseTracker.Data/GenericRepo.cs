@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace ExpenseTracker.Data
 {
-    public class GenericRepo<T> : IGenericRepository<T>
+    public class GenericRepo<T> : IRepository<T>
         where T : class
     {
         private LiteCollection<T> context;

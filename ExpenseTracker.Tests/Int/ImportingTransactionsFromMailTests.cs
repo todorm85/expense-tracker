@@ -1,5 +1,6 @@
 ﻿using ExpenseTracker.Allianz.Gmail;
-using ExpenseTracker.Core;
+using ExpenseTracker.Core.Services;
+using ExpenseTracker.Core.Services.Models;
 using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Tests.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,7 +14,7 @@ namespace ExpenseTracker.Tests.Int
     public class ImportingTransactionsFromMailTests : IntTestsBase
     {
         private AllianzMessageFactory allianz = new AllianzMessageFactory();
-        private TransactionsService expensesService;
+        private ExpensesService expensesService;
         private RaiffeisenMsgFactory rai = new RaiffeisenMsgFactory();
         private MailImporter sut;
 
@@ -30,7 +31,7 @@ namespace ExpenseTracker.Tests.Int
             this.mailClient.MockedMessages.Add(this.allianz.GetInValidMessage("25.06.2006", "55.35", "InvalidTest"));
             this.mailClient.MockedMessages.Add(this.rai.GetInValidMessage("25.06.2006", "55.35", "InvalidTest2"));
             this.mailClient.MockedMessages.Add(this.allianz.GetInValidMessage("25.06.2006", "55.35", "InvalidTest3"));
-            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skip);
+            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<CreateTransactionResult> skip);
             var expenses = this.expensesService.GetAll();
             Assert.AreEqual(0, expenses.Count());
             Assert.AreEqual(this.mailClient.MockedMessages.Count, 3);
@@ -44,7 +45,7 @@ namespace ExpenseTracker.Tests.Int
         public void ImportsCorrectlyWhenOnlyOneInValid()
         {
             this.mailClient.MockedMessages.Add(this.allianz.GetInValidMessage("25.06.2006", "55.35", "InvalidTest"));
-            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skip);
+            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<CreateTransactionResult> skip);
             var expenses = this.expensesService.GetAll();
             Assert.AreEqual(0, expenses.Count());
             Assert.AreEqual(this.mailClient.MockedMessages.Count, 1);
@@ -58,7 +59,7 @@ namespace ExpenseTracker.Tests.Int
         public void ImportsCorrectlyWhenOnlyOneValid()
         {
             this.mailClient.MockedMessages.Add(this.allianz.GetValidMessage("25.06.2006", "55.35", "Bar"));
-            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skip);
+            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<CreateTransactionResult> skip);
             var expenses = this.expensesService.GetAll();
             Assert.AreEqual(1, expenses.Count());
             var expense1 = expenses.First();
@@ -73,7 +74,7 @@ namespace ExpenseTracker.Tests.Int
         {
             this.mailClient.MockedMessages.Add(this.allianz.GetValidMessage("25.06.2006", "55.35", "Bar"));
             this.mailClient.MockedMessages.Add(this.rai.GetValidMessage("26.06.2007", "65.35", "Bar2"));
-            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skip);
+            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<CreateTransactionResult> skip);
             var expenses = this.expensesService.GetAll().OrderBy(x => x.Amount);
             Assert.AreEqual(2, expenses.Count());
             var expense1 = expenses.First();
@@ -94,7 +95,7 @@ namespace ExpenseTracker.Tests.Int
             this.mailClient.MockedMessages.Add(this.rai.GetUnparsableMessage());
             this.mailClient.MockedMessages.Add(this.allianz.GetValidMessage("25.06.2006", "55.35", "Bar"));
             this.mailClient.MockedMessages.Add(this.rai.GetInValidMessage("25.06.2006", "55.35", "InvalidTest2"));
-            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skip);
+            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<CreateTransactionResult> skip);
             var expenses = this.expensesService.GetAll();
             Assert.AreEqual(1, expenses.Count());
             var expense1 = expenses.First();
@@ -113,7 +114,7 @@ namespace ExpenseTracker.Tests.Int
         {
             this.mailClient.MockedMessages.Add(this.rai.GetInValidMessage("25.06.2006", "55.35", "InvalidTest"));
             this.mailClient.MockedMessages.Add(this.allianz.GetValidMessage("25.06.2006", "55.35", "Bar"));
-            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skip);
+            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<CreateTransactionResult> skip);
             var expenses = this.expensesService.GetAll();
             Assert.AreEqual(1, expenses.Count());
             var expense1 = expenses.First();
@@ -137,7 +138,7 @@ namespace ExpenseTracker.Tests.Int
             this.mailClient.MockedMessages.Add(this.allianz.GetInValidMessage("25.06.2006", "55.35", "InvalidTest3"));
             this.mailClient.MockedMessages.Add(this.allianz.GetValidMessage("26.06.2008", "165.35", "Bar3"));
             this.mailClient.MockedMessages.Add(this.rai.GetValidMessage("26.06.2009", "265.35", "Bar4"));
-            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skip);
+            this.sut.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<CreateTransactionResult> skip);
             var expenses = this.expensesService.GetAll().OrderBy(x => x.Amount);
             Assert.AreEqual(4, expenses.Count());
             var expense1 = expenses.First();
@@ -168,7 +169,7 @@ namespace ExpenseTracker.Tests.Int
         {
             base.Initialize();
             this.sut = container.Resolve<MailImporter>();
-            this.expensesService = container.Resolve<TransactionsService>();
+            this.expensesService = container.Resolve<ExpensesService>();
         }
     }
 }

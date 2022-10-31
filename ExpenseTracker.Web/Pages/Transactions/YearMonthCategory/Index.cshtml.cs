@@ -1,27 +1,26 @@
 using ExpenseTracker.Core;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
-using ExpenseTracker.Core.Transactions.Rules;
+using ExpenseTracker.Core.Rules;
 using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using System.Linq;
+using ExpenseTracker.Core.Services;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class YearMonthCategoryModel : PageModel
     {
-        private readonly ITransactionsService transactionsService;
-        private readonly IGenericRepository<Rule> rules;
+        private readonly IExpensesService transactionsService;
 
         public YearMonthCategoryModel(
-            ITransactionsService transactionsService, IGenericRepository<Rule> rules)
+            IExpensesService transactionsService)
         {
             this.CategorySummaries = new List<CategorySummary>();
             this.ExpandableMonths = new List<ExpandableMonthModel>();
             this.transactionsService = transactionsService;
-            this.rules = rules;
             this.Filters = new TransactionsFilterViewModel() { HideSorting = true };
         }
 
@@ -88,13 +87,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPostUpdateTransaction()
         {
-            UpdatedTransaction.Update(transactionsService, rules);
+            transactionsService.TryCreateTransaction(UpdatedTransaction, out _);
             return OnPost(true);
         }
 
         public IActionResult OnPostDeleteTransaction(string id)
         {
-            transactionsService.RemoveById(id);
+            transactionsService.RemoveTransaction(id);
             return OnPost(true);
         }
 

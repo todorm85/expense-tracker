@@ -1,7 +1,7 @@
 ﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
-using ExpenseTracker.Core.Transactions.Rules;
+using ExpenseTracker.Core.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Xml;
 using Telerik.JustMock;

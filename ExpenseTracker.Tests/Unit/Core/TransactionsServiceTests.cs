@@ -1,7 +1,6 @@
-﻿using ExpenseTracker.Core;
-using ExpenseTracker.Core.Data;
+﻿using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
-using ExpenseTracker.Core.Transactions.Rules;
+using ExpenseTracker.Core.Rules;
 using ExpenseTracker.Data;
 using LiteDB;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Telerik.JustMock;
+using ExpenseTracker.Core.Services;
 
 namespace ExpenseTracker.Tests
 {
@@ -17,19 +17,19 @@ namespace ExpenseTracker.Tests
     {
         private List<Transaction> imptExpns = new List<Transaction>();
 
-        private IGenericRepository<Transaction> repo;
+        private IRepository<Transaction> repo;
 
-        private TransactionsService sut;
+        private ExpensesService sut;
 
         private IUnitOfWork uow;
 
-        public TransactionsService Sut
+        public ExpensesService Sut
         {
             get
             {
                 if (this.sut == null)
                 {
-                    this.sut = new TransactionsService(this.uow, Mock.Create<IGenericRepository<Rule>>());
+                    this.sut = new ExpensesService(repo, Mock.Create<IRepository<Rule>>());
                 }
 
                 return this.sut;

@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.Core.Transactions;
+﻿using ExpenseTracker.Core.Services;
+using ExpenseTracker.Core.Transactions;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -24,7 +25,7 @@ namespace ExpenseTracker.Allianz
                 t.Date = DateTime.ParseExact(matches[0].Groups["date"].Value.Trim(), "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture);
                 t.Type = TransactionType.Expense;
                 t.Source = "reifeizen_mail";
-                t.TransactionId = TransactionsService.GenerateTransactionId(t.Date, t.Amount, t.Details);
+                t.TransactionId = ExpensesService.GenerateTransactionId(t.Date, t.Amount, t.Details);
             }
 
             return t;

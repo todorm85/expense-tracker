@@ -1,5 +1,6 @@
 using ExpenseTracker.Core.Data;
-using ExpenseTracker.Core.Transactions.Rules;
+using ExpenseTracker.Core.Rules;
+using ExpenseTracker.Core.Services;
 using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,11 +14,11 @@ namespace ExpenseTracker.Web.Pages.Rules
     public class IndexModel : PageModel
     {
         private readonly int itemsPerPage = 10;
-        private readonly IGenericRepository<Rule> rulesService;
+        private readonly IExpensesService transactionsService;
 
-        public IndexModel(IGenericRepository<Rule> rules)
+        public IndexModel(IExpensesService transactionsService)
         {
-            this.rulesService = rules;
+            this.transactionsService = transactionsService;
         }
 
         [BindProperty]
@@ -46,7 +47,7 @@ namespace ExpenseTracker.Web.Pages.Rules
 
         public IActionResult OnPostDelete(int id)
         {
-            this.rulesService.RemoveById(id);
+            this.transactionsService.RemoveRule(id);
             return RedirectToPage(new { CurrentPage, Filter });
         }
 
@@ -54,12 +55,12 @@ namespace ExpenseTracker.Web.Pages.Rules
         {
             if (id == default)
             {
-                this.rulesService.Insert(CreateRuleModel);
+                this.transactionsService.CreateRule(CreateRuleModel);
             }
             else
             {
                 var model = this.Rules.First(x => x.Id == id);
-                this.rulesService.Update(model);
+                this.transactionsService.UpdateRule(model);
             }
 
             return RedirectToPage(new { CurrentPage, Filter });
@@ -73,7 +74,7 @@ namespace ExpenseTracker.Web.Pages.Rules
         private void InitRulesModel()
         {
             var filterExpression = GetFilterExpression();
-            this.Rules = new PaginatedList<Rule>(this.rulesService, filterExpression, CurrentPage, itemsPerPage);
+            this.Rules = new PaginatedList<Rule>(this.transactionsService, filterExpression, CurrentPage, itemsPerPage);
         }
 
         private Expression<Func<Rule, bool>> GetFilterExpression()

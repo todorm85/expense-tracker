@@ -1,6 +1,6 @@
-﻿using ExpenseTracker.Core;
-using ExpenseTracker.Core.Budget;
+﻿using ExpenseTracker.Core.Budget;
 using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Transactions;
 using LiteDB;
 using System;
@@ -27,11 +27,11 @@ namespace ExpenseTracker.Data
             this.db.Dispose();
         }
 
-        public IGenericRepository<T> GetDataItemsRepo<T>() where T : class
+        public IRepository<T> GetDataItemsRepo<T>() where T : class
         {
             if (this.repos.ContainsKey(typeof(T)))
             {
-                return this.repos[typeof(T)] as IGenericRepository<T>;
+                return this.repos[typeof(T)] as IRepository<T>;
             }
 
             var type = typeof(GenericRepo<T>);
@@ -43,7 +43,7 @@ namespace ExpenseTracker.Data
                 repoInstance = ctor.Invoke(new object[] { this.db, this.GetSetName<T>() }) as GenericRepo<T>;
             }
 
-            return this.repos.GetOrAdd(typeof(T), repoInstance) as IGenericRepository<T>;
+            return this.repos.GetOrAdd(typeof(T), repoInstance) as IRepository<T>;
         }
 
         private static void MapDbModels()
@@ -99,7 +99,7 @@ namespace ExpenseTracker.Data
                     var tId = (string)doc["TransactionId"];
                     if (tId != null && tId.Contains('/') && tId.Contains(':') && tId.Contains('_'))
                     {
-                        doc["_id"] = TransactionsService.GenerateTransactionId(doc["Date"], doc["Amount"], doc["Details"]);
+                        doc["_id"] = ExpensesService.GenerateTransactionId(doc["Date"], doc["Amount"], doc["Details"]);
                     }
                     else if (tId != null)
                     {

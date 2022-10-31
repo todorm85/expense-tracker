@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -10,7 +10,7 @@ namespace ExpenseTracker.Web.Pages.Categories
 {
     public class IndexModel : PageModel
     {
-        private readonly ITransactionsService service;
+        private readonly IExpensesService service;
 
         [BindProperty]
         public string CategoryName { get; set; }
@@ -20,7 +20,7 @@ namespace ExpenseTracker.Web.Pages.Categories
 
         public IEnumerable<string> AllCategories { get; set; }
 
-        public IndexModel(ITransactionsService service)
+        public IndexModel(IExpensesService service)
         {
             this.service = service;
             AllCategories = service.GetAllCategories();

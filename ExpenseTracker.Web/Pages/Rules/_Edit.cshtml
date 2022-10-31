@@ -1,4 +1,4 @@
-﻿@model Core.Transactions.Rules.Rule
+﻿@model Core.Rules.Rule
 @{
     var allRouteDataOriginal = ViewData["RouteValues"] as Dictionary<string, string>;
     var allRouteData = new Dictionary<string, string>();
@@ -19,7 +19,7 @@
     <fieldset class="col form-group">
         <label for="condition_@id">Condition</label>
         <select id="condition_@id" class="form-control" asp-for="Condition"
-                asp-items="Html.GetEnumSelectList<Core.Transactions.Rules.RuleCondition>()"></select>
+                asp-items="Html.GetEnumSelectList<Core.Rules.RuleCondition>()"></select>
     </fieldset>
 </div>
 <fieldset class="form-group">
@@ -28,10 +28,10 @@
 </fieldset>
 <fieldset class="form-group">
     <label for="action_@id">Then</label>
-    <select id="action_@id" class="form-control" asp-for="Action" asp-items="Html.GetEnumSelectList<Core.Transactions.Rules.RuleAction>()"
+    <select id="action_@id" class="form-control" asp-for="Action" asp-items="Html.GetEnumSelectList<Core.Rules.RuleAction>()"
             onchange="onRuleActionChange(this, @Model.Id)"></select>
 </fieldset>
-@{ var ruleSetPropertyEditGroupDisplayValue = Model.Action == Core.Transactions.Rules.RuleAction.SetProperty ? "block" : "none";}
+@{ var ruleSetPropertyEditGroupDisplayValue = Model.Action == Core.Rules.RuleAction.SetProperty ? "block" : "none";}
 
 <div id="@(id)_setPropertyEditGroup" style="display:@(ruleSetPropertyEditGroupDisplayValue)">
     <div class="form-row">

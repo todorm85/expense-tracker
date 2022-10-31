@@ -1,13 +1,13 @@
-using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTracker.Web.Pages.Shared.Components.CategoriesDataList
 {
     public class CategoriesDataListViewComponent : ViewComponent
     {
-        private readonly ITransactionsService service;
+        private readonly IExpensesService service;
 
-        public CategoriesDataListViewComponent(ITransactionsService service)
+        public CategoriesDataListViewComponent(IExpensesService service)
         {
             this.service = service;
         }

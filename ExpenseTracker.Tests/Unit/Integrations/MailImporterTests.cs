@@ -1,6 +1,7 @@
 ﻿using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
-using ExpenseTracker.Core;
+using ExpenseTracker.Core.Services;
+using ExpenseTracker.Core.Services.Models;
 using ExpenseTracker.Core.Transactions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
@@ -59,19 +60,19 @@ namespace ExpenseTracker.Integrations.Tests
                 return msgList.Count;
             });
 
-            var dummyTransactionsService = Mock.Create<ITransactionsService>();
+            var dummyTransactionsService = Mock.Create<IExpensesService>();
             var transactionsList = new List<Transaction>();
-            IEnumerable<TransactionInsertResult> skippedDummy = new TransactionInsertResult[0];
-            Mock.Arrange(() => dummyTransactionsService.TryAdd(Arg.IsAny<IEnumerable<Transaction>>(), out skippedDummy)).DoInstead<IEnumerable<Transaction>>(x => transactionsList.AddRange(x));
+            IEnumerable<CreateTransactionResult> skippedDummy = new CreateTransactionResult[0];
+            Mock.Arrange(() => dummyTransactionsService.TryCreateTransactions(Arg.IsAny<IEnumerable<Transaction>>(), out skippedDummy)).DoInstead<IEnumerable<Transaction>>(x => transactionsList.AddRange(x));
             var importer = new MailImporter(new IExpenseMessageParser[] { dummyParser1, dummyParser2 }, dummyTransactionsService, mailClient);
-            importer.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<TransactionInsertResult> skipped);
+            importer.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<CreateTransactionResult> skipped);
             Assert.AreEqual(2, transactionsList.Count);
             Assert.AreEqual("dummy1", transactionsList[0].Details);
             Assert.AreEqual("dummy2", transactionsList[1].Details);
             Assert.AreEqual(2, msgList.Count);
             Assert.AreEqual("any1", msgList[0]);
             Assert.AreEqual("other1", msgList[1]);
-            importer.ImportTransactions(out IEnumerable<Transaction> ts2, out IEnumerable<TransactionInsertResult> skipped2);
+            importer.ImportTransactions(out IEnumerable<Transaction> ts2, out IEnumerable<CreateTransactionResult> skipped2);
             Assert.AreEqual(2, transactionsList.Count);
             Assert.AreEqual("dummy1", transactionsList[0].Details);
             Assert.AreEqual("dummy2", transactionsList[1].Details);

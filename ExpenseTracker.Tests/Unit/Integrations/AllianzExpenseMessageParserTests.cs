@@ -2,7 +2,7 @@
 using ExpenseTracker.Core;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
-using ExpenseTracker.Core.Transactions.Rules;
+using ExpenseTracker.Core.Rules;
 using ExpenseTracker.Tests.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Telerik.JustMock;

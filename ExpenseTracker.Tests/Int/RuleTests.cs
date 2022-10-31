@@ -1,27 +1,28 @@
-﻿using ExpenseTracker.Core;
-using ExpenseTracker.Core.Data;
+﻿using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
-using ExpenseTracker.Core.Transactions.Rules;
+using ExpenseTracker.Core.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity;
+using ExpenseTracker.Core.Services;
+using ExpenseTracker.Core.Services.Models;
 
 namespace ExpenseTracker.Tests.Int
 {
     [TestClass]
     public class RuleTests : IntTestsBase
     {
-        private IGenericRepository<Rule> rules;
-        private TransactionsService expenses;
+        private IRepository<Rule> rules;
+        private ExpensesService expenses;
 
         [TestInitialize]
         public override void Initialize()
         {
             base.Initialize();
-            this.rules = container.Resolve<IGenericRepository<Rule>>();
-            this.expenses = container.Resolve<TransactionsService>();
+            this.rules = container.Resolve<IRepository<Rule>>();
+            this.expenses = container.Resolve<ExpensesService>();
         }
 
         [TestMethod]
@@ -45,17 +46,17 @@ namespace ExpenseTracker.Tests.Int
                 ConditionValue = " text."
             });
 
-            this.expenses.TryAdd(t, out IEnumerable<TransactionInsertResult> skipped);
+            this.expenses.TryCreateTransaction(t, out IEnumerable<CreateTransactionResult> skipped);
             var skip = skipped.FirstOrDefault();
             Assert.AreNotEqual(null, skip);
-            Assert.AreEqual(TransactionInsertResult.Reason.Skipped, skip.ReasonResult);
+            Assert.AreEqual(CreateTransactionResult.Reason.Skipped, skip.ReasonResult);
 
             var added = this.expenses.GetAll();
             Assert.AreEqual(0, added.Count());
 
             t.TransactionId = "id2";
             t.Details = "other text";
-            this.expenses.TryAdd(t, out IEnumerable<TransactionInsertResult> skipped2);
+            this.expenses.TryCreateTransaction(t, out IEnumerable<CreateTransactionResult> skipped2);
             skip = skipped2.FirstOrDefault();
             Assert.AreEqual(null, skip);
 
@@ -85,7 +86,7 @@ namespace ExpenseTracker.Tests.Int
                 ValueToSet = TransactionType.Income.ToString()
             });
 
-            this.expenses.TryAdd(t, out IEnumerable<TransactionInsertResult> skipped);
+            this.expenses.TryCreateTransaction(t, out IEnumerable<CreateTransactionResult> skipped);
             var skip = skipped.FirstOrDefault();
             Assert.AreEqual(null, skip);
 

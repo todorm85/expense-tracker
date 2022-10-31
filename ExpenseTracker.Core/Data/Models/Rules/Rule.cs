@@ -1,4 +1,6 @@
-﻿namespace ExpenseTracker.Core.Transactions.Rules
+﻿using ExpenseTracker.Core.Transactions;
+
+namespace ExpenseTracker.Core.Rules
 {
     public class Rule
     {

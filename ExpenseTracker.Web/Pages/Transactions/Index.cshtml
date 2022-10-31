@@ -10,7 +10,8 @@
         <partial name="_TransactionsFilter" for="Filter" />
         <partial name="_Transactions" for="TransactionsList" />
         <div class="text-right mb-2">
-            <button type="submit" asp-page-handler="DeleteAll">Delete Filtered</button>
+            <button type="submit" asp-page-handler="DeleteAll">Delete All (all pages)</button>
+            <button type="submit" asp-page-handler="UpdateAll">Update All</button>
         </div>
         <partial name="_Pager" for="Pager" />
     </form>

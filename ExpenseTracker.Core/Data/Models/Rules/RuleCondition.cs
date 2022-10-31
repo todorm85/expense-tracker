@@ -1,4 +1,4 @@
-﻿namespace ExpenseTracker.Core.Transactions.Rules
+﻿namespace ExpenseTracker.Core.Rules
 {
     public enum RuleCondition
     {

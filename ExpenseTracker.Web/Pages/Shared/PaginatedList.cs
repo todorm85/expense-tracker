@@ -16,7 +16,7 @@ namespace ExpenseTracker.Web.Pages.Shared
         {
         }
 
-        public PaginatedList(IGenericRepository<T> service, Expression<Func<T, bool>> filter, int pageIndex, int pageSize, string sortBy = null)
+        public PaginatedList(IReadRepository<T> service, Expression<Func<T, bool>> filter, int pageIndex, int pageSize, string sortBy = null)
         {
             var allItemsCount = service.Count(filter);
             this.TotalPagesCount = (int)Math.Ceiling(allItemsCount / (double)pageSize);

@@ -1,6 +1,6 @@
 ﻿using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
-using ExpenseTracker.Core.Transactions.Rules;
+using ExpenseTracker.Core.Rules;
 using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,18 +9,17 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text.Json.Serialization;
+using ExpenseTracker.Core.Services;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class IndexModel : PageModel
     {
-        private readonly ITransactionsService transactionsService;
-        private readonly IGenericRepository<Rule> rules;
+        private readonly IExpensesService transactionsService;
 
-        public IndexModel(ITransactionsService transactions, IGenericRepository<Rule> rules)
+        public IndexModel(IExpensesService transactions)
         {
             transactionsService = transactions;
-            this.rules = rules;
             TransactionsList = new TransactionsListModel();
         }
 
@@ -49,7 +48,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             foreach (var t in this.transactionsService.GetAll(Filter.GetFilterQuery()))
             {
-                transactionsService.RemoveById(t.TransactionId);
+                transactionsService.RemoveTransaction(t.TransactionId);
             }
 
             return OnPost();
@@ -57,20 +56,30 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPostDeleteTransaction(string id)
         {
-            transactionsService.RemoveById(id);
+            transactionsService.RemoveTransaction(id);
             return OnPost();
         }
 
         public IActionResult OnPostUpdateTransaction(string id)
         {
             var updated = TransactionsList.Transactions.First(x => x.TransactionId == id);
-            updated.Update(transactionsService, rules);
+            transactionsService.TryCreateTransaction(updated, out _);
             return OnPost();
         }
 
         public IActionResult OnPost()
         {
             return RedirectToPage(new { Filter, Pager.CurrentPage, Pager.PageSize });
+        }
+
+        public IActionResult OnPostUpdateAll()
+        {
+            foreach (var t in TransactionsList.Transactions)
+            {
+                transactionsService.TryCreateTransaction(t, out _);
+            }
+
+            return OnPost();
         }
 
         private void LoadFilter(string filter)

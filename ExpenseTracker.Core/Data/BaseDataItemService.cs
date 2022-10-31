@@ -4,9 +4,9 @@ using System.Linq.Expressions;
 
 namespace ExpenseTracker.Core.Data
 {
-    public class BaseDataItemService<T> : IGenericRepository<T> where T : class
+    public class BaseDataItemService<T> : IRepository<T> where T : class
     {
-        protected IGenericRepository<T> repo;
+        protected IRepository<T> repo;
 
         public BaseDataItemService(IUnitOfWork uow)
         {

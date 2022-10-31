@@ -3,7 +3,7 @@ using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.App;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Transactions;
-using ExpenseTracker.Core.Transactions.Rules;
+using ExpenseTracker.Core.Rules;
 using ExpenseTracker.Integrations.Files;
 using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ExpenseTracker.Web.Session;
+using ExpenseTracker.Core.Services;
+using ExpenseTracker.Core.Services.Models;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
@@ -21,24 +23,21 @@ namespace ExpenseTracker.Web.Pages.Transactions
     {
         private readonly AllianzTxtFileParser allianz;
         private readonly MailImporter importer;
-        private readonly IGenericRepository<Rule> rules;
         private readonly RaiffeizenTxtFileParser rai;
         private readonly RevolutExcelParser revolut;
-        private readonly ITransactionsService transactionsService;
+        private readonly IExpensesService transactionsService;
 
         public UploadModel(
-            ITransactionsService transactionsService,
+            IExpensesService transactionsService,
             AllianzTxtFileParser allianz,
             RaiffeizenTxtFileParser rai,
             RevolutExcelParser revolut,
-            MailImporter importer,
-            IGenericRepository<Rule> rules)
+            MailImporter importer)
         {
             this.transactionsService = transactionsService;
             this.allianz = allianz;
             this.rai = rai;
             this.importer = importer;
-            this.rules = rules;
             this.revolut = revolut;
             this.HasMail = importer.TestConnection();
         }
@@ -76,7 +75,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPostCreate()
         {
-            if (this.transactionsService.TryAdd(NewTransaction, out IEnumerable<TransactionInsertResult> skipped))
+            if (this.transactionsService.TryCreateTransaction(NewTransaction, out IEnumerable<CreateTransactionResult> skipped))
                 SetJustAdded(JustAddedTransactions.Transactions.Concat(new List<Transaction>() { NewTransaction }).ToTransactionModel());
             else
                 AppendSkipped(skipped.ToTransactionModel());
@@ -86,7 +85,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPostSyncMail()
         {
-            this.importer.ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<TransactionInsertResult> skipped);
+            this.importer.ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<CreateTransactionResult> skipped);
             AppendJustAdded(added.ToTransactionModel());
             AppendSkipped(skipped.ToTransactionModel());
             return RedirectToPage();
@@ -97,7 +96,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             try
             {
                 IEnumerable<Transaction> expenses = Enumerable.Empty<Transaction>();
-                IEnumerable<TransactionInsertResult> skipped = new List<TransactionInsertResult>();
+                IEnumerable<CreateTransactionResult> skipped = new List<CreateTransactionResult>();
                 foreach (var formFile in files)
                 {
                     if (formFile.Length > 0)
@@ -112,17 +111,17 @@ namespace ExpenseTracker.Web.Pages.Transactions
                         if (formFile.FileName.EndsWith("xml"))
                         {
                             expenses = this.rai.ParseFile(filePath);
-                            this.transactionsService.TryAdd(expenses, out skipped);
+                            this.transactionsService.TryCreateTransactions(expenses, out skipped);
                         }
                         else if (formFile.FileName.EndsWith("txt"))
                         {
                             expenses = this.allianz.ParseFromFile(filePath);
-                            this.transactionsService.TryAdd(expenses, out skipped);
+                            this.transactionsService.TryCreateTransactions(expenses, out skipped);
                         }
                         else if (formFile.FileName.EndsWith("csv"))
                         {
                             expenses = this.revolut.ParseFromFile(filePath);
-                            this.transactionsService.TryAdd(expenses, out skipped);
+                            this.transactionsService.TryCreateTransactions(expenses, out skipped);
                         }
                     }
                 }
@@ -140,7 +139,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPostDeleteTransaction(string id)
         {
-            transactionsService.RemoveById(id);
+            transactionsService.RemoveTransaction(id);
             SetJustAdded(JustAddedTransactions.Transactions.Where(x => x.TransactionId != id));
             return RedirectToPage();
         }
@@ -148,7 +147,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IActionResult OnPostUpdateTransaction(string id)
         {
             var updated = JustAddedTransactions.Transactions.First(x => x.TransactionId == id);
-            updated.Update(transactionsService, rules);
+            transactionsService.UpdateTransaction(updated);
             SetJustAdded(JustAddedTransactions.Transactions);
             return RedirectToPage();
         }
@@ -198,7 +197,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
     internal static class Extensions
     {
-        public static IEnumerable<TransactionModel> ToTransactionModel(this IEnumerable<TransactionInsertResult> skipped)
+        public static IEnumerable<TransactionModel> ToTransactionModel(this IEnumerable<CreateTransactionResult> skipped)
         {
             return skipped.Select(x => new TransactionModel(x.Transaction) { Reason = x.ReasonResult, TransactionId = Guid.NewGuid().ToString() });
         }

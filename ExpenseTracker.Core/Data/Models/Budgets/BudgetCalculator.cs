@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.Core.Transactions;
+﻿using ExpenseTracker.Core.Services;
+using ExpenseTracker.Core.Transactions;
 using System;
 using System.Linq;
 
@@ -6,9 +7,9 @@ namespace ExpenseTracker.Core.Budget
 {
     public class BudgetCalculator : IBudgetCalculator
     {
-        private readonly ITransactionsService transactionsService;
+        private readonly IExpensesService transactionsService;
 
-        public BudgetCalculator(ITransactionsService expensesService)
+        public BudgetCalculator(IExpensesService expensesService)
         {
             this.transactionsService = expensesService;
         }
