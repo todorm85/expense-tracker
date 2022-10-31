@@ -47,10 +47,54 @@ namespace ExpenseTracker.Core.Services
 
         public bool TryCreateTransactions(IEnumerable<Transaction> expenses, out IEnumerable<CreateTransactionResult> skipped)
         {
+            if (expenses.OrderBy(x => x.TransactionId).Select(x => x.TransactionId).Distinct().Count() != expenses.Count())
+            {
+                throw new InvalidOperationException("Error creating transactions. The sequence contains elements with duplicate ids.");
+            }
+
             ApplyRules(expenses, out List<Transaction> toAdd, out IList<CreateTransactionResult> toSkip);
 
+            foreach (var t in toAdd)
+            {
+                if (string.IsNullOrWhiteSpace(t.TransactionId))
+                {
+                    toSkip.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.InvalidId));
+                    continue;
+                }
+
+                if (t.Date == default)
+                {
+                    toSkip.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.InvalidDate));
+                    continue;
+                }
+
+                if (t.Amount <= 0)
+                {
+                    toSkip.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.InvalidAmount));
+                    continue;
+                }
+
+                if (t.Type == TransactionType.Unspecified)
+                {
+                    toSkip.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.InvalidType));
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(t.Source))
+                {
+                    toSkip.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.InvalidSource));
+                    continue;
+                }
+
+                if (transactionsRepo.GetById(t.TransactionId) != null)
+                {
+                    toSkip.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.DuplicateEntry));
+                    continue;
+                }
+            }
+
             skipped = toSkip;
-            transactionsRepo.Insert(toAdd);
+            transactionsRepo.Insert(toAdd.Except(toSkip.Select(x => x.Transaction)));
             return skipped.Count() == 0;
         }
 
@@ -65,12 +109,19 @@ namespace ExpenseTracker.Core.Services
         public void UpdateTransaction(Transaction t)
         {
             var oldValue = transactionsRepo.GetById(t.TransactionId);
-            if (oldValue != null && categoriesCache != null && t.Category != oldValue.Category)
+            if (oldValue != null && t.Category != oldValue.Category)
             {
+                var newRule = ProcessCategoryName(t);
+                if (newRule != null)
+                {
+                    CreateRule(newRule);
+                }
+
                 categoriesCache = null;
             }
 
-            ApplyRules(new Transaction[] { t }, out _, out _);
+            if (string.IsNullOrEmpty(t.Category))
+                ApplyRules(new Transaction[] { t }, out _, out _);
 
             transactionsRepo.Update(t);
         }
@@ -98,13 +149,11 @@ namespace ExpenseTracker.Core.Services
         public void CreateRule(Rule createRuleModel)
         {
             rulesRepo.Insert(createRuleModel);
-            ProcessAllUncategorizedTransactions();
         }
 
         public void UpdateRule(Rule model)
         {
             rulesRepo.Update(model);
-            ProcessAllUncategorizedTransactions();
         }
 
         public void RemoveRule(int id)
@@ -191,7 +240,7 @@ namespace ExpenseTracker.Core.Services
             return categoriesCache.Keys;
         }
 
-        private void ProcessAllUncategorizedTransactions()
+        public void ProcessAllUncategorizedTransactions()
         {
             var uncategorized = transactionsRepo.GetAll(x => string.IsNullOrEmpty(x.Category));
             ApplyRules(uncategorized, out List<Transaction> processed, out IList<CreateTransactionResult> skipped);
@@ -200,7 +249,7 @@ namespace ExpenseTracker.Core.Services
                 UpdateTransaction(item);
             }
 
-            foreach (var t in skipped)
+            foreach (var t in skipped.Where(x => x.ReasonResult == CreateTransactionResult.Reason.Skipped))
             {
                 t.Transaction.Category = Constants.IgnoredCategory;
                 UpdateTransaction(t.Transaction);
@@ -211,21 +260,11 @@ namespace ExpenseTracker.Core.Services
         {
             added = new List<Transaction>();
             skipped = new List<CreateTransactionResult>();
-            var rules = rulesRepo.GetAll();
+
+            // most specific rules should process last
+            var rules = rulesRepo.GetAll().OrderBy(x => x.ConditionValue.Length);
             foreach (var t in all)
             {
-                if (!string.IsNullOrEmpty(t.Category))
-                {
-                    if (t.Category.Contains(":"))
-                    {
-                        var parts = t.Category.Split(":");
-                        t.Category = parts[0];
-                        CreateRule(new Rule() { ValueToSet = parts[0], ConditionValue = parts[1], Condition = RuleCondition.Contains, Action = RuleAction.SetProperty, Property = "Details", PropertyToSet = "Category" });
-                    }
-
-                    continue;
-                }
-
                 var skip = false;
                 foreach (Rule rule in rules)
                 {
@@ -242,41 +281,6 @@ namespace ExpenseTracker.Core.Services
                     continue;
                 }
 
-                if (string.IsNullOrWhiteSpace(t.TransactionId))
-                {
-                    skipped.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.InvalidId));
-                    continue;
-                }
-
-                if (t.Date == default)
-                {
-                    skipped.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.InvalidDate));
-                    continue;
-                }
-                if (t.Amount <= 0)
-                {
-                    skipped.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.InvalidAmount));
-                    continue;
-                }
-                if (t.Type == TransactionType.Unspecified)
-                {
-                    skipped.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.InvalidType));
-                    continue;
-                }
-                if (string.IsNullOrEmpty(t.Source))
-                {
-                    skipped.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.InvalidSource));
-                    continue;
-                }
-
-                var transactionId = string.IsNullOrEmpty(t.TransactionId) ? GenerateTransactionId(t.Date, t.Amount, t.Details) : t.TransactionId;
-                if (transactionsRepo.GetById(transactionId) != null || added.FirstOrDefault(x => x.TransactionId == transactionId) != null)
-                {
-                    skipped.Add(new CreateTransactionResult(t, CreateTransactionResult.Reason.DuplicateEntry));
-                    continue;
-                }
-
-                t.TransactionId = transactionId;
                 if (t.Category != null && !categoriesCache.ContainsKey(t.Category))
                 {
                     categoriesCache.TryAdd(t.Category, null);
@@ -284,6 +288,21 @@ namespace ExpenseTracker.Core.Services
 
                 added.Add(t);
             }
+        }
+
+        private Rule ProcessCategoryName(Transaction t)
+        {
+            if (!string.IsNullOrEmpty(t.Category))
+            {
+                if (t.Category.Contains(":"))
+                {
+                    var parts = t.Category.Split(":");
+                    t.Category = parts[0];
+                    return new Rule() { ValueToSet = parts[0], ConditionValue = parts[1], Condition = RuleCondition.Contains, Action = RuleAction.SetProperty, Property = "Details", PropertyToSet = "Category" };
+                }
+            }
+
+            return null;
         }
 
         private static IDictionary<string, string> categoriesCache;

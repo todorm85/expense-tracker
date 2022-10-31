@@ -20,7 +20,10 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IndexModel(IExpensesService transactions)
         {
             transactionsService = transactions;
-            TransactionsList = new TransactionsListModel();
+            TransactionsList = new TransactionsListModel()
+            {
+                DetailsHeight = 2
+            };
         }
 
         [BindProperty]
@@ -63,7 +66,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IActionResult OnPostUpdateTransaction(string id)
         {
             var updated = TransactionsList.Transactions.First(x => x.TransactionId == id);
-            transactionsService.TryCreateTransaction(updated, out _);
+            transactionsService.UpdateTransaction(updated);
             return OnPost();
         }
 
@@ -76,9 +79,15 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             foreach (var t in TransactionsList.Transactions)
             {
-                transactionsService.TryCreateTransaction(t, out _);
+                transactionsService.UpdateTransaction(t);
             }
 
+            return OnPost();
+        }
+
+        public IActionResult OnPostProcessUncategorized()
+        {
+            transactionsService.ProcessAllUncategorizedTransactions();
             return OnPost();
         }
 

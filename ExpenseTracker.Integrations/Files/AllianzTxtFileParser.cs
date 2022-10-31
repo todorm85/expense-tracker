@@ -22,7 +22,7 @@ namespace ExpenseTracker.Allianz
                 {
                     var fgs = line.Split('|');
                     var reference = fgs[1];
-                    var amount = decimal.Parse(fgs[2]);
+                    var amount = GetAmount(fgs);
                     var type = fgs[3] == "D" ? TransactionType.Expense : TransactionType.Income;
                     var details = $"{fgs[4]} {fgs[5]} {fgs[6]} {fgs[7]} {fgs[8]}".RemoveRepeatingSpaces();
                     var parsedDate = ParseDate(details, fgs[0]);
@@ -42,6 +42,11 @@ namespace ExpenseTracker.Allianz
             }
 
             return trans;
+        }
+
+        private static decimal GetAmount(string[] fgs)
+        {
+            return decimal.Parse(fgs[2].Replace(",", "").Replace(" ", ""));
         }
 
         public IEnumerable<Transaction> ParseFromFile(string filePath)

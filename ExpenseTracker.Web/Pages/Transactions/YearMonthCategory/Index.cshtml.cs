@@ -1,15 +1,13 @@
+using System.Collections.Generic;
+using System.Linq;
 using ExpenseTracker.Core;
-using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Transactions;
-using ExpenseTracker.Core.Rules;
 using ExpenseTracker.Web.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Collections.Generic;
-using System.Linq;
-using ExpenseTracker.Core.Services;
 
-namespace ExpenseTracker.Web.Pages.Transactions
+namespace ExpenseTracker.Web.Pages.Transactions.YearMonthCategory
 {
     public class YearMonthCategoryModel : PageModel
     {
@@ -87,7 +85,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPostUpdateTransaction()
         {
-            transactionsService.TryCreateTransaction(UpdatedTransaction, out _);
+            transactionsService.UpdateTransaction(UpdatedTransaction);
             return OnPost(true);
         }
 

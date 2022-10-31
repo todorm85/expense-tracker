@@ -14,6 +14,9 @@
         <div class="col">
             <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#createRuleModal">Create</button>
         </div>
+        <div class="col">
+            <button class="btn btn-primary" type="submit" asp-page-handler="ProcessUncategorized">Process uncategorized</button>
+        </div>
         <modal id="createRuleModal" title="Create rule">
             <partial name="_Edit" for="CreateRuleModel" view-data="@editViewData" />
         </modal>

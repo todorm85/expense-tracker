@@ -30,5 +30,6 @@ namespace ExpenseTracker.Core.Services
 
         IEnumerable<string> GetAllCategories();
 
+        void ProcessAllUncategorizedTransactions();
     }
 }

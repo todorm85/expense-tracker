@@ -66,6 +66,12 @@ namespace ExpenseTracker.Web.Pages.Rules
             return RedirectToPage(new { CurrentPage, Filter });
         }
 
+        public IActionResult OnPostProcessUncategorized()
+        {
+            transactionsService.ProcessAllUncategorizedTransactions();
+            return RedirectToPage();
+        }
+
         private void InitCreateModel()
         {
             this.CreateRuleModel = new Rule() { Property = "Details" };
