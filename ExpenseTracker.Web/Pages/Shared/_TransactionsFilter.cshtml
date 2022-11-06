@@ -38,6 +38,7 @@
         </div>
         <div>
             <select multiple="multiple" asp-for="SelectedCategories" class="rounded ml-2" asp-items="Model.CategoriesDropDownModel"></select>
+            <select hidden multiple="multiple" asp-for="AvailableCategories" class="rounded ml-2" asp-items="Model.AvailableCategoriesDropDownModel"></select>
         </div>
     </div>
 </div>

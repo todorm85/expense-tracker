@@ -117,18 +117,15 @@ namespace ExpenseTracker.Core.Services
                     CreateRule(newRule);
                 }
 
-                categoriesCache = null;
+                categoriesCache.Clear();
             }
-
-            if (string.IsNullOrEmpty(t.Category))
-                ApplyRules(new Transaction[] { t }, out _, out _);
 
             transactionsRepo.Update(t);
         }
 
         public void RemoveTransaction(string id)
         {
-            categoriesCache = null;
+            categoriesCache.Clear();
             transactionsRepo.RemoveById(id);
         }
 
@@ -225,9 +222,8 @@ namespace ExpenseTracker.Core.Services
 
         public IEnumerable<string> GetAllCategories()
         {
-            if (categoriesCache == null)
+            if (categoriesCache.Count == 0)
             {
-                categoriesCache = new ConcurrentDictionary<string, string>();
                 foreach (string c in transactionsRepo.GetAll(x => !string.IsNullOrEmpty(x.Category))
                                    .Select(x => x.Category)
                                    .OrderBy(x => x)
@@ -305,6 +301,6 @@ namespace ExpenseTracker.Core.Services
             return null;
         }
 
-        private static IDictionary<string, string> categoriesCache;
+        private static IDictionary<string, string> categoriesCache = new Dictionary<string, string>();
     }
 }

@@ -26,16 +26,14 @@ namespace ExpenseTracker.Web.Pages.Shared
             {
                 DateFrom = DateTime.UtcNow.ToMonthStart();
             }
-
-            CategoriesDropDownModel = new List<SelectListItem>()
-            {
-                new SelectListItem("uncategorised", UncategorisedOptionValue)
-            };
         }
 
         [JsonIgnore]
         public List<SelectListItem> CategoriesDropDownModel { get; set; }
         public List<string> SelectedCategories { get; set; }
+        [JsonIgnore]
+        public List<SelectListItem> AvailableCategoriesDropDownModel { get; set; }
+        public List<string> AvailableCategories { get; set; }
         public DateTime DateFrom { get; set; }
 
         public DateTime DateTo { get; set; }
@@ -54,26 +52,47 @@ namespace ExpenseTracker.Web.Pages.Shared
         public void Init(IExpensesService service)
         {
             var allTransactions = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search | FilterBy.Source));
-            IEnumerable<string> categories = allTransactions.Where(x => !string.IsNullOrEmpty(x.Category))
-                                   .Select(x => x.Category)
-                                   .OrderBy(x => x)
-                                   .Distinct();
+            List<string> latestCategories = allTransactions
+                .Select(x => x.Category)
+                .OrderBy(x => x)
+                .Distinct()
+                .ToList();
+
+            SetUncategorizedValue(latestCategories);
+
+            List<string> newlyAvailableCatesgories = new List<string>();
+            if (AvailableCategories != null)
+                newlyAvailableCatesgories = latestCategories.Where(x => !AvailableCategories.Contains(x)).ToList();
+
+            AvailableCategories = latestCategories;
 
             if (SelectedCategories == null)
             {
-                SelectedCategories = categories?.Where(x => x != Constants.IgnoredCategory).ToList() ?? new List<string>();
-                SelectedCategories.Add(UncategorisedOptionValue);
+                SelectedCategories = latestCategories.ToList() ?? new List<string>();
             }
             else
             {
-                SelectedCategories = SelectedCategories.Where(x => categories.Contains(x) || x == UncategorisedOptionValue).ToList();
+                SelectedCategories = SelectedCategories.Where(x => latestCategories.Contains(x)).ToList();
+                SelectedCategories.AddRange(newlyAvailableCatesgories);
             }
 
-            CategoriesDropDownModel = CategoriesDropDownModel.Union(categories.Select(x => new SelectListItem() { Text = x, Value = x })).ToList();
+            SelectedCategories = SelectedCategories.Where(x => x != Constants.IgnoredCategory).ToList();
 
-            var test = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search)).Select(x => x.Source);
+            List<SelectListItem> selectListItems = latestCategories.Select(x => new SelectListItem() { Text = x == UncategorisedOptionValue ? "uncategorized" : x, Value = x }).ToList();
+            CategoriesDropDownModel = selectListItems;
+            AvailableCategoriesDropDownModel = selectListItems;
+
             var sources = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search)).Select(x => x.Source).OrderBy(x => x).Distinct();
             Sources = Sources.Union(sources.Select(x => new SelectListItem() { Text = x ?? "null", Value = x })).ToList();
+        }
+
+        private static void SetUncategorizedValue(List<string> latestCategories)
+        {
+            var uncategorizedIndex = latestCategories.IndexOf(string.Empty);
+            if (uncategorizedIndex < 0)
+                uncategorizedIndex = latestCategories.IndexOf(null);
+            if (uncategorizedIndex > -1)
+                latestCategories[uncategorizedIndex] = UncategorisedOptionValue;
         }
 
         public Expression<Func<Transaction, bool>> GetFilterQuery(FilterBy flags = FilterBy.Date | FilterBy.Category | FilterBy.Search | FilterBy.Source)
