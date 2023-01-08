@@ -1,5 +1,6 @@
 ﻿using MailKit;
 using MailKit.Net.Imap;
+using MimeKit;
 using System.Linq;
 
 namespace ExpenseTracker.Allianz.Gmail
@@ -63,10 +64,12 @@ namespace ExpenseTracker.Allianz.Gmail
         public ExpenseMessage GetMessage(int i)
         {
             var serverMsg = this.Expenses.GetMessage(i);
+            var address = serverMsg.From.FirstOrDefault(x => x is MailboxAddress) as MailboxAddress;
             return new ExpenseMessage()
             {
                 Body = serverMsg.HtmlBody ?? serverMsg.TextBody,
                 Subject = serverMsg.Subject,
+                From = address?.Address,
                 EmailDate = serverMsg.Date.UtcDateTime
             };
         }

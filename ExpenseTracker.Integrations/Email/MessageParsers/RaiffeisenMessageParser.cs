@@ -39,7 +39,8 @@ namespace ExpenseTracker.Allianz
         private bool IsReiffeisenMessage(ExpenseMessage expenseMessages)
         {
             return expenseMessages.Subject.Contains("Notification from RBBBG") ||
-                expenseMessages.Subject.Contains("Notification CC RBB");
+                expenseMessages.Subject.Contains("Notification CC RBB") ||
+                (expenseMessages.From != null && expenseMessages.From.Contains("kbcinfo"));
         }
     }
 }

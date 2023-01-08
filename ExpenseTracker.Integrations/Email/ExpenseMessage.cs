@@ -7,5 +7,6 @@ namespace ExpenseTracker.Allianz
         public string Body { get; set; }
         public DateTime EmailDate { get; set; }
         public string Subject { get; set; }
+        public string From { get; internal set; }
     }
 }
