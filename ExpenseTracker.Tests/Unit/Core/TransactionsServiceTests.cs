@@ -15,6 +15,8 @@ namespace ExpenseTracker.Tests
     [TestClass]
     public class TransactionsServiceTests
     {
+        private IReadRepository<Transaction> Repo => sut as IReadRepository<Transaction>;
+
         private List<Transaction> imptExpns = new List<Transaction>();
 
         private IRepository<Transaction> repo;
@@ -46,7 +48,7 @@ namespace ExpenseTracker.Tests
             this.repo.Insert(new Transaction[] { expense });
 
             this.repo.Insert(new Transaction[] { expense });
-            var results = this.Sut.GetAll();
+            var results = this.Repo.GetAll();
             Assert.AreEqual(1, results.Count());
             var result = results.First();
             Assert.AreEqual(new DateTime(2018, 3, 9), result.Date);
@@ -59,8 +61,8 @@ namespace ExpenseTracker.Tests
             this.repo.Insert(new Transaction[] { expense });
 
             expense.TransactionId = "0";
-            this.Sut.Insert(new Transaction[] { expense });
-            var results = this.Sut.GetAll();
+            this.Sut.TryCreateTransaction(expense, out _);
+            var results = this.Repo.GetAll();
             Assert.AreEqual(2, results.Count());
             var result = results.First();
             Assert.AreEqual(new DateTime(2018, 3, 9), result.Date);

@@ -14,6 +14,7 @@ namespace ExpenseTracker.Tests.Int
     [TestClass]
     public class RuleTests : IntTestsBase
     {
+        private IReadRepository<Transaction> TransactionsRepo => expenses as IReadRepository<Transaction>;
         private IRepository<Rule> rules;
         private ExpensesService expenses;
 
@@ -51,7 +52,7 @@ namespace ExpenseTracker.Tests.Int
             Assert.AreNotEqual(null, skip);
             Assert.AreEqual(CreateTransactionResult.Reason.Skipped, skip.ReasonResult);
 
-            var added = this.expenses.GetAll();
+            var added = this.TransactionsRepo.GetAll();
             Assert.AreEqual(0, added.Count());
 
             t.TransactionId = "id2";
@@ -60,7 +61,7 @@ namespace ExpenseTracker.Tests.Int
             skip = skipped2.FirstOrDefault();
             Assert.AreEqual(null, skip);
 
-            added = this.expenses.GetAll();
+            added = this.TransactionsRepo.GetAll();
             Assert.AreEqual(1, added.Count());
         }
 
@@ -90,7 +91,7 @@ namespace ExpenseTracker.Tests.Int
             var skip = skipped.FirstOrDefault();
             Assert.AreEqual(null, skip);
 
-            var added = this.expenses.GetAll();
+            var added = this.TransactionsRepo.GetAll();
             Assert.AreEqual(1, added.Count());
             Assert.AreEqual(TransactionType.Income, added.First().Type);
         }

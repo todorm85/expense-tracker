@@ -6,6 +6,7 @@ using ExpenseTracker.Core.Services;
 using ExpenseTracker.Data;
 using Unity;
 using Unity.Injection;
+using ExpenseTracker.Integrations.Email.MessageParsers;
 
 namespace ExpenseTracker.App
 {
@@ -24,6 +25,7 @@ namespace ExpenseTracker.App
             // allianz dependencies
             container.RegisterType<IExpenseMessageParser, AllianzExpenseMessageParser>("allianz");
             container.RegisterType<IExpenseMessageParser, RaiffeisenMessageParser>("raiffeisen");
+            container.RegisterType<IExpenseMessageParser, FibankMessageParser>("fibank");
             container.RegisterType<IMailClient, GmailClient>(new InjectionConstructor(config.MailUser, config.MailPass));
         }
     }
