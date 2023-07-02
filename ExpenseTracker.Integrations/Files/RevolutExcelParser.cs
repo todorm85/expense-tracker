@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace ExpenseTracker.Integrations.Files
 {
@@ -18,11 +19,8 @@ namespace ExpenseTracker.Integrations.Files
                 var line = sr.ReadLine();
                 while (!string.IsNullOrWhiteSpace(line))
                 {
-                    var fgs = line.Split(',');
-                    if (fgs.Length == 1)
-                    {
-                        fgs = line.Split(';');
-                    }
+                    var delimiter = line.Where(x => x == ';').Count() == 10 ? ';' : ',';
+                    var fgs = line.Split(delimiter);
 
                     if (fgs.Length != 10)
                     {

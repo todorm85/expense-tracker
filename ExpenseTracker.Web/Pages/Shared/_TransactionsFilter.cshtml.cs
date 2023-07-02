@@ -14,6 +14,7 @@ namespace ExpenseTracker.Web.Pages.Shared
     public class TransactionsFilterViewModel
     {
         private const string UncategorisedOptionValue = "-";
+        private const string UnknownSourceLabel = "unknown";
 
         public TransactionsFilterViewModel()
         {
@@ -83,7 +84,7 @@ namespace ExpenseTracker.Web.Pages.Shared
             AvailableCategoriesDropDownModel = selectListItems;
 
             var sources = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search)).Select(x => x.Source).OrderBy(x => x).Distinct();
-            Sources = Sources.Union(sources.Select(x => new SelectListItem() { Text = x ?? "null", Value = x })).ToList();
+            Sources = Sources.Union(sources.Select(x => new SelectListItem() { Text = x ?? UnknownSourceLabel, Value = x })).ToList();
         }
 
         private static void SetUncategorizedValue(List<string> latestCategories)
@@ -109,7 +110,7 @@ namespace ExpenseTracker.Web.Pages.Shared
             if (!flags.HasFlag(FilterBy.Source) || Source == UncategorisedOptionValue)
                 return true;
 
-            return x.Source == Source || (Source == "null" && string.IsNullOrEmpty(x.Source));
+            return x.Source == Source || (Source == UnknownSourceLabel && string.IsNullOrEmpty(x.Source));
         }
 
         private bool ApplyCategoriesFilter(Transaction x, FilterBy flags)

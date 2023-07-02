@@ -17,6 +17,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.service = transactions;
         }
 
+        [BindProperty]
         public IList<TransactionsListModel> DuplicatesModel { get; set; }
 
         public void OnGet()
@@ -42,6 +43,29 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
             this.service.UpdateTransactions(targets);
             return new OkResult();
+        }
+
+        public IActionResult OnPostDeleteTransaction(string id)
+        {
+            service.RemoveTransaction(id);
+            return RedirectToPage();
+        }
+
+        public IActionResult OnPostUpdateTransaction(string id)
+        {
+            foreach (var set in DuplicatesModel)
+            {
+                foreach (var t in set.Transactions)
+                {
+                    if (t.TransactionId == id)
+                    {
+                        service.UpdateTransaction(t);
+                        return RedirectToPage();
+                    }
+                }
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(id));
         }
     }
 }

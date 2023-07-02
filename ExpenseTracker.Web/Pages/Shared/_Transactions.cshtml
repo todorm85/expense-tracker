@@ -79,13 +79,12 @@
                 </td>
                 <td style="width:15%; min-width: 90px;">
                     <div style="display: @failedDisplay" class="failed_@t.TransactionId">
-                        <button class="btn" style="width: 30px; height:30px" type="button" formAction="/Transactions/Api/?handler=Create"
-                            onclick="onTransactionUpdate(this, '@t.TransactionId', true)">
+                        <button class="btn" style="width: 30px; height:30px" type="button">
                             force create
                         </button>
                     </div>
                     <div style="display: @addedDisplay" class="added_@t.TransactionId">
-                        <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="updateTransaction" onclick="return onUpdate(event, '@t.TransactionId')" btn-apply></button>
+                        <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="updateTransaction" btn-apply></button>
                         <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="deleteTransaction" btn-del></button>
                     </div>
                 </td>
