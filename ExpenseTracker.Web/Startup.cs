@@ -1,11 +1,15 @@
 using ExpenseTracker.App;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.EventLog;
 using System;
+using System.Runtime.InteropServices;
 using Unity;
 
 namespace ExpenseTracker.Web
@@ -25,14 +29,7 @@ namespace ExpenseTracker.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-            }
+            app.UseDeveloperExceptionPage();
 
             app.UseStaticFiles();
 
@@ -40,7 +37,8 @@ namespace ExpenseTracker.Web
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            if (!env.IsDevelopment())
+                app.AddLocalAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
@@ -61,20 +59,33 @@ namespace ExpenseTracker.Web
             {
                 DbPath = dbPath,
                 MailUser = Configuration["mailUser"],
-                MailPass = Configuration["mailPass"]
+                MailPass = Configuration["mailPass"],
+                UserHashedPass = Configuration["userHashedPass"],
+                LockoutMinutes = int.Parse(Configuration["userHashedPass"])
             });
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging(logger =>
+            {
+                logger.ClearProviders();
+                logger.AddConsole();
+                if (!env.IsDevelopment() && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    logger.AddEventLog(new EventLogSettings
+                    {
+                        SourceName = "Expenses",
+                        LogName = "Expenses"
+                    });
+                }
+            });
             services.AddSession();
             services.AddMemoryCache();
             var mvcBuilder = services.AddRazorPages();
             if (this.env.IsDevelopment())
-            {
                 mvcBuilder.AddRazorRuntimeCompilation();
-            }
 
             mvcBuilder.AddRazorPagesOptions(o =>
             {
@@ -85,6 +96,9 @@ namespace ExpenseTracker.Web
             services.Configure<FormOptions>(options => options.ValueCountLimit = 100000);
             services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
             services.AddHttpClient();
+
+            if (!env.IsDevelopment())
+                services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
         }
     }
 }

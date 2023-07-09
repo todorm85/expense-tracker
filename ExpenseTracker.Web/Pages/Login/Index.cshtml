@@ -1,0 +1,13 @@
+﻿@page
+@model ExpenseTracker.Web.Pages.Login.IndexModel
+@{
+}
+<form method="post">
+    <label asp-for="@Model.Password">Password</label>
+    <input asp-for="@Model.Password" type="password" />
+    <input type="submit" value="Submit" />
+</form>
+@if (Model.Message != null)
+{
+    <div>@Model.Message</div>
+}
