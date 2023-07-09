@@ -61,7 +61,7 @@ namespace ExpenseTracker.Web
                 MailUser = Configuration["mailUser"],
                 MailPass = Configuration["mailPass"],
                 UserHashedPass = Configuration["userHashedPass"],
-                LockoutMinutes = int.Parse(Configuration["userHashedPass"])
+                LockoutMinutes = int.Parse(Configuration["LockoutMinutes"])
             });
         }
 

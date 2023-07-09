@@ -39,7 +39,7 @@ namespace ExpenseTracker.Web.Pages.Login
             {
                 if (DateTime.Now - lastAttempt < TimeSpan.FromMinutes(1))
                 {
-                    Message = "Locked out. Wait 1 minute";
+                    Message = $"Locked out. Wait {config.LockoutMinutes} minutes.";
                     if (failedAttempts == 4)
                     {
                         logger.LogCritical($"Attempted brute force login from ${HttpContext.Connection.RemoteIpAddress}");
