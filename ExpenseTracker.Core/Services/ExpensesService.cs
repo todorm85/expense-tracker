@@ -49,7 +49,8 @@ namespace ExpenseTracker.Core.Services
         {
             if (expenses.OrderBy(x => x.TransactionId).Select(x => x.TransactionId).Distinct().Count() != expenses.Count())
             {
-                throw new InvalidOperationException("Error creating transactions. The sequence contains elements with duplicate ids.");
+                var firstDuplicateKey = expenses.GroupBy(x => x.TransactionId).Where(x => x.Count() > 1).First().Key;
+                throw new InvalidOperationException($"Error in file. There are elements with duplicate ids. First one is {firstDuplicateKey}");
             }
 
             ApplyRules(expenses, out List<Transaction> toAdd, out IList<CreateTransactionResult> toSkip);

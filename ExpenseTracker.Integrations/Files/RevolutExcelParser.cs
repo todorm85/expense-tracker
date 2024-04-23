@@ -35,7 +35,7 @@ namespace ExpenseTracker.Integrations.Files
 
                     var t = new Transaction()
                     {
-                        TransactionId = $"{revolutType}{dateExecuted.ToShortDateString()}{dateExecuted.ToShortTimeString()}{amount}{tax}{details}",
+                        TransactionId = $"{revolutType}{dateExecuted.ToShortDateString()}{dateExecuted.ToLongTimeString()}{amount}{tax}{details}",
                         Date = dateExecuted,
                         Details = details,
                         Source = "revolut"
