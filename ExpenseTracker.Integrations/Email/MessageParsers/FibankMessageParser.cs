@@ -14,7 +14,7 @@ namespace ExpenseTracker.Integrations.Email.MessageParsers
             if (expenseMessages.Subject.StartsWith("Fibank SMS and E-MAIL services"))
             {
                 t = new Transaction();
-                var rx = new Regex(@"^(?<operation>(TEGLENE OT ATM|PLASHTANE NA POS)) \((?<details>.+?)\) BGN (?<amount>[\d\.]+) S KARTA No 5\*+3846 \((?<date>.+?)\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                var rx = new Regex(@"^(?<operation>(TEGLENE OT ATM|PLASHTANE NA POS)) \((?<details>.+?)\) (BGN (?<amount>[\d\.]+)|USD [\d\.]+ \(BGN (?<amount>[\d\.]+)\)) S KARTA No 5\*+3846 \((?<date>.+?)\)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
                 var matches = rx.Matches(expenseMessages.Body);
                 if (matches.Count == 0) return null;
                 var op = matches[0].Groups["operation"].Value.Trim();
