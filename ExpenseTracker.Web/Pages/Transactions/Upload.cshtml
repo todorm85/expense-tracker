@@ -10,7 +10,7 @@
     <input type="hidden" asp-for="NewTransaction.TransactionId" />
     <input type="hidden" asp-for="NewTransaction.Source" />
 
-    @if (!Model.HasMail)
+    @if (Model.HasMail)
     {
         <div class="row">
             <div class="col">

@@ -21,6 +21,13 @@ namespace ExpenseTracker.Web
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            if (env.IsDevelopment())
+            {
+                // override user secrets
+                Configuration["mailUser"] = null;
+                Configuration["mailPass"] = null;
+            }
+
             this.env = env;
         }
 
@@ -37,8 +44,8 @@ namespace ExpenseTracker.Web
 
             app.UseRouting();
 
-            if (!env.IsDevelopment())
-                app.AddLocalAuthentication();
+            //if (!env.IsDevelopment())
+            //    app.AddLocalAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
