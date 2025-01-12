@@ -1,37 +1,36 @@
-using ExpenseTracker.Allianz;
-using ExpenseTracker.Allianz.Gmail;
-using ExpenseTracker.App;
-using ExpenseTracker.Core.Data;
-using ExpenseTracker.Core.Transactions;
-using ExpenseTracker.Core.Rules;
-using ExpenseTracker.Integrations.Files;
-using ExpenseTracker.Web.Pages.Shared;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ExpenseTracker.Web.Session;
+using ExpenseTracker.Allianz;
+using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Services.Models;
+using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Integrations.Files;
+using ExpenseTracker.Web.Pages.Shared;
+using ExpenseTracker.Web.Session;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
     public class UploadModel : PageModel
     {
-        private readonly AllianzTxtFileParser allianz;
+        private readonly AllianzCsvParser allianz;
         private readonly MailImporter importer;
-        private readonly RaiffeizenTxtFileParser rai;
-        private readonly RevolutExcelParser revolut;
+        private readonly RaiffeizenXmlFileParser rai;
+        private readonly RevolutCsvParser revolut;
+        private readonly Trading212CsvParser trading;
         private readonly IExpensesService transactionsService;
 
         public UploadModel(
             IExpensesService transactionsService,
-            AllianzTxtFileParser allianz,
-            RaiffeizenTxtFileParser rai,
-            RevolutExcelParser revolut,
+            AllianzCsvParser allianz,
+            RaiffeizenXmlFileParser rai,
+            RevolutCsvParser revolut,
+            Trading212CsvParser trading,
             MailImporter importer)
         {
             this.transactionsService = transactionsService;
@@ -39,6 +38,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             this.rai = rai;
             this.importer = importer;
             this.revolut = revolut;
+            this.trading = trading;
             this.HasMail = importer.TestConnection();
         }
 
@@ -113,14 +113,19 @@ namespace ExpenseTracker.Web.Pages.Transactions
                             expenses = this.rai.ParseFile(filePath);
                             this.transactionsService.TryCreateTransactions(expenses, out skipped);
                         }
-                        else if (formFile.FileName.EndsWith("txt"))
+                        else if (formFile.FileName.EndsWith("allianz.txt"))
                         {
                             expenses = this.allianz.ParseFromFile(filePath);
                             this.transactionsService.TryCreateTransactions(expenses, out skipped);
                         }
-                        else if (formFile.FileName.EndsWith("csv"))
+                        else if (formFile.FileName.EndsWith("revolut.csv"))
                         {
                             expenses = this.revolut.ParseFromFile(filePath);
+                            this.transactionsService.TryCreateTransactions(expenses, out skipped);
+                        }
+                        else if (formFile.FileName.EndsWith("trading212.csv"))
+                        {
+                            expenses = this.trading.ParseFromFile(filePath);
                             this.transactionsService.TryCreateTransactions(expenses, out skipped);
                         }
                     }

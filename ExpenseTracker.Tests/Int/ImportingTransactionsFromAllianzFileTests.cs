@@ -20,7 +20,7 @@ namespace ExpenseTracker.Tests.Int
         private const string TaxEntry = @"02/09/2020 00:00:00|161CHMRBGNL00001|2.20|D|Такса за поддръжка на сметка||||";
         private const string YouTubeExpenseEntry = @"01/09/2020 12:55:37|161ADV8202450006|10.99|D|Плащане чрез ПОС чужбина |424982***3046#GOOGLE *YouTubePremium   g.c|o/helppay#GB - g.co/helppay#GOOGL|E *YouTubePremium PAN*3046|BG459115043";
         private ExpensesService expensesService;
-        private AllianzTxtFileParser fileParser;
+        private AllianzCsvParser fileParser;
 
         [TestCleanup]
         public override void CleanUp()
@@ -80,7 +80,7 @@ namespace ExpenseTracker.Tests.Int
         public override void Initialize()
         {
             base.Initialize();
-            this.fileParser = container.Resolve<AllianzTxtFileParser>();
+            this.fileParser = container.Resolve<AllianzCsvParser>();
             this.expensesService = container.Resolve<ExpensesService>();
         }
 

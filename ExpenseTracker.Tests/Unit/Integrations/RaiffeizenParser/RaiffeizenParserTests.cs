@@ -11,7 +11,7 @@ namespace ExpenseTracker.Tests.Unit.Integrations.RaiffeizenParser
     [TestClass]
     public class RaiffeizenParserTests
     {
-        private RaiffeizenTxtFileParser parser;
+        private RaiffeizenXmlFileParser parser;
 
         private string xmlRaw = @"<d3p1:Items xmlns:d3p1=""http://schemas.datacontract.org/2004/07/DAIS.eBank.Client.WEB.UIFramework.Pages.Accounts.Models"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:d2p1=""http://schemas.datacontract.org/2004/07/DAIS.eBank.Client.WEB.Internals.Common.Models.Filters"">
   <d3p1:AccountMovement>
@@ -168,7 +168,7 @@ namespace ExpenseTracker.Tests.Unit.Integrations.RaiffeizenParser
         [TestInitialize]
         public void Init()
         {
-            this.parser = new RaiffeizenTxtFileParser();
+            this.parser = new RaiffeizenXmlFileParser();
         }
 
         [TestMethod]
