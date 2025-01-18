@@ -51,12 +51,15 @@ namespace ExpenseTracker.Tests
         public void Parse_InvalidHeader_ShouldThrowException()
         {
             // Arrange
-            var csvData = "WrongHeader,Time,Notes,ID,Total,Currency (Total),Merchant name,Merchant category,ATM Withdrawal Fee\n" +
+
+            // Missing the "Action" field which is required
+            var csvData = "WrongHeader,Notes,Time,ID,Total,Currency (Total),Merchant name,Merchant category,ATM Withdrawal Fee\n" +
                           "Card debit,2024-10-31 08:03:23.274,Bank Transfer,b8383e4d-36c5-4bea-8bb4-0c9e8e07f933,200.00,BGN,Merchant1,Category1,";
 
             // Act & Assert
             var ex = Assert.ThrowsException<ArgumentException>(() => _parser.Parse(csvData));
-            Assert.IsTrue(ex.Message.Contains("Unexpected header format"));
+            const string ExpectedErrorMessage = "Missing required field: Action";
+            Assert.IsTrue(ex.Message.Contains(ExpectedErrorMessage), $"Expected `{ex.Message}` to equal `{ExpectedErrorMessage}`");
         }
 
         [TestMethod]
@@ -82,6 +85,70 @@ namespace ExpenseTracker.Tests
 
             // Assert
             Assert.AreEqual(0, transactions.Count);
+        }
+
+        [TestMethod]
+        public void Parse_ValidDataWithCurrencyConversionFee_ShouldParseTransactionsCorrectly()
+        {
+            // Arrange
+            var csvData = "Action,Time,Notes,ID,Total,Currency (Total),Currency conversion fee,Currency (Currency conversion fee),Merchant name,Merchant category\n" +
+                          "Card debit,2025-01-01 15:25:30,,61ddddc3-f734-4cbc-a133-be29ace6347f,-125.16,BGN,,,FANTASTICO GROUP LTD,RETAIL_STORES\n" +
+                          "Card debit,2025-01-02 08:38:20,,cdfc25aa-d804-46c6-a5bc-55aa16fd6d8b,-44.45,BGN,,,BILLA 127 01,RETAIL_STORES\n" +
+                          "Card debit,2025-01-02 09:35:14,,4ec32ce5-9a62-4b77-8c1e-e6dff9787d1a,-57.96,BGN,,,TECHNOPOLIS BULGARIA E,MISCELLANEOUS\n" +
+                          "Card debit,2025-01-02 09:40:46,,56bb893c-cc57-46ab-9d81-d406a22d7f3c,-11.58,BGN,,,DOUBLE DELIGHT OOD,RESTAURANTS\n" +
+                          "Card debit,2025-01-02 10:18:31,,5eeed4e7-9a02-4737-b231-1417ca6b4b91,-4.99,BGN,,,BILLA 127 01,RETAIL_STORES\n" +
+                          "Card debit,2025-01-02 11:58:42,,ca7eedb9-fc4b-4e48-8b67-a97f52455656,-50.00,BGN,,,034 MOL BULGARIA,MISCELLANEOUS\n" +
+                          "Card debit,2025-01-02 11:59:34,,684abc68-a1f3-4086-bf7e-cae800fe710b,-50.00,BGN,,,034 MOL BULGARIA,MISCELLANEOUS\n";
+
+            // Act
+            var transactions = _parser.Parse(csvData);
+
+            // Assert
+            Assert.AreEqual(7, transactions.Count);
+
+            var transaction1 = transactions[0];
+            Assert.AreEqual("61ddddc3-f734-4cbc-a133-be29ace6347f", transaction1.TransactionId);
+            Assert.AreEqual(new DateTime(2025, 1, 1, 13, 25, 30, DateTimeKind.Utc), transaction1.Date); // Adjusted to UTC
+            Assert.AreEqual("FANTASTICO GROUP LTD - RETAIL_STORES", transaction1.Details);
+            Assert.AreEqual(125.16m, transaction1.Amount);
+            Assert.AreEqual(TransactionType.Expense, transaction1.Type);
+
+            var transaction2 = transactions[1];
+            Assert.AreEqual("cdfc25aa-d804-46c6-a5bc-55aa16fd6d8b", transaction2.TransactionId);
+            Assert.AreEqual(new DateTime(2025, 1, 2, 6, 38, 20, DateTimeKind.Utc), transaction2.Date); // Adjusted to UTC
+            Assert.AreEqual("BILLA 127 01 - RETAIL_STORES", transaction2.Details);
+            Assert.AreEqual(44.45m, transaction2.Amount);
+            Assert.AreEqual(TransactionType.Expense, transaction2.Type);
+
+            // Add assertions for the remaining transactions similarly
+        }
+        [TestMethod]
+        public void Parse_ValidDataWithDifferentCurrency_ShouldParseTransactionsCorrectly()
+        {
+            // Arrange
+            var csvData = "Action,Time,Notes,ID,Total,Currency (Total),Merchant name,Merchant category,ATM Withdrawal Fee\n" +
+                          "Card debit,2025-01-01 15:25:30,,61ddddc3-f734-4cbc-a133-be29ace6347f,-125.16,USD,FANTASTICO GROUP LTD,RETAIL_STORES,\n" +
+                          "Card debit,2025-01-02 08:38:20,,cdfc25aa-d804-46c6-a5bc-55aa16fd6d8b,-44.45,EUR,BILLA 127 01,RETAIL_STORES,\n";
+
+            // Act
+            var transactions = _parser.Parse(csvData);
+
+            // Assert
+            Assert.AreEqual(2, transactions.Count);
+
+            var transaction1 = transactions[0];
+            Assert.AreEqual("61ddddc3-f734-4cbc-a133-be29ace6347f", transaction1.TransactionId);
+            Assert.AreEqual(new DateTime(2025, 1, 1, 13, 25, 30, DateTimeKind.Utc), transaction1.Date); // Adjusted to UTC
+            Assert.AreEqual("!!!!CURRENCY: USD. FANTASTICO GROUP LTD - RETAIL_STORES", transaction1.Details);
+            Assert.AreEqual(125.16m, transaction1.Amount);
+            Assert.AreEqual(TransactionType.Expense, transaction1.Type);
+
+            var transaction2 = transactions[1];
+            Assert.AreEqual("cdfc25aa-d804-46c6-a5bc-55aa16fd6d8b", transaction2.TransactionId);
+            Assert.AreEqual(new DateTime(2025, 1, 2, 6, 38, 20, DateTimeKind.Utc), transaction2.Date); // Adjusted to UTC
+            Assert.AreEqual("!!!!CURRENCY: EUR. BILLA 127 01 - RETAIL_STORES", transaction2.Details);
+            Assert.AreEqual(44.45m, transaction2.Amount);
+            Assert.AreEqual(TransactionType.Expense, transaction2.Type);
         }
     }
 }
