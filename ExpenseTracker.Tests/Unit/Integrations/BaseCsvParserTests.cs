@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using ExpenseTracker.Integrations.Files;
 using ExpenseTracker.Core.Transactions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ExpenseTracker.Integrations.Files.Base;
 
 namespace ExpenseTracker.Tests
 {
@@ -166,16 +166,11 @@ namespace ExpenseTracker.Tests
             Assert.AreEqual("Field3", fields[2]);
         }
 
-        private class MockCsvParser : BaseCsvParser
+        private class MockCsvParser : CsvParserBase<Transaction>
         {
             public string[] TestParseFields(string line)
             {
                 return base.ParseFields(line);
-            }
-
-            protected override void ValidateHeader(string header)
-            {
-                // No-op for testing
             }
 
             protected override Transaction MapRowToEntity(string[] fields)

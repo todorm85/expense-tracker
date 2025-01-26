@@ -1,47 +1,66 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using ExpenseTracker.Core;
 using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Integrations;
 using ExpenseTracker.Integrations.Files;
 
 namespace ExpenseTracker.Allianz
 {
-    public class AllianzCsvParser : BaseCsvParser
+    public class AllianzCsvParser : TransactionCsvParserBase
     {
         protected override char FieldDelimiter => '|';
 
-        protected override void ValidateHeader(string header)
-        {
-            // No header validation needed for Allianz CSV
-        }
+        protected override string FieldNameForDate => "datetime";
+        protected override string FieldNameForAmount => "amount";
+        protected override string[] FieldNamesForDetails => new[] { "trname", "contragent", "rem_i", "rem_ii", "rem_iii" };
+        protected override IEnumerable<string> RequiredFields => base.RequiredFields.Concat(new string[] { "reference", "dtkt" });
 
         protected override Transaction MapRowToEntity(string[] fields)
         {
-            var reference = fields[1];
-            var amount = GetAmount(fields);
-            var type = fields[3] == "D" ? TransactionType.Expense : TransactionType.Income;
-            var details = $"{fields[4]} {fields[5]} {fields[6]} {fields[7]} {fields[8]}".RemoveRepeatingSpaces();
-            var parsedDate = ParseDate(details, fields[0]);
+            var t = base.MapRowToEntity(fields);
+            if (t == null)
+                return null;
 
-            return new Transaction
+            if (TryGetFieldValue(fields, "dtkt", out string typeValue))
             {
-                TransactionId = reference + "_" + amount.ToString("F2"),
-                Amount = amount,
-                Date = parsedDate,
-                Details = details,
-                Type = type,
-                Source = "allianz_file"
-            };
+                var type = typeValue == "D" ? TransactionType.Expense : TransactionType.Income;
+                t.Type = type;
+
+                return t;
+            }
+
+            return null;
         }
 
-        private static decimal GetAmount(string[] fields)
+        protected override void SetTransactionId(Transaction t, string[] fields)
+        {
+            TryGetFieldValue(fields, "reference", out string reference);
+            t.TransactionId = reference + "_" + t.Amount.ToString("F2");
+        }
+
+        protected override string ParseDetails(string[] fields)
+        {
+                return string.Join(" ", FieldNamesForDetails
+                    .Select(fieldName => fields[Array.IndexOf(this.headerFields, fieldName)]))
+                    .RemoveRepeatingSpaces();
+        }
+
+        protected override decimal ParseAmount(string[] fields)
         {
             return decimal.Parse(fields[2].Replace(",", "").Replace(" ", ""));
         }
 
-        private DateTime ParseDate(string details, string bankRecordDate)
+        protected override DateTime ParseDate(string[] fields)
         {
+            if (!TryGetFieldValue(fields, this.FieldNameForDate, out string bankRecordDate))
+                throw new ArgumentException("Date field not found");
+            
+            var details = this.ParseDetails(fields);
+
             var regex = new Regex(@"\d *\d *\. *\d *\d *\. *\d *\d *\d *\d");
             var date = regex.Match(details).Value.Replace(" ", "");
             regex = new Regex(@"\d *\d *: *\d *\d *: *\d *\d");
@@ -62,16 +81,19 @@ namespace ExpenseTracker.Allianz
                 parsedDate = DateTime.ParseExact(bankRecordDate, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
             }
 
-            parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
             if (parsedDate.TimeOfDay != default)
             {
-                var bgTz = TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time");
-                var offset = bgTz.GetUtcOffset(parsedDate);
-                parsedDate = parsedDate.Add(-offset);
-                parsedDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
+                return parsedDate.ConvertToUtcFromBgTimeUnknowKind();
             }
+            else
+            {
+                return parsedDate;
+            }
+        }
 
-            return parsedDate;
+        protected override string ParseSource(string[] fields)
+        {
+            return "allianz_file";
         }
     }
 }

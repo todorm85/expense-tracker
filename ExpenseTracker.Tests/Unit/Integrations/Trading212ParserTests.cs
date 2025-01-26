@@ -30,21 +30,28 @@ namespace ExpenseTracker.Tests
             var transactions = _parser.Parse(csvData);
 
             // Assert
-            Assert.AreEqual(2, transactions.Count);
+            Assert.AreEqual(3, transactions.Count);
 
             var transaction1 = transactions[0];
             Assert.AreEqual("b8383e4d-36c5-4bea-8bb4-0c9e8e07f933", transaction1.TransactionId);
             Assert.AreEqual(new DateTime(2024, 10, 31, 6, 3, 23, 274, DateTimeKind.Utc), transaction1.Date); // Adjusted to UTC
-            Assert.AreEqual("Bank Transfer - Merchant1 - Category1", transaction1.Details);
+            Assert.AreEqual("Card debit. Bank Transfer - Merchant1 - Category1", transaction1.Details);
             Assert.AreEqual(200.00m, transaction1.Amount);
             Assert.AreEqual(TransactionType.Income, transaction1.Type);
 
             var transaction2 = transactions[1];
             Assert.AreEqual("580945c8-93db-4637-9284-fbfa9d7ae2f3", transaction2.TransactionId);
             Assert.AreEqual(new DateTime(2024, 11, 1, 6, 32, 55, 32, DateTimeKind.Utc), transaction2.Date); // Adjusted to UTC
-            Assert.AreEqual("Online Shopping - Merchant2 - Category2", transaction2.Details);
+            Assert.AreEqual("Card debit. Online Shopping - Merchant2 - Category2", transaction2.Details);
             Assert.AreEqual(150.75m, transaction2.Amount);
             Assert.AreEqual(TransactionType.Expense, transaction2.Type);
+
+            var transaction3 = transactions[2];
+            Assert.AreEqual("ee650cb9-7553-4880-b961-f49952f1b29a", transaction3.TransactionId);
+            Assert.AreEqual(new DateTime(2024, 10, 31, 6, 3, 23, 274, DateTimeKind.Utc), transaction3.Date); // Adjusted to UTC
+            Assert.AreEqual("Deposit. Bonus", transaction3.Details);
+            Assert.AreEqual(50.00m, transaction3.Amount);
+            Assert.AreEqual(TransactionType.Income, transaction3.Type);
         }
 
         [TestMethod]
@@ -109,19 +116,20 @@ namespace ExpenseTracker.Tests
             var transaction1 = transactions[0];
             Assert.AreEqual("61ddddc3-f734-4cbc-a133-be29ace6347f", transaction1.TransactionId);
             Assert.AreEqual(new DateTime(2025, 1, 1, 13, 25, 30, DateTimeKind.Utc), transaction1.Date); // Adjusted to UTC
-            Assert.AreEqual("FANTASTICO GROUP LTD - RETAIL_STORES", transaction1.Details);
+            Assert.AreEqual("Card debit. FANTASTICO GROUP LTD - RETAIL_STORES", transaction1.Details);
             Assert.AreEqual(125.16m, transaction1.Amount);
             Assert.AreEqual(TransactionType.Expense, transaction1.Type);
 
             var transaction2 = transactions[1];
             Assert.AreEqual("cdfc25aa-d804-46c6-a5bc-55aa16fd6d8b", transaction2.TransactionId);
             Assert.AreEqual(new DateTime(2025, 1, 2, 6, 38, 20, DateTimeKind.Utc), transaction2.Date); // Adjusted to UTC
-            Assert.AreEqual("BILLA 127 01 - RETAIL_STORES", transaction2.Details);
+            Assert.AreEqual("Card debit. BILLA 127 01 - RETAIL_STORES", transaction2.Details);
             Assert.AreEqual(44.45m, transaction2.Amount);
             Assert.AreEqual(TransactionType.Expense, transaction2.Type);
 
             // Add assertions for the remaining transactions similarly
         }
+
         [TestMethod]
         public void Parse_ValidDataWithDifferentCurrency_ShouldParseTransactionsCorrectly()
         {
@@ -139,14 +147,14 @@ namespace ExpenseTracker.Tests
             var transaction1 = transactions[0];
             Assert.AreEqual("61ddddc3-f734-4cbc-a133-be29ace6347f", transaction1.TransactionId);
             Assert.AreEqual(new DateTime(2025, 1, 1, 13, 25, 30, DateTimeKind.Utc), transaction1.Date); // Adjusted to UTC
-            Assert.AreEqual("!!!!CURRENCY: USD. FANTASTICO GROUP LTD - RETAIL_STORES", transaction1.Details);
+            Assert.AreEqual("!!!!CURRENCY: USD. Card debit. FANTASTICO GROUP LTD - RETAIL_STORES", transaction1.Details);
             Assert.AreEqual(125.16m, transaction1.Amount);
             Assert.AreEqual(TransactionType.Expense, transaction1.Type);
 
             var transaction2 = transactions[1];
             Assert.AreEqual("cdfc25aa-d804-46c6-a5bc-55aa16fd6d8b", transaction2.TransactionId);
             Assert.AreEqual(new DateTime(2025, 1, 2, 6, 38, 20, DateTimeKind.Utc), transaction2.Date); // Adjusted to UTC
-            Assert.AreEqual("!!!!CURRENCY: EUR. BILLA 127 01 - RETAIL_STORES", transaction2.Details);
+            Assert.AreEqual("!!!!CURRENCY: EUR. Card debit. BILLA 127 01 - RETAIL_STORES", transaction2.Details);
             Assert.AreEqual(44.45m, transaction2.Amount);
             Assert.AreEqual(TransactionType.Expense, transaction2.Type);
         }

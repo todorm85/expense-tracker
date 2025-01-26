@@ -5,39 +5,32 @@ using ExpenseTracker.Core.Transactions;
 namespace ExpenseTracker.Integrations.Files
 {
     // Derived class for Revolut CSV parsing
-    public class RevolutCsvParser : BaseCsvParser
+    public class RevolutCsvParser : TransactionCsvParserBase
     {
-        protected override void ValidateHeader(string header)
-        {
-            if (header != "Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance")
-            {
-                throw new ArgumentException("Unexpected header format. Must be: Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance");
-            }
-        }
+        protected override string FieldNameForDate => "Started Date";
+        protected override string FieldNameForAmount => "Amount";
+        protected override string[] FieldNamesForDetails => new[] { "Description" };
+
+        protected override string ParseSource(string[] fields) => "revolut";
 
         protected override Transaction MapRowToEntity(string[] fields)
         {
-            var revolutType = fields[0];
-            var dateExecuted = ParseDate(fields[2]);
-            var details = fields[4];
-            var amount = decimal.Parse(fields[5]);
-            var tax = decimal.Parse(fields[6]);
+            var transaction = base.MapRowToEntity(fields);
+            if (transaction == null)
+                return null;
 
-            var transaction = new Transaction
+            var revolutType = ParseRevolutType(fields);
+            if (!string.IsNullOrEmpty(revolutType))
             {
-                TransactionId = $"{revolutType}{dateExecuted.ToShortDateString()}{dateExecuted.ToLongTimeString()}{amount}{tax}{details}",
-                Date = dateExecuted,
-                Details = details,
-                Source = "revolut"
-            };
-
-            if (revolutType == "TOPUP" || revolutType == "EXCHANGE")
-            {
-                transaction.Amount = -tax;
-            }
-            else if (revolutType == "TRANSFER" || revolutType == "CARD_PAYMENT")
-            {
-                transaction.Amount = amount + (-tax);
+                var tax = ParseFee(fields);
+                if (revolutType == "TOPUP" || revolutType == "EXCHANGE")
+                {
+                    transaction.Amount = -tax;
+                }
+                else if (revolutType == "TRANSFER" || revolutType == "CARD_PAYMENT")
+                {
+                    transaction.Amount = transaction.Amount + (-tax);
+                }
             }
 
             if (transaction.Amount != 0)
@@ -46,25 +39,38 @@ namespace ExpenseTracker.Integrations.Files
                 transaction.Amount = Math.Abs(transaction.Amount);
                 return transaction;
             }
-
-            return null; // Ignore zero-amount transactions
+            else
+            {
+                return null; // Ignore zero-amount transactions
+            }
         }
 
-        private DateTime ParseDate(string date)
+        private string ParseRevolutType(string[] fields)
         {
-            var formats = new[]
+            if (TryGetFieldValue(fields, "Type", out string revolutType))
             {
-                "M/d/yyyy H:mm",
-                "yyyy-MM-dd HH:mm:ss",
-                "d.M.yyyy H:mm"
-            };
-
-            if (!DateTime.TryParseExact(date, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
-            {
-                throw new Exception("Invalid date format.");
+                return revolutType;
             }
 
-            return parsedDate.ConvertToUtcFromBgTimeUnknowKind();
+            return null;
+        }
+
+        private decimal ParseFee(string[] fields)
+        {
+            if (TryGetFieldValue(fields, "Fee", out string taxValue))
+            {
+                return decimal.Parse(taxValue);
+            }
+
+            return 0;
+        }
+
+        protected override void SetTransactionId(Transaction t, string[] fields)
+        {
+            var revolutType = ParseRevolutType(fields);
+            var amount = ParseAmount(fields);
+
+            t.TransactionId = $"{revolutType}{t.Date.ToShortDateString()}{t.Date.ToLongTimeString()}{amount}{ParseFee(fields)}{t.Details}";
         }
     }
 }

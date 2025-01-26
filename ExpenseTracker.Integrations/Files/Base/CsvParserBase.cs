@@ -4,25 +4,43 @@ using System.IO;
 using System.Linq;
 using ExpenseTracker.Core.Transactions;
 
-namespace ExpenseTracker.Integrations.Files
+namespace ExpenseTracker.Integrations.Files.Base
 {
     // Base class for CSV parsing
-    public abstract class BaseCsvParser
+    public abstract class CsvParserBase<T>
     {
-        protected virtual char FieldDelimiter { get; } = ',';
-        protected virtual char StringDelimiter { get; } = '"';
-
         private int _fieldCount;
 
-        public List<Transaction> Parse(string data)
+        protected virtual char FieldDelimiter { get; } = ',';
+        protected virtual char StringDelimiter { get; } = '"';
+        protected string[] headerFields;
+        private readonly IEnumerable<string> requiredFields = new string[0];
+
+        protected virtual IEnumerable<string> RequiredFields => requiredFields;
+        protected bool TryGetFieldValue(string[] fields, string fieldName, out string value)
         {
-            var results = new List<Transaction>();
+            var index = Array.IndexOf(this.headerFields, fieldName);
+            if (index >= 0)
+            {
+                value = fields[index];
+                return true;
+            }
+            else
+            {
+                value = null;
+                return false;
+            }
+        }
+
+        public List<T> Parse(string data)
+        {
+            var results = new List<T>();
 
             using (var sr = new StringReader(data))
             {
                 var header = sr.ReadLine();
-                var headerFields = ParseFields(header);
-                ValidateHeader(header);
+                this.headerFields = ParseFields(header);
+                ValidateHeader();
                 _fieldCount = headerFields.Length;
 
                 var line = sr.ReadLine();
@@ -48,17 +66,13 @@ namespace ExpenseTracker.Integrations.Files
             return results;
         }
 
-        public IEnumerable<Transaction> ParseFromFile(string filePath)
+        public IEnumerable<T> ParseFromFile(string filePath)
         {
             return Parse(File.ReadAllText(filePath));
         }
 
-        // Abstract methods for specific implementations
-        protected abstract void ValidateHeader(string header);
+        protected abstract T MapRowToEntity(string[] fields);
 
-        protected abstract Transaction MapRowToEntity(string[] fields);
-
-        // Parses a line into fields considering field and string delimiters
         protected internal virtual string[] ParseFields(string line)
         {
             var fields = new List<string>();
@@ -98,5 +112,17 @@ namespace ExpenseTracker.Integrations.Files
 
             return fields.ToArray();
         }
+
+        private void ValidateHeader()
+        {
+            foreach (var field in RequiredFields)
+            {
+                if (!this.headerFields.Contains(field))
+                {
+                    throw new ArgumentException($"Missing required field: {field}");
+                }
+            }
+        }
+
     }
 }
