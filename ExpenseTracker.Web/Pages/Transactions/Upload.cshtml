@@ -22,7 +22,42 @@
     <input type="hidden" asp-for="NewTransaction.TransactionId" />
     <input type="hidden" asp-for="NewTransaction.Source" />
 
-    @if (Model.HasMail || true)
+    @if (Model.JustAddedTransactions.Transactions.Any())
+    {
+        <div class="row">
+            <div class="col">
+                <h3 class="d-inline">Just Added</h3>
+                <a type="submit" asp-page-handler="ClearAdded">Clear</a>
+            </div>
+        </div>
+        <div class="row">
+            @{
+                var heigth = 3;
+                Model.JustAddedTransactions.DetailsHeight = heigth;
+                Model.SkippedTransactions.DetailsHeight = heigth;
+            }
+            <partial name="_Transactions" for="JustAddedTransactions" />
+        </div>
+
+        <hr />
+    }
+
+    @if (Model.SkippedTransactions.Transactions.Any())
+    {
+        <div class="row">
+            <div class="col">
+                <h3 class="d-inline">Skipped</h3>
+                <a type="submit" asp-page-handler="ClearSkipped">Clear</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <partial name="_Transactions" for="SkippedTransactions" />
+            </div>
+        </div>
+    }
+
+    @if (Model.HasMail)
     {
         <div class="mycard">
             <h2>Sync from Gmail</h2>
@@ -62,7 +97,7 @@
             <label for="details">Details</label>
             <textarea id="details" asp-for="NewTransaction.Details" rows="4" class="form-control" onkeyup="onCreateEnter(event)"></textarea>
         </div>
-        
+
         <button class="btn btn-primary" type="submit" id="submitBtn" asp-page-handler="create">Save</button>
 
     </div>
@@ -94,41 +129,6 @@
             </button>
         </div>
     </div>
-
-    @if (Model.JustAddedTransactions.Transactions.Any())
-    {
-        <div class="row">
-            <div class="col">
-                <h3 class="d-inline">Just Added</h3>
-                <a type="submit" asp-page-handler="ClearAdded">Clear</a>
-            </div>
-        </div>
-        <div class="row">
-            @{
-                var heigth = 3;
-                Model.JustAddedTransactions.DetailsHeight = heigth;
-                Model.SkippedTransactions.DetailsHeight = heigth;
-            }
-            <partial name="_Transactions" for="JustAddedTransactions" />
-        </div>
-
-        <hr />
-    }
-
-    @if (Model.SkippedTransactions.Transactions.Any())
-    {
-        <div class="row">
-            <div class="col">
-                <h3 class="d-inline">Skipped</h3>
-                <a type="submit" asp-page-handler="ClearSkipped">Clear</a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <partial name="_Transactions" for="SkippedTransactions" />
-            </div>
-        </div>
-    }
 
 </form>
 

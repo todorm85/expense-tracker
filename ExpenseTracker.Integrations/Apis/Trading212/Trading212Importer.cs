@@ -113,7 +113,8 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
             var mapped = new List<Transaction>();
             foreach (var t in transactions)
             {
-                if (t.Type != "PURCHASE")
+                if (t.Type != "PURCHASE" ||
+                    (t.Status != "COMPLETED" && t.Status != "PENDING"))
                     continue;
                 
                 mapped.Add(new Transaction

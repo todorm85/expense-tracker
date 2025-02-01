@@ -14,7 +14,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public ExpandableCategoryModel(string categoryName)
         {
             this.categoryName = categoryName;
-            this.TransactionsList = new TransactionsListModel() { HideHeader = true };
+            this.TransactionsList = new TransactionsListModel() { HideHeader = true, ShowSource = true };
             this.Categories = new List<ExpandableCategoryModel>();
             this.BackgroundLightness = 60;
             this.BackgroundHue = 0;

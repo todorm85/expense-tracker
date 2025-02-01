@@ -22,7 +22,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
             transactionsService = transactions;
             TransactionsList = new TransactionsListModel()
             {
-                DetailsHeight = 2
+                DetailsHeight = 2,
+                //ShowSource = true,
             };
         }
 

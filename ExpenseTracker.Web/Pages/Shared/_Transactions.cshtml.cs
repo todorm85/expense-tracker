@@ -32,6 +32,7 @@ namespace ExpenseTracker.Web.Pages.Shared
         {
             Transactions = transactions;
             DetailsHeight = 1;
+            ShowTime = true;
         }
 
         public TransactionsListModel() : this(new List<TransactionModel>())
