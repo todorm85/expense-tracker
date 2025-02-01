@@ -12,7 +12,7 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
         public int AccountId { get; set; }
         public string ClientReferenceId { get; set; }
         public decimal Amount { get; set; }
-        public decimal ExecutionAmount { get; set; }
+        public decimal? ExecutionAmount { get; set; }
         public string CurrencyCode { get; set; }
         public string Status { get; set; }
         public DateTime TimeCreated { get; set; }

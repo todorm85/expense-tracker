@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
 {
     public class Trading212Importer
     {
+        private const string SourcePrefix = "Trading212_";
         private readonly HttpClient _httpClient;
         private readonly IExpensesService expenses;
 
@@ -21,20 +23,69 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
             _httpClient.BaseAddress = new Uri("https://live.services.trading212.com");
         }
 
-        public void ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<CreateTransactionResult> skipped)
+        public ImportResult ImportTransactions(string loginToken, string trading212SessionLive)
         {
-            expenses.TryCreateTransactions(GetTransactionExecutions(), out skipped);
+            var added = new List<Transaction>();
+            var duplicateFound = false;
+            string lastId = null;
+            var totalAddedTransactions = new List<Transaction>();
+            while (!duplicateFound)
+            {
+                var transactions = new List<Transaction>();
+                try
+                {
+                    transactions = GetTransactionExecutions(loginToken, trading212SessionLive, lastId);
+                }
+                catch (Exception e)
+                {
+                    return new ImportResult()
+                    {
+                        Added = totalAddedTransactions,
+                        Error = e.Message
+                    };
+                }
+
+                if (transactions.Count == 0)
+                    break;
+                
+                expenses.TryCreateTransactions(transactions, out IEnumerable<CreateTransactionResult> skipped);
+                lastId = transactions[transactions.Count - 1].TransactionId;
+                var addedTransactions = new List<Transaction>();
+                if (skipped != null && skipped.Count() > 0)
+                {
+                    addedTransactions = transactions.Where(x => !skipped.Any(y => y.Transaction.TransactionId == x.TransactionId)).ToList();
+                    foreach (var skippedTransaction in skipped)
+                    {
+                        if (skippedTransaction.ReasonResult == CreateTransactionResult.Reason.DuplicateEntry)
+                        {
+                            duplicateFound = true;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    addedTransactions = transactions;
+                }
+
+                totalAddedTransactions.AddRange(addedTransactions);
+            }
+
+            return new ImportResult()
+            {
+                Added = totalAddedTransactions
+            };
         }
 
-        private List<Transaction> GetTransactionExecutions(string loginToken, string trading212SessionLive, long? earlierThanTransactionId = null)
+        private List<Transaction> GetTransactionExecutions(string loginToken, string trading212SessionLive, string earlierThanTransactionId = null)
         {
             // Base URL with mandatory query parameter
             var url = "/rest/cards/v1/transaction-executions?pageSize=50";
 
             // Append optional cursorId if provided
-            if (earlierThanTransactionId.HasValue)
+            if (earlierThanTransactionId != null)
             {
-                url += $"&cursorId={earlierThanTransactionId.Value}"; 
+                url += $"&cursorId={earlierThanTransactionId}"; 
             }
 
             var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -42,6 +93,10 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
             // Add the Cookie header with the provided token values
             request.Headers.Add("Cookie",
                 $"LOGIN_TOKEN={loginToken}; TRADING212_SESSION_LIVE={trading212SessionLive}");
+            request.Headers.Add("Accept", "*/*");
+            request.Headers.Add("User-Agent", "PostmanRuntime/7.43.0");
+            //request.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            request.Headers.Add("Host", "live.services.trading212.com");
 
             // Blocking call to send the request
             var response = _httpClient.SendAsync(request).GetAwaiter().GetResult();
@@ -67,7 +122,7 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
                     Amount = t.Amount,
                     Date = t.TimeCreated,
                     Details = $"{t.Merchant.Name} {t.Merchant.Category} {t.Merchant.Address}  {t.Merchant.CountryCode}",
-                    Source = "Trading212_" + t.CardLastFour,
+                    Source = SourcePrefix + t.CardLastFour,
                     Type = TransactionType.Expense
                 });
             }

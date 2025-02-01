@@ -2,18 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Services.Models;
 using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Integrations.ApiClients.Trading212;
 using ExpenseTracker.Integrations.Files;
 using ExpenseTracker.Web.Pages.Shared;
 using ExpenseTracker.Web.Session;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Primitives;
 
 namespace ExpenseTracker.Web.Pages.Transactions
 {
@@ -21,6 +24,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
     {
         private readonly AllianzCsvParser allianz;
         private readonly MailImporter importer;
+        private readonly Trading212Importer trading212Importer;
         private readonly RaiffeizenXmlFileParser rai;
         private readonly RevolutCsvParser revolut;
         private readonly Trading212CsvParser trading;
@@ -32,12 +36,14 @@ namespace ExpenseTracker.Web.Pages.Transactions
             RaiffeizenXmlFileParser rai,
             RevolutCsvParser revolut,
             Trading212CsvParser trading,
-            MailImporter importer)
+            MailImporter importer,
+            Trading212Importer trading212Importer)
         {
             this.transactionsService = transactionsService;
             this.allianz = allianz;
             this.rai = rai;
             this.importer = importer;
+            this.trading212Importer = trading212Importer;
             this.revolut = revolut;
             this.trading = trading;
             this.HasMail = importer.TestConnection();
@@ -78,6 +84,10 @@ namespace ExpenseTracker.Web.Pages.Transactions
             var skipped = GetSkipped();
             if (skipped != null)
                 SkippedTransactions.Transactions = skipped;
+            if (this.Request.Query.TryGetValue("error", out StringValues error))
+            {
+                this.ViewData["errorMessage"] = error;
+            }
         }
 
         public IActionResult OnPostCreate()
@@ -171,9 +181,19 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return RedirectToPage();
         }
 
-        public IActionResult OnGetTrading212()
+        public IActionResult OnPostTrading212()
         {
-            SetSkipped(null);
+            var added = trading212Importer.ImportTransactions(this.LoginToken, this.Trading212SessionLive);
+            if (added.Added.Any())
+            {
+                SetJustAdded(added.Added.ToTransactionModel());
+            }
+
+            if (added.Error != null)
+            {
+                return RedirectToPage(new { error = added.Error });
+            }
+
             return RedirectToPage();
         }
 
