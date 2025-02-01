@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core.Services;
@@ -107,23 +108,18 @@ namespace ExpenseTracker.Web.Pages.Transactions
                         {
                             formFile.CopyTo(stream);
                         }
-
-                        if (formFile.FileName.EndsWith("xml"))
-                        {
-                            expenses = this.rai.ParseFile(filePath);
-                            this.transactionsService.TryCreateTransactions(expenses, out skipped);
-                        }
-                        else if (formFile.FileName.EndsWith("allianz.txt"))
+                        
+                        if (formFile.FileName.EndsWith("allianz.txt"))
                         {
                             expenses = this.allianz.ParseFromFile(filePath);
                             this.transactionsService.TryCreateTransactions(expenses, out skipped);
                         }
-                        else if (formFile.FileName.EndsWith("revolut.csv"))
+                        else if (Regex.IsMatch(formFile.FileName, "^account-statement_\\d{4}-\\d{2}-\\d{2}_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
                         {
                             expenses = this.revolut.ParseFromFile(filePath);
                             this.transactionsService.TryCreateTransactions(expenses, out skipped);
                         }
-                        else if (formFile.FileName.EndsWith("trading212.csv"))
+                        else if (Regex.IsMatch(formFile.FileName, "^from_\\d{4}-\\d{2}-\\d{2}_to_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
                         {
                             expenses = this.trading.ParseFromFile(filePath);
                             this.transactionsService.TryCreateTransactions(expenses, out skipped);
@@ -157,13 +153,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return RedirectToPage();
         }
 
-        public IActionResult OnPostClearAdded()
+        public IActionResult OnGetClearAdded()
         {
             SetJustAdded(null);
             return RedirectToPage();
         }
 
-        public IActionResult OnPostClearSkipped()
+        public IActionResult OnGetClearSkipped()
         {
             SetSkipped(null);
             return RedirectToPage();
