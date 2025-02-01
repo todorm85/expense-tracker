@@ -57,6 +57,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
         [BindProperty]
         public TransactionsListModel JustAddedTransactions { get; set; } = new TransactionsListModel() { ShowSource = true };
 
+        [BindProperty]
+        public string LoginToken { get; set; }
+
+        [BindProperty]
+        public string Trading212SessionLive { get; set; }
+
         public void OnGet()
         {
             this.NewTransaction = new Transaction() 
@@ -160,6 +166,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
 
         public IActionResult OnGetClearSkipped()
+        {
+            SetSkipped(null);
+            return RedirectToPage();
+        }
+
+        public IActionResult OnGetTrading212()
         {
             SetSkipped(null);
             return RedirectToPage();

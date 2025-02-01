@@ -1,6 +1,18 @@
 ﻿@page
 @model ExpenseTracker.Web.Pages.Transactions.UploadModel
 
+<style>
+    .mycard {
+        margin: 30px 0;
+        background-color: hsl(0, 0%, 93%);
+        border: solid;
+        border-color: hsl(0, 0%, 70%);
+        padding: 30px;
+        border-radius: 5px;
+        /* box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5); */
+    }
+</style>
+
 <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';">
     @if (@Model.ViewData["errorMessage"] != null)
     {
@@ -10,28 +22,19 @@
     <input type="hidden" asp-for="NewTransaction.TransactionId" />
     <input type="hidden" asp-for="NewTransaction.Source" />
 
-    @if (Model.HasMail)
+    @if (Model.HasMail || true)
     {
-        <div class="row">
-            <div class="col">
-                <button class="btn btn-primary btn-block" type="submit" asp-page-handler="SyncMail">Sync Mail</button>
-            </div>
+        <div class="mycard">
+            <h2>Sync from Gmail</h2>
+            <button class="btn btn-primary" type="submit" asp-page-handler="SyncMail">Sync</button>
         </div>
     }
 
-    <hr />
+    <div class="mycard">
+        <h2>
+            Manual Entry
+        </h2>
 
-    <div class="row">
-        <div class="col">
-            <h4>
-                <a data-toggle="collapse" href="#manual-expense" aria-expanded="true">
-                    Add
-                </a>
-            </h4>
-        </div>
-    </div>
-
-    <div class="collapse" id="manual-expense">
         <div class="row">
             <div class="form-group col">
                 <label for="date">Date</label>
@@ -55,47 +58,42 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col">
-                <div class="form-group">
-                    <label for="details">Details</label>
-                    <textarea id="details" asp-for="NewTransaction.Details" rows="4" class="form-control" onkeyup="onCreateEnter(event)"></textarea>
-                </div>
-            </div>
+        <div class="form-group">
+            <label for="details">Details</label>
+            <textarea id="details" asp-for="NewTransaction.Details" rows="4" class="form-control" onkeyup="onCreateEnter(event)"></textarea>
         </div>
-
-        <div class="row">
-            <div class="col">
-                <button class="btn btn-primary btn-block" type="submit" id="submitBtn" asp-page-handler="create">Save</button>
-            </div>
-        </div>
-    </div>
-
-    <hr />
-
-    <div class="row">
-        <div class="col">
-            <h4>
-                <a data-toggle="collapse" href="#manual-upload" aria-expanded="true">
-                    Upload
-                </a>
-            </h4>
-        </div>
-    </div>
-
-    <div class="collapse" id="manual-upload">
-
-        <div class="row">
-            <div class="col">
-                <input class="form-control-file my-2" id="files" type="file" multiple asp-for="Files" />
-                <button asp-page-handler="Upload" type="submit" value="Upload" class="btn btn-primary  btn-block">Upload</button>
-            </div>
-        </div>
+        
+        <button class="btn btn-primary" type="submit" id="submitBtn" asp-page-handler="create">Save</button>
 
     </div>
 
+    <div class="mycard">
+        <h2>
+            Upload File
+        </h2>
 
-    <hr />
+        <div class="form-group">
+            <input class="form-control-file my-2" id="files" type="file" multiple asp-for="Files" />
+            <button asp-page-handler="Upload" type="submit" value="Upload" class="btn btn-primary">Upload</button>
+        </div>
+    </div>
+
+    <div class="mycard">
+        <h2 class="card-title">Fetch from Trading212</h2>
+        <div class="form-group">
+            <label for="loginToken" class="form-label">Login Token</label>
+            <input asp-for="@Model.LoginToken" class="form-control" id="loginToken" />
+        </div>
+        <div class="form-group">
+            <label for="Trading212SessionLive" class="form-label">Trading212 Session Live</label>
+            <input asp-for="@Model.Trading212SessionLive" class="form-control" id="Trading212SessionLive" />
+        </div>
+        <div class="form-group">
+            <button asp-page-handler="Trading212" type="submit" class="btn btn-primary">
+                Import
+            </button>
+        </div>
+    </div>
 
     @if (Model.JustAddedTransactions.Transactions.Any())
     {
