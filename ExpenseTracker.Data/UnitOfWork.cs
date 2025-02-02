@@ -146,7 +146,7 @@ namespace ExpenseTracker.Data
 
                 this.db.Engine.UserVersion = 4;
             }
-            //if (this.db.Engine.UserVersion == 4)
+            if (this.db.Engine.UserVersion <= 5)
             {
                 var col = this.db.GetCollection(this.GetSetName<Transaction>());
                 foreach (var doc in col.FindAll())
@@ -174,7 +174,7 @@ namespace ExpenseTracker.Data
                     }
                 }
 
-                this.db.Engine.UserVersion = 5;
+                this.db.Engine.UserVersion = 6;
             }
         }
     }
