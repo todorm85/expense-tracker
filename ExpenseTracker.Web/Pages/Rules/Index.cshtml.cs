@@ -72,6 +72,11 @@ namespace ExpenseTracker.Web.Pages.Rules
             return RedirectToPage();
         }
 
+        public IActionResult OnPostFilter()
+        {
+            return RedirectToPage(new { CurrentPage, Filter });
+        }
+
         private void InitCreateModel()
         {
             this.CreateRuleModel = new Rule() { Property = "Details" };
@@ -90,17 +95,17 @@ namespace ExpenseTracker.Web.Pages.Rules
             {
                 if (Filter != "skip")
                 {
-                    filterExpression = (x) => x.ConditionValue.Contains(Filter)
-                            || x.ValueToSet.Contains(Filter)
-                            || x.PropertyToSet.Contains(Filter)
-                            || x.Property.Contains(Filter);
+                    filterExpression = (x) => x.ConditionValue.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.ValueToSet.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.PropertyToSet.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.Property.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0;
                 }
                 else
                 {
-                    filterExpression = (x) => x.ConditionValue.Contains(Filter)
-                            || x.ValueToSet.Contains(Filter)
-                            || x.PropertyToSet.Contains(Filter)
-                            || x.Property.Contains(Filter)
+                    filterExpression = (x) => x.ConditionValue.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.ValueToSet.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.PropertyToSet.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.Property.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
                             || x.Action == RuleAction.Skip;
                 }
             }

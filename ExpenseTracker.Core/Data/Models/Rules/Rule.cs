@@ -16,7 +16,7 @@ namespace ExpenseTracker.Core.Rules
         {
             var p = tr.GetType().GetProperty(Property);
             var v = p.GetValue(tr)?.ToString();
-            if (v != null && Condition == RuleCondition.Contains && !string.IsNullOrWhiteSpace(ConditionValue) && v.Contains(ConditionValue))
+            if (v != null && Condition == RuleCondition.Contains && !string.IsNullOrWhiteSpace(ConditionValue) && v.IndexOf(ConditionValue, System.StringComparison.OrdinalIgnoreCase) > 0)
             {
                 if (Action == RuleAction.Skip)
                     return false;

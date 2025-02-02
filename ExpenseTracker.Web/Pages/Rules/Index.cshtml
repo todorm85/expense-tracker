@@ -9,58 +9,43 @@
     var editViewData = new ViewDataDictionary(ViewData) { { "RouteValues", routeValues } };
 }
 <form method="post">
-    <div class="row align-items-center">
-        <h2>Rules for adding transactions</h2>
-        <div class="col">
-            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#createRuleModal">Create</button>
-        </div>
-        <div class="col">
-            <button class="btn btn-primary" type="submit" asp-page-handler="ProcessUncategorized">Process uncategorized</button>
-        </div>
+    <h2>Rules for adding transactions</h2>
+    <div style="margin: 30px 0px 20px 0px;">
+        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#createRuleModal">Create</button>
+        <button class="btn btn-primary" type="submit" asp-page-handler="ProcessUncategorized">Process uncategorized</button>
         <modal id="createRuleModal" title="Create rule">
             <partial name="_Edit" for="CreateRuleModel" view-data="@editViewData" />
         </modal>
-    </div>
-    <div class="form-row">
-        <fieldset class="col-auto">
-            <input class="form-control" id="filterInput" asp-for="Filter" placeholder="Filter" />
-        </fieldset>
+        <input style="margin-left: 10px; vertical-align: middle; padding: .250rem;" id="filterInput" asp-for="Filter" placeholder="Filter" />
+        <button class="btn btn-primary" type="submit" asp-page-handler="Filter">Apply</button>
     </div>
     @for (int i = 0; i < Model.Rules.Count; i++)
     {
         var rule = Model.Rules[i];
-        <div class="row my-2">
-            <div class="col-9">
-                <div class="row align-items-start">
-                    <div class="d-inline-block">
-                        If <span class="font-weight-bold text-lowercase">@rule.Property</span>
-                        <span class="text-lowercase mr-4">@rule.Condition</span>
-                    </div>
-                    <div class="d-inline-block">
-                        <span class="d-inline-block font-italic font-weight-bold" style="width:20em">"@rule.ConditionValue"</span>
-                    </div>
-                    <div class="d-inline-block">
-                        then
-                        @if (rule.Action == Core.Rules.RuleAction.Skip)
-                        {
-                            <span class="font-weight-bold"> skip.</span>
-                        }
-                        else
-                        {
-                            <text>set </text>
-                            <span class="font-weight-bold text-lowercase">@rule.PropertyToSet</span>
-                            <text> to </text>
-                            <span class="font-weight-bold text-lowercase">@rule.ValueToSet</span>
-                        }
-                    </div>
-                </div>
-            </div>
-            @{ var modalId = $"editRuleModal_{rule.Id}"; }
-            <div class="col btn-group-sm">
-                <button class="btn btn-secondary" type="button" data-toggle="modal" data-target="#@(modalId)">Edit</button>
-                <button btn-del type="submit" asp-page-handler="delete" asp-route-id="@rule.Id" asp-route-currentPage="@Model.CurrentPage" />
-            </div>
+        <div style="padding-bottom: 10px">
+            <text>If <span class="font-weight-bold text-lowercase">@rule.Property</span></text>
+            <span class="text-lowercase">@rule.Condition</span>
+            <span class="d-inline-block font-italic font-weight-bold" style="">"@rule.ConditionValue"</span>
+            <text>then</text>
+            @if (rule.Action == Core.Rules.RuleAction.Skip)
+            {
+                <span class="font-weight-bold"> skip.</span>
+            }
+            else
+            {
+                <text> set </text>
+                <span class="font-weight-bold text-lowercase">@rule.PropertyToSet</span>
+                <text> to </text>
+                <span class="font-weight-bold text-lowercase">@rule.ValueToSet</span>
+            }
+
+            @{var modalId = $"editRuleModal_{rule.Id}";}
+            <br/>
+            <button class="btn btn-secondary" type="button" data-toggle="modal" data-target="#@(modalId)">Edit</button>
+            <button btn-del type="submit" asp-page-handler="delete" asp-route-id="@rule.Id" asp-route-currentPage="@Model.CurrentPage" />
         </div>
+
+
         <modal id="@modalId" title="Edit rule">
             <partial name="_Edit" for="Rules[i]" view-data="@editViewData" />
         </modal>
