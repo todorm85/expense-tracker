@@ -1,5 +1,6 @@
 ﻿using ExpenseTracker.Core.Budget;
 using ExpenseTracker.Core.Data;
+using ExpenseTracker.Core.Rules;
 using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Transactions;
 using LiteDB;
@@ -144,6 +145,36 @@ namespace ExpenseTracker.Data
                 }
 
                 this.db.Engine.UserVersion = 4;
+            }
+            //if (this.db.Engine.UserVersion == 4)
+            {
+                var col = this.db.GetCollection(this.GetSetName<Transaction>());
+                foreach (var doc in col.FindAll())
+                {
+                    var oldCat = (string)doc["Category"];
+                    if (oldCat == null)
+                    {
+                        continue;
+                    }
+
+                    var newCat = oldCat.Replace('/',' ').Trim();
+                    doc["Category"] = newCat;
+                    col.Update(doc);
+                }
+
+                var col2 = this.db.GetCollection(this.GetSetName<Rule>());
+                foreach (var doc2 in col2.FindAll())
+                {
+                    var action = (string)doc2["Action"];
+                    if (action == RuleAction.SetProperty.ToString())
+                    {
+                        var oldVal = (string)doc2["ValueToSet"];
+                        doc2["ValueToSet"] = oldVal.Replace('/', ' ').Trim();
+                        col2.Update(doc2);
+                    }
+                }
+
+                this.db.Engine.UserVersion = 5;
             }
         }
     }

@@ -27,6 +27,8 @@ namespace ExpenseTracker.Web.Pages.Shared
             {
                 DateFrom = DateTime.UtcNow.ToMonthStart();
             }
+
+            SelectedCategories = new List<string>();
         }
 
         [JsonIgnore]
@@ -54,7 +56,7 @@ namespace ExpenseTracker.Web.Pages.Shared
         {
             var allTransactions = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search | FilterBy.Source));
             List<string> latestCategories = allTransactions
-                .Select(x => x.Category)
+                .SelectMany(x => string.IsNullOrEmpty(x.Category) ? new string[0] : x.Category.Split(' ', StringSplitOptions.RemoveEmptyEntries))
                 .OrderBy(x => x)
                 .Distinct()
                 .ToList();
@@ -67,14 +69,11 @@ namespace ExpenseTracker.Web.Pages.Shared
 
             AvailableCategories = latestCategories;
 
-            if (SelectedCategories == null)
-            {
-                SelectedCategories = latestCategories.ToList() ?? new List<string>();
-            }
-            else
+
+            if (SelectedCategories.Count > 0)
             {
                 SelectedCategories = SelectedCategories.Where(x => latestCategories.Contains(x)).ToList();
-                SelectedCategories.AddRange(newlyAvailableCatesgories);
+                //SelectedCategories.AddRange(newlyAvailableCatesgories);
             }
 
             SelectedCategories = SelectedCategories.Where(x => x != Constants.IgnoredCategory).ToList();
@@ -119,12 +118,12 @@ namespace ExpenseTracker.Web.Pages.Shared
                 return true;
             if (SelectedCategories.Count > 0)
             {
-                foreach (var cat in SelectedCategories)
-                {
-                    if (cat == "-" && string.IsNullOrWhiteSpace(x.Category) ||
-                        x.Category == cat)
-                        return true;
-                }
+                if (SelectedCategories.Contains(UncategorisedOptionValue) && string.IsNullOrWhiteSpace(x.Category))
+                    return true;
+
+                var itemCategories = x.Category?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (itemCategories != null && SelectedCategories.All(itemCategories.Contains))
+                    return true;
 
                 return false;
             }
