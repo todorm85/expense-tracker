@@ -29,7 +29,7 @@ namespace ExpenseTracker.Web.Pages.Budgets
         {
             if (id != default)
             {
-                this.Budget = this.service.GetAll(x => x.Id == id).First();
+                this.Budget = this.service.GetById(id);
             }
             else
             {
