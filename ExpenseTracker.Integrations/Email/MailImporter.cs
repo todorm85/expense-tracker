@@ -1,6 +1,7 @@
 ﻿using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Services.Models;
 using ExpenseTracker.Core.Transactions;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,15 +10,19 @@ namespace ExpenseTracker.Allianz.Gmail
 {
     public class MailImporter : IDisposable
     {
+        private readonly IMemoryCache _cache;
+        private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(5);
+
         private readonly IMailClient mailClient;
         private readonly IEnumerable<IExpenseMessageParser> messageParsers;
         private readonly IExpensesService transactionsService;
 
-        public MailImporter(IExpenseMessageParser[] parsers, IExpensesService service, IMailClient mailClientFact)
+        public MailImporter(IExpenseMessageParser[] parsers, IExpensesService service, IMailClient mailClientFact, IMemoryCache cache)
         {
             this.messageParsers = parsers;
             this.transactionsService = service;
             this.mailClient = mailClientFact;
+            this._cache = cache;
         }
 
         public void Dispose()
@@ -93,7 +98,11 @@ namespace ExpenseTracker.Allianz.Gmail
 
         public bool TestConnection()
         {
-            return this.mailClient.TestConnection();
+            return _cache.GetOrCreate("MailConnectionStatus", entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = _cacheDuration;
+                return this.mailClient.TestConnection();
+            });
         }
     }
 }

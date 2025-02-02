@@ -71,8 +71,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public void OnGet()
         {
-            this.NewTransaction = new Transaction() 
-            { 
+            this.NewTransaction = new Transaction()
+            {
                 Date = DateTime.Now,
                 Type = TransactionType.Expense,
                 TransactionId = Guid.NewGuid().ToString(),
@@ -124,7 +124,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                         {
                             formFile.CopyTo(stream);
                         }
-                        
+
                         if (formFile.FileName.EndsWith("allianz.txt"))
                         {
                             expenses = this.allianz.ParseFromFile(filePath);
@@ -164,9 +164,41 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IActionResult OnPostUpdateTransaction(string id)
         {
             var updated = JustAddedTransactions.Transactions.First(x => x.TransactionId == id);
-            transactionsService.UpdateTransaction(updated);
-            SetJustAdded(JustAddedTransactions.Transactions);
+            try
+            {
+                transactionsService.UpdateTransaction(updated);
+            }
+            catch (Exception e)
+            {
+
+                this.ViewData["errorMessage"] = e.Message;
+
+            }
+
+            RefreshJustAdded();
             return RedirectToPage();
+        }
+
+        public IActionResult OnPostUpdateAllTransaction()
+        {
+            try
+            {
+                transactionsService.UpdateTransactions(JustAddedTransactions.Transactions);
+            }
+            catch (Exception e)
+            {
+                this.ViewData["errorMessage"] = e.Message;
+            }
+
+            RefreshJustAdded();
+            return RedirectToPage();
+        }
+
+        private void RefreshJustAdded()
+        {
+            var toUpdateIds = JustAddedTransactions.Transactions.Select(x => x.TransactionId);
+            var updated = transactionsService.GetAll(x => toUpdateIds.Contains(x.TransactionId));
+            SetJustAdded(updated.ToTransactionModel());
         }
 
         public IActionResult OnGetClearAdded()

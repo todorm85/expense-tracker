@@ -24,20 +24,13 @@
 
     @if (Model.JustAddedTransactions.Transactions.Any())
     {
-        <div class="row">
-            <div class="col">
-                <h3 class="d-inline">Just Added</h3>
-                <a type="submit" asp-page-handler="ClearAdded">Clear</a>
-            </div>
-        </div>
-        <div class="row">
-            @{
-                var heigth = 3;
-                Model.JustAddedTransactions.DetailsHeight = heigth;
-                Model.SkippedTransactions.DetailsHeight = heigth;
-            }
-            <partial name="_TransactionsList" for="JustAddedTransactions" />
-        </div>
+        <h3 class="d-inline">Just Added</h3>
+        <a type="submit" asp-page-handler="ClearAdded">Clear</a>
+        var heigth = 3;
+        Model.JustAddedTransactions.DetailsHeight = heigth;
+        Model.SkippedTransactions.DetailsHeight = heigth;
+        <partial name="_TransactionsList" for="JustAddedTransactions" />
+        <button type="submit" asp-page-handler="UpdateAllTransaction" class="btn-success">Update All</button>
 
         <hr />
     }
