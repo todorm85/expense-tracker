@@ -10,7 +10,7 @@
             <button type="button" asp-page-handler="MarkResolved" asp-route-index="@i" onclick="onMark(this, @i, '@ids')">
                 Mark Resolved
             </button>
-            <partial name="_Transactions" for="DuplicatesModel[i]" />
+            <partial name="_TransactionsList" for="DuplicatesModel[i]" />
             <hr />
         </div>
     }
