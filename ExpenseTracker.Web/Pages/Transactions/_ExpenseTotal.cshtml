@@ -1,0 +1,18 @@
+﻿@model (string Name, decimal Spent, decimal? Income)
+
+    @{
+        var catBalClass = string.Empty;
+        decimal catBal = 0;
+        if (Model.Income.HasValue)
+        {
+            catBal = Model.Income.Value - Model.Spent;
+            catBalClass = (catBal >= 0) ? "success" : "danger";
+        }
+    }
+
+    <span class="badge mr-1">@Model.Name</span>
+    <span>@Model.Spent.ToString("N0")</span> <text> | </text>
+    @if (catBalClass != string.Empty)
+    {
+        <span class="badge @catBalClass">@catBal.ToString("N0")</span>
+    }

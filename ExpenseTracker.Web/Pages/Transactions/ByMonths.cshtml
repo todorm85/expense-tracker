@@ -1,0 +1,41 @@
+﻿@page
+@model ExpenseTracker.Web.Pages.Transactions.ByMonthsModel
+@{
+}
+
+<form method="post">
+
+    <h5 class="row justify-content-center mt-1">
+        <span class="text-center d-inline-block">
+            <span class="d-inline-block w-100">Expense</span>
+            <span class="badge">@Model.TotalExpense.ToString("N0") / @Model.AverageExpense.ToString("N0")</span>
+        </span>
+        <span class="text-center d-inline-block">
+            <span class="d-inline-block w-100">Income</span>
+            <span class="badge">@Model.TotalIncome.ToString("N0") / @Model.AverageIncome.ToString("N0")</span>
+        </span>
+        @{ var avgBalClass = (Model.AverageBalance >= 0) ? "success" : "danger"; }
+        <span class="d-inline-block text-center">
+            <span class="d-inline-block w-100">Balance</span>
+            <span class="badge badge-@avgBalClass">@Model.Balance.ToString("N0") / @Model.AverageBalance.ToString("N0")</span>
+        </span>
+    </h5>
+
+    <partial name="_TransactionsFilter" for="Filters" />
+
+    @foreach (var month in Model.Months)
+    {
+        <p style="display: flex; justify-content: flex-start; gap: 60px; font-family: monospace;">
+            <span style="min-width: 90px;">
+                @month.Key.Year.ToString("D4") <text> - </text> @month.Key.Month.ToString("D2")
+            </span>
+            <span style="min-width: 140px; text-align: left;">
+                Expense: @month.Where(x => x.Type == Core.Transactions.TransactionType.Expense).Sum(x => x.Amount).ToString("N0")
+            </span>
+            <span style="min-width: 140px; text-align: left;">
+                Income: @month.Where(x => x.Type == Core.Transactions.TransactionType.Income).Sum(x => x.Amount).ToString("N0")
+            </span>
+        </p>
+    }
+
+</form>
