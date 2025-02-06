@@ -61,6 +61,7 @@ public abstract class TransactionCsvParserBase : CsvParserBase<Transaction>
             "yyyy-MM-dd HH:mm:ss.fff",
             "yyyy-MM-dd HH:mm:ss",
             "dd/MM/yyyy HH:mm:ss",
+            "dd/MM/yyyy HH:mm",
             "MM/dd/yyyy HH:mm:ss",
             "M/d/yyyy H:mm",
             "d.M.yyyy H:mm"
