@@ -44,7 +44,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private void Init()
         {
-            22var all = this.expenses.GetAll(this.Filters.GetFilterQuery());
+            var all = this.expenses.GetAll(this.Filters.GetFilterQuery());
             if (all.Count() == 0)
                 return;
 
