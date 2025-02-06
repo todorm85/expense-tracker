@@ -3,6 +3,7 @@ using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Services.Models;
 using ExpenseTracker.Core.Transactions;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using Telerik.JustMock;
@@ -59,12 +60,13 @@ namespace ExpenseTracker.Integrations.Tests
             {
                 return msgList.Count;
             });
+            var cacheMock = Mock.Create<IMemoryCache>();
 
             var dummyTransactionsService = Mock.Create<IExpensesService>();
             var transactionsList = new List<Transaction>();
             IEnumerable<CreateTransactionResult> skippedDummy = new CreateTransactionResult[0];
             Mock.Arrange(() => dummyTransactionsService.TryCreateTransactions(Arg.IsAny<IEnumerable<Transaction>>(), out skippedDummy)).DoInstead<IEnumerable<Transaction>>(x => transactionsList.AddRange(x));
-            var importer = new MailImporter(new IExpenseMessageParser[] { dummyParser1, dummyParser2 }, dummyTransactionsService, mailClient);
+            var importer = new MailImporter(new IExpenseMessageParser[] { dummyParser1, dummyParser2 }, dummyTransactionsService, mailClient, cacheMock);
             importer.ImportTransactions(out IEnumerable<Transaction> ts, out IEnumerable<CreateTransactionResult> skipped);
             Assert.AreEqual(2, transactionsList.Count);
             Assert.AreEqual("dummy1", transactionsList[0].Details);
