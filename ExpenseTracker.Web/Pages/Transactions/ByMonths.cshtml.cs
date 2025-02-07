@@ -17,6 +17,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             this.expenses = expenses;
             this.Filters = new TransactionsFilterViewModel() { HideSorting = true };
+            this.Months = new List<IGrouping<(int Year, int Month), Transaction>>();
         }
 
         [BindProperty]
