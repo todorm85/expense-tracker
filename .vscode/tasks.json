@@ -41,6 +41,21 @@
         "${workspaceFolder}/ExpenseTracker.Tests/ExpenseTracker.Tests.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish ExpenseTracker.Web",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/publish.ps1",
+        "-workspaceFolder",
+        "${workspaceFolder}"
+        ],
+      "group": "build",
+      "problemMatcher": []
     }
   ]
 }
