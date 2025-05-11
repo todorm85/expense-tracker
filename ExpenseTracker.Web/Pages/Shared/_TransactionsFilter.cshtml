@@ -24,23 +24,24 @@
 
 <input type="hidden" asp-for="HideSorting" />
 
-<div class="border mb-3 rounded">
-    <div class="mb-3 mt-3">
-        <div>
-            From <input type="date" asp-for="DateFrom" class="rounded" />
-            To <input type="date" asp-for="DateTo" class="rounded" />
-            @if (!Model.HideSorting)
-            {
-                <span class="ml-2">Sort </span><select asp-for="SortBy" asp-items="Html.GetEnumSelectList<ExpenseTracker.Web.Pages.Transactions.SortOptions>()" class="rounded"></select>
-            }
+<div class="mycard">
+    <div>
+        From <input type="date" asp-for="DateFrom" class="rounded" />
+        To <input type="date" asp-for="DateTo" class="rounded" />
+        @if (!Model.HideSorting)
+        {
+            <span class="ml-2">Sort </span><select asp-for="SortBy" asp-items="Html.GetEnumSelectList<ExpenseTracker.Web.Pages.Transactions.SortOptions>()" class="rounded"></select>
+        }
 
-            <span class="ml-2">Source</span><select asp-for="Source" asp-items="Model.Sources" class="rounded"></select>
-            <input type="text" asp-for="Search" class="rounded ml-2" placeholder="Search" />
-            <button type="submit" class="ml-4"> Apply </button>
-        </div>
-        <div>
-            <select multiple="multiple" asp-for="SelectedCategories" class="rounded ml-2" asp-items="Model.CategoriesDropDownModel"></select>
-            <select hidden multiple="multiple" asp-for="AvailableCategories" class="rounded ml-2" asp-items="Model.AvailableCategoriesDropDownModel"></select>
-        </div>
+        <span class="ml-2">Source</span><select asp-for="Source" asp-items="Model.Sources" class="rounded"></select>
+        <input type="text" asp-for="Search" class="rounded ml-2" placeholder="Search" />
+        <button type="submit" class="ml-4"> Apply </button>
     </div>
+    @if (Model.AvailableCategories.Count > 0)
+    {
+    <div>
+        <select multiple="multiple" asp-for="SelectedCategories" class="rounded ml-2" asp-items="Model.CategoriesDropDownModel"></select>
+        <select hidden multiple="multiple" asp-for="AvailableCategories" class="rounded ml-2" asp-items="Model.AvailableCategoriesDropDownModel"></select>
+    </div>
+    }
 </div>

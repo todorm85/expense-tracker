@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "prelaunch debug ExpenseTracker.Web",
-            "program": "${workspaceFolder}/ExpenseTracker.Web/bin/Debug/net7.0/ExpenseTracker.Web.dll",
+            "program": "${workspaceFolder}/ExpenseTracker.Web/bin/Debug/net8.0/ExpenseTracker.Web.dll",
             "args": [],
             "cwd": "${workspaceFolder}/ExpenseTracker.Web",
             "stopAtEntry": false,

@@ -30,7 +30,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public decimal Balance => this.TotalIncome - this.TotalExpense;
 
         [BindProperty]
-        public IEnumerable<IGrouping<(int Year, int Month), Transaction>> Months { get; private set; }
+        public IEnumerable<IGrouping<(int Year, int Month), Transaction>> Months { get; private set; } = Enumerable.Empty<IGrouping<(int Year, int Month), Transaction>>();
 
         public void OnGet()
         {
@@ -52,6 +52,15 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 .GroupBy(x => (x.Date.Year, x.Date.Month))
                 .OrderByDescending(x => x.Key.Year)
                 .ThenByDescending(x => x.Key.Month);
+
+            // Calculate total income and expense
+            this.TotalIncome = all.Where(x => x.Type == TransactionType.Income).Sum(x => x.Amount);
+            this.TotalExpense = all.Where(x => x.Type == TransactionType.Expense).Sum(x => Math.Abs(x.Amount));
+
+            // Calculate averages per month (only for months that have transactions)
+            int monthCount = this.Months.Count();
+            this.AverageIncome = monthCount > 0 ? this.TotalIncome / monthCount : 0;
+            this.AverageExpense = monthCount > 0 ? this.TotalExpense / monthCount : 0;
         }
     }
 }

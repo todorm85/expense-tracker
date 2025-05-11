@@ -1,4 +1,6 @@
 ﻿@model TransactionsListModel
+@if (Model.Transactions.Count > 0)
+{
 <table>
     @if (!Model.HideHeader)
     {
@@ -25,6 +27,7 @@
             </tr>
         </thead>
     }
+    
     <tbody>
         @for (var transx = 0; transx < Model.Transactions.Count; transx++)
         {
@@ -92,5 +95,6 @@
         }
     </tbody>
 </table>
+}
 
 <vc:categories-data-list id="cats"></vc:categories-data-list>

@@ -8,12 +8,17 @@
     <vc:transactions-summary filter-model="@Model.Filter"></vc:transactions-summary>
     <form method="post" onkeydown="return event.key != 'Enter';">
         <partial name="_TransactionsFilter" for="Filter" />
-        <partial name="_TransactionsList" for="TransactionsList" />
-        <div class="text-right mb-2">
-            <button type="submit" asp-page-handler="DeleteAll" class="btn-danger">Delete All (all pages)</button>
-            <button type="submit" asp-page-handler="ProcessUncategorized">Process uncategorized</button>
-            <button type="submit" asp-page-handler="UpdateAll" class="btn-success">Update All</button>
-        </div>
-        <partial name="_Pager" for="Pager" />
+        @if (Model.TransactionsList.Transactions.Count > 0)
+        {
+            <partial name="_TransactionsList" for="TransactionsList" />
+
+            <div class="text-right mb-2">
+                <button type="submit" asp-page-handler="DeleteAll" class="btn-danger">Delete All (all pages)</button>
+                <button type="submit" asp-page-handler="ProcessUncategorized">Process uncategorized</button>
+                <button type="submit" asp-page-handler="UpdateAll" class="btn-success">Update All</button>
+            </div>
+            <partial name="_Pager" for="Pager" />
+        }
+        
     </form>
 </div>

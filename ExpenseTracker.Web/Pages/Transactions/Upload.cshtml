@@ -1,18 +1,6 @@
 ﻿@page
 @model ExpenseTracker.Web.Pages.Transactions.UploadModel
 
-<style>
-    .mycard {
-        margin: 30px 0;
-        background-color: hsl(0, 0%, 93%);
-        border: solid;
-        border-color: hsl(0, 0%, 70%);
-        padding: 30px;
-        border-radius: 5px;
-        /* box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5); */
-    }
-</style>
-
 <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';">
     @if (@Model.ViewData["errorMessage"] != null)
     {
