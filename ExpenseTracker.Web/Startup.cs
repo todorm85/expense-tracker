@@ -43,8 +43,8 @@ namespace ExpenseTracker.Web
 
             app.UseRouting();
 
-            //if (!env.IsDevelopment())
-            //    app.AddLocalAuthentication();
+            if (!env.IsDevelopment())
+                app.AddLocalAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
