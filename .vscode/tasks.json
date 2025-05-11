@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "prelaunch debug ExpenseTracker.Web",
+      "dependsOn": [
+        "clean leftover debug processes",
+        "build ExpenseTracker.Web"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "build ExpenseTracker.Web",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/ExpenseTracker.Web/ExpenseTracker.Web.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "clean leftover debug processes",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/clean-webDebugProcesses.ps1"
+      ],
+      "problemMatcher": [],
+    }
+  ]
+}

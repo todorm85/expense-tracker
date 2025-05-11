@@ -1,3 +1,5 @@
+using System;
+using System.Runtime.InteropServices;
 using ExpenseTracker.App;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -8,9 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.EventLog;
-using System;
-using System.Runtime.InteropServices;
-using Unity;
 
 namespace ExpenseTracker.Web
 {
@@ -53,28 +52,12 @@ namespace ExpenseTracker.Web
             });
         }
 
-        public void ConfigureContainer(IUnityContainer container)
-        {
-            var expenseTrackerConfig = Configuration.GetSection("ExpenseTracker");
-            var dbPath = expenseTrackerConfig.GetValue<string>("DatabasePath");
-            if (dbPath.Contains("%"))
-            {
-                dbPath = Environment.ExpandEnvironmentVariables(dbPath);
-            }
-
-            Application.RegisterDependencies(container, new Config()
-            {
-                DbPath = dbPath,
-                MailUser = Configuration["mailUser"],
-                MailPass = Configuration["mailPass"],
-                UserHashedPass = Configuration["userHashedPass"],
-                LockoutMinutes = Configuration["LockoutMinutes"] != default ? int.Parse(Configuration["LockoutMinutes"]) : 0
-            });
-        }
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            Config config = this.GetDatabaseConfiguration();
+            Application.RegisterDependencies(services, config);
+
             services.AddLogging(logger =>
             {
                 logger.ClearProviders();
@@ -106,6 +89,27 @@ namespace ExpenseTracker.Web
 
             if (!env.IsDevelopment())
                 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+        }
+
+        private Config GetDatabaseConfiguration()
+        {
+            var expenseTrackerConfig = Configuration.GetSection("ExpenseTracker");
+            var dbPath = expenseTrackerConfig.GetValue<string>("DatabasePath");
+            if (dbPath.Contains("%"))
+            {
+                dbPath = Environment.ExpandEnvironmentVariables(dbPath);
+            }
+
+            var config = new Config()
+            {
+                DbPath = dbPath,
+                MailUser = Configuration["mailUser"],
+                MailPass = Configuration["mailPass"],
+                UserHashedPass = Configuration["userHashedPass"],
+                LockoutMinutes = Configuration["LockoutMinutes"] != default ? int.Parse(Configuration["LockoutMinutes"]) : 0
+            };
+
+            return config;
         }
     }
 }

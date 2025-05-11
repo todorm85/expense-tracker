@@ -4,7 +4,6 @@ using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Transactions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Unity;
 
 namespace ExpenseTracker.Web.Pages.Shared.Components.TransactionsSummary
 {

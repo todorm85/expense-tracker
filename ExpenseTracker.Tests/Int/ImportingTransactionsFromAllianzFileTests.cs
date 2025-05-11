@@ -3,12 +3,12 @@ using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Services.Models;
 using ExpenseTracker.Core.Transactions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Unity;
 
 namespace ExpenseTracker.Tests.Int
 {
@@ -19,7 +19,7 @@ namespace ExpenseTracker.Tests.Int
         private const string FileHeader = "datetime|reference|amount|dtkt|trname|contragent|rem_i|rem_ii|rem_iii";
         private const string TaxEntry = @"02/09/2020 00:00:00|161CHMRBGNL00001|2.20|D|Такса за поддръжка на сметка||||";
         private const string YouTubeExpenseEntry = @"01/09/2020 12:55:37|161ADV8202450006|10.99|D|Плащане чрез ПОС чужбина |424982***3046#GOOGLE *YouTubePremium   g.c|o/helppay#GB - g.co/helppay#GOOGL|E *YouTubePremium PAN*3046|BG459115043";
-        private ExpensesService expensesService;
+        private IExpensesService expensesService;
         private AllianzCsvParser fileParser;
 
         [TestCleanup]
@@ -80,8 +80,8 @@ namespace ExpenseTracker.Tests.Int
         public override void Initialize()
         {
             base.Initialize();
-            this.fileParser = container.Resolve<AllianzCsvParser>();
-            this.expensesService = container.Resolve<ExpensesService>();
+            this.fileParser = new AllianzCsvParser();
+            this.expensesService = serviceProvider.GetService<IExpensesService>();
         }
 
         private string GetTestData(params string[] entries)

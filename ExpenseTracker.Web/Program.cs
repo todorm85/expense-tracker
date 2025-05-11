@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Unity.Microsoft.DependencyInjection;
 
 namespace ExpenseTracker.Web
 {
@@ -9,10 +8,8 @@ namespace ExpenseTracker.Web
     {
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseUnityServiceProvider()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    ////webBuilder.ConfigureLogging(logging => logging.AddEventLog());
                     webBuilder.UseStartup<Startup>();
                 });
 

@@ -2,15 +2,17 @@
 using ExpenseTracker.App;
 using ExpenseTracker.Core;
 using ExpenseTracker.Core.Data;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
-using Unity;
 
 namespace ExpenseTracker.Tests.Int
 {
     public class IntTestsBase
     {
-        protected UnityContainer container;
+        protected IServiceCollection services;
+        protected IServiceProvider serviceProvider;
         protected MailClientMock mailClient;
         private const string DirectoryPath = "c:\\temp";
         private static readonly string DbPath = $"{DirectoryPath}\\test.db";
@@ -18,18 +20,18 @@ namespace ExpenseTracker.Tests.Int
         [TestCleanup]
         public virtual void CleanUp()
         {
-            this.container.Resolve<IUnitOfWork>().Dispose();
-            this.container.Dispose();
+            this.serviceProvider.GetService<IUnitOfWork>().Dispose();
         }
 
         [TestInitialize]
         public virtual void Initialize()
         {
             InitializeDbFile();
-            this.container = new UnityContainer();
-            Application.RegisterDependencies(container, GetConfig());
+            this.services = new ServiceCollection(); // Initialize IServiceCollection
+            Application.RegisterDependencies(services, GetConfig());
             this.mailClient = new MailClientMock();
-            this.container.RegisterInstance<IMailClient>(this.mailClient);
+            this.services.AddSingleton<IMailClient>(this.mailClient); // Register MailClientMock as IMailClient
+            this.serviceProvider = services.BuildServiceProvider();
         }
 
         private static Config GetConfig()

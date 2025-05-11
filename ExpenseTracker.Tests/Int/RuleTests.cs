@@ -5,9 +5,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity;
 using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Services.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ExpenseTracker.Tests.Int
 {
@@ -16,14 +16,14 @@ namespace ExpenseTracker.Tests.Int
     {
         private IReadRepository<Transaction> TransactionsRepo => expenses as IReadRepository<Transaction>;
         private IRepository<Rule> rules;
-        private ExpensesService expenses;
+        private IExpensesService expenses;
 
         [TestInitialize]
         public override void Initialize()
         {
             base.Initialize();
-            this.rules = container.Resolve<IRepository<Rule>>();
-            this.expenses = container.Resolve<ExpensesService>();
+            this.rules = serviceProvider.GetService<IRepository<Rule>>();
+            this.expenses = serviceProvider.GetService<IExpensesService>();
         }
 
         [TestMethod]

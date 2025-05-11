@@ -1,13 +1,15 @@
-﻿using ExpenseTracker.Allianz.Gmail;
+﻿using ExpenseTracker.Allianz;
+using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core.Data;
 using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Services.Models;
 using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Tests.Common;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
-using Unity;
 
 namespace ExpenseTracker.Tests.Int
 {
@@ -17,7 +19,7 @@ namespace ExpenseTracker.Tests.Int
         private IReadRepository<Transaction> ExpensesRepo => expensesService as IReadRepository<Transaction>;
 
         private AllianzMessageFactory allianz = new AllianzMessageFactory();
-        private ExpensesService expensesService;
+        private IExpensesService expensesService;
         private RaiffeisenMsgFactory rai = new RaiffeisenMsgFactory();
         private MailImporter sut;
 
@@ -171,8 +173,11 @@ namespace ExpenseTracker.Tests.Int
         public override void Initialize()
         {
             base.Initialize();
-            this.sut = container.Resolve<MailImporter>();
-            this.expensesService = container.Resolve<ExpensesService>();
+            this.expensesService = serviceProvider.GetService<IExpensesService>();
+            this.sut = new MailImporter(this.serviceProvider.GetServices<IExpenseMessageParser>().ToArray(),
+                this.expensesService,
+                this.serviceProvider.GetService<IMailClient>(),
+                this.serviceProvider.GetService<IMemoryCache>());
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using Force.Crc32;
-using System;
+﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ExpenseTracker.Core
@@ -35,9 +35,18 @@ namespace ExpenseTracker.Core
             return s.Trim();
         }
 
-        internal static string ComputeCRC32Hash(this string rawData)
+        /// <summary>
+        /// Computes a short hash (8 hex chars) of the input string using SHA256.
+        /// Suitable for uniqueness checks, not for cryptographic security.
+        /// </summary>
+        /// <param name="rawData">The input string to hash.</param>
+        /// <returns>8-character hexadecimal hash string.</returns>
+        internal static string ComputeShortHash(this string rawData)
         {
-            return Crc32Algorithm.Compute(Encoding.UTF8.GetBytes(rawData)).ToString();
+            using var sha256 = SHA256.Create();
+            var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+            // Take first 4 bytes (8 hex chars) for a short hash
+            return BitConverter.ToString(hash, 0, 4).Replace("-", "").ToLowerInvariant();
         }
     }
 }

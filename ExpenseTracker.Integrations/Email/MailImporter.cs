@@ -17,7 +17,7 @@ namespace ExpenseTracker.Allianz.Gmail
         private readonly IEnumerable<IExpenseMessageParser> messageParsers;
         private readonly IExpensesService transactionsService;
 
-        public MailImporter(IExpenseMessageParser[] parsers, IExpensesService service, IMailClient mailClientFact, IMemoryCache cache)
+        public MailImporter(IEnumerable<IExpenseMessageParser> parsers, IExpensesService service, IMailClient mailClientFact, IMemoryCache cache)
         {
             this.messageParsers = parsers;
             this.transactionsService = service;

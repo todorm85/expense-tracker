@@ -24,7 +24,7 @@ namespace ExpenseTracker.Core.Services
 
         public static string GenerateTransactionId(DateTime date, decimal amount, string details)
         {
-            var detailsHash = details.ComputeCRC32Hash();
+            var detailsHash = details.ComputeShortHash();
             return $"{date.ToString("dd.MM.yy.HH.mm.ss", CultureInfo.InvariantCulture)}_{amount.ToString("F2")}_{detailsHash}";
         }
 
