@@ -30,7 +30,17 @@
         "-File",
         "${workspaceFolder}/scripts/clean-webDebugProcesses.ps1"
       ],
-      "problemMatcher": [],
+      "problemMatcher": []
+    },
+    {
+      "label": "test ExpenseTracker.Tests",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "${workspaceFolder}/ExpenseTracker.Tests/ExpenseTracker.Tests.csproj"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }
