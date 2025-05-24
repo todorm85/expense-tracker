@@ -1,6 +1,6 @@
 @model ExpenseTracker.Web.Pages.Shared.ExceptionsViewModel
 
-@if (Model.HasExceptions)
+@if (Model.HasErrors)
 {
     <div class="alert alert-danger">
         <div class="d-flex justify-content-between align-items-center">
@@ -9,28 +9,26 @@
         </div>
         <hr>
         <div class="exception-container">
-            @foreach (var exGroup in Model.GroupedExceptions)
+            @foreach (var errorGroup in Model.GroupedErrors)
             {
                 <div class="exception-group mb-3">
-                    <h5>@exGroup.Key (@exGroup.Count())</h5>
+                    <h5>@errorGroup.Key (@errorGroup.Count())</h5>
                     <ul class="list-group">
-                        @foreach (var ex in exGroup)
-                        {                            <li class="list-group-item">
-                                <strong>@ex.Message</strong>
-                                @if (ex is ExpenseTracker.Integrations.ImportException importEx)
+                        @foreach (var error in errorGroup)
+                        {
+                            <li class="list-group-item">
+                                <strong>@error.Message</strong>
+                                <span class="badge @(error.CanRetry ? "bg-warning" : "bg-danger") ms-2">
+                                    @(error.CanRetry ? "Retryable" : "Non-retryable")
+                                </span>
+                                @if (!string.IsNullOrEmpty(error.ImportSource))
                                 {
-                                    <span class="badge @(importEx.CanRetry ? "bg-warning" : "bg-danger") ms-2">
-                                        @(importEx.CanRetry ? "Retryable" : "Non-retryable")
-                                    </span>
-                                    @if (!string.IsNullOrEmpty(importEx.ImportSource))
-                                    {
-                                        <div class="text-muted small">Source: @importEx.ImportSource</div>
-                                    }
+                                    <div class="text-muted small">Source: @error.ImportSource</div>
                                 }
-                                @if (ex.InnerException != null)
+                                @if (!string.IsNullOrEmpty(error.Details))
                                 {
                                     <div class="text-muted small mt-1">
-                                        <i class="bi bi-arrow-right"></i> @ex.InnerException.Message
+                                        <i class="bi bi-arrow-right"></i> @error.Details
                                     </div>
                                 }
                             </li>
@@ -38,9 +36,10 @@
                     </ul>
                 </div>
             }
-        </div>        <div class="text-end">
+        </div>
+        <div class="text-end">
             <a asp-page="/Transactions/Upload" asp-page-handler="ClearExceptions" class="btn btn-outline-danger btn-sm">Clear Errors</a>
-            @if (Model.Exceptions.Any(e => e is ExpenseTracker.Integrations.ImportException importEx && importEx.CanRetry))
+            @if (Model.ImportErrors.Any(e => e.CanRetry))
             {
                 <form method="post" asp-page="/Transactions/Upload" asp-page-handler="RetryImports" class="d-inline ms-2">
                     <button type="submit" class="btn btn-primary btn-sm">Retry Imports</button>

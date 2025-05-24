@@ -25,7 +25,7 @@ if (env.IsDevelopment())
 mvcBuilder.AddRazorPagesOptions(o =>
 {
     o.Conventions.AddPageRoute("/Transactions/Upload", "");
-});
+}).AddSessionStateTempDataProvider();
 
 services.Configure<Microsoft.AspNetCore.Mvc.MvcOptions>(options => options.MaxModelBindingCollectionSize = 10000);
 services.Configure<FormOptions>(options => options.ValueCountLimit = 100000);

@@ -36,15 +36,15 @@ namespace ExpenseTracker.Allianz.Gmail
             this.mailClient.Dispose();
         }
 
-        public void ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<CreateTransactionResult> skipped, out IEnumerable<Exception> exceptions)
+        public void ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<CreateTransactionResult> skipped, out IEnumerable<ImportError> errors)
         {
             added = Enumerable.Empty<Transaction>();
             skipped = Enumerable.Empty<CreateTransactionResult>();
-            exceptions = Enumerable.Empty<Exception>();
+            errors = Enumerable.Empty<ImportError>();
             
             var result = TryParseMails();
             var transactions = result.Transactions;
-            exceptions = result.Exceptions;
+            errors = result.Errors;
             
             if (transactions.Count > 0)
             {
@@ -54,33 +54,33 @@ namespace ExpenseTracker.Allianz.Gmail
             }
         }
 
-        private (List<Transaction> Transactions, List<Exception> Exceptions) TryParseMails()
+        private (List<Transaction> Transactions, List<ImportError> Errors) TryParseMails()
         {
             List<Transaction> transactions = new List<Transaction>();
-            List<Exception> exceptions = new List<Exception>();
+            List<ImportError> errors = new List<ImportError>();
             try
             {
-                ParseMails(transactions, exceptions);
+                ParseMails(transactions, errors);
             }
             catch (Exception ex)
             {
-                var importEx = new ImportException(
+                var importError = new ImportError(
                     "Unexpected error during mail parsing", 
                     ImportErrorType.OtherError, 
                     ex, 
                     "Email Import");
                     
-                exceptions.Add(importEx);
+                errors.Add(importError);
                 if (_logger != null)
                 {
                     _logger.LogError(ex, "Unexpected error during mail parsing");
                 }
             }
 
-            return (transactions, exceptions);
+            return (transactions, errors);
         }
 
-        private void ParseMails(List<Transaction> transactions, List<Exception> exceptions)
+        private void ParseMails(List<Transaction> transactions, List<ImportError> errors)
         {
             int msgIdx = 0;
             int totalMsgsCount = this.mailClient.Count;
@@ -98,13 +98,13 @@ namespace ExpenseTracker.Allianz.Gmail
                     {
                         t = null;
                         var parserName = p.GetType().Name;
-                        var importEx = new ImportException(
+                        var importError = new ImportError(
                             $"Failed to parse email with parser {parserName}: {e.Message}", 
                             ImportErrorType.ParseError, 
                             e, 
                             $"Email: {expenseMessage.Subject ?? "No subject"}");
                             
-                        exceptions.Add(importEx);
+                        errors.Add(importError);
                         if (_logger != null)
                         {
                             _logger.LogError(e, "Failed to parse expense message with {Parser}: {ExpenseMessage}", 
@@ -132,7 +132,7 @@ namespace ExpenseTracker.Allianz.Gmail
                         catch (Exception ex)
                         {
                             _logger?.LogError(ex, "Failed to delete email after import");
-                            exceptions.Add(new ImportException(
+                            errors.Add(new ImportError(
                                 "Failed to delete email after import", 
                                 ImportErrorType.OtherError, 
                                 ex, 

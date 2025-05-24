@@ -3,53 +3,59 @@ using System;
 namespace ExpenseTracker.Integrations
 {
     /// <summary>
-    /// Exception type for errors that occur during the import process.
+    /// Represents an error that occurred during the import process.
     /// </summary>
-    public class ImportException : Exception
+    public class ImportError
     {
+        /// <summary>
+        /// The error message
+        /// </summary>
+        public string Message { get; set; }
+
         /// <summary>
         /// The type of import operation that failed
         /// </summary>
-        public ImportErrorType ErrorType { get; }        /// <summary>
+        public ImportErrorType ErrorType { get; set; }
+
+        /// <summary>
         /// The source of the import (e.g., file name, email, etc.)
         /// </summary>
-        public string ImportSource { get; }
+        public string ImportSource { get; set; }
         
         /// <summary>
         /// Indicates whether this error is retryable
         /// </summary>
-        public bool CanRetry { get; }
+        public bool CanRetry { get; set; }
         
         /// <summary>
-        /// Optional data that can be used for retry operations
+        /// Additional details about the error (e.g., inner exception message)
         /// </summary>
-        public object RetryData { get; }        public ImportException(string message, ImportErrorType errorType, string source = null, bool canRetry = false, object retryData = null) 
-            : base(message)
-        {
-            ErrorType = errorType;
-            ImportSource = source;
-            CanRetry = canRetry;
-            RetryData = retryData;
-            
-            // Also set the base Source property
-            if (source != null)
-            {
-                base.Source = source;
-            }
-        }
+        public string Details { get; set; }
 
-        public ImportException(string message, ImportErrorType errorType, Exception innerException, string source = null, bool canRetry = false, object retryData = null) 
-            : base(message, innerException)
+        public ImportError()
         {
+            // Default constructor for serialization
+        }
+        
+        public ImportError(string message, ImportErrorType errorType, string source = null, bool canRetry = false)
+        {
+            Message = message;
             ErrorType = errorType;
             ImportSource = source;
             CanRetry = canRetry;
-            RetryData = retryData;
+        }
+        
+        public ImportError(string message, ImportErrorType errorType, Exception innerException, string source = null, bool canRetry = false)
+        {
+            Message = message;
+            ErrorType = errorType;
+            ImportSource = source;
+            CanRetry = canRetry;
             
-            // Also set the base Source property
-            if (source != null)
+            // Store inner exception details as a string
+            if (innerException != null)
             {
-                base.Source = source;
+                Details = innerException.Message;
             }
         }
     }

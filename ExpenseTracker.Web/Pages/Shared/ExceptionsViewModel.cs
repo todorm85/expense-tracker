@@ -9,55 +9,55 @@ namespace ExpenseTracker.Web.Pages.Shared
     {
         public ExceptionsViewModel()
         {
-            Exceptions = new List<Exception>();
+            ImportErrors = new List<ImportError>();
         }
 
-        public IList<Exception> Exceptions { get; set; }
-        public bool HasExceptions => Exceptions != null && Exceptions.Any();
+        public IList<ImportError> ImportErrors { get; set; }
+        public bool HasErrors => ImportErrors != null && ImportErrors.Any();
 
         /// <summary>
-        /// Gets exceptions grouped by their error type for better display
+        /// Gets errors grouped by their error type for better display
         /// </summary>
-        public IEnumerable<IGrouping<string, Exception>> GroupedExceptions
+        public IEnumerable<IGrouping<string, ImportError>> GroupedErrors
         {
             get
             {
-                if (Exceptions == null || !Exceptions.Any())
-                    return Enumerable.Empty<IGrouping<string, Exception>>();
+                if (ImportErrors == null || !ImportErrors.Any())
+                    return Enumerable.Empty<IGrouping<string, ImportError>>();
 
-                return Exceptions.GroupBy(ex =>
-                {                if (ex is ImportException importEx)
-                    return importEx.ErrorType.ToString();
-                return ex.GetType().Name;
-                });
+                return ImportErrors.GroupBy(err => err.ErrorType.ToString());
             }
         }
 
         /// <summary>
-        /// Adds an exception to the list with proper categorization
+        /// Adds an exception to the list of import errors with proper categorization
         /// </summary>
         public void AddException(Exception exception, string? source = null)
         {
             if (exception == null)
                 return;
                 
-            // If it's already an ImportException, just add it
-            if (exception is ImportException)
-            {
-                Exceptions.Add(exception);
-                return;
-            }
-            
-            // Otherwise, wrap it in an ImportException with appropriate categorization
+            // Create a new ImportError
             var errorType = DetermineErrorType(exception);
-            var importException = new ImportException(
+            var importError = new ImportError(
                 exception.Message, 
                 errorType, 
                 exception, 
                 source,
                 errorType != ImportErrorType.AccessError); // Only access errors are typically not retryable
                 
-            Exceptions.Add(importException);
+            ImportErrors.Add(importError);
+        }
+
+        /// <summary>
+        /// Adds an import error directly
+        /// </summary>
+        public void AddError(ImportError error)
+        {
+            if (error == null)
+                return;
+                
+            ImportErrors.Add(error);
         }
 
         /// <summary>
