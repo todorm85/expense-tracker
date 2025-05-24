@@ -25,6 +25,14 @@ a {
     border-color: #1861ac;
 }
 
+/* Custom styles for active nav links */
+.navbar-nav .nav-item .nav-link.active {
+    font-weight: bold;
+    /* You can also add other styles, like a different color or a subtle background */
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+}
+
 /* Sticky footer styles
 -------------------------------------------------- */
 html {

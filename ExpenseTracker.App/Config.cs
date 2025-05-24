@@ -7,5 +7,6 @@
         public string MailUser { get; set; }
         public string UserHashedPass { get; set; }
         public int LockoutMinutes { get; set; }
+        public bool DeleteMailAfterImport { get; set; }
     }
 }

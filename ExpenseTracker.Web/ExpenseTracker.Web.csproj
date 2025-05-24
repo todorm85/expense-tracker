@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>6522e4b8-76ed-48c5-8cd5-555be5f03a0e</UserSecretsId>
   </PropertyGroup>
 
@@ -20,10 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ExpenseTracker.App\ExpenseTracker.App.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\lib\" />
   </ItemGroup>
 
 </Project>

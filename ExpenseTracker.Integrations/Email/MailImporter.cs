@@ -2,6 +2,7 @@
 using ExpenseTracker.Core.Services.Models;
 using ExpenseTracker.Core.Transactions;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,14 +17,18 @@ namespace ExpenseTracker.Allianz.Gmail
         private readonly IMailClient mailClient;
         private readonly IEnumerable<IExpenseMessageParser> messageParsers;
         private readonly IExpensesService transactionsService;
+        private readonly ILogger<MailImporter> _logger;
 
-        public MailImporter(IEnumerable<IExpenseMessageParser> parsers, IExpensesService service, IMailClient mailClientFact, IMemoryCache cache)
+        public MailImporter(IEnumerable<IExpenseMessageParser> parsers, IExpensesService service, IMailClient mailClientFact, IMemoryCache cache, ILogger<MailImporter> logger)
         {
             this.messageParsers = parsers;
             this.transactionsService = service;
             this.mailClient = mailClientFact;
             this._cache = cache;
+            this._logger = logger;
         }
+
+        public bool DeleteMailAfterImport { get; set; } = true;
 
         public void Dispose()
         {
@@ -52,7 +57,7 @@ namespace ExpenseTracker.Allianz.Gmail
             }
             catch (Exception)
             {
-                // TODO: perhaps display a message that error has occured or log somewhere
+                // TODO: perhaps display a message that error has occurred or log somewhere
             }
 
             return transactions;
@@ -72,11 +77,12 @@ namespace ExpenseTracker.Allianz.Gmail
                     {
                         t = p.Parse(expenseMessage);
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
                         t = null;
+                        _logger.LogError(e, "Failed to parse expense message: {ExpenseMessage}", expenseMessage);
                     }
-
+                        
                     if (t != null)
                     {
                         break;
@@ -86,7 +92,11 @@ namespace ExpenseTracker.Allianz.Gmail
                 if (t != null)
                 {
                     transactions.Add(t);
-                    this.mailClient.Delete(msgIdx);
+                    if (DeleteMailAfterImport)
+                    {
+                        this.mailClient.Delete(msgIdx);
+                    }
+
                     totalMsgsCount--;
                 }
                 else

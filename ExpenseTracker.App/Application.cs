@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.Allianz;
+﻿using System;
+using ExpenseTracker.Allianz;
 using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core.Budget;
 using ExpenseTracker.Core.Data;
@@ -16,7 +17,6 @@ namespace ExpenseTracker.App
         public static void RegisterDependencies(IServiceCollection services, Config config)
         {
             services.AddSingleton(config);
-
             services.AddSingleton<IUnitOfWork>(new UnitOfWork(config.DbPath));
             services.AddScoped<IExpensesService, ExpensesService>();
             services.AddScoped<IBudgetService, BudgetService>();
@@ -28,10 +28,15 @@ namespace ExpenseTracker.App
             services.AddSingleton<IExpenseMessageParser, RaiffeisenMessageParser>();
             services.AddSingleton<IExpenseMessageParser, FibankMessageParser>();
 
-            // Register IMailClient with constructor parameters
             services.AddSingleton<IMailClient>(sp => new GmailClient(config.MailUser, config.MailPass));
 
-            services.AddScoped<MailImporter>();
+            services.AddScoped<MailImporter>(sp =>
+            {
+                var mailImporter = ActivatorUtilities.CreateInstance<MailImporter>(sp);
+                mailImporter.DeleteMailAfterImport = config.DeleteMailAfterImport;
+                return mailImporter;
+            });
+
             services.AddScoped<Trading212Importer>();
             services.AddSingleton<Trading212CsvParser>();
             services.AddSingleton<RaiffeizenXmlFileParser>();

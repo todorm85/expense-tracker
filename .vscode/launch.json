@@ -6,21 +6,10 @@
     "configurations": [
         {
             "name": "Launch ExpenseTracker.Web",
-            "type": "coreclr",
+            "type": "dotnet", // this debugger pulls config from launchSettings.json
             "request": "launch",
-            "preLaunchTask": "prelaunch debug ExpenseTracker.Web",
-            "program": "${workspaceFolder}/ExpenseTracker.Web/bin/Debug/net8.0/ExpenseTracker.Web.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/ExpenseTracker.Web",
-            "stopAtEntry": false,
-            "launchBrowser": {
-                "enabled": true,
-                "args": "${auto-detect-url}"
-            },
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            }
+            "preLaunchTask": "Predebug",
+            "projectPath": "${workspaceFolder}/ExpenseTracker.Web/ExpenseTracker.Web.csproj"
         }
-    ],
-    "inputs": []
+    ]
 }

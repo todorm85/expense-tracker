@@ -2,16 +2,16 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "prelaunch debug ExpenseTracker.Web",
+      "label": "Predebug",
       "dependsOn": [
-        "clean leftover debug processes",
-        "build ExpenseTracker.Web"
+        "Ensure debug port",
+        "Build"
       ],
       "dependsOrder": "sequence",
       "problemMatcher": []
     },
     {
-      "label": "build ExpenseTracker.Web",
+      "label": "Build",
       "command": "dotnet",
       "type": "process",
       "args": [
@@ -21,41 +21,28 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "clean leftover debug processes",
+      "label": "Ensure debug port",
       "type": "shell",
       "command": "powershell",
       "args": [
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}/scripts/clean-webDebugProcesses.ps1"
+        "${workspaceFolder}/scripts/stop-processOnDebugPort.ps1",
       ],
       "problemMatcher": []
     },
     {
-      "label": "test ExpenseTracker.Tests",
-      "type": "process",
+      "label": "Publish",
       "command": "dotnet",
+      "type": "process",
       "args": [
-        "test",
-        "${workspaceFolder}/ExpenseTracker.Tests/ExpenseTracker.Tests.csproj"
+      "publish",
+      "${workspaceFolder}/ExpenseTracker.Web/ExpenseTracker.Web.csproj",
+      "/p:PublishProfile=FolderProfile",
+      "/p:PublishDir=C:\\web\\expenses\\"
       ],
       "problemMatcher": "$msCompile"
     },
-    {
-      "label": "publish ExpenseTracker.Web",
-      "type": "shell",
-      "command": "powershell",
-      "args": [
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/scripts/publish.ps1",
-        "-workspaceFolder",
-        "${workspaceFolder}"
-        ],
-      "group": "build",
-      "problemMatcher": []
-    }
   ]
 }

@@ -74,11 +74,6 @@ namespace ExpenseTracker.Allianz.Gmail
             };
         }
 
-        public void MarkRead(int i)
-        {
-            this.Expenses.AddFlags(i, MessageFlags.Seen, true);
-        }
-
         public bool TestConnection()
         {
             try

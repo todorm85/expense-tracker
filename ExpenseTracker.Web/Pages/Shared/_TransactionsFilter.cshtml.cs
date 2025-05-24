@@ -29,6 +29,7 @@ namespace ExpenseTracker.Web.Pages.Shared
             }
 
             SelectedCategories = new List<string>();
+            AvailableCategories = new List<string>();
         }
 
         [JsonIgnore]

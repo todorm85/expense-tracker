@@ -8,5 +8,9 @@ namespace ExpenseTracker.Allianz
         public DateTime EmailDate { get; set; }
         public string Subject { get; set; }
         public string From { get; internal set; }
+        public override string ToString()
+        {
+            return $"Subject: {Subject}, Date: {EmailDate:yyyy-MM-dd}";
+        }
     }
 }

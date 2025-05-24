@@ -24,9 +24,9 @@ namespace ExpenseTracker.Web.Pages.Login
         }
 
         [BindProperty]
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
-        public string Message { get; set; }
+        public string? Message { get; set; }
 
         public void OnGet()
         {
@@ -55,7 +55,7 @@ namespace ExpenseTracker.Web.Pages.Login
                 }
             }
 
-            if (Password != null && hasher.VerifyHashedPassword(null, config.UserHashedPass, Password) == PasswordVerificationResult.Success)
+            if (Password != null && hasher.VerifyHashedPassword(user: null!, config.UserHashedPass, Password) == PasswordVerificationResult.Success)
             {
                 var principal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("Name", "Todor") }, CookieAuthenticationDefaults.AuthenticationScheme));
                 this.HttpContext.SignInAsync(principal).Wait();
