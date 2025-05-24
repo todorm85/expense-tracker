@@ -117,6 +117,7 @@ namespace ExpenseTracker.Allianz
         private bool IsIncome(ExpenseMessage message)
         {
             return message.Body.Contains("Получен кредитен превод-IB") ||
+                message.Body.Contains("Получен кр.превод") ||
                 message.Body.Contains("Вноска по сметка") ||
                 message.Body.Contains("Възстановени средства") ||
                 message.Body.Contains("Получен превод");

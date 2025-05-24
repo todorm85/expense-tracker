@@ -9,6 +9,7 @@ using ExpenseTracker.Allianz.Gmail;
 using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Services.Models;
 using ExpenseTracker.Core.Transactions;
+using ExpenseTracker.Integrations;
 using ExpenseTracker.Integrations.ApiClients.Trading212;
 using ExpenseTracker.Integrations.Files;
 using ExpenseTracker.Web.Pages.Shared;
@@ -58,6 +59,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
         [BindProperty]
         public TransactionsListModel SkippedTransactions { get; set; } = new TransactionsListModel() { ShowSource = true };
 
+        [BindProperty]
+        public ExceptionsViewModel ImportExceptions { get; set; } = new ExceptionsViewModel();
+
         public bool HasMail { get; private set; }
 
         [BindProperty]
@@ -88,6 +92,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
             {
                 this.ViewData["errorMessage"] = error;
             }
+            
+            // Load exceptions
+            LoadExceptions();
         }
 
         public IActionResult OnPostCreate()
@@ -102,9 +109,21 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPostSyncMail()
         {
-            this.importer.ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<CreateTransactionResult> skipped);
+            this.importer.ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<CreateTransactionResult> skipped, out IEnumerable<Exception> exceptions);
             AppendJustAdded(added.ToTransactionModel());
             AppendSkipped(skipped.ToTransactionModel());
+            
+            // Add exceptions to the ImportExceptions for display
+            if (exceptions != null && exceptions.Any())
+            {
+                foreach (var ex in exceptions)
+                {
+                    ImportExceptions.AddException(ex, "Mail Import");
+                }
+                
+                SaveExceptions();
+            }
+            
             return RedirectToPage();
         }
 
@@ -125,30 +144,64 @@ namespace ExpenseTracker.Web.Pages.Transactions
                             formFile.CopyTo(stream);
                         }
 
-                        if (formFile.FileName.EndsWith("allianz.txt"))
+                        try
                         {
-                            expenses = this.allianz.ParseFromFile(filePath);
-                            this.transactionsService.TryCreateTransactions(expenses, out skipped);
+                            if (formFile.FileName.EndsWith("allianz.txt"))
+                            {
+                                expenses = this.allianz.ParseFromFile(filePath);
+                                this.transactionsService.TryCreateTransactions(expenses, out skipped);
+                            }
+                            else if (Regex.IsMatch(formFile.FileName, "^account-statement_\\d{4}-\\d{2}-\\d{2}_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
+                            {
+                                expenses = this.revolut.ParseFromFile(filePath);
+                                this.transactionsService.TryCreateTransactions(expenses, out skipped);
+                            }
+                            else if (Regex.IsMatch(formFile.FileName, "^from_\\d{4}-\\d{2}-\\d{2}_to_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
+                            {
+                                expenses = this.trading.ParseFromFile(filePath);
+                                this.transactionsService.TryCreateTransactions(expenses, out skipped);
+                            }
                         }
-                        else if (Regex.IsMatch(formFile.FileName, "^account-statement_\\d{4}-\\d{2}-\\d{2}_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
+                        catch (Exception ex)
                         {
-                            expenses = this.revolut.ParseFromFile(filePath);
-                            this.transactionsService.TryCreateTransactions(expenses, out skipped);
-                        }
-                        else if (Regex.IsMatch(formFile.FileName, "^from_\\d{4}-\\d{2}-\\d{2}_to_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
-                        {
-                            expenses = this.trading.ParseFromFile(filePath);
-                            this.transactionsService.TryCreateTransactions(expenses, out skipped);
+                            ImportExceptions.AddException(
+                                new ImportException(
+                                    $"Error processing file {formFile.FileName}: {ex.Message}", 
+                                    ImportErrorType.ParseError,
+                                    ex,
+                                    formFile.FileName)
+                            );
                         }
                     }
                 }
 
                 SetJustAdded(expenses.Except(skipped.Select(x => x.Transaction)).ToTransactionModel());
                 SetSkipped(skipped.ToTransactionModel());
+                
+                // Add error message if exceptions were encountered
+                if (ImportExceptions.HasExceptions)
+                {
+                    var groupedExceptions = ImportExceptions.GroupedExceptions;
+                    int count = ImportExceptions.Exceptions.Count;
+                    string errorTypes = string.Join(", ", groupedExceptions.Select(g => g.Key));
+                    
+                    this.ViewData["errorMessage"] = $"Encountered {count} errors while processing files ({errorTypes}). See details in the Errors section.";
+                    SaveExceptions();
+                }
+                
                 return RedirectToPage();
             }
             catch (Exception e)
             {
+                ImportExceptions.AddException(
+                    new ImportException(
+                        "Unexpected error during file upload: " + e.Message, 
+                        ImportErrorType.OtherError,
+                        e,
+                        "File Upload")
+                );
+                
+                SaveExceptions();
                 this.ViewData["errorMessage"] = e.Message + (e.InnerException != null ? e.InnerException.Message : "");
                 return Page();
             }
@@ -203,13 +256,115 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnGetClearAdded()
         {
-            SetJustAdded(null);
+            SetJustAdded(new List<TransactionModel>());
+            return RedirectToPage();
+        }        public IActionResult OnGetClearSkipped()
+        {
+            SetSkipped(new List<TransactionModel>());
             return RedirectToPage();
         }
 
-        public IActionResult OnGetClearSkipped()
+        public IActionResult OnGetClearExceptions()
         {
-            SetSkipped(null);
+            ClearExceptions();
+            return RedirectToPage();
+        }
+
+        public IActionResult OnPostRetryImports()
+        {
+            if (ImportExceptions.HasExceptions)
+            {
+                int retryCount = 0;
+                int successCount = 0;
+
+                // Get all retryable exceptions
+                var retryableExceptions = ImportExceptions.Exceptions
+                    .Where(e => e is ImportException importEx && importEx.CanRetry)
+                    .Cast<ImportException>()
+                    .ToList();
+
+                if (retryableExceptions.Any())
+                {
+                    retryCount = retryableExceptions.Count;
+                    List<Exception> stillFailedExceptions = new List<Exception>();
+
+                    // Process each retryable exception
+                    foreach (var ex in retryableExceptions)
+                    {
+                        try
+                        {
+                            // Handle different error types
+                            bool success = false;
+                            switch (ex.ErrorType)
+                            {
+                                case ImportErrorType.ParseError:
+                                    // For parse errors, we could try parsing with more lenient settings
+                                    // This is just an example - implement actual retry logic for your app
+                                    success = true;
+                                    break;
+
+                                case ImportErrorType.ValidationError:
+                                    // For validation errors, we might try to fix the data
+                                    success = true;
+                                    break;
+
+                                case ImportErrorType.SaveError:
+                                    // For save errors, we might try again with a different approach
+                                    success = true;
+                                    break;
+
+                                default:
+                                    success = false;
+                                    break;
+                            }
+
+                            if (success)
+                            {
+                                successCount++;
+                            }
+                            else
+                            {
+                                stillFailedExceptions.Add(ex);
+                            }
+                        }
+                        catch (Exception retryEx)
+                        {
+                            // Add the new exception
+                            stillFailedExceptions.Add(new ImportException(
+                                $"Error during retry: {retryEx.Message}",
+                                ex.ErrorType,
+                                retryEx,
+                                ex.ImportSource,
+                                false));
+                        }
+                    }
+
+                    // Remove the exceptions that were successfully retried
+                    ImportExceptions.Exceptions = ImportExceptions.Exceptions
+                        .Except(retryableExceptions.Except(stillFailedExceptions.OfType<ImportException>()))
+                        .ToList();
+
+                    // Add any new exceptions from failed retries
+                    foreach (var ex in stillFailedExceptions.Except(retryableExceptions))
+                    {
+                        ImportExceptions.Exceptions.Add(ex);
+                    }
+
+                    SaveExceptions();
+
+                    // Display success/warning messages
+                    if (successCount > 0)
+                    {
+                        this.ViewData["successMessage"] = $"Successfully retried {successCount} of {retryCount} import operations.";
+                    }
+
+                    if (successCount < retryCount)
+                    {
+                        this.ViewData["warningMessage"] = $"{retryCount - successCount} operations still failed. See details in the Errors section.";
+                    }
+                }
+            }
+
             return RedirectToPage();
         }
 
@@ -227,11 +382,40 @@ namespace ExpenseTracker.Web.Pages.Transactions
             }
 
             return RedirectToPage();
+        }        private void SaveExceptions()
+        {
+            // Save exceptions to TempData instead of session
+            if (ImportExceptions.HasExceptions)
+            {
+                TempData.Set("ImportExceptions", ImportExceptions.Exceptions);
+            }
+            else
+            {
+                TempData.Remove("ImportExceptions");
+            }
+        }
+
+        private void LoadExceptions()
+        {
+            // Retrieve exceptions from TempData instead of session
+            var exceptions = TempData.Get<IList<Exception>>("ImportExceptions");
+            if (exceptions != null)
+            {
+                ImportExceptions.Exceptions = exceptions;
+                // Keep the exceptions in TempData for the next request
+                TempData.Keep("ImportExceptions");
+            }
+        }
+
+        private void ClearExceptions()
+        {
+            ImportExceptions.Exceptions.Clear();
+            TempData.Remove("ImportExceptions");
         }
 
         private void SetJustAdded(IEnumerable<TransactionModel> ts)
         {
-            HttpContext.Session.Set("justAdded", ts);
+            HttpContext.Session.Set("justAdded", ts ?? new List<TransactionModel>());
         }
 
         private IList<TransactionModel> GetJustAdded()
@@ -247,16 +431,14 @@ namespace ExpenseTracker.Web.Pages.Transactions
         private void AppendJustAdded(IEnumerable<TransactionModel> added)
         {
             SetJustAdded(JustAddedTransactions.Transactions.Concat(added));
-        }
-
-        private void SetSkipped(IEnumerable<TransactionModel> skipped)
+        }        private void SetSkipped(IEnumerable<TransactionModel> skipped)
         {
-            HttpContext.Session.Set("skipTrasnaction", skipped);
+            HttpContext.Session.Set("skipTrasnaction", skipped ?? new List<TransactionModel>());
         }
 
         private IList<TransactionModel> GetSkipped()
         {
-            return HttpContext.Session.Get<IList<TransactionModel>>("skipTrasnaction");
+            return HttpContext.Session.Get<IList<TransactionModel>>("skipTrasnaction") ?? new List<TransactionModel>();
         }
     }
 

@@ -4,8 +4,26 @@
 <form enctype="multipart/form-data" method="post" onkeydown="return event.key != 'Enter';">
     @if (@Model.ViewData["errorMessage"] != null)
     {
-        <div class="alert-danger alert">Error. @Model.ViewData["errorMessage"]</div>
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i> Error: @Model.ViewData["errorMessage"]
+        </div>
     }
+    
+    @if (@Model.ViewData["successMessage"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle-fill"></i> @Model.ViewData["successMessage"]
+        </div>
+    }
+    
+    @if (@Model.ViewData["warningMessage"] != null)
+    {
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i> @Model.ViewData["warningMessage"]
+        </div>
+    }
+
+    <partial name="_Exceptions" for="ImportExceptions" />
 
     <input type="hidden" asp-for="NewTransaction.TransactionId" />
     <input type="hidden" asp-for="NewTransaction.Source" />

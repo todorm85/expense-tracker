@@ -1,0 +1,51 @@
+@model ExpenseTracker.Web.Pages.Shared.ExceptionsViewModel
+
+@if (Model.HasExceptions)
+{
+    <div class="alert alert-danger">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Errors encountered during import</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <hr>
+        <div class="exception-container">
+            @foreach (var exGroup in Model.GroupedExceptions)
+            {
+                <div class="exception-group mb-3">
+                    <h5>@exGroup.Key (@exGroup.Count())</h5>
+                    <ul class="list-group">
+                        @foreach (var ex in exGroup)
+                        {                            <li class="list-group-item">
+                                <strong>@ex.Message</strong>
+                                @if (ex is ExpenseTracker.Integrations.ImportException importEx)
+                                {
+                                    <span class="badge @(importEx.CanRetry ? "bg-warning" : "bg-danger") ms-2">
+                                        @(importEx.CanRetry ? "Retryable" : "Non-retryable")
+                                    </span>
+                                    @if (!string.IsNullOrEmpty(importEx.ImportSource))
+                                    {
+                                        <div class="text-muted small">Source: @importEx.ImportSource</div>
+                                    }
+                                }
+                                @if (ex.InnerException != null)
+                                {
+                                    <div class="text-muted small mt-1">
+                                        <i class="bi bi-arrow-right"></i> @ex.InnerException.Message
+                                    </div>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>        <div class="text-end">
+            <a asp-page="/Transactions/Upload" asp-page-handler="ClearExceptions" class="btn btn-outline-danger btn-sm">Clear Errors</a>
+            @if (Model.Exceptions.Any(e => e is ExpenseTracker.Integrations.ImportException importEx && importEx.CanRetry))
+            {
+                <form method="post" asp-page="/Transactions/Upload" asp-page-handler="RetryImports" class="d-inline ms-2">
+                    <button type="submit" class="btn btn-primary btn-sm">Retry Imports</button>
+                </form>
+            }
+        </div>
+    </div>
+}
