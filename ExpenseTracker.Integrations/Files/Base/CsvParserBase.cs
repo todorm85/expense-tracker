@@ -50,10 +50,19 @@ namespace ExpenseTracker.Integrations.Files.Base
 
                     if (fields.Length != _fieldCount)
                     {
-                        throw new Exception($"Invalid row: incorrect number of fields (expected {_fieldCount}, got {fields.Length}).");
+                        throw new Exception($"Invalid row: incorrect number of fields (expected {_fieldCount}, got {fields.Length}) for line {line}.");
                     }
 
-                    var entity = MapRowToEntity(fields);
+                    T entity;
+                    try
+                    {
+                        entity = MapRowToEntity(fields);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"Error parsing line: '{line}'. {ex.Message}", ex);
+                    }
+                    
                     if (entity != null)
                     {
                         results.Add(entity);
