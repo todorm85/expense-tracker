@@ -18,7 +18,9 @@ namespace ExpenseTracker.Data
 
         public UnitOfWork(string dbPath)
         {
-            this.db = new LiteDatabase(dbPath);
+            // Modified connection string to include Upgrade=true
+            string connectionString = $"Filename={dbPath};Upgrade=true;Connection=Shared";
+            this.db = new LiteDatabase(connectionString);
             MapDbModels();
             this.HandleMigration();
         }
@@ -60,7 +62,7 @@ namespace ExpenseTracker.Data
 
         private void HandleMigration()
         {
-            if (this.db.Engine.UserVersion == 0)
+            if (this.db.UserVersion == 0)
             {
                 var col = this.db.GetCollection(this.GetSetName<Transaction>());
                 foreach (var doc in col.FindAll())
@@ -88,10 +90,10 @@ namespace ExpenseTracker.Data
                     col.Update(doc);
                 }
 
-                this.db.Engine.UserVersion = 1;
+                this.db.UserVersion = 1;
             }
 
-            if (this.db.Engine.UserVersion == 1)
+            if (this.db.UserVersion == 1)
             {
                 var col = this.db.GetCollection(this.GetSetName<Transaction>());
                 foreach (var doc in col.FindAll())
@@ -112,13 +114,13 @@ namespace ExpenseTracker.Data
                     }
 
                     doc.Remove("TransactionId");
-                    col.Insert(doc);
-                    col.Delete(originalId);
+                    col.Insert(doc); // Insert new document with potentially new _id
+                    col.Delete(originalId); // Delete old document by its original _id
                 }
 
-                this.db.Engine.UserVersion = 2;
+                this.db.UserVersion = 2;
             }
-            if (this.db.Engine.UserVersion == 2)
+            if (this.db.UserVersion == 2)
             {
                 var col = this.db.GetCollection(this.GetSetName<Transaction>());
                 foreach (var doc in col.FindAll())
@@ -128,14 +130,14 @@ namespace ExpenseTracker.Data
                     if (originalId != newId)
                     {
                         doc["_id"] = newId;
-                        col.Insert(doc);
-                        col.Delete(originalId);
+                        col.Insert(doc); // Insert new document with trimmed _id
+                        col.Delete(originalId); // Delete old document by its original _id
                     }
                 }
 
-                this.db.Engine.UserVersion = 3;
+                this.db.UserVersion = 3;
             }
-            if (this.db.Engine.UserVersion == 3)
+            if (this.db.UserVersion == 3)
             {
                 var col = this.db.GetCollection(this.GetSetName<Budget>());
                 foreach (var doc in col.FindAll())
@@ -144,9 +146,9 @@ namespace ExpenseTracker.Data
                     col.Delete(originalId);
                 }
 
-                this.db.Engine.UserVersion = 4;
+                this.db.UserVersion = 4;
             }
-            if (this.db.Engine.UserVersion <= 5)
+            if (this.db.UserVersion <= 5) // Changed from == 4 to <= 5 to ensure it runs if UserVersion is 4 or 5
             {
                 var col = this.db.GetCollection(this.GetSetName<Transaction>());
                 foreach (var doc in col.FindAll())
@@ -169,12 +171,15 @@ namespace ExpenseTracker.Data
                     if (action == RuleAction.SetProperty.ToString())
                     {
                         var oldVal = (string)doc2["ValueToSet"];
-                        doc2["ValueToSet"] = oldVal.Replace('/', ' ').Trim();
-                        col2.Update(doc2);
+                        if (oldVal != null) // Add null check for ValueToSet
+                        {
+                            doc2["ValueToSet"] = oldVal.Replace('/', ' ').Trim();
+                            col2.Update(doc2);
+                        }
                     }
                 }
 
-                this.db.Engine.UserVersion = 6;
+                this.db.UserVersion = 6;
             }
         }
     }
