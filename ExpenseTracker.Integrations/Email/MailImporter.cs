@@ -29,7 +29,7 @@ namespace ExpenseTracker.Allianz.Gmail
             this._logger = logger;
         }
 
-        public bool DeleteMailAfterImport { get; set; } = true;
+        public bool DeleteMailAfterImport { get; set; } = false;
 
         public void Dispose()
         {

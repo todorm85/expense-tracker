@@ -120,6 +120,17 @@ body {
     /* box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5); */
 }
 
+.mycard h2 {
+    margin-bottom: 0.5em;
+}
+
+.mycard h2::after {
+    content: "";
+    display: block;
+    border-bottom: 2px solid #ccc;
+    margin-top: 0.2em;
+}
+
 .expense {
     color: #dc3545;
 }

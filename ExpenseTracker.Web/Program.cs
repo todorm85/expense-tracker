@@ -63,7 +63,6 @@ Config GetApplicationConfiguration(string environmentName)
         dbPath = Environment.ExpandEnvironmentVariables(dbPath);
     }
 
-    bool.TryParse(configuration["DeleteMailAfterImport"], out bool deleteMailAfterImport);
     int.TryParse(configuration["LockoutMinutes"], out int lockoutMinutes);
     var config = new Config()
     {
@@ -71,8 +70,7 @@ Config GetApplicationConfiguration(string environmentName)
         MailUser = configuration["mailUser"],
         MailPass = configuration["mailPass"],
         UserHashedPass = configuration["userHashedPass"],
-        LockoutMinutes = lockoutMinutes,
-        DeleteMailAfterImport = deleteMailAfterImport
+        LockoutMinutes = lockoutMinutes
     };
 
     return config;

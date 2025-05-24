@@ -60,7 +60,15 @@
     {
         <div class="mycard">
             <h2>Sync from Gmail</h2>
-            <button class="btn btn-primary" type="submit" asp-page-handler="SyncMail">Sync</button>
+            <div class="d-flex flex-column align-items-start">
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" asp-for="DeleteMailAfterImport" id="deleteMailAfterImport">
+                    <label class="form-check-label" for="deleteMailAfterImport">
+                        Delete emails after import
+                    </label>
+                </div>
+                <button class="btn btn-primary" type="submit" asp-page-handler="SyncMail">Sync</button>
+            </div>
         </div>
     }
 

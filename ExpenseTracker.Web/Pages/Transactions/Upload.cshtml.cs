@@ -72,6 +72,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         [BindProperty]
         public string Trading212SessionLive { get; set; }
+        
+        [BindProperty]
+        public bool DeleteMailAfterImport { get; set; } = false;
 
         public void OnGet()
         {
@@ -107,6 +110,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return RedirectToPage();
         }        public IActionResult OnPostSyncMail()
         {
+            // Set the DeleteMailAfterImport setting from the checkbox value
+            this.importer.DeleteMailAfterImport = this.DeleteMailAfterImport;
+            
             this.importer.ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<CreateTransactionResult> skipped, out IEnumerable<ImportError> errors);
             AppendJustAdded(added.ToTransactionModel());
             AppendSkipped(skipped.ToTransactionModel());
@@ -149,7 +155,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
                                 expenses = this.allianz.ParseFromFile(filePath);
                                 this.transactionsService.TryCreateTransactions(expenses, out skipped);
                             }
-                            else if (Regex.IsMatch(formFile.FileName, "^account-statement_\\d{4}-\\d{2}-\\d{2}_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
+                            else if (Regex.IsMatch(formFile.FileName, "^account-statement_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
                             {
                                 expenses = this.revolut.ParseFromFile(filePath);
                                 this.transactionsService.TryCreateTransactions(expenses, out skipped);

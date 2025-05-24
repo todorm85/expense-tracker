@@ -33,7 +33,6 @@ namespace ExpenseTracker.App
             services.AddScoped<MailImporter>(sp =>
             {
                 var mailImporter = ActivatorUtilities.CreateInstance<MailImporter>(sp);
-                mailImporter.DeleteMailAfterImport = config.DeleteMailAfterImport;
                 return mailImporter;
             });
 
