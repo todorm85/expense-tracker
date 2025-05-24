@@ -4,7 +4,7 @@
     {
       "label": "Predebug",
       "dependsOn": [
-        "Ensure debug port",
+        "Free debug port",
         "Build"
       ],
       "dependsOrder": "sequence",
@@ -21,14 +21,14 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "Ensure debug port",
+      "label": "Free debug port",
       "type": "shell",
       "command": "powershell",
       "args": [
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/scripts/stop-processOnDebugPort.ps1",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-Command",
+      "try { Get-NetTCPConnection -LocalPort 55162 | select -ExpandProperty OwningProcess | Select-Object -Unique | Stop-Process -Id $_ -Force } catch { Write-Host $_; exit 0 }"
       ],
       "problemMatcher": []
     },
