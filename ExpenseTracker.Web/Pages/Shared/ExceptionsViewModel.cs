@@ -36,15 +36,13 @@ namespace ExpenseTracker.Web.Pages.Shared
         {
             if (exception == null)
                 return;
-                
-            // Create a new ImportError
+                  // Create a new ImportError
             var errorType = DetermineErrorType(exception);
             var importError = new ImportError(
                 exception.Message, 
                 errorType, 
                 exception, 
-                source,
-                errorType != ImportErrorType.AccessError); // Only access errors are typically not retryable
+                source);
                 
             ImportErrors.Add(importError);
         }

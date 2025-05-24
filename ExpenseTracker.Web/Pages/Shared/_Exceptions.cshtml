@@ -18,9 +18,6 @@
                         {
                             <li class="list-group-item">
                                 <strong>@error.Message</strong>
-                                <span class="badge @(error.CanRetry ? "bg-warning" : "bg-danger") ms-2">
-                                    @(error.CanRetry ? "Retryable" : "Non-retryable")
-                                </span>
                                 @if (!string.IsNullOrEmpty(error.ImportSource))
                                 {
                                     <div class="text-muted small">Source: @error.ImportSource</div>
@@ -39,12 +36,6 @@
         </div>
         <div class="text-end">
             <a asp-page="/Transactions/Upload" asp-page-handler="ClearExceptions" class="btn btn-outline-danger btn-sm">Clear Errors</a>
-            @if (Model.ImportErrors.Any(e => e.CanRetry))
-            {
-                <form method="post" asp-page="/Transactions/Upload" asp-page-handler="RetryImports" class="d-inline ms-2">
-                    <button type="submit" class="btn btn-primary btn-sm">Retry Imports</button>
-                </form>
-            }
         </div>
     </div>
 }

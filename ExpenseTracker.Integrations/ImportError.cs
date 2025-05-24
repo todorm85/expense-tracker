@@ -23,11 +23,6 @@ namespace ExpenseTracker.Integrations
         public string ImportSource { get; set; }
         
         /// <summary>
-        /// Indicates whether this error is retryable
-        /// </summary>
-        public bool CanRetry { get; set; }
-        
-        /// <summary>
         /// Additional details about the error (e.g., inner exception message)
         /// </summary>
         public string Details { get; set; }
@@ -36,21 +31,18 @@ namespace ExpenseTracker.Integrations
         {
             // Default constructor for serialization
         }
-        
-        public ImportError(string message, ImportErrorType errorType, string source = null, bool canRetry = false)
+          public ImportError(string message, ImportErrorType errorType, string source = null)
         {
             Message = message;
             ErrorType = errorType;
             ImportSource = source;
-            CanRetry = canRetry;
         }
         
-        public ImportError(string message, ImportErrorType errorType, Exception innerException, string source = null, bool canRetry = false)
+        public ImportError(string message, ImportErrorType errorType, Exception innerException, string source = null)
         {
             Message = message;
             ErrorType = errorType;
             ImportSource = source;
-            CanRetry = canRetry;
             
             // Store inner exception details as a string
             if (innerException != null)
