@@ -9,14 +9,12 @@
         <div class="card card-body bg-light">
             <h5>How to extract Trading212 transaction data:</h5>
             <ol>
-                <li>Login to your Trading212 account</li>
-                <li>Go to History &gt; Transactions</li>
                 <li>Open browser developer tools (F12 or right-click &gt; Inspect)</li>
-                <li>Go to the Network tab</li>
-                <li>Filter for "transaction-executions"</li>
-                <li>Refresh the page or navigate through transaction pages</li>
-                <li>Find the API request and click on it</li>
-                <li>In the Response tab, copy the entire JSON array</li>
+                <li>Филтрирай XHR рикуестите по &quot;transaction-executions?&quot;</li>
+                <li>Login to your Trading212 account</li>
+                <li>Отиди на Карти в Картови трансакции натисни "Покажи Всички"</li>
+                <li>Скролвай надолу за да се генерират повече рикуести към апито</li>
+                <li>Дясно копче върху рикуеста и copy response</li>
                 <li>Paste it into the text area above</li>
             </ol>
             <p class="mb-0"><small>This allows you to import transactions without storing your Trading212 credentials.</small></p>
