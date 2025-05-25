@@ -57,7 +57,7 @@ namespace ExpenseTracker.Web.Pages.Shared
         {
             var allTransactions = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search | FilterBy.Source));
             List<string> latestCategories = allTransactions
-                .SelectMany(x => string.IsNullOrEmpty(x.Category) ? new string[0] : x.Category.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                .SelectMany(x => string.IsNullOrEmpty(x.Category) ? new string[1] { string.Empty } : x.Category.Split(' ', StringSplitOptions.RemoveEmptyEntries))
                 .OrderBy(x => x)
                 .Distinct()
                 .ToList();
@@ -101,8 +101,7 @@ namespace ExpenseTracker.Web.Pages.Shared
             return x => ApplyDateFilter(x, flags) &&
                     ApplyCategoriesFilter(x, flags) &&
                     ApplySearchFilter(x, flags) &&
-                    ApplySourceFilter(x, flags) &&
-                    !x.Ignored;
+                    ApplySourceFilter(x, flags);
         }
 
         private bool ApplySourceFilter(Transaction x, FilterBy flags)
