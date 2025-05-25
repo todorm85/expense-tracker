@@ -121,18 +121,14 @@
     </div>
 
     <div class="mycard">
-        <h2 class="card-title">Fetch from Trading212</h2>
+        <h2 class="card-title">Import Trading212 JSON</h2>
         <div class="form-group">
-            <label for="loginToken" class="form-label">Login Token</label>
-            <input asp-for="@Model.LoginToken" class="form-control" id="loginToken" />
+            <label for="Trading212Json" class="form-label">Trading212 Transaction JSON</label>
+            <textarea asp-for="@Model.Trading212Json" class="form-control" id="Trading212Json" rows="6" placeholder="Paste Trading212 transaction JSON here..."></textarea>
         </div>
         <div class="form-group">
-            <label for="Trading212SessionLive" class="form-label">Trading212 Session Live</label>
-            <input asp-for="@Model.Trading212SessionLive" class="form-control" id="Trading212SessionLive" />
-        </div>
-        <div class="form-group">
-            <button asp-page-handler="Trading212" type="submit" class="btn btn-primary">
-                Import
+            <button asp-page-handler="Trading212Json" type="submit" class="btn btn-primary">
+                Process JSON
             </button>
         </div>
     </div>

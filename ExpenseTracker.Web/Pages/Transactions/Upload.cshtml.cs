@@ -68,11 +68,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public TransactionsListModel JustAddedTransactions { get; set; } = new TransactionsListModel() { ShowSource = true };
 
         [BindProperty]
-        public string LoginToken { get; set; }
+        public string? Trading212Json { get; set; }
 
-        [BindProperty]
-        public string Trading212SessionLive { get; set; }
-        
         [BindProperty]
         public bool DeleteMailAfterImport { get; set; } = false;
 
@@ -95,7 +92,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             {
                 this.ViewData["errorMessage"] = error;
             }
-            
+
             // Load exceptions
             LoadExceptions();
         }
@@ -108,15 +105,17 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 AppendSkipped(skipped.ToTransactionModel());
 
             return RedirectToPage();
-        }        public IActionResult OnPostSyncMail()
+        }
+
+        public IActionResult OnPostSyncMail()
         {
             // Set the DeleteMailAfterImport setting from the checkbox value
             this.importer.DeleteMailAfterImport = this.DeleteMailAfterImport;
-            
+
             this.importer.ImportTransactions(out IEnumerable<Transaction> added, out IEnumerable<CreateTransactionResult> skipped, out IEnumerable<ImportError> errors);
             AppendJustAdded(added.ToTransactionModel());
             AppendSkipped(skipped.ToTransactionModel());
-            
+
             // Add errors to the ImportExceptions for display
             if (errors != null && errors.Any())
             {
@@ -124,10 +123,10 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 {
                     ImportExceptions.AddError(error);
                 }
-                
+
                 SaveExceptions();
             }
-            
+
             return RedirectToPage();
         }
 
@@ -165,7 +164,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
                                 expenses = this.trading.ParseFromFile(filePath);
                                 this.transactionsService.TryCreateTransactions(expenses, out skipped);
                             }
-                        }                        catch (Exception ex)
+                        }
+                        catch (Exception ex)
                         {
                             ImportExceptions.AddException(ex, formFile.FileName);
                         }
@@ -174,23 +174,24 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
                 SetJustAdded(expenses.Except(skipped.Select(x => x.Transaction)).ToTransactionModel());
                 SetSkipped(skipped.ToTransactionModel());
-                
+
                 // Add error message if exceptions were encountered
                 if (ImportExceptions.HasErrors)
                 {
                     var groupedErrors = ImportExceptions.GroupedErrors;
                     int count = ImportExceptions.ImportErrors.Count;
                     string errorTypes = string.Join(", ", groupedErrors.Select(g => g.Key));
-                    
+
                     this.ViewData["errorMessage"] = $"Encountered {count} errors while processing files ({errorTypes}). See details in the Errors section.";
                     SaveExceptions();
                 }
-                
+
                 return RedirectToPage();
-            }            catch (Exception e)
+            }
+            catch (Exception e)
             {
                 ImportExceptions.AddException(e, "File Upload");
-                
+
                 SaveExceptions();
                 this.ViewData["errorMessage"] = e.Message + (e.InnerException != null ? e.InnerException.Message : "");
                 return Page();
@@ -248,7 +249,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             SetJustAdded(new List<TransactionModel>());
             return RedirectToPage();
-        }        public IActionResult OnGetClearSkipped()
+        }
+
+        public IActionResult OnGetClearSkipped()
         {
             SetSkipped(new List<TransactionModel>());
             return RedirectToPage();
@@ -259,13 +262,24 @@ namespace ExpenseTracker.Web.Pages.Transactions
             ClearExceptions();
             return RedirectToPage();
         }
-
-        public IActionResult OnPostTrading212()
+        
+        public IActionResult OnPostTrading212Json()
         {
-            var added = trading212Importer.ImportTransactions(this.LoginToken, this.Trading212SessionLive);
+            if (string.IsNullOrEmpty(this.Trading212Json))
+            {
+                return RedirectToPage(new { error = "Trading212 JSON data is required" });
+            }
+
+            var added = trading212Importer.ImportTransactionsFromJson(this.Trading212Json);
+
             if (added.Added.Any())
             {
                 SetJustAdded(added.Added.ToTransactionModel());
+            }
+
+            if (added.Skipped != null && added.Skipped.Any())
+            {
+                AppendSkipped(added.Skipped.ToTransactionModel());
             }
 
             if (added.Error != null)
@@ -274,7 +288,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
             }
 
             return RedirectToPage();
-        }        private void SaveExceptions()
+        }
+
+        private void SaveExceptions()
         {
             // Save import errors to TempData instead of session
             if (ImportExceptions.HasErrors)
@@ -323,7 +339,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
         private void AppendJustAdded(IEnumerable<TransactionModel> added)
         {
             SetJustAdded(JustAddedTransactions.Transactions.Concat(added));
-        }        private void SetSkipped(IEnumerable<TransactionModel> skipped)
+        }
+
+        private void SetSkipped(IEnumerable<TransactionModel> skipped)
         {
             HttpContext.Session.Set("skipTrasnaction", skipped ?? new List<TransactionModel>());
         }

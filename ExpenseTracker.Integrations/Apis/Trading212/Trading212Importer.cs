@@ -22,13 +22,15 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
             this.expenses = expenses;
             _httpClient.BaseAddress = new Uri("https://live.services.trading212.com");
         }
-
+        
         public ImportResult ImportTransactions(string loginToken, string trading212SessionLive)
         {
             var added = new List<Transaction>();
+            var skipped = new List<Transaction>();
             var duplicateFound = false;
             string lastId = null;
             var totalAddedTransactions = new List<Transaction>();
+
             while (!duplicateFound)
             {
                 var transactions = new List<Transaction>();
@@ -41,20 +43,25 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
                     return new ImportResult()
                     {
                         Added = totalAddedTransactions,
+                        Skipped = skipped,
                         Error = e.Message
                     };
                 }
 
                 if (transactions.Count == 0)
                     break;
-                
-                expenses.TryCreateTransactions(transactions, out IEnumerable<CreateTransactionResult> skipped);
+
+                IEnumerable<CreateTransactionResult> skippedResults;
+                expenses.TryCreateTransactions(transactions, out skippedResults);
                 lastId = transactions[transactions.Count - 1].TransactionId;
+
                 var addedTransactions = new List<Transaction>();
-                if (skipped != null && skipped.Count() > 0)
+                if (skippedResults != null && skippedResults.Count() > 0)
                 {
-                    addedTransactions = transactions.Where(x => !skipped.Any(y => y.Transaction.TransactionId == x.TransactionId)).ToList();
-                    foreach (var skippedTransaction in skipped)
+                    addedTransactions = transactions.Where(x => !skippedResults.Any(y => y.Transaction.TransactionId == x.TransactionId)).ToList();
+                    skipped.AddRange(skippedResults.Select(s => s.Transaction));
+
+                    foreach (var skippedTransaction in skippedResults)
                     {
                         if (skippedTransaction.ReasonResult == CreateTransactionResult.Reason.DuplicateEntry)
                         {
@@ -73,7 +80,8 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
 
             return new ImportResult()
             {
-                Added = totalAddedTransactions
+                Added = totalAddedTransactions,
+                Skipped = skipped
             };
         }
 
@@ -85,7 +93,7 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
             // Append optional cursorId if provided
             if (earlierThanTransactionId != null)
             {
-                url += $"&cursorId={earlierThanTransactionId}"; 
+                url += $"&cursorId={earlierThanTransactionId}";
             }
 
             var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -116,7 +124,7 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
                 if (t.Type != "PURCHASE" ||
                     (t.Status != "COMPLETED" && t.Status != "PENDING"))
                     continue;
-                
+
                 mapped.Add(new Transaction
                 {
                     TransactionId = t.Id.ToString(),
@@ -129,6 +137,45 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
             }
 
             return mapped;
+        }        // Add a new method to process transactions directly from JSON
+        public ImportResult ImportTransactionsFromJson(string json)
+        {
+            try
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var transactions = Map(JsonSerializer.Deserialize<List<TransactionExecution>>(json, options));
+
+                if (transactions.Count == 0)
+                {
+                    return new ImportResult
+                    {
+                        Added = new List<Transaction>(),
+                        Skipped = new List<Transaction>(),
+                        Error = "No valid transactions found in the provided JSON"
+                    };
+                }
+
+                IEnumerable<CreateTransactionResult> skipped;
+                expenses.TryCreateTransactions(transactions, out skipped);
+
+                var addedTransactions = transactions.Where(x => !skipped.Any(y => y.Transaction.TransactionId == x.TransactionId)).ToList();
+                var skippedTransactions = skipped.Select(s => s.Transaction).ToList();
+
+                return new ImportResult
+                {
+                    Added = addedTransactions,
+                    Skipped = skippedTransactions
+                };
+            }
+            catch (Exception e)
+            {
+                return new ImportResult
+                {
+                    Added = new List<Transaction>(),
+                    Skipped = new List<Transaction>(),
+                    Error = $"Error processing JSON: {e.Message}"
+                };
+            }
         }
     }
 }
