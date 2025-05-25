@@ -30,6 +30,7 @@ namespace ExpenseTracker.Web.Pages.Shared
 
             SelectedCategories = new List<string>();
             AvailableCategories = new List<string>();
+            CategoryExpression = string.Empty;
         }
 
         [JsonIgnore]
@@ -48,6 +49,11 @@ namespace ExpenseTracker.Web.Pages.Shared
         public string Source { get; set; } = UncategorisedOptionValue;
         [JsonIgnore]
         public List<SelectListItem> Sources { get; set; } = new List<SelectListItem>() { new SelectListItem("all", UncategorisedOptionValue) };
+        
+        // New property for category expression
+        public string CategoryExpression { get; set; }
+        [JsonIgnore]
+        private CategoryExpression? _parsedCategoryExpression;
 
         /// <summary>
         /// Using business logic in model for partial as data binding is not working for view components!
@@ -88,6 +94,12 @@ namespace ExpenseTracker.Web.Pages.Shared
 
             var sources = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search)).Select(x => x.Source).OrderBy(x => x).Distinct();
             Sources = Sources.Union(sources.Select(x => new SelectListItem() { Text = x ?? UnknownSourceLabel, Value = x })).ToList();
+            
+            // Initialize the category expression parser
+            if (!string.IsNullOrWhiteSpace(CategoryExpression))
+            {
+                _parsedCategoryExpression = new CategoryExpression(CategoryExpression);
+            }
         }
 
         private static void SetUncategorizedValue(List<string> latestCategories)
@@ -113,12 +125,22 @@ namespace ExpenseTracker.Web.Pages.Shared
                 return true;
 
             return x.Source == Source || (Source == UnknownSourceLabel && string.IsNullOrEmpty(x.Source));
-        }
-
-        private bool ApplyCategoriesFilter(Transaction x, FilterBy flags)
+        }        private bool ApplyCategoriesFilter(Transaction x, FilterBy flags)
         {
             if (!flags.HasFlag(FilterBy.Category))
                 return true;
+                
+            // First, check if we have a category expression to evaluate
+            if (!string.IsNullOrWhiteSpace(CategoryExpression))
+            {
+                if (_parsedCategoryExpression == null)
+                    _parsedCategoryExpression = new CategoryExpression(CategoryExpression);
+                
+                var itemCategories = x.Category?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                return _parsedCategoryExpression.Evaluate(itemCategories);
+            }
+            
+            // Fall back to the traditional category selection logic
             if (SelectedCategories.Count > 0)
             {
                 if (SelectedCategories.Contains(UncategorisedOptionValue) && string.IsNullOrWhiteSpace(x.Category))

@@ -1,5 +1,6 @@
-﻿@model TransactionsFilterViewModel
-<style>
+﻿@model ExpenseTracker.Web.Pages.Shared.TransactionsFilterViewModel
+
+<style>    
     select[multiple] {
         overflow: auto;
         padding: 0;
@@ -10,16 +11,23 @@
         margin-top: 10px;
     }
 
-        select[multiple] option {
-            margin: 5px;
-            border: 1px solid #000;
-            background-color: white;
-            margin-left: -1px;
-            display: inline-block;
-            border-radius: 5px;
-            padding-left: 5px;
-            padding-right: 5px;
-        }
+    select[multiple] option {
+        margin: 5px;
+        border: 1px solid #000;
+        background-color: white;
+        margin-left: -1px;
+        display: inline-block;
+        border-radius: 5px;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+        
+    code {
+        background-color: #f0f0f0;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: monospace;
+    }
 </style>
 
 <input type="hidden" asp-for="HideSorting" />
@@ -35,13 +43,40 @@
 
         <span class="ml-2">Source</span><select asp-for="Source" asp-items="Model.Sources" class="rounded"></select>
         <input type="text" asp-for="Search" class="rounded ml-2" placeholder="Search" />
-        <button type="submit" class="ml-4"> Apply </button>
+    </div>        
+    <div class="form-group">
+        <label for="CategoryExpression">Category Expression:</label>
+        <input type="text" asp-for="CategoryExpression" class="form-control" placeholder="e.g., (needs && (food || car)) && (wants && (clothes || travel))" />
+        
+        <p class="mt-2 mb-0">
+            <a class="btn btn-link p-0" data-toggle="collapse" href="#categoryExpressionHelp" role="button" aria-expanded="false" aria-controls="categoryExpressionHelp">
+                <i class="bi bi-info-circle"></i> How to build category expressions
+            </a>
+        </p>
+        <div class="collapse" id="categoryExpressionHelp">
+            <div class="card card-body bg-light">                
+                <h5>Build complex category filters using expressions:</h5>
+                <ul class="pl-3 text-left">
+                    <li style="text-align: left !important; display: list-item;">Use category names directly: <code>food</code>, <code>car</code>, etc.</li>
+                    <li style="text-align: left !important; display: list-item;">Combine with AND: <code>&&</code> (e.g., <code>food && car</code>)</li>
+                    <li style="text-align: left !important; display: list-item;">Combine with OR: <code>||</code> (e.g., <code>food || car</code>)</li>
+                    <li style="text-align: left !important; display: list-item;">Group with parentheses: <code>(food || car) && needs</code></li>
+                    <li style="text-align: left !important; display: list-item;">Negate with exclamation: <code>!food</code> (transactions without food category)</li>
+                </ul>
+                <p class="mb-0"><small>Example: <code>(needs && (food || car)) && !(wants && travel)</code></small></p>
+            </div>
+        </div>
     </div>
+    
     @if (Model.AvailableCategories.Count > 0)
     {
-    <div>
-        <select multiple="multiple" asp-for="SelectedCategories" class="rounded ml-2" asp-items="Model.CategoriesDropDownModel"></select>
-        <select hidden multiple="multiple" asp-for="AvailableCategories" class="rounded ml-2" asp-items="Model.AvailableCategoriesDropDownModel"></select>
-    </div>
+        <div>
+            <select multiple="multiple" asp-for="SelectedCategories" class="rounded ml-2" asp-items="Model.CategoriesDropDownModel"></select>
+            <select hidden multiple="multiple" asp-for="AvailableCategories" class="rounded ml-2" asp-items="Model.AvailableCategoriesDropDownModel"></select>
+        </div>
     }
+    
+    <button type="submit" class="ml-4"> Apply </button>
+
 </div>
+

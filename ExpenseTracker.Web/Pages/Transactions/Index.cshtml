@@ -4,7 +4,7 @@
     ViewData["Title"] = "Expenses";
 }
 
-<div class="text-center">
+<div>
     <vc:transactions-summary filter-model="@Model.Filter"></vc:transactions-summary>
     <form method="post" onkeydown="return event.key != 'Enter';">
         <partial name="_TransactionsFilter" for="Filter" />
