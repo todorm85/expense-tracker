@@ -1,4 +1,6 @@
 {
+  // Add variable for publish directory
+  "publishDir": "C:\\web\\expenses\\",
   "version": "2.0.0",
   "tasks": [
     {
@@ -25,8 +27,6 @@
       "type": "shell",
       "command": "powershell",
       "args": [
-      "-ExecutionPolicy",
-      "Bypass",
       "-Command",
       "try { Get-NetTCPConnection -LocalPort 55162 | select -ExpandProperty OwningProcess | Select-Object -Unique | Stop-Process -Id $_ -Force } catch { Write-Host $_; exit 0 }"
       ],
@@ -37,12 +37,22 @@
       "command": "dotnet",
       "type": "process",
       "args": [
-      "publish",
-      "${workspaceFolder}/ExpenseTracker.Web/ExpenseTracker.Web.csproj",
-      "/p:PublishProfile=FolderProfile",
-      "/p:PublishDir=C:\\web\\expenses\\"
+        "publish",
+        "${workspaceFolder}/ExpenseTracker.Web/ExpenseTracker.Web.csproj",
+        "/p:PublishProfile=FolderProfile",
+        "/p:PublishDir=C:\\web\\expenses\\"
       ],
       "problemMatcher": "$msCompile"
     },
+    {
+      "label": "Pull Database",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+      "-Command",
+      "Copy-Item -Path \"C:\\web\\expenses\\expenses.db\" -Destination \"${workspaceFolder}\\ExpenseTracker.Web\\expenses.db\" -Force"
+      ],
+      "problemMatcher": []
+    }
   ]
 }
