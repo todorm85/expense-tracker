@@ -127,12 +127,23 @@
 
     <div class="mycard">
         <h2>
-            Upload File
+            Upload CSV File
         </h2>
 
         <div class="form-group">
             <input class="form-control-file my-2" id="files" type="file" multiple asp-for="Files" />
-            <button asp-page-handler="Upload" type="submit" value="Upload" class="btn btn-primary">Upload</button>
+            <div class="form-group mt-2">
+                <label for="selectedParser">Select Parser:</label>                
+                <select id="selectedParser" class="form-control" asp-for="SelectedParser">
+                    <option value="">Auto-detect from filename</option>
+                    <option value="allianz">Allianz</option>
+                    <option value="revolut">Revolut</option>
+                    <option value="trading212">Trading 212</option>
+                    <option value="raiffeizen">Raiffeizen</option>
+                </select>
+                <small class="form-text text-muted">Select a parser or leave as auto-detect to determine from filename.</small>
+            </div>
+            <button asp-page-handler="Upload" type="submit" value="Upload" class="btn btn-primary mt-3">Upload</button>
         </div>
     </div>
 

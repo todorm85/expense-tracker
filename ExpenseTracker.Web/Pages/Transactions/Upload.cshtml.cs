@@ -57,6 +57,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public IList<IFormFile> Files { get; set; }
 
         [BindProperty]
+        public string? SelectedParser { get; set; }
+
+        [BindProperty]
         public TransactionsListModel SkippedTransactions { get; set; } = new TransactionsListModel() { ShowSource = true };
 
         [BindProperty]
@@ -134,8 +137,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
         {
             try
             {
-                IEnumerable<Transaction> expenses = Enumerable.Empty<Transaction>();
-                IEnumerable<CreateTransactionResult> skipped = new List<CreateTransactionResult>();
+                List<Transaction> allTransactions = new List<Transaction>();
+                List<CreateTransactionResult> allSkipped = new List<CreateTransactionResult>();
+                
                 foreach (var formFile in files)
                 {
                     if (formFile.Length > 0)
@@ -149,21 +153,57 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
                         try
                         {
-                            if (formFile.FileName.EndsWith("allianz.txt"))
+                            IEnumerable<Transaction> fileTransactions;
+                            IEnumerable<CreateTransactionResult> fileSkipped;
+                            
+                            // Use the selected parser from the UI dropdown if provided
+                            if (!string.IsNullOrEmpty(SelectedParser))
                             {
-                                expenses = this.allianz.ParseFromFile(filePath);
-                                this.transactionsService.TryCreateTransactions(expenses, out skipped);
+                                switch (SelectedParser.ToLower())
+                                {
+                                    case "allianz":
+                                        fileTransactions = this.allianz.ParseFromFile(filePath);
+                                        break;
+                                    case "revolut":
+                                        fileTransactions = this.revolut.ParseFromFile(filePath);
+                                        break;
+                                    case "trading212":
+                                        fileTransactions = this.trading.ParseFromFile(filePath);
+                                        break;
+                                    case "raiffeizen":
+                                        fileTransactions = this.rai.ParseFile(filePath);
+                                        break;
+                                    default:
+                                        throw new Exception($"Unsupported parser type: {SelectedParser}");
+                                }
                             }
-                            else if (Regex.IsMatch(formFile.FileName, "^account-statement_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
+                            else
                             {
-                                expenses = this.revolut.ParseFromFile(filePath);
-                                this.transactionsService.TryCreateTransactions(expenses, out skipped);
+                                // Fallback to auto-detection based on filename if no parser is selected
+                                if (formFile.FileName.EndsWith("allianz.txt"))
+                                {
+                                    fileTransactions = this.allianz.ParseFromFile(filePath);
+                                }
+                                else if (Regex.IsMatch(formFile.FileName, "^account-statement_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
+                                {
+                                    fileTransactions = this.revolut.ParseFromFile(filePath);
+                                }
+                                else if (Regex.IsMatch(formFile.FileName, "^from_\\d{4}-\\d{2}-\\d{2}_to_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
+                                {
+                                    fileTransactions = this.trading.ParseFromFile(filePath);
+                                }
+                                else
+                                {
+                                    throw new Exception($"Could not determine parser type from filename: {formFile.FileName}. Please select a parser from the dropdown.");
+                                }
                             }
-                            else if (Regex.IsMatch(formFile.FileName, "^from_\\d{4}-\\d{2}-\\d{2}_to_\\d{4}-\\d{2}-\\d{2}_[^\\n\\r]+\\.csv$"))
-                            {
-                                expenses = this.trading.ParseFromFile(filePath);
-                                this.transactionsService.TryCreateTransactions(expenses, out skipped);
-                            }
+
+                            // Add the transactions from this file to our collection
+                            allTransactions.AddRange(fileTransactions);
+                            
+                            // Process transactions for this file
+                            this.transactionsService.TryCreateTransactions(fileTransactions, out fileSkipped);
+                            allSkipped.AddRange(fileSkipped);
                         }
                         catch (Exception ex)
                         {
@@ -172,8 +212,8 @@ namespace ExpenseTracker.Web.Pages.Transactions
                     }
                 }
 
-                SetJustAdded(expenses.Except(skipped.Select(x => x.Transaction)).ToTransactionModel());
-                SetSkipped(skipped.ToTransactionModel());
+                SetJustAdded(allTransactions.Except(allSkipped.Select(x => x.Transaction)).ToTransactionModel());
+                SetSkipped(allSkipped.ToTransactionModel());
 
                 // Add error message if exceptions were encountered
                 if (ImportExceptions.HasErrors)
