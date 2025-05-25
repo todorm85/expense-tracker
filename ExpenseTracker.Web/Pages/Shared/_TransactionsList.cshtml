@@ -36,7 +36,10 @@
                     <th>Reason</th>
                 }
                 <th>Category</th>
-                <th>Actions</th>
+                @if (!Model.HasFailed)
+                {
+                    <th>Actions</th>
+                }
             </tr>
         </thead>
     }
@@ -82,14 +85,10 @@
                         @t.Source
                     </td>
                 }
-                @{
-                    var failedDisplay = Model.HasFailed ? "revert" : "none";
-                    var addedDisplay = !Model.HasFailed ? "revert" : "none";
-                }
                 @if (Model.HasFailed)
                 {
                     <td style="min-width: 9em;">
-                        <div style="display: @failedDisplay" class="failed_@t.TransactionId">
+                        <div class="failed_@t.TransactionId">
                             <input id="category_@t.TransactionId" asp-for="@Model.Transactions[transx].Reason"
                                    class="form-control" placeholder="name:key(opt)" disabled style="min-width: 100px;" />
                         </div>
@@ -99,17 +98,15 @@
                     <input id="category_@t.TransactionId" asp-for="@Model.Transactions[transx].Category"
                            class="form-control auto-select" placeholder="name:key(opt)" style="min-width: 150px;" list="cats" autocomplete="off" />
                 </td>
-                <td style="width:15%; min-width: 90px;">
-                    <div style="display: @failedDisplay" class="failed_@t.TransactionId">
-                        <button class="btn" style="width: 30px; height:30px" type="button">
-                            force create
-                        </button>
-                    </div>
-                    <div style="display: @addedDisplay" class="added_@t.TransactionId">
-                        <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="updateTransaction" btn-apply onclick="return onUpdate(event, '@t.TransactionId')"></button>
-                        <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="deleteTransaction" btn-del></button>
-                    </div>
-                </td>
+                @if (!Model.HasFailed)
+                {
+                    <td style="width:15%; min-width: 90px;">
+                        <div class="added_@t.TransactionId">
+                            <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="updateTransaction" btn-apply onclick="return onUpdate(event, '@t.TransactionId')"></button>
+                            <button type="submit" asp-route-id="@t.TransactionId" asp-page-handler="deleteTransaction" btn-del></button>
+                        </div>
+                    </td>
+                }
             </tr>
         }
     </tbody>

@@ -104,7 +104,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             else
                 AppendSkipped(skipped.ToTransactionModel());
 
-            return RedirectToPage();
+            return RedirectToPage(new { focusamount = true });
         }
 
         public IActionResult OnPostSyncMail()
@@ -270,21 +270,21 @@ namespace ExpenseTracker.Web.Pages.Transactions
                 return RedirectToPage(new { error = "Trading212 JSON data is required" });
             }
 
-            var added = trading212Importer.ImportTransactionsFromJson(this.Trading212Json);
+            var results = trading212Importer.ImportTransactionsFromJson(this.Trading212Json);
 
-            if (added.Added.Any())
+            if (results.Added.Any())
             {
-                SetJustAdded(added.Added.ToTransactionModel());
+                SetJustAdded(results.Added.ToTransactionModel());
             }
 
-            if (added.Skipped != null && added.Skipped.Any())
+            if (results.Skipped != null && results.Skipped.Any())
             {
-                AppendSkipped(added.Skipped.ToTransactionModel());
+                AppendSkipped(results.Skipped.ToTransactionModel());
             }
 
-            if (added.Error != null)
+            if (results.Error != null)
             {
-                return RedirectToPage(new { error = added.Error });
+                return RedirectToPage(new { error = results.Error });
             }
 
             return RedirectToPage();

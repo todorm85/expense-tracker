@@ -26,7 +26,7 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
         public ImportResult ImportTransactions(string loginToken, string trading212SessionLive)
         {
             var added = new List<Transaction>();
-            var skipped = new List<Transaction>();
+            var skipped = new List<CreateTransactionResult>();
             var duplicateFound = false;
             string lastId = null;
             var totalAddedTransactions = new List<Transaction>();
@@ -59,7 +59,7 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
                 if (skippedResults != null && skippedResults.Count() > 0)
                 {
                     addedTransactions = transactions.Where(x => !skippedResults.Any(y => y.Transaction.TransactionId == x.TransactionId)).ToList();
-                    skipped.AddRange(skippedResults.Select(s => s.Transaction));
+                    skipped.AddRange(skippedResults);
 
                     foreach (var skippedTransaction in skippedResults)
                     {
@@ -150,7 +150,7 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
                     return new ImportResult
                     {
                         Added = new List<Transaction>(),
-                        Skipped = new List<Transaction>(),
+                        Skipped = new List<CreateTransactionResult>(),
                         Error = "No valid transactions found in the provided JSON"
                     };
                 }
@@ -159,12 +159,11 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
                 expenses.TryCreateTransactions(transactions, out skipped);
 
                 var addedTransactions = transactions.Where(x => !skipped.Any(y => y.Transaction.TransactionId == x.TransactionId)).ToList();
-                var skippedTransactions = skipped.Select(s => s.Transaction).ToList();
 
                 return new ImportResult
                 {
                     Added = addedTransactions,
-                    Skipped = skippedTransactions
+                    Skipped = skipped
                 };
             }
             catch (Exception e)
@@ -172,7 +171,7 @@ namespace ExpenseTracker.Integrations.ApiClients.Trading212
                 return new ImportResult
                 {
                     Added = new List<Transaction>(),
-                    Skipped = new List<Transaction>(),
+                    Skipped = new List<CreateTransactionResult>(),
                     Error = $"Error processing JSON: {e.Message}"
                 };
             }

@@ -141,7 +141,10 @@
 @section Scripts {
     <script>
         window.onload = function () {
-            document.getElementById("amount").focus();
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('focusamount')) {
+                document.getElementById("amount").focus();
+            }        
         }
 
         function onCreateEnter(e) {
