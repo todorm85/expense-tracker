@@ -7,6 +7,7 @@ using LiteDB;
 using System;
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.Linq;
 
 namespace ExpenseTracker.Data
 {
@@ -159,7 +160,7 @@ namespace ExpenseTracker.Data
                         continue;
                     }
 
-                    var newCat = oldCat.Replace('/',' ').Trim();
+                    var newCat = oldCat.Replace('/', ' ').Trim();
                     doc["Category"] = newCat;
                     col.Update(doc);
                 }
@@ -180,6 +181,71 @@ namespace ExpenseTracker.Data
                 }
 
                 this.db.UserVersion = 6;
+            }
+            if (this.db.UserVersion <= 6)
+            {
+                var col = this.db.GetCollection(this.GetSetName<Transaction>());
+                foreach (var doc in col.FindAll())
+                {
+                    var ignored = doc["Ignored"].AsBoolean;
+                    if (ignored)
+                    {
+                        // Get the current category value (if any)
+                        var currentCategory = (string)doc["Category"];
+
+                        // Check if "ignored" category is already present
+                        if (string.IsNullOrWhiteSpace(currentCategory))
+                        {
+                            // If no category exists, just set it to "ignored"
+                            doc["Category"] = "ignored";
+                            col.Update(doc);
+                        }
+                        else
+                        {
+                            // Split the categories by space
+                            var categories = currentCategory.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                            // Check if "ignored" is already one of the categories
+                            bool alreadyContainsIgnored = false;
+                            foreach (var category in categories)
+                            {
+                                if (string.Equals(category, "ignored", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    alreadyContainsIgnored = true;
+                                    break;
+                                }
+                            }
+
+                            if (!alreadyContainsIgnored)
+                            {
+                                // Add "ignored" to the categories
+                                doc["Category"] = currentCategory + " ignored";
+                                col.Update(doc);
+                            }
+                        }
+                    }
+                }
+
+                this.db.UserVersion = 7;
+            }
+            if (this.db.UserVersion <= 7)
+            {
+                // Get the transactions collection
+                var colName = this.GetSetName<Transaction>();
+                var col = this.db.GetCollection(colName);
+
+                // Remove the Ignored field from all transaction documents manually
+                var all = col.FindAll().ToArray();
+                foreach (var doc in all)
+                {
+                    if (doc.ContainsKey("Ignored"))
+                    {
+                        doc.Remove("Ignored");
+                        col.Update(doc);
+                    }
+                }
+
+                this.db.UserVersion = 8;
             }
         }
     }

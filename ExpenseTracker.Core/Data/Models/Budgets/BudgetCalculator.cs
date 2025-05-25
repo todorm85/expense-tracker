@@ -19,7 +19,7 @@ namespace ExpenseTracker.Core.Budget
             return this.transactionsService.GetAll(e => e.Date >= from
                                         && e.Date <= to
                                         && e.Type == TransactionType.Expense
-                                        && !e.Ignored)
+                                        && (e.Category == null || !e.Category.Contains(Constants.IgnoredCategory, StringComparison.OrdinalIgnoreCase)))
                                     .Sum(e => e.Amount);
         }
 
@@ -28,7 +28,7 @@ namespace ExpenseTracker.Core.Budget
             return this.transactionsService.GetAll(e => e.Date >= from
                                         && e.Date <= to
                                         && e.Type == TransactionType.Income
-                                        && !e.Ignored)
+                                        && (e.Category == null || !e.Category.Contains(Constants.IgnoredCategory, StringComparison.OrdinalIgnoreCase)))
                                     .Sum(e => e.Amount);
         }
 

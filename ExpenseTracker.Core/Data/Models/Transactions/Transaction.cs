@@ -11,7 +11,6 @@ namespace ExpenseTracker.Core.Transactions
         public string Category { get; set; }
         public DateTime Date { get; set; }
         public string Details { get; set; }
-        public bool Ignored { get; set; }
         public bool IsResolvedDuplicate { get; set; }
         public TransactionType Type { get; set; }
         public string Source { get; set; }

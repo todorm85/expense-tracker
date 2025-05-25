@@ -74,10 +74,13 @@ namespace ExpenseTracker.Web.Pages.Shared
             if (SelectedCategories.Count > 0)
             {
                 SelectedCategories = SelectedCategories.Where(x => latestCategories.Contains(x)).ToList();
-                //SelectedCategories.AddRange(newlyAvailableCatesgories);
+            }
+            else
+            {
+                SelectedCategories = latestCategories.Where(x => x != Constants.IgnoredCategory).ToList();
             }
 
-            SelectedCategories = SelectedCategories.Where(x => x != Constants.IgnoredCategory).ToList();
+            
 
             List<SelectListItem> selectListItems = latestCategories.Select(x => new SelectListItem() { Text = x == UncategorisedOptionValue ? "uncategorized" : x, Value = x }).ToList();
             CategoriesDropDownModel = selectListItems;
@@ -122,7 +125,7 @@ namespace ExpenseTracker.Web.Pages.Shared
                     return true;
 
                 var itemCategories = x.Category?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (itemCategories != null && SelectedCategories.All(itemCategories.Contains))
+                if (itemCategories != null && SelectedCategories.Any(itemCategories.Contains))
                     return true;
 
                 return false;
