@@ -8,14 +8,14 @@
             <i class="bi bi-exclamation-triangle-fill"></i> Error: @Model.ViewData["errorMessage"]
         </div>
     }
-    
+
     @if (@Model.ViewData["successMessage"] != null)
     {
         <div class="alert alert-success">
             <i class="bi bi-check-circle-fill"></i> @Model.ViewData["successMessage"]
         </div>
     }
-    
+
     @if (@Model.ViewData["warningMessage"] != null)
     {
         <div class="alert alert-warning">
@@ -43,17 +43,9 @@
 
     @if (Model.SkippedTransactions.Transactions.Any())
     {
-        <div class="row">
-            <div class="col">
-                <h3 class="d-inline">Skipped</h3>
-                <a type="submit" asp-page-handler="ClearSkipped">Clear</a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <partial name="_TransactionsList" for="SkippedTransactions" />
-            </div>
-        </div>
+        <h3 class="d-inline">Skipped</h3>
+        <a type="submit" asp-page-handler="ClearSkipped">Clear</a>
+        <partial name="_TransactionsList" for="SkippedTransactions" />
     }
 
     @if (Model.HasMail)
@@ -62,7 +54,8 @@
             <h2>Sync from Gmail</h2>
             <div class="d-flex flex-column align-items-start">
                 <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" asp-for="DeleteMailAfterImport" id="deleteMailAfterImport">
+                    <input class="form-check-input" type="checkbox" asp-for="DeleteMailAfterImport"
+                        id="deleteMailAfterImport">
                     <label class="form-check-label" for="deleteMailAfterImport">
                         Delete emails after import
                     </label>
@@ -76,7 +69,8 @@
         <h2 class="card-title">Import Trading212 JSON</h2>
         <div class="form-group">
             <label for="Trading212Json" class="form-label">Trading212 Transaction JSON</label>
-            <textarea asp-for="@Model.Trading212Json" class="form-control" id="Trading212Json" rows="6" placeholder="Paste Trading212 transaction JSON here..."></textarea>
+            <textarea asp-for="@Model.Trading212Json" class="form-control" id="Trading212Json" rows="6"
+                placeholder="Paste Trading212 transaction JSON here..."></textarea>
         </div>
 
         <partial name="_Trading212JsonHelp" />
@@ -87,7 +81,7 @@
             </button>
         </div>
     </div>
-    
+
     <div class="mycard">
         <h2>
             Manual Entry
@@ -100,25 +94,29 @@
             </div>
             <div class="form-group col">
                 <label for="amount">Amount</label>
-                <input id="amount" onmouseup="return false;" asp-for="NewTransaction.Amount" class="form-control auto-select" />
+                <input id="amount" onmouseup="return false;" asp-for="NewTransaction.Amount"
+                    class="form-control auto-select" />
             </div>
         </div>
 
         <div class="row">
             <div class="form-group col">
                 <label for="category">Category</label>
-                <input id="category" asp-for="NewTransaction.Category" class="form-control col" placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" list="cats" autocomplete="off" />
+                <input id="category" asp-for="NewTransaction.Category" class="form-control col"
+                    placeholder="name:key(opt)" onkeyup="onCreateEnter(event)" list="cats" autocomplete="off" />
                 <vc:categories-data-list id="cats"></vc:categories-data-list>
             </div>
             <div class="form-group col">
                 <label for="type">Type</label>
-                <select id="type" class="form-control col" asp-for="NewTransaction.Type" asp-items="Html.GetEnumSelectList<ExpenseTracker.Core.Transactions.TransactionType>()"></select>
+                <select id="type" class="form-control col" asp-for="NewTransaction.Type"
+                    asp-items="Html.GetEnumSelectList<ExpenseTracker.Core.Transactions.TransactionType>()"></select>
             </div>
         </div>
 
         <div class="form-group">
             <label for="details">Details</label>
-            <textarea id="details" asp-for="NewTransaction.Details" rows="4" class="form-control" onkeyup="onCreateEnter(event)"></textarea>
+            <textarea id="details" asp-for="NewTransaction.Details" rows="4" class="form-control"
+                onkeyup="onCreateEnter(event)"></textarea>
         </div>
 
         <button class="btn btn-primary" type="submit" id="submitBtn" asp-page-handler="create">Save</button>
@@ -133,7 +131,7 @@
         <div class="form-group">
             <input class="form-control-file my-2" id="files" type="file" multiple asp-for="Files" />
             <div class="form-group mt-2">
-                <label for="selectedParser">Select Parser:</label>                
+                <label for="selectedParser">Select Parser:</label>
                 <select id="selectedParser" class="form-control" asp-for="SelectedParser">
                     <option value="">Auto-detect from filename</option>
                     <option value="allianz">Allianz</option>
@@ -141,7 +139,8 @@
                     <option value="trading212">Trading 212</option>
                     <option value="raiffeizen">Raiffeizen</option>
                 </select>
-                <small class="form-text text-muted">Select a parser or leave as auto-detect to determine from filename.</small>
+                <small class="form-text text-muted">Select a parser or leave as auto-detect to determine from
+                    filename.</small>
             </div>
             <button asp-page-handler="Upload" type="submit" value="Upload" class="btn btn-primary mt-3">Upload</button>
         </div>
@@ -155,7 +154,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('focusamount')) {
                 document.getElementById("amount").focus();
-            }        
+            }
         }
 
         function onCreateEnter(e) {
