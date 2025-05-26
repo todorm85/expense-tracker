@@ -12,23 +12,23 @@
 </style>
 
 <form method="post">
-    <partial name="_TransactionsFilter" for="Filters" class="mycard"/>
+    <partial name="_TransactionsFilter" for="Filters"/>
 
-    <h5 class="mycard row justify-content-center mt-1">
-        <span class="text-center d-inline-block">
+    <div class="mycard text-center">
+        <span class="d-inline-block expense text-center">
             <span class="d-inline-block w-100">Expense</span>
             <span>@Model.TotalExpense.ToString("N0") / @Model.AverageExpense.ToString("N0")</span>
         </span>
-        <span class="text-center d-inline-block">
+        <span class="d-inline-block income text-center">
             <span class="d-inline-block w-100">Income</span>
             <span>@Model.TotalIncome.ToString("N0") / @Model.AverageIncome.ToString("N0")</span>
         </span>
-        @{ var avgBalClass = (Model.AverageBalance >= 0) ? "success" : "danger"; }
-        <span class="d-inline-block text-center">
+        @{ var avgBalClass = (Model.AverageBalance >= 0) ? "income" : "expense"; }
+        <span class="d-inline-block text-center @avgBalClass">
             <span class="d-inline-block w-100">Balance</span>
             <span>@Model.Balance.ToString("N0") / @Model.AverageBalance.ToString("N0")</span>
         </span>
-    </h5>
+    </div>
 
 
     <div class="mycard">
@@ -36,11 +36,14 @@
             <span class="by-months-col">Month</span>
             <span class="by-months-col">Expense</span>
             <span class="by-months-col">Income</span>
+            <span class="by-months-col">Balance</span>
         </div>
         @foreach (var month in Model.Months)
         {
             var expense = month.Where(x => x.Type == TransactionType.Expense).Sum(x => x.Amount);
             var income = month.Where(x => x.Type == TransactionType.Income).Sum(x => x.Amount);
+            var balance = income-expense;
+            var balanceClass = balance >= 0 ? "income" : "expense";
             <div class="d-flex align-items-center mb-1" style="gap: 0.5rem; min-width: 350px;">
                 <span class="by-months-col">
                     @month.Key.Year.ToString("D4") - @month.Key.Month.ToString("D2")
@@ -50,6 +53,9 @@
                 </span>
                 <span class="by-months-col income">
                      @income.ToString("N0")
+                </span>
+                <span class="by-months-col @balanceClass">
+                     @balance.ToString("N0")
                 </span>
             </div>
         }

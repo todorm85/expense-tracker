@@ -63,7 +63,7 @@ namespace ExpenseTracker.Web.Pages.Shared
         {
             var allTransactions = service.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search | FilterBy.Source));
             List<string> latestCategories = allTransactions
-                .SelectMany(x => string.IsNullOrEmpty(x.Category) ? new string[1] { string.Empty } : x.Category.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                .SelectMany(x => string.IsNullOrWhiteSpace(x.Category) ? [string.Empty] : x.Category.Split(' ', StringSplitOptions.RemoveEmptyEntries))
                 .OrderBy(x => x)
                 .Distinct()
                 .ToList();
@@ -125,29 +125,31 @@ namespace ExpenseTracker.Web.Pages.Shared
                 return true;
 
             return x.Source == Source || (Source == UnknownSourceLabel && string.IsNullOrEmpty(x.Source));
-        }        private bool ApplyCategoriesFilter(Transaction x, FilterBy flags)
+        }       
+        
+        private bool ApplyCategoriesFilter(Transaction x, FilterBy flags)
         {
+            var itemCategories = x.Category?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+
             if (!flags.HasFlag(FilterBy.Category))
                 return true;
-                
+
             // First, check if we have a category expression to evaluate
             if (!string.IsNullOrWhiteSpace(CategoryExpression))
             {
                 if (_parsedCategoryExpression == null)
                     _parsedCategoryExpression = new CategoryExpression(CategoryExpression);
-                
-                var itemCategories = x.Category?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+
                 return _parsedCategoryExpression.Evaluate(itemCategories);
             }
-            
+
             // Fall back to the traditional category selection logic
             if (SelectedCategories.Count > 0)
             {
                 if (SelectedCategories.Contains(UncategorisedOptionValue) && string.IsNullOrWhiteSpace(x.Category))
                     return true;
 
-                var itemCategories = x.Category?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (itemCategories != null && SelectedCategories.Any(itemCategories.Contains))
+                if (SelectedCategories.Any(itemCategories.Contains))
                     return true;
 
                 return false;
