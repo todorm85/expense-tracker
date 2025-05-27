@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ExpenseTracker.Core.Services;
 using ExpenseTracker.Core.Transactions;
 using ExpenseTracker.Web.Pages.Shared;
@@ -12,14 +9,15 @@ namespace ExpenseTracker.Web.Pages.Transactions
     public class ByMonthsModel : PageModel
     {
         private readonly IExpensesService expenses;
+        private readonly TransactionsFilterService transactionsFilter;
 
-        public ByMonthsModel(IExpensesService expenses)
+        public ByMonthsModel(IExpensesService expenses, TransactionsFilterService transactionsFilter)
         {
             this.expenses = expenses;
+            this.transactionsFilter = transactionsFilter;
             this.Filters = new TransactionsFilterViewModel() { HideSorting = true };
         }
 
-        [BindProperty]
         public TransactionsFilterViewModel Filters { get; set; }
 
         public decimal AverageBalance => this.AverageIncome - this.AverageExpense;
@@ -44,7 +42,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private void Init()
         {
-            var all = this.expenses.GetAll(this.Filters.GetFilterQuery());
+            var all = this.transactionsFilter.GetFilteredItems(this.Filters.ToFilterParams()).Items;
             if (all.Count() == 0)
                 return;
 

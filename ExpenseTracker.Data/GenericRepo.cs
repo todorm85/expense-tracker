@@ -38,14 +38,35 @@ namespace ExpenseTracker.Data
         }
 
         // The only thing needed to optimize for local db is filtering in order to protect against serialization of all db entries, everything else like ordering and skip and take should be done in memmory
-        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate = null)
+        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate = null, int skip = 0, int limit = int.MaxValue)
         {
             if (predicate == null)
             {
-                return this.context.FindAll();
+                return this.context.Find(Query.All(), skip, limit);
             }
 
-            return this.context.FindAll().ToList().Where(predicate.Compile());
+            try
+            {
+                // the filter I mostly used is not supported by LiteDb
+                // return this.context.Find(predicate, skip, limit);
+
+                // not best but does the job, most used predicate is not supported by LiteDB
+                // no use trying those requests first only to throw exception and retry like this
+                return FilterInMemory(predicate, skip, limit);
+            }
+            catch (NotSupportedException)
+            {
+                return FilterInMemory(predicate, skip, limit);
+            }
+
+            IEnumerable<T> FilterInMemory(Expression<Func<T, bool>> predicate, int skip, int limit)
+            {
+                var all = this.context.FindAll();
+                var filteredResult = all.Where(predicate.Compile());
+                if ((skip == 0 && limit != int.MaxValue) || limit != int.MaxValue)
+                    filteredResult = filteredResult.Skip(skip).Take(limit);
+                return filteredResult;
+            }
         }
 
         public virtual T GetById(object id)

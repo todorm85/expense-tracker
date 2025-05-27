@@ -9,9 +9,9 @@ namespace ExpenseTracker.Web.Pages.Shared.Components.TransactionsSummary
 {
     public class TransactionsSummaryViewComponent : ViewComponent
     {
-        private readonly IExpensesService service;
+        private readonly TransactionsFilterService service;
 
-        public TransactionsSummaryViewComponent(IExpensesService service)
+        public TransactionsSummaryViewComponent(TransactionsFilterService service)
         {
             this.service = service;
         }
@@ -22,7 +22,7 @@ namespace ExpenseTracker.Web.Pages.Shared.Components.TransactionsSummary
 
         public IViewComponentResult Invoke(TransactionsFilterViewModel filterModel)
         {
-            var all = service.GetAll(filterModel.GetFilterQuery());
+            var all = service.GetFilteredItems(filterModel.ToFilterParams()).Items;
             this.Expenses = all.Where(x => x.Type == TransactionType.Expense)
                             .Sum(x => x.Amount);
             this.Income = all.Where(x => x.Type == TransactionType.Income)

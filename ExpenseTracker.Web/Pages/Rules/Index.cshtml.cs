@@ -15,10 +15,14 @@ namespace ExpenseTracker.Web.Pages.Rules
     {
         private readonly int itemsPerPage = 10;
         private readonly IExpensesService transactionsService;
+        private readonly ItemsFilterService<Rule, ItemsFilterResult<Rule>, ItemsFilterParams<Rule>> itemsFilter;
 
-        public IndexModel(IExpensesService transactionsService)
+
+        public IndexModel(IExpensesService transactionsService, ItemsFilterService<Rule, ItemsFilterResult<Rule>, ItemsFilterParams<Rule>> itemsFilter)
         {
             this.transactionsService = transactionsService;
+            this.itemsFilter = itemsFilter;
+
         }
 
         [BindProperty]
@@ -27,28 +31,30 @@ namespace ExpenseTracker.Web.Pages.Rules
         [BindProperty(SupportsGet = true)]
         public int CurrentPage { get; set; }
 
-        [BindProperty]
-        public PaginatedList<Rule> Rules { get; set; }
-
         [BindProperty(SupportsGet = true)]
-        public string Filter { get; set; }
+        public ItemsFilterParams<Rule> FilterParams { get; set; }
 
+        [BindProperty]
+        public List<Rule> Rules { get; set; }
+
+        [BindProperty]
+        public string Search { get; set; }
         public void OnGet()
         {
             InitRulesModel();
             InitCreateModel();
-            this.Filter = this.Filter ?? string.Empty;
+            this.FilterParams = this.FilterParams;
         }
 
         public IActionResult OnPost()
         {
-            return RedirectToPage(new { CurrentPage, Filter });
+            return RedirectToPage(new { CurrentPage, FilterParams });
         }
 
         public IActionResult OnPostDelete(int id)
         {
             this.transactionsService.RemoveRule(id);
-            return RedirectToPage(new { CurrentPage, Filter });
+            return RedirectToPage(new { CurrentPage, FilterParams });
         }
 
         public IActionResult OnPostSave(int id)
@@ -63,7 +69,7 @@ namespace ExpenseTracker.Web.Pages.Rules
                 this.transactionsService.UpdateRule(model);
             }
 
-            return RedirectToPage(new { CurrentPage, Filter });
+            return RedirectToPage(new { CurrentPage, FilterParams });
         }
 
         public IActionResult OnPostProcessUncategorized()
@@ -74,7 +80,7 @@ namespace ExpenseTracker.Web.Pages.Rules
 
         public IActionResult OnPostFilter()
         {
-            return RedirectToPage(new { CurrentPage, Filter });
+            return RedirectToPage(new { CurrentPage, FilterParams });
         }
 
         private void InitCreateModel()
@@ -85,27 +91,31 @@ namespace ExpenseTracker.Web.Pages.Rules
         private void InitRulesModel()
         {
             var filterExpression = GetFilterExpression();
-            this.Rules = new PaginatedList<Rule>(this.transactionsService, filterExpression, CurrentPage, itemsPerPage);
+            this.FilterParams = new ItemsFilterParams<Rule>()
+            {
+                PageIndex = CurrentPage,
+                PageSize = itemsPerPage
+            };
         }
 
         private Expression<Func<Rule, bool>> GetFilterExpression()
         {
-            Expression<Func<Rule, bool>> filterExpression = null;
-            if (!string.IsNullOrWhiteSpace(Filter))
+            Expression<Func<Rule, bool>> filterExpression = null!;
+            if (!string.IsNullOrWhiteSpace(Search))
             {
-                if (Filter != "skip")
+                if (Search != "skip")
                 {
-                    filterExpression = (x) => x.ConditionValue.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
-                            || x.ValueToSet.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
-                            || x.PropertyToSet.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
-                            || x.Property.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0;
+                    filterExpression = (x) => x.ConditionValue.IndexOf(Search, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.ValueToSet.IndexOf(Search, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.PropertyToSet.IndexOf(Search, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.Property.IndexOf(Search, StringComparison.InvariantCultureIgnoreCase) >= 0;
                 }
                 else
                 {
-                    filterExpression = (x) => x.ConditionValue.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
-                            || x.ValueToSet.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
-                            || x.PropertyToSet.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
-                            || x.Property.IndexOf(Filter, StringComparison.InvariantCultureIgnoreCase) >= 0
+                    filterExpression = (x) => x.ConditionValue.IndexOf(Search, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.ValueToSet.IndexOf(Search, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.PropertyToSet.IndexOf(Search, StringComparison.InvariantCultureIgnoreCase) >= 0
+                            || x.Property.IndexOf(Search, StringComparison.InvariantCultureIgnoreCase) >= 0
                             || x.Action == RuleAction.Skip;
                 }
             }

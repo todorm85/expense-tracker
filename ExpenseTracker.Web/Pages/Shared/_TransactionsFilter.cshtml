@@ -1,4 +1,5 @@
-﻿@model ExpenseTracker.Web.Pages.Shared.TransactionsFilterViewModel
+﻿@using ExpenseTracker.Core.Services.Models
+@model ExpenseTracker.Web.Pages.Shared.TransactionsFilterViewModel
 
 <style>    
     select[multiple] {
@@ -43,35 +44,32 @@
     {
         <form-group>
             <label asp-for="SortBy">Sort</label>
-            <select asp-for="SortBy" asp-items="@Html.GetEnumSelectList<ExpenseTracker.Web.Pages.Transactions.SortOptions>()"></select>
+            <select asp-for="SortBy" asp-items="@Html.GetEnumSelectList<SortOptions>()"></select>
         </form-group>
-    }
+    }   
 
-    <form-group>
-        <label asp-for="Source">Source</label>
-        <select asp-for="Source" asp-items="Model.Sources"></select>
-    </form-group>
-    
     <form-group>
         <label asp-for="Search">Search</label>
         <input type="text" asp-for="Search" placeholder="Search" />
     </form-group>
-    
+    <form-group inline="false">
+        <label asp-for="SelectedSources">Source</label>
+        <select multiple="multiple" asp-for="SelectedSources" asp-items="Model.Sources"></select>
+    </form-group>
     <form-group inline="false">
         <label asp-for="CategoryExpression">Category Expression</label>
         <input type="text" asp-for="CategoryExpression" placeholder="e.g., (needs && (food || car)) && (wants && (clothes || travel))" />
         <partial name="_CategoryExpressionHelp" />
     </form-group>
     
-    @if (Model.AvailableCategories.Count > 0)
+    @if (Model.CategoriesDropDownModel.Count > 0)
     {
         <form-group inline="false">
             <label asp-for="SelectedCategories">Categories</label>
             <select multiple="multiple" asp-for="SelectedCategories" asp-items="Model.CategoriesDropDownModel"></select>
-            <select hidden multiple="multiple" asp-for="AvailableCategories" asp-items="Model.AvailableCategoriesDropDownModel"></select>
         </form-group>
     }
-    
+
     <button type="submit" class="btn btn-sm btn-primary"> Apply </button>
 
 </div>

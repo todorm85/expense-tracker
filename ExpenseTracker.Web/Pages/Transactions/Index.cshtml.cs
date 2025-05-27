@@ -16,10 +16,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
     public class IndexModel : PageModel
     {
         private readonly IExpensesService transactionsService;
+        private readonly TransactionsFilterService transactionsFilterService;
 
         public IndexModel(IExpensesService transactions)
         {
             transactionsService = transactions;
+            transactionsFilterService = new TransactionsFilterService(transactions);
             TransactionsList = new TransactionsListModel()
             {
                 DetailsHeight = 2,
@@ -27,13 +29,12 @@ namespace ExpenseTracker.Web.Pages.Transactions
             };
         }
 
-        [BindProperty]
+        [BindProperty(SupportsGet = true)]
         public TransactionsFilterViewModel Filter { get; set; }
 
         [BindProperty]
         public TransactionsListModel TransactionsList { get; set; }
 
-        [BindProperty(SupportsGet = true)]
         public PagerModel Pager { get; set; }
 
         public decimal Expenses { get; set; }
@@ -42,15 +43,16 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public decimal Saved { get; set; }
 
-        public void OnGet(string filter)
+        public void OnGet(TransactionsFilterViewModel filter, PagerModel pager)
         {
-            LoadFilter(filter);
+            this.Pager = TempData.Get<PagerModel>("pager") ?? this.Pager;
+            this.Filter = TempData.Get<TransactionsFilterViewModel>("filter") ?? this.Filter;
             LoadTransactions();
         }
 
         public IActionResult OnPostDeleteAll()
         {
-            foreach (var t in this.transactionsService.GetAll(Filter.GetFilterQuery()))
+            foreach (var t in this.transactionsFilterService.GetFilteredTransactions(Filter.ToFilterParams()).Items)
             {
                 transactionsService.RemoveTransaction(t.TransactionId);
             }
@@ -73,7 +75,9 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public IActionResult OnPost()
         {
-            return RedirectToPage(new { Filter, Pager.CurrentPage, Pager.PageSize });
+            TempData.Set("filter", Filter);
+            TempData.Set("pager", Pager);
+            return RedirectToPage();
         }
 
         public IActionResult OnPostUpdateAll()
@@ -92,27 +96,18 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return OnPost();
         }
 
-        private void LoadFilter(string filter)
-        {
-            Filter = TransactionsFilterViewModel.FromString(filter, transactionsService);
-            Pager.RouteParams.Add("filter", Filter.ToString());
-        }
-
         private void LoadTransactions()
         {
-            var filterQuery = Filter.GetFilterQuery();
-            var sortBy = Filter.SortBy == SortOptions.None ? null : Filter.SortBy.ToString();
-            var transactions = new PaginatedList<Transaction>(transactionsService, filterQuery, Pager.CurrentPage, Pager.PageSize, sortBy);
-            TransactionsList.Transactions = transactions.Select(t => new TransactionModel(t)).ToList();
-            Pager.PageCount = transactions.TotalPagesCount;
-        }
-    }
+            var filterRes = transactionsFilterService.GetFilteredTransactions(Filter.ToFilterParams());
 
-    public enum SortOptions
-    {
-        None,
-        Date,
-        Category,
-        Amount
+            TransactionsList.Transactions = filterRes.Items.Select(t => new TransactionModel(t)).ToList();
+
+            Filter.Apply(filterRes);
+
+            Pager = new PagerModel();
+            Pager.CurrentPage = filterRes.PageIndex;
+            Pager.PageSize = Filter.PageSize;
+            Pager.PageCount = filterRes.PagesCount;
+        }
     }
 }

@@ -19,8 +19,11 @@ namespace ExpenseTracker.App
             services.AddSingleton(config);
             services.AddSingleton<IUnitOfWork>(new UnitOfWork(config.DbPath));
             services.AddScoped<IExpensesService, ExpensesService>();
+            services.AddScoped<TransactionsFilterService>();
+            services.AddScoped(typeof(ItemsFilterService<,,>));
             services.AddScoped<IBudgetService, BudgetService>();
             services.AddScoped(typeof(IRepository<>), typeof(BaseDataItemService<>));
+            services.AddScoped(typeof(IReadRepository<>), typeof(BaseDataItemService<>));
             services.AddScoped<IBudgetCalculator, BudgetCalculator>();
 
             // Register named dependencies using factories

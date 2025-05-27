@@ -35,9 +35,9 @@ namespace ExpenseTracker.Core.Services
             return transactionsRepo.Count(expression);
         }
 
-        public IEnumerable<Transaction> GetAll(Expression<Func<Transaction, bool>> filter = null)
+        public IEnumerable<Transaction> GetAll(Expression<Func<Transaction, bool>> filter = null, int skip = 0, int limit = int.MaxValue)
         {
-            return this.transactionsRepo.GetAll(filter);
+            return this.transactionsRepo.GetAll(filter, skip, limit);
         }
 
         public bool TryCreateTransaction(Transaction t, out IEnumerable<CreateTransactionResult> skipped)
@@ -134,9 +134,9 @@ namespace ExpenseTracker.Core.Services
 
         #region Rules crud
 
-        public IEnumerable<Rule> GetAll(Expression<Func<Rule, bool>> filter = null)
+        public IEnumerable<Rule> GetAll(Expression<Func<Rule, bool>> filter = null, int skip = 0, int limit = int.MaxValue)
         {
-            return this.rulesRepo.GetAll(filter);
+            return this.rulesRepo.GetAll(filter, skip, limit);
         }
 
         public int Count(Expression<Func<Rule, bool>> filter = null)

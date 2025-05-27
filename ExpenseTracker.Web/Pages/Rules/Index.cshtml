@@ -3,7 +3,7 @@
 @{
     var routeValues = new Dictionary<string, string>() {
         { "CurrentPage", Model.CurrentPage.ToString() },
-        { "Filter", Model.Filter.ToString() }
+        { "Filter", Model.FilterParams.ToString() }
     };
 
     var editViewData = new ViewDataDictionary(ViewData) { { "RouteValues", routeValues } };
@@ -16,7 +16,7 @@
         <modal id="createRuleModal" title="Create rule">
             <partial name="_Edit" for="CreateRuleModel" view-data="@editViewData" />
         </modal>
-        <input style="margin-left: 10px; vertical-align: middle; padding: .250rem;" id="filterInput" asp-for="Filter" placeholder="Filter" />
+        <input style="margin-left: 10px; vertical-align: middle; padding: .250rem;" id="filterInput" asp-for="Search" placeholder="Filter" />
         <button class="btn btn-primary" type="submit" asp-page-handler="Filter">Apply</button>
     </div>
     @for (int i = 0; i < Model.Rules.Count; i++)
@@ -42,7 +42,7 @@
             @{var modalId = $"editRuleModal_{rule.Id}";}
             <br/>
             <button class="btn btn-secondary" type="button" data-toggle="modal" data-target="#@(modalId)">Edit</button>
-            <button btn-del type="submit" asp-page-handler="delete" asp-route-id="@rule.Id" asp-route-currentPage="@Model.CurrentPage" />
+            <button btn-del type="submit" asp-page-handler="delete" asp-route-id="@rule.Id" asp-route-currentPage="@Model.FilterParams.PageIndex" />
         </div>
 
 
@@ -51,10 +51,10 @@
         </modal>
     }
     <ul class="pagination">
-        @for (int i = 0; i < Model.Rules.TotalPagesCount; i++)
+        @for (int i = 0; i < Model.FilterParams.PageSize; i++)
         {
-            var disabledClass = Model.Rules.PageIndex == i ? "disabled" : string.Empty;
-            <li class="page-item @disabledClass"><a class="page-link" asp-page="./Index" asp-route-currentPage="@i" asp-route-filter="@Model.Filter">@(i + 1)</a></li>
+            var disabledClass = Model.FilterParams.PageIndex == i ? "disabled" : string.Empty;
+            <li class="page-item @disabledClass"><a class="page-link" asp-page="./Index" asp-route-currentPage="@i" asp-route-filter="@Model.FilterParams">@(i + 1)</a></li>
         }
     </ul>
 </form>
