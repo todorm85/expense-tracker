@@ -25,12 +25,8 @@ public class ItemsFilterService<TItem, TResult, TParams>
 
         var result = new TResult();
         result.Items = items;
-        result.PageIndex = filterParams.PageIndex;
         var pagesCount = (int)Math.Ceiling(totalCount / (double)filterParams.PageSize);
         result.PagesCount = pagesCount;
-        if (filterParams.PageSize >= items.Count())
-            result.PageIndex = pagesCount - 1;
-
         return result;
     }
 }

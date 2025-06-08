@@ -30,14 +30,11 @@ namespace ExpenseTracker.Web.Pages.Shared
         public List<SelectListItem> CategoriesDropDownModel { get; set; } = new List<SelectListItem>();
         public List<string> SelectedSources { get; set; } = new List<string>();
         public List<SelectListItem> Sources { get; set; } = new List<SelectListItem>();
-        public int CurrentPage { get; set; }
-        public int PagesCount { get; set; }
-        public int PageSize { get; set; } = 20;
     }
 
     public static class TransactionsFilterViewModelExtensions
     {
-        public static TransactionsFilterParams ToFilterParams(this TransactionsFilterViewModel vm)
+        public static TransactionsFilterParams ToFilterParams(this TransactionsFilterViewModel vm, int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var filterParams = new TransactionsFilterParams
             {
@@ -46,10 +43,10 @@ namespace ExpenseTracker.Web.Pages.Shared
                 Search = vm.Search,
                 CategoryExpression = vm.CategoryExpression,
                 SortOptions = vm.SortBy,
-                PageIndex = vm.CurrentPage,
-                PageSize = vm.PageSize,
                 SelectedSources = vm.SelectedSources,
-                SelectedCategories = vm.SelectedCategories
+                SelectedCategories = vm.SelectedCategories,
+                PageIndex = pageIndex,
+                PageSize = pageSize
             };
 
             return filterParams;
@@ -73,9 +70,6 @@ namespace ExpenseTracker.Web.Pages.Shared
             vm.CategoriesDropDownModel = categoriesListItems;
 
             vm.Sources = filterRes.AvailableSources.Select(x => new SelectListItem() { Text = string.IsNullOrWhiteSpace(x) ? "Unknown" : x, Value = x }).ToList();
-            
-            vm.CurrentPage = filterRes.PageIndex;
-            vm.PagesCount = filterRes.PagesCount;
         }
     }
 }

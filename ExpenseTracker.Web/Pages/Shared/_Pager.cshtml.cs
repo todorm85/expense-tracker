@@ -4,8 +4,9 @@ namespace ExpenseTracker.Web.Pages.Shared
 {
     public class PagerModel
     {
-        public int CurrentPage { get; set; }
+        public string PagePath { get; set; }
+        public int CurrentPageIndex { get; set; }
         public int PageCount { get; set; }
-        public int PageSize { get; set; } = 10;
+        public int PageSize { get; set; } = 20;
     }
 }

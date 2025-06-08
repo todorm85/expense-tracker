@@ -30,12 +30,13 @@ namespace ExpenseTracker.Web.Pages.Transactions
         }
 
         [BindProperty]
-        public TransactionsFilterViewModel Filter { get; set; }
+        public TransactionsFilterViewModel Filter { get; set; } = new TransactionsFilterViewModel();
 
         [BindProperty]
         public TransactionsListModel TransactionsList { get; set; }
 
-        public PagerModel Pager { get; set; }
+        [BindProperty]
+        public PagerModel Pager { get; set; } = new PagerModel() { PagePath = "./Index", PageSize = 20, CurrentPageIndex = 0 };
 
         public decimal Expenses { get; set; }
 
@@ -43,11 +44,21 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         public decimal Saved { get; set; }
 
+        [BindProperty(SupportsGet =true)]
+        public int PageIndex { get; set; }
+
         public void OnGet(TransactionsFilterViewModel filter, PagerModel pager)
         {
             this.Pager = TempData.Get<PagerModel>("pager") ?? this.Pager;
-            this.Filter = TempData.Get<TransactionsFilterViewModel>("filter") ?? this.Filter ?? new TransactionsFilterViewModel();
+            this.Filter = TempData.Get<TransactionsFilterViewModel>("filter") ?? this.Filter;
             LoadTransactions();
+        }
+
+        public IActionResult OnPost()
+        {
+            TempData.Set("filter", Filter);
+            TempData.Set("pager", Pager);
+            return RedirectToPage();
         }
 
         public IActionResult OnPostDeleteAll()
@@ -73,13 +84,6 @@ namespace ExpenseTracker.Web.Pages.Transactions
             return OnPost();
         }
 
-        public IActionResult OnPost()
-        {
-            TempData.Set("filter", Filter);
-            TempData.Set("pager", Pager);
-            return RedirectToPage();
-        }
-
         public IActionResult OnPostUpdateAll()
         {
             foreach (var t in TransactionsList.Transactions)
@@ -98,16 +102,15 @@ namespace ExpenseTracker.Web.Pages.Transactions
 
         private void LoadTransactions()
         {
-            var filterRes = transactionsFilterService.GetFilteredTransactions(Filter.ToFilterParams());
+            var filterRes = transactionsFilterService.GetFilteredTransactions(Filter.ToFilterParams(this.PageIndex, this.Pager.PageSize));
 
             TransactionsList.Transactions = filterRes.Items.Select(t => new TransactionModel(t)).ToList();
 
             Filter.Apply(filterRes);
 
-            Pager = new PagerModel();
-            Pager.CurrentPage = filterRes.PageIndex;
-            Pager.PageSize = Filter.PageSize;
-            Pager.PageCount = filterRes.PagesCount;
+            this.Pager.CurrentPageIndex = this.PageIndex;
+            this.Pager.PageCount = filterRes.PagesCount;
+            
         }
     }
 }
