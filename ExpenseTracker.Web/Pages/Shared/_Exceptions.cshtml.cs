@@ -1,7 +1,4 @@
 using ExpenseTracker.Integrations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ExpenseTracker.Web.Pages.Shared
 {

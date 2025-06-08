@@ -29,7 +29,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
             };
         }
 
-        [BindProperty(SupportsGet = true)]
+        [BindProperty]
         public TransactionsFilterViewModel Filter { get; set; }
 
         [BindProperty]
@@ -46,7 +46,7 @@ namespace ExpenseTracker.Web.Pages.Transactions
         public void OnGet(TransactionsFilterViewModel filter, PagerModel pager)
         {
             this.Pager = TempData.Get<PagerModel>("pager") ?? this.Pager;
-            this.Filter = TempData.Get<TransactionsFilterViewModel>("filter") ?? this.Filter;
+            this.Filter = TempData.Get<TransactionsFilterViewModel>("filter") ?? this.Filter ?? new TransactionsFilterViewModel();
             LoadTransactions();
         }
 

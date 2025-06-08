@@ -26,6 +26,19 @@
         border-radius: 3px;
         font-family: monospace;
     }
+    
+    /* For the More/Less toggle */
+    [aria-expanded="false"] .when-expanded {
+        display: none;
+    }
+    
+    [aria-expanded="true"] .when-collapsed {
+        display: none;
+    }
+    
+    [aria-expanded="true"] .when-expanded {
+        display: inline;
+    }
 </style>
 
 <input type="hidden" asp-for="HideSorting" />
@@ -52,23 +65,54 @@
         <label asp-for="Search">Search</label>
         <input type="text" asp-for="Search" placeholder="Search" />
     </form-group>
-    <form-group inline="false">
-        <label asp-for="SelectedSources">Source</label>
-        <select multiple="multiple" asp-for="SelectedSources" asp-items="Model.Sources"></select>
-    </form-group>
-    <form-group inline="false">
-        <label asp-for="CategoryExpression">Category Expression</label>
-        <input type="text" asp-for="CategoryExpression" placeholder="e.g., (needs && (food || car)) && (wants && (clothes || travel))" />
-        <partial name="_CategoryExpressionHelp" />
-    </form-group>
-    
-    @if (Model.CategoriesDropDownModel.Count > 0)
+
+    @if (Model.Sources.Any() || Model.CategoriesDropDownModel.Any())
     {
-        <form-group inline="false">
-            <label asp-for="SelectedCategories">Categories</label>
-            <select multiple="multiple" asp-for="SelectedCategories" asp-items="Model.CategoriesDropDownModel"></select>
-        </form-group>
+            <a class="btn btn-link p-1" data-toggle="collapse" href="#advancedFilterCollapse" role="button" aria-expanded="false" aria-controls="advancedFilterCollapse">
+                <span class="when-collapsed">More</span>
+                <span class="when-expanded">Less</span>
+            </a>
     }
+    <div class="collapse" id="advancedFilterCollapse">
+        @if (Model.Sources.Any())
+        {
+            <form-group inline="false">
+                <label asp-for="SelectedSources">Sources</label>
+                <select multiple="multiple" asp-for="SelectedSources" asp-items="Model.Sources"></select>
+            </form-group>
+        }
+
+        @if (Model.CategoriesDropDownModel.Count > 0)
+        {
+            <form-group inline="false">
+                <label asp-for="SelectedCategories">Categories</label>
+                <select multiple="multiple" asp-for="SelectedCategories" asp-items="Model.CategoriesDropDownModel"></select>
+            </form-group>
+
+            <form-group inline="false">
+                <label asp-for="CategoryExpression">Category Expression</label>
+                <input type="text" asp-for="CategoryExpression" placeholder="e.g., (needs && (food || car)) && (wants && (clothes || travel))" />
+                <p>
+                    <a class="btn btn-link text-muted p-0" data-toggle="collapse" href="#categoryExpressionHelp" aria-expanded="false" aria-controls="categoryExpressionHelp" style="font-size: 0.75rem;">
+                        How to build category expressions
+                    </a>
+                </p>
+                <div class="collapse" id="categoryExpressionHelp">
+                    <div class="card card-body bg-light">                
+                        <h5>Build complex category filters using expressions:</h5>
+                        <ul class="pl-3 text-left">
+                            <li style="text-align: left !important; display: list-item;">Use category names directly: <code>food</code>, <code>car</code>, etc.</li>
+                            <li style="text-align: left !important; display: list-item;">Combine with AND: <code>&&</code> (e.g., <code>food && car</code>)</li>
+                            <li style="text-align: left !important; display: list-item;">Combine with OR: <code>||</code> (e.g., <code>food || car</code>)</li>
+                            <li style="text-align: left !important; display: list-item;">Group with parentheses: <code>(food || car) && needs</code></li>
+                            <li style="text-align: left !important; display: list-item;">Negate with exclamation: <code>!food</code> (transactions without food category)</li>
+                        </ul>
+                        <p class="mb-0"><small>Example: <code>(needs && (food || car)) && !(wants && travel)</code></small></p>
+                    </div>
+                </div>
+            </form-group>
+        }
+    </div>
 
     <button type="submit" class="btn btn-sm btn-primary"> Apply </button>
 
