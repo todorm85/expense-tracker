@@ -21,12 +21,19 @@ public class ItemsFilterService<TItem, TResult, TParams>
     {
         filterParams = filterParams ?? new TParams();
         var totalCount = repository.Count(filterParams.Filter);
-        var items = repository.GetAll(filter: filterParams.Filter, skip: filterParams.PageIndex * filterParams.PageSize, limit: filterParams.PageSize);
 
         var result = new TResult();
-        result.Items = items;
         var pagesCount = (int)Math.Ceiling(totalCount / (double)filterParams.PageSize);
         result.PagesCount = pagesCount;
+        if (filterParams.PageIndex >= pagesCount)
+        {
+            filterParams.PageIndex = pagesCount - 1;
+            result.PageIndex = filterParams.PageIndex;
+        }
+
+        var items = repository.GetAll(filter: filterParams.Filter, skip: filterParams.PageIndex * filterParams.PageSize, limit: filterParams.PageSize, orderBy: filterParams.OrderBy, ascending: !filterParams.Descending);
+        result.Items = items;
+        
         return result;
     }
 }

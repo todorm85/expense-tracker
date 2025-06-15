@@ -59,12 +59,12 @@
             <label asp-for="SortBy">Sort</label>
             <select asp-for="SortBy" asp-items="@Html.GetEnumSelectList<SortOptions>()"></select>
         </form-group>
-    }   
 
-    <form-group>
-        <label asp-for="Search">Search</label>
-        <input type="text" asp-for="Search" placeholder="Search" />
-    </form-group>
+        <div class="form-check form-check-inline">
+            <input type="checkbox" asp-for="Asc" class="form-check-input"/>
+            <label asp-for="Asc" class="form-check-label">Asc</label>
+        </div>
+    }    
 
     @if (Model.Sources.Any() || Model.CategoriesDropDownModel.Any())
     {
@@ -74,6 +74,12 @@
             </a>
     }
     <div class="collapse" id="advancedFilterCollapse">
+        
+        <form-group inline="false">
+            <label asp-for="Search">Search</label>
+            <input type="text" asp-for="Search" placeholder="Search" />
+        </form-group>
+
         @if (Model.Sources.Any())
         {
             <form-group inline="false">
@@ -113,8 +119,9 @@
             </form-group>
         }
     </div>
-
-    <button type="submit" class="btn btn-sm btn-primary"> Apply </button>
+<form-group inline="false">
+    <button type="submit" asp-page-handler="FilterTransactions" class="btn btn-sm btn-primary"> Apply </button>
+</form-group>
 
 </div>
 

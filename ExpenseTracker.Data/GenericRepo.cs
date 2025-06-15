@@ -35,14 +35,24 @@ namespace ExpenseTracker.Data
                 return this.GetAll(predicate).Count();
             else
                 return this.context.Count();
-        }
-
-        // The only thing needed to optimize for local db is filtering in order to protect against serialization of all db entries, everything else like ordering and skip and take should be done in memmory
-        public virtual IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate = null, int skip = 0, int limit = int.MaxValue)
+        }        // The only thing needed to optimize for local db is filtering in order to protect against serialization of all db entries, everything else like ordering and skip and take should be done in memmory
+        public virtual IEnumerable<T> GetAll(
+            Expression<Func<T, bool>> predicate = null, 
+            int skip = 0, 
+            int limit = int.MaxValue,
+            Expression<Func<T, object>> orderBy = null,
+            bool ascending = true)
         {
             if (predicate == null)
             {
-                return this.context.Find(Query.All(), skip, limit);
+                var results = this.context.Find(Query.All(), skip, limit);
+                if (orderBy != null)
+                {
+                    results = ascending ? 
+                        results.AsQueryable().OrderBy(orderBy.Compile()).ToList() : 
+                        results.AsQueryable().OrderByDescending(orderBy.Compile()).ToList();
+                }
+                return results;
             }
 
             try
@@ -52,19 +62,35 @@ namespace ExpenseTracker.Data
 
                 // not best but does the job, most used predicate is not supported by LiteDB
                 // no use trying those requests first only to throw exception and retry like this
-                return FilterInMemory(predicate, skip, limit);
+                return FilterInMemory(predicate, skip, limit, orderBy, ascending);
             }
             catch (NotSupportedException)
             {
-                return FilterInMemory(predicate, skip, limit);
+                return FilterInMemory(predicate, skip, limit, orderBy, ascending);
             }
 
-            IEnumerable<T> FilterInMemory(Expression<Func<T, bool>> predicate, int skip, int limit)
+            IEnumerable<T> FilterInMemory(
+                Expression<Func<T, bool>> predicate, 
+                int skip, 
+                int limit,
+                Expression<Func<T, object>> orderBy = null,
+                bool ascending = true)
             {
                 var all = this.context.FindAll();
                 var filteredResult = all.Where(predicate.Compile());
-                if ((skip == 0 && limit != int.MaxValue) || limit != int.MaxValue)
+                
+                // Apply ordering if specified
+                if (orderBy != null)
+                {
+                    filteredResult = ascending ? 
+                        filteredResult.OrderBy(orderBy.Compile()) : 
+                        filteredResult.OrderByDescending(orderBy.Compile());
+                }
+                
+                // Apply pagination
+                if ((skip > 0) || (limit != int.MaxValue))
                     filteredResult = filteredResult.Skip(skip).Take(limit);
+                
                 return filteredResult;
             }
         }

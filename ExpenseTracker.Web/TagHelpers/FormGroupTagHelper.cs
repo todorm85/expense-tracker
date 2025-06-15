@@ -26,7 +26,7 @@ namespace ExpenseTracker.Web.TagHelpers
             output.Attributes.SetAttribute("class", classes);
 
             // Add classes to child elements
-            string labelClasses = "'mb-0', 'mr-1'";
+            string labelClasses = "'mr-1'";
             string inputClasses = "'form-control', 'form-control-sm'";
 
             if (Inline)

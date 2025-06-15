@@ -25,6 +25,7 @@ namespace ExpenseTracker.Web.Pages.Shared
         public bool HideSorting { get; set; }
         public string Search { get; set; } = string.Empty;
         public SortOptions SortBy { get; set; }
+        public bool Asc { get; set; }
         public string CategoryExpression { get; set; } = string.Empty;
         public List<string> SelectedCategories { get; set; } = new List<string>();
         public List<SelectListItem> CategoriesDropDownModel { get; set; } = new List<SelectListItem>();
@@ -43,6 +44,7 @@ namespace ExpenseTracker.Web.Pages.Shared
                 Search = vm.Search,
                 CategoryExpression = vm.CategoryExpression,
                 SortOptions = vm.SortBy,
+                Descending = !vm.Asc,
                 SelectedSources = vm.SelectedSources,
                 SelectedCategories = vm.SelectedCategories,
                 PageIndex = pageIndex,

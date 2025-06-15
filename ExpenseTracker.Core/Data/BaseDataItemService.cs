@@ -16,11 +16,14 @@ namespace ExpenseTracker.Core.Data
         public int Count(Expression<Func<T, bool>> expression = null)
         {
             return this.repo.Count(expression);
-        }
-
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate = null, int skip = 0, int limit = int.MaxValue)
+        }        public IEnumerable<T> GetAll(
+            Expression<Func<T, bool>> predicate = null, 
+            int skip = 0, 
+            int limit = int.MaxValue,
+            Expression<Func<T, object>> orderBy = null,
+            bool ascending = true)
         {
-            return this.repo.GetAll(predicate, skip, limit);
+            return this.repo.GetAll(predicate, skip, limit, orderBy, ascending);
         }
 
         public virtual T GetById(object id)

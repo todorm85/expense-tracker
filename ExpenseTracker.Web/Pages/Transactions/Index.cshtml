@@ -11,13 +11,13 @@
         @if (Model.TransactionsList.Transactions.Count > 0)
         {
             <partial name="_TransactionsList" for="TransactionsList" />
-
+            
             <div class="text-right my-3">
                 <button type="submit" asp-page-handler="DeleteAll" class="btn-danger">Delete All (all pages)</button>
                 <button type="submit" asp-page-handler="ProcessUncategorized">Process uncategorized</button>
                 <button type="submit" asp-page-handler="UpdateAll" class="btn-success">Update All</button>
             </div>
-
+            
             <partial name="_Pager" for="Pager" />
         }
         

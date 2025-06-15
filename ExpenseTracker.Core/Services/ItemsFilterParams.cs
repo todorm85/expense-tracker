@@ -7,7 +7,11 @@ public class ItemsFilterParams<TItem> where TItem : class
 {
     public Expression<Func<TItem, bool>> Filter { get; set; }
 
+    public Expression<Func<TItem, object>> OrderBy { get; set; }
+
     public int PageSize { get; set; }
 
     public int PageIndex { get; set; }
+
+    public bool Descending { get; set; }
 }

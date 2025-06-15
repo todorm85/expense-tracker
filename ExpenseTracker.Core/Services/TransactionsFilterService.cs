@@ -16,8 +16,6 @@ public class TransactionsFilterService : ItemsFilterService<Transaction, Transac
 
     private TransactionsFilterParams _filterParams = new TransactionsFilterParams();
 
-    private CategoryExpression _parsedCategoryExpression;
-
     public TransactionsFilterService(IReadRepository<Transaction> repository) : base(repository)
     {
     }
@@ -26,9 +24,11 @@ public class TransactionsFilterService : ItemsFilterService<Transaction, Transac
     {
         // TODO: cache categories and sources if slow, but unlikely for use cases
         this._filterParams = filterParams ?? new TransactionsFilterParams();
-        var byDateBySearch = repository.GetAll(GetFilterQuery(FilterBy.Date | FilterBy.Search));
-        var filteredBySource = byDateBySearch.AsQueryable().Where(GetFilterQuery(FilterBy.Source)).ToList();
+        filterParams.Build(FilterBy.Date | FilterBy.Search);
+        var byDateBySearch = repository.GetAll(filterParams.Filter);
         var latestSources = byDateBySearch.Select(x => x.Source).OrderBy(x => x).Distinct().ToList();
+        filterParams.Build(FilterBy.Source);
+        var filteredBySource = byDateBySearch.AsQueryable().Where(filterParams.Filter).ToList();
 
         List<string> latestCategories = filteredBySource
             .SelectMany(x => string.IsNullOrWhiteSpace(x.Category) ? [string.Empty] : x.Category.Split(' ', StringSplitOptions.RemoveEmptyEntries))
@@ -38,7 +38,7 @@ public class TransactionsFilterService : ItemsFilterService<Transaction, Transac
 
         SetUncategorizedValue(latestCategories);
 
-        filterParams.Filter = GetFilterQuery();
+        filterParams.Build();
         var result = base.GetFilteredItems(filterParams);
         result.AvailableCategories = latestCategories;
         result.AvailableSources = latestSources;
@@ -55,75 +55,7 @@ public class TransactionsFilterService : ItemsFilterService<Transaction, Transac
             latestCategories[uncategorizedIndex] = TransactionsFilterParams.UncategorizedOptionValue;
     }
 
-    private Expression<Func<Transaction, bool>> GetFilterQuery(FilterBy flags = FilterBy.Date | FilterBy.Category | FilterBy.Search | FilterBy.Source)
-    {
-        return x => ApplyDateFilter(x, flags) &&
-                ApplyCategoriesFilter(x, flags) &&
-                ApplySearchFilter(x, flags) &&
-                ApplySourceFilter(x, flags);
-    }
-
-    private bool ApplySourceFilter(Transaction x, FilterBy flags)
-    {
-        if (!flags.HasFlag(FilterBy.Source) || _filterParams.SelectedSources.Count == 0)
-            return true;
-
-        return _filterParams.SelectedSources.Contains(x.Source);
-    }
-
-    private bool ApplyCategoriesFilter(Transaction x, FilterBy flags)
-    {
-        if (!flags.HasFlag(FilterBy.Category))
-            return true;
-        
-         var itemCategories = x.Category?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
-
-        // First, check if we have a category expression to evaluate
-        if (!string.IsNullOrWhiteSpace(_filterParams.CategoryExpression))
-        {
-            if (_parsedCategoryExpression == null)
-                _parsedCategoryExpression = new CategoryExpression(_filterParams.CategoryExpression);
-
-            return _parsedCategoryExpression.Evaluate(itemCategories);
-        }
-
-        // Fall back to the traditional category selection logic
-        if (_filterParams.SelectedCategories.Count > 0)
-        {
-            if (_filterParams.SelectedCategories.Contains(TransactionsFilterParams.UncategorizedOptionValue) && string.IsNullOrWhiteSpace(x.Category))
-                return true;
-
-            if (_filterParams.SelectedCategories.Any(itemCategories.Contains))
-                return true;
-
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-
-    private bool ApplyDateFilter(Transaction x, FilterBy flags)
-    {
-        if (!flags.HasFlag(FilterBy.Date))
-            return true;
-        var startDate = _filterParams.DateFrom.ToDayStart();
-        var endDate = _filterParams.DateTo.AddDays(1).ToDayStart();
-        return x.Date >= startDate && x.Date < endDate;
-    }
-
-    private bool ApplySearchFilter(Transaction x, FilterBy flags)
-    {
-        if (!flags.HasFlag(FilterBy.Search))
-            return true;
-        if (!string.IsNullOrWhiteSpace(_filterParams.Search) && x != null && x.Details != null)
-        {
-            return x.Details.ToLowerInvariant().Contains(_filterParams.Search.ToLowerInvariant());
-        }
-
-        return true;
-    }
+    
 
     
 }
